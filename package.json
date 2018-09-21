@@ -1,0 +1,48 @@
+{
+  "name": "ksi-js-api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/main.js",
+  "scripts": {
+    "test": "jest",
+    "build": "webpack"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.jest.json"
+      }
+    },
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.m?js$": "babel-jest"
+    },
+    "testRegex": "(/test/.*|(\\.|/)(test|spec))\\.(tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json",
+      "tsx",
+      "jsx",
+      "node",
+      "mjs"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(gt-js-common/lib))"
+    ]
+  },
+  "devDependencies": {
+    "big-integer": "^1.6.36",
+    "gt-js-common": "git@github.com:guardtime/gt-js-common.git#typescript",
+    "jest": "^23.6.0",
+    "@types/jest": "^23.3.2",
+    "ts-jest": "^23.1.4",
+    "babel-jest": "^23.6.0",
+    "babel-preset-env": "^1.7.0",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0",
+    "typescript": "^3.0.3",
+    "ts-loader": "^5.1.1",
+    "tslint": "5.11.0"
+  }
+}
