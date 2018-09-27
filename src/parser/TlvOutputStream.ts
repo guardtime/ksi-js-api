@@ -18,29 +18,30 @@ export default class TlvOutputStream {
             throw new TlvError("Could not write TlvTag: Type is larger than max type");
         }
 
-        if (tlvTag.valueBytes.length > 0xFFFF) {
+        const valueBytes = tlvTag.getValueBytes();
+        if (valueBytes.length > 0xFFFF) {
             throw new TlvError("Could not write TlvTag: Data length is too large");
         }
 
-        const tlv16BitFlag = tlvTag.type > TlvStreamConstants.TypeMask || tlvTag.valueBytes.length > 0XFF;
-        let firstByte = ((tlv16BitFlag || TlvStreamConstants.Tlv16BitFlagBit) as number)
-            + ((tlvTag.nonCriticalFlag || TlvStreamConstants.NonCriticalFlagBit) as number)
-            + ((tlvTag.forwardFlag || TlvStreamConstants.ForwardFlagBit) as number);
+        const tlv16BitFlag = tlvTag.type > TlvStreamConstants.TypeMask || valueBytes.length > 0XFF;
+        let firstByte = ((tlv16BitFlag && TlvStreamConstants.Tlv16BitFlagBit) as number)
+            + ((tlvTag.nonCriticalFlag && TlvStreamConstants.NonCriticalFlagBit) as number)
+            + ((tlvTag.forwardFlag && TlvStreamConstants.ForwardFlagBit) as number);
 
         if (tlv16BitFlag) {
             firstByte |= (tlvTag.type >> 8) & TlvStreamConstants.TypeMask;
             this.write(new Uint8Array([
                 firstByte & 0xFF,
                 tlvTag.type & 0xFF,
-                (tlvTag.valueBytes.length >> 8) & 0xFF,
-                tlvTag.valueBytes.length & 0xFF,
+                (valueBytes.length >> 8) & 0xFF,
+                valueBytes.length & 0xFF,
             ]));
         } else {
             firstByte |= (tlvTag.type & TlvStreamConstants.TypeMask);
-            this.write(new Uint8Array([firstByte, tlvTag.valueBytes.length & 0xFF]));
+            this.write(new Uint8Array([firstByte, valueBytes.length & 0xFF]));
         }
 
-        this.write(tlvTag.valueBytes);
+        this.write(valueBytes);
     }
 
     private write(data: Uint8Array) {

@@ -8,20 +8,25 @@ export default class StringTag extends TlvTag {
         return new StringTag(new TlvTag(type, nonCriticalFlag, forwardFlag, ASCIIConverter.ToBytes(`${value}\0`)));
     }
 
-    public value: string;
+    private value: string;
 
     constructor(tlvTag: TlvTag) {
-        if (tlvTag.valueBytes.length < 2) {
-            throw new TlvError(`Invalid null terminated string length: ${tlvTag.valueBytes.length}`);
+        const valueBytes = tlvTag.getValueBytes();
+        if (valueBytes.length < 2) {
+            throw new TlvError(`Invalid null terminated string length: ${valueBytes.length}`);
         }
 
-        if (tlvTag.valueBytes[tlvTag.valueBytes.length - 1] !== 0) {
+        if (valueBytes[valueBytes.length - 1] !== 0) {
             throw new TlvError("String must be null terminated");
         }
 
-        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.valueBytes);
-        this.value = ASCIIConverter.ToString(tlvTag.valueBytes.slice(0, tlvTag.valueBytes.length - 1));
+        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes);
+        this.value = ASCIIConverter.ToString(valueBytes.slice(0, valueBytes.length - 1));
         Object.freeze(this);
+    }
+
+    public getValue() {
+        return this.value;
     }
 
     public toString() {

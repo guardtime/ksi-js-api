@@ -1,5 +1,4 @@
 import {HexCoder} from "gt-js-common";
-import TlvError from "./TlvError";
 import TlvTag from "./TlvTag";
 
 export default class RawTag extends TlvTag {
@@ -8,11 +7,11 @@ export default class RawTag extends TlvTag {
         return new RawTag(new TlvTag(type, nonCriticalFlag, forwardFlag, value));
     }
 
-    public value: Uint8Array;
+    public getValue: () => Uint8Array;
 
     constructor(tlvTag: TlvTag) {
-        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.valueBytes);
-        this.value = new Uint8Array(tlvTag.valueBytes);
+        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
+        this.getValue = () => tlvTag.getValueBytes();
         Object.freeze(this);
     }
 
@@ -28,7 +27,7 @@ export default class RawTag extends TlvTag {
 
         result += "]:";
 
-        result += HexCoder.encode(this.value);
+        result += HexCoder.encode(this.getValue());
         return result;
     }
 }

@@ -33,7 +33,8 @@
   },
   "devDependencies": {
     "big-integer": "^1.6.36",
-    "gt-js-common": "git@github.com:guardtime/gt-js-common.git#typescript",
+    "node-forge": "^0.7.6",
+    "gt-js-common": "git@github.com:guardtime/gt-js-common.git#typescript-test",
     "jest": "^23.6.0",
     "@types/jest": "^23.3.2",
     "ts-jest": "^23.1.4",
