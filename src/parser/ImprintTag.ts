@@ -11,8 +11,9 @@ export default class ImprintTag extends TlvTag {
     public value: DataHash;
 
     constructor(tlvTag: TlvTag) {
-        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.valueBytes);
-        this.value = new DataHash(tlvTag.valueBytes);
+        const valueBytes = tlvTag.getValueBytes();
+        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes);
+        this.value = new DataHash(valueBytes);
         Object.freeze(this);
     }
 

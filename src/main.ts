@@ -1,3 +1,1 @@
-export * from "./parser/TlvInputStream";
-export * from "./parser/TlvOutputStream";
-export * from "./parser/ImprintTag";
+export {default as IntegerTag} from "./parser/IntegerTag";

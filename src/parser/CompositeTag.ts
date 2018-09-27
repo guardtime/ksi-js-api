@@ -23,7 +23,7 @@ export default abstract class CompositeTag extends TlvTag {
     private readonly tlvCount: ITlvCount;
 
     constructor(tlvTag: TlvTag) {
-        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.valueBytes);
+        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
         this.value = [];
     }
 
@@ -50,7 +50,8 @@ export default abstract class CompositeTag extends TlvTag {
     }
 
     protected decodeValue(createElement: (tlvTag: TlvTag) => TlvTag) {
-        const stream = new TlvInputStream(this.valueBytes);
+        const valueBytes = this.getValueBytes();
+        const stream = new TlvInputStream(valueBytes);
         let tlvTag: TlvTag | undefined;
         try {
             while (stream.getPosition() < stream.getLength()) {
