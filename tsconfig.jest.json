@@ -3,7 +3,8 @@
     "module": "commonjs",
     "target": "es5",
     "allowJs": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   },
   "extends": "./tsconfig"
 }

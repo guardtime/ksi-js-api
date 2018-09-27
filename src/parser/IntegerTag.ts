@@ -1,4 +1,4 @@
-import * as BigInteger from "big-integer";
+import BigInteger from "big-integer";
 import {UnsignedLongCoder} from "gt-js-common";
 import TlvTag from "./TlvTag";
 

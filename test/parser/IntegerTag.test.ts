@@ -1,4 +1,4 @@
-import * as BigInteger from "big-integer";
+import BigInteger from "big-integer";
 import IntegerTag from "../../src/parser/IntegerTag";
 import TlvTag from "../../src/parser/TlvTag";
 
@@ -17,7 +17,7 @@ describe("IntegerTag", () => {
         expect(objectTag.type).toEqual(0x1);
         expect(objectTag.nonCriticalFlag).toBeTruthy();
         expect(objectTag.forwardFlag).toBeTruthy();
-        expect(objectTag.getValue()).toEqual(25);
+        expect(objectTag.getValue()).toEqual(BigInteger(25000));
     });
 
     it("toString output", () => {

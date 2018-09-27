@@ -35,11 +35,12 @@
   "devDependencies": {
     "big-integer": "^1.6.36",
     "node-forge": "^0.7.6",
-    "gt-js-common": "git@github.com:guardtime/gt-js-common.git#typescript-test",
+    "gt-js-common": "git@github.com:guardtime/gt-js-common.git#typescript",
     "jest": "^23.6.0",
     "@types/jest": "^23.3.2",
     "ts-jest": "^23.1.4",
     "babel-jest": "^23.6.0",
+    "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "webpack": "^4.17.2",
     "webpack-cli": "^3.1.0",
