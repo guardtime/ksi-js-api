@@ -1,14 +1,13 @@
 import {DataHash} from "gt-js-common";
-import TlvError from "./TlvError";
 import TlvTag from "./TlvTag";
 
 export default class ImprintTag extends TlvTag {
 
-    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: DataHash) {
+    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: DataHash): ImprintTag {
         return new ImprintTag(new TlvTag(type, nonCriticalFlag, forwardFlag, value.imprint));
     }
 
-    public value: DataHash;
+    private readonly value: DataHash;
 
     constructor(tlvTag: TlvTag) {
         const valueBytes = tlvTag.getValueBytes();
@@ -17,7 +16,11 @@ export default class ImprintTag extends TlvTag {
         Object.freeze(this);
     }
 
-    public toString() {
+    public getValue(): DataHash {
+        return this.value;
+    }
+
+    public toString(): string {
         let result = `TLV[0x${this.type.toString(16)}`;
         if (this.nonCriticalFlag) {
             result += ",N";

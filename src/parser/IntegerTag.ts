@@ -4,12 +4,12 @@ import TlvTag from "./TlvTag";
 
 export default class IntegerTag extends TlvTag {
 
-    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: number) {
+    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: number): IntegerTag {
         return new IntegerTag(
             new TlvTag(type, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(BigInteger(value))));
     }
 
-    public value: BigInteger.BigInteger;
+    private readonly value: BigInteger.BigInteger;
 
     constructor(tlvTag: TlvTag) {
         const bytes = tlvTag.getValueBytes();
@@ -22,7 +22,7 @@ export default class IntegerTag extends TlvTag {
         return this.value;
     }
 
-    public toString() {
+    public toString(): string {
         let result = `TLV[0x${this.type.toString(16)}`;
         if (this.nonCriticalFlag) {
             result += ",N";

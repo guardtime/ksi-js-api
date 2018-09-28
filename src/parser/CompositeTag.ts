@@ -1,5 +1,4 @@
 import {tabPrefix} from "gt-js-common";
-import TlvError from "./TlvError";
 import TlvInputStream from "./TlvInputStream";
 import TlvOutputStream from "./TlvOutputStream";
 import TlvTag from "./TlvTag";
@@ -9,8 +8,8 @@ interface ITlvCount {
 }
 
 export default abstract class CompositeTag extends TlvTag {
-
-    protected static createTlvTag(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: TlvTag[]) {
+    protected static createTlvTag(type: number, nonCriticalFlag: boolean, forwardFlag: boolean,
+                                  value: TlvTag[]): TlvTag {
         const stream = new TlvOutputStream();
         for (const tlvTag of value) {
             stream.writeTag(tlvTag);
@@ -22,12 +21,12 @@ export default abstract class CompositeTag extends TlvTag {
     public value: TlvTag[];
     private readonly tlvCount: ITlvCount;
 
-    constructor(tlvTag: TlvTag) {
+    protected constructor(tlvTag: TlvTag) {
         super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
         this.value = [];
     }
 
-    public toString() {
+    public toString(): string {
         let result = `TLV[0x${this.type.toString(16)}`;
         if (this.nonCriticalFlag) {
             result += ",N";
@@ -49,7 +48,7 @@ export default abstract class CompositeTag extends TlvTag {
         return result;
     }
 
-    protected decodeValue(createElement: (tlvTag: TlvTag) => TlvTag) {
+    protected decodeValue(createElement: (tlvTag: TlvTag) => TlvTag): void {
         const valueBytes = this.getValueBytes();
         const stream = new TlvInputStream(valueBytes);
         let tlvTag: TlvTag | undefined;

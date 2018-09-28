@@ -13,11 +13,11 @@ export default class TlvInputStream {
         this.length = bytes.length;
     }
 
-    public getPosition() {
+    public getPosition(): number {
         return this.position;
     }
 
-    public getLength() {
+    public getLength(): number {
         return this.length;
     }
 

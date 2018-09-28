@@ -3,7 +3,7 @@ import TlvTag from "./TlvTag";
 
 export default class RawTag extends TlvTag {
 
-    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: Uint8Array) {
+    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: Uint8Array): RawTag {
         return new RawTag(new TlvTag(type, nonCriticalFlag, forwardFlag, value));
     }
 
@@ -15,7 +15,7 @@ export default class RawTag extends TlvTag {
         Object.freeze(this);
     }
 
-    public toString() {
+    public toString(): string {
         let result = `TLV[0x${this.type.toString(16)}`;
         if (this.nonCriticalFlag) {
             result += ",N";

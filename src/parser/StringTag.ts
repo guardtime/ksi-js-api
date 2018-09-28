@@ -4,11 +4,11 @@ import TlvTag from "./TlvTag";
 
 export default class StringTag extends TlvTag {
 
-    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: string) {
+    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: string): StringTag {
         return new StringTag(new TlvTag(type, nonCriticalFlag, forwardFlag, ASCIIConverter.ToBytes(`${value}\0`)));
     }
 
-    private value: string;
+    private readonly value: string;
 
     constructor(tlvTag: TlvTag) {
         const valueBytes = tlvTag.getValueBytes();
@@ -25,11 +25,11 @@ export default class StringTag extends TlvTag {
         Object.freeze(this);
     }
 
-    public getValue() {
+    public getValue(): string {
         return this.value;
     }
 
-    public toString() {
+    public toString(): string {
         let result = `TLV[0x${this.type.toString(16)}`;
         if (this.nonCriticalFlag) {
             result += ",N";

@@ -13,7 +13,7 @@ export default class TlvOutputStream {
         return new Uint8Array(this.data);
     }
 
-    public writeTag(tlvTag: TlvTag) {
+    public writeTag(tlvTag: TlvTag): void {
         if (tlvTag.type > TlvStreamConstants.MaxType) {
             throw new TlvError("Could not write TlvTag: Type is larger than max type");
         }
@@ -44,7 +44,7 @@ export default class TlvOutputStream {
         this.write(valueBytes);
     }
 
-    private write(data: Uint8Array) {
+    private write(data: Uint8Array): void {
         const combinedData = new Uint8Array(this.data.length + data.length);
         combinedData.set(this.data);
         combinedData.set(data, this.data.length);
