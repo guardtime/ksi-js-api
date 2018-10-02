@@ -1,6 +1,11 @@
 {
-    "extends": "tslint:recommended",
-    "rules": {
-        "no-bitwise": false
-    }
+  "extends": "tslint:recommended",
+  "rules": {
+    "no-bitwise": false,
+    "variable-name": [
+      true,
+      "allow-leading-underscore",
+      "allow-pascal-case"
+    ]
+  }
 }

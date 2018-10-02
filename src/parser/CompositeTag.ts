@@ -1,21 +1,30 @@
 import {tabPrefix} from "gt-js-common";
+import TlvError from "./TlvError";
 import TlvInputStream from "./TlvInputStream";
 import TlvOutputStream from "./TlvOutputStream";
 import TlvTag from "./TlvTag";
 
-interface ITlvCount {
+export interface ITlvCount {
     [key: number]: number;
 }
 
 export default abstract class CompositeTag extends TlvTag {
-    protected static createTlvTag(type: number, nonCriticalFlag: boolean, forwardFlag: boolean,
-                                  value: TlvTag[]): TlvTag {
+    protected static createCompositeTagTlv(type: number, nonCriticalFlag: boolean, forwardFlag: boolean,
+                                           value: TlvTag[]): TlvTag {
         const stream = new TlvOutputStream();
         for (const tlvTag of value) {
             stream.writeTag(tlvTag);
         }
 
         return new TlvTag(type, nonCriticalFlag, forwardFlag, stream.getData());
+    }
+
+    protected static parseTlvTag(tlvTag: TlvTag): TlvTag {
+        if (!tlvTag.nonCriticalFlag) {
+            throw new TlvError(`Unknown TLV tag: ${tlvTag.type.toString(16)}`);
+        }
+
+        return tlvTag;
     }
 
     public value: TlvTag[];
@@ -48,27 +57,23 @@ export default abstract class CompositeTag extends TlvTag {
         return result;
     }
 
-    protected decodeValue(createElement: (tlvTag: TlvTag) => TlvTag): void {
+    protected decodeValue(create: (tlvTag: TlvTag, position: number) => TlvTag): void {
         const valueBytes = this.getValueBytes();
         const stream = new TlvInputStream(valueBytes);
-        let tlvTag: TlvTag | undefined;
-        try {
-            while (stream.getPosition() < stream.getLength()) {
-                tlvTag = stream.readTag();
-                this.value.push(createElement(tlvTag));
+        let position = 0;
+        while (stream.getPosition() < stream.getLength()) {
+            const tlvTag = create(stream.readTag(), position++);
+            this.value.push(tlvTag);
 
-                if (!this.tlvCount.hasOwnProperty(tlvTag.type)) {
-                    this.tlvCount[tlvTag.type] = 0;
-                }
-
-                this.tlvCount[tlvTag.type]++;
-            }
-        } catch (err) {
-            if (tlvTag !== undefined) {
-                err += `_0x${tlvTag.type.toString(16)}`;
+            if (!this.tlvCount.hasOwnProperty(tlvTag.type)) {
+                this.tlvCount[tlvTag.type] = 0;
             }
 
-            throw err;
+            this.tlvCount[tlvTag.type]++;
         }
+    }
+
+    protected validateValue(validate: (tlvCount: ITlvCount) => void): void {
+        validate(Object.assign({}, this.tlvCount));
     }
 }

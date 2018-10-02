@@ -5,9 +5,16 @@
     <title>Title</title>
 </head>
 <body>
-    <script src="/scripts/main.js"></script>
+    <script src="/dist/main.js"></script>
     <script>
-        console.log(KSI.IntegerTag.create(0x1, false, false, 25));
+        fetch('/ksi-publications.bin').then((response) => {
+            return response.arrayBuffer();
+        }).then((data) => {
+            const publicationFileFactory = new KSI.PublicationsFileFactory();
+            console.log(publicationFileFactory);
+            publicationFileFactory.create(new Uint8Array(data));
+        });
+
     </script>
 </body>
 </html>

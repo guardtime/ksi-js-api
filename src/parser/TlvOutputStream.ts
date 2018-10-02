@@ -44,7 +44,7 @@ export default class TlvOutputStream {
         this.write(valueBytes);
     }
 
-    private write(data: Uint8Array): void {
+    public write(data: Uint8Array): void {
         const combinedData = new Uint8Array(this.data.length + data.length);
         combinedData.set(this.data);
         combinedData.set(data, this.data.length);

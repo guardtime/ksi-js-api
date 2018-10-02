@@ -23,10 +23,10 @@ module.exports = {
         library: 'KSI'
     },
     optimization: {
-        minimize: true
+        minimize: false
     },
     devServer: {
         contentBase: './browser/',
-        publicPath: '/scripts/',
+        publicPath: '/dist/',
     },
 };
