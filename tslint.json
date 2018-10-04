@@ -1,11 +1,8 @@
 {
-  "extends": "tslint:recommended",
+  "extends": "tslint-microsoft-contrib",
   "rules": {
     "no-bitwise": false,
-    "variable-name": [
-      true,
-      "allow-leading-underscore",
-      "allow-pascal-case"
-    ]
+    "no-relative-imports": false,
+    "no-suspicious-comment": false
   }
 }

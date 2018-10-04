@@ -2000,8 +2000,8 @@ var CertificateRecord_CertificateRecord = /** @class */ (function (_super) {
     CertificateRecord_extends(CertificateRecord, _super);
     function CertificateRecord(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.create);
-        _this.validateValue(_this.validate);
+        _this.decodeValue(_this.create.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }
@@ -2362,8 +2362,8 @@ var PublicationData_PublicationData = /** @class */ (function (_super) {
     PublicationData_extends(PublicationData, _super);
     function PublicationData(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.create);
-        _this.validateValue(_this.validate);
+        _this.decodeValue(_this.create.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }
@@ -2426,8 +2426,8 @@ var PublicationRecord_PublicationRecord = /** @class */ (function (_super) {
     PublicationRecord_extends(PublicationRecord, _super);
     function PublicationRecord(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.create);
-        _this.validateValue(_this.validate);
+        _this.decodeValue(_this.create.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }
@@ -2519,8 +2519,8 @@ var PublicationsFileHeader_PublicationsFileHeader = /** @class */ (function (_su
     PublicationsFileHeader_extends(PublicationsFileHeader, _super);
     function PublicationsFileHeader(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.create);
-        _this.validateValue(_this.validate);
+        _this.decodeValue(_this.create.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }
@@ -2581,8 +2581,8 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
         _this.lastCertificateRecordIndex = 0;
         _this.firstPublicationRecordIndex = 0;
         _this.cmsSignatureIndex = 0;
-        _this.decodeValue(_this.create);
-        _this.validateValue(_this.validate);
+        _this.decodeValue(_this.create.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }

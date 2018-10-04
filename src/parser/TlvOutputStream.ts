@@ -1,8 +1,11 @@
-import {TlvStreamConstants} from "../Constants";
-import TlvError from "./TlvError";
-import TlvTag from "./TlvTag";
+import {TLV_STREAM_CONSTANTS} from 'src/Constants';
+import {TlvError} from 'src/parser/TlvError';
+import {TlvTag} from 'src/parser/TlvTag';
 
-export default class TlvOutputStream {
+/**
+ * Specialized output stream for encoding TLV data from TLVTag classes
+ */
+export class TlvOutputStream {
     private data: Uint8Array;
 
     constructor() {
@@ -14,30 +17,30 @@ export default class TlvOutputStream {
     }
 
     public writeTag(tlvTag: TlvTag): void {
-        if (tlvTag.type > TlvStreamConstants.MaxType) {
-            throw new TlvError("Could not write TlvTag: Type is larger than max type");
+        if (tlvTag.id > TLV_STREAM_CONSTANTS.MaxType) {
+            throw new TlvError('Could not write TlvTag: Type is larger than max id');
         }
 
-        const valueBytes = tlvTag.getValueBytes();
+        const valueBytes: Uint8Array = tlvTag.getValueBytes();
         if (valueBytes.length > 0xFFFF) {
-            throw new TlvError("Could not write TlvTag: Data length is too large");
+            throw new TlvError('Could not write TlvTag: Data length is too large');
         }
 
-        const tlv16BitFlag = tlvTag.type > TlvStreamConstants.TypeMask || valueBytes.length > 0XFF;
-        let firstByte = ((tlv16BitFlag && TlvStreamConstants.Tlv16BitFlagBit) as number)
-            + ((tlvTag.nonCriticalFlag && TlvStreamConstants.NonCriticalFlagBit) as number)
-            + ((tlvTag.forwardFlag && TlvStreamConstants.ForwardFlagBit) as number);
+        const tlv16BitFlag: boolean = tlvTag.id > TLV_STREAM_CONSTANTS.TypeMask || valueBytes.length > 0xFF;
+        let firstByte: number = (<number>(tlv16BitFlag && TLV_STREAM_CONSTANTS.Tlv16BitFlagBit))
+            + (<number>(tlvTag.nonCriticalFlag && TLV_STREAM_CONSTANTS.NonCriticalFlagBit))
+            + (<number>(tlvTag.forwardFlag && TLV_STREAM_CONSTANTS.ForwardFlagBit));
 
         if (tlv16BitFlag) {
-            firstByte |= (tlvTag.type >> 8) & TlvStreamConstants.TypeMask;
+            firstByte |= (tlvTag.id >> 8) & TLV_STREAM_CONSTANTS.TypeMask;
             this.write(new Uint8Array([
                 firstByte & 0xFF,
-                tlvTag.type & 0xFF,
+                tlvTag.id & 0xFF,
                 (valueBytes.length >> 8) & 0xFF,
-                valueBytes.length & 0xFF,
+                valueBytes.length & 0xFF
             ]));
         } else {
-            firstByte |= (tlvTag.type & TlvStreamConstants.TypeMask);
+            firstByte |= (tlvTag.id & TLV_STREAM_CONSTANTS.TypeMask);
             this.write(new Uint8Array([firstByte, valueBytes.length & 0xFF]));
         }
 
@@ -45,7 +48,7 @@ export default class TlvOutputStream {
     }
 
     public write(data: Uint8Array): void {
-        const combinedData = new Uint8Array(this.data.length + data.length);
+        const combinedData: Uint8Array = new Uint8Array(this.data.length + data.length);
         combinedData.set(this.data);
         combinedData.set(data, this.data.length);
         this.data = combinedData;

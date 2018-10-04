@@ -1,19 +1,22 @@
-import {DataHash} from "gt-js-common";
-import TlvTag from "./TlvTag";
+import {DataHash} from 'node_modules/gt-js-common/lib/main';
+import {TlvTag} from 'src/parser/TlvTag';
 
-export default class ImprintTag extends TlvTag {
-
-    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: DataHash): ImprintTag {
-        return new ImprintTag(new TlvTag(type, nonCriticalFlag, forwardFlag, value.imprint));
-    }
+/**
+ * DataHash TLV object
+ */
+export class ImprintTag extends TlvTag {
 
     private readonly value: DataHash;
 
     constructor(tlvTag: TlvTag) {
-        const valueBytes = tlvTag.getValueBytes();
-        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes);
+        const valueBytes: Uint8Array = tlvTag.getValueBytes();
+        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes);
         this.value = new DataHash(valueBytes);
         Object.freeze(this);
+    }
+
+    public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: DataHash): ImprintTag {
+        return new ImprintTag(new TlvTag(id, nonCriticalFlag, forwardFlag, value.imprint));
     }
 
     public getValue(): DataHash {
@@ -21,18 +24,17 @@ export default class ImprintTag extends TlvTag {
     }
 
     public toString(): string {
-        let result = `TLV[0x${this.type.toString(16)}`;
+        let result: string = `TLV[0x${this.id.toString(16)}`;
         if (this.nonCriticalFlag) {
-            result += ",N";
+            result += ',N';
         }
 
         if (this.forwardFlag) {
-            result += ",F";
+            result += ',F';
         }
 
-        result += "]:";
+        result += `]:${this.value.toString()}`;
 
-        result += this.value.toString();
         return result;
     }
 }

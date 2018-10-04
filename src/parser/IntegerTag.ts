@@ -1,21 +1,24 @@
-import BigInteger from "big-integer";
-import {UnsignedLongCoder} from "gt-js-common";
-import TlvTag from "./TlvTag";
+import BigInteger from 'node_modules/big-integer/BigInteger';
+import {UnsignedLongCoder} from 'node_modules/gt-js-common/lib/main';
+import {TlvTag} from 'src/parser/TlvTag';
 
-export default class IntegerTag extends TlvTag {
-
-    public static create(type: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: number): IntegerTag {
-        return new IntegerTag(
-            new TlvTag(type, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(BigInteger(value))));
-    }
+/**
+ * Long TLV object
+ */
+export class IntegerTag extends TlvTag {
 
     private readonly value: BigInteger.BigInteger;
 
     constructor(tlvTag: TlvTag) {
-        const bytes = tlvTag.getValueBytes();
-        super(tlvTag.type, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes);
+        const bytes: Uint8Array = tlvTag.getValueBytes();
+        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes);
         this.value = UnsignedLongCoder.decode(bytes, 0, bytes.length);
         Object.freeze(this);
+    }
+
+    public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: number): IntegerTag {
+        return new IntegerTag(
+            new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(BigInteger(value))));
     }
 
     public getValue(): BigInteger.BigInteger {
@@ -23,18 +26,17 @@ export default class IntegerTag extends TlvTag {
     }
 
     public toString(): string {
-        let result = `TLV[0x${this.type.toString(16)}`;
+        let result: string = `TLV[0x${this.id.toString(16)}`;
         if (this.nonCriticalFlag) {
-            result += ",N";
+            result += ',N';
         }
 
         if (this.forwardFlag) {
-            result += ",F";
+            result += ',F';
         }
 
-        result += "]:";
+        result += `]:i${this.value}`;
 
-        result += `i${this.value}`;
         return result;
     }
 }

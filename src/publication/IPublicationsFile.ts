@@ -1,7 +1,10 @@
-import CertificateRecord from "./CertificateRecord";
-import PublicationRecord from "./PublicationRecord";
+import {CertificateRecord} from 'src/publication/CertificateRecord';
+import {PublicationRecord} from 'src/publication/PublicationRecord';
 
-export default interface IPublicationsFile {
+/**
+ * Publications File interface for functionality
+ */
+export interface IPublicationsFile {
     getNearestPublicationRecord(unixTime: number): PublicationRecord | null;
     getLatestPublication(): PublicationRecord | null;
     findCertificateById(certificateId: Uint8Array): CertificateRecord | null;

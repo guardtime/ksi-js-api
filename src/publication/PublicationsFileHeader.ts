@@ -1,12 +1,12 @@
-import {PublicationsFileHeaderConstants} from "../Constants";
-import {ITlvCount} from "../parser/CompositeTag";
-import CompositeTag from "../parser/CompositeTag";
-import IntegerTag from "../parser/IntegerTag";
-import StringTag from "../parser/StringTag";
-import TlvError from "../parser/TlvError";
-import TlvTag from "../parser/TlvTag";
+import {PUBLICATIONS_FILE_HEADER_CONSTANTS} from '../Constants';
+import {ITlvCount} from 'src/parser/CompositeTag';
+import {CompositeTag} from 'src/parser/CompositeTag';
+import {IntegerTag} from 'src/parser/IntegerTag';
+import {StringTag} from 'src/parser/StringTag';
+import {TlvError} from 'src/parser/TlvError';
+import {TlvTag} from 'src/parser/TlvTag';
 
-export default class PublicationsFileHeader extends CompositeTag {
+export class PublicationsFileHeader extends CompositeTag {
 
     private version: IntegerTag;
     private creationTime: IntegerTag;
@@ -15,35 +15,35 @@ export default class PublicationsFileHeader extends CompositeTag {
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
 
-        this.decodeValue(this.create);
-        this.validateValue(this.validate);
+        this.decodeValue(this.create.bind(this));
+        this.validateValue(this.validate.bind(this));
         Object.freeze(this);
     }
 
     private create(tlvTag: TlvTag): TlvTag {
-        switch (tlvTag.type) {
-            case PublicationsFileHeaderConstants.VersionTagType:
+        switch (tlvTag.id) {
+            case PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType:
                 return this.version = new IntegerTag(tlvTag);
-            case PublicationsFileHeaderConstants.CreationTimeTagType:
+            case PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType:
                 return this.creationTime = new IntegerTag(tlvTag);
-            case PublicationsFileHeaderConstants.RepositoryUriTagType:
+            case PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType:
                 return this.repositoryUri = new StringTag(tlvTag);
             default:
                 return CompositeTag.parseTlvTag(tlvTag);
         }
     }
 
-    private validate(tagCount: ITlvCount) {
-        if (tagCount[PublicationsFileHeaderConstants.VersionTagType] !== 1) {
-            throw new TlvError("Exactly one version must exist in publications file header.");
+    private validate(tagCount: ITlvCount): void {
+        if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType] !== 1) {
+            throw new TlvError('Exactly one version must exist in publications file header.');
         }
 
-        if (tagCount[PublicationsFileHeaderConstants.CreationTimeTagType] !== 1) {
-            throw new TlvError("Exactly one creation time must exist in publications file header.");
+        if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType] !== 1) {
+            throw new TlvError('Exactly one creation time must exist in publications file header.');
         }
 
-        if (tagCount[PublicationsFileHeaderConstants.RepositoryUriTagType] > 1) {
-            throw new TlvError("Only one repository uri is allowed in publications file header.");
+        if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType] > 1) {
+            throw new TlvError('Only one repository uri is allowed in publications file header.');
         }
     }
 }
