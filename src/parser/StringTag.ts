@@ -20,7 +20,7 @@ export class StringTag extends TlvTag {
         }
 
         super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes);
-        this.value = util.text.utf8.decode(valueBytes.slice(0, valueBytes.length - 1));
+        this.value = util.text.utf8.decode(valueBytes.slice(0, -1));
         Object.freeze(this);
     }
 
