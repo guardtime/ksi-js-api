@@ -1,6 +1,6 @@
-import {RawTag} from 'src/parser/RawTag';
-import {TlvError} from 'src/parser/TlvError';
-import {TlvOutputStream} from 'src/parser/TlvOutputStream';
+import {RawTag} from '../../src/parser/RawTag';
+import {TlvError} from '../../src/parser/TlvError';
+import {TlvOutputStream} from '../../src/parser/TlvOutputStream';
 
 /**
  * TlvOutputStream tests

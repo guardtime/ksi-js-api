@@ -1,8 +1,8 @@
-import {CERTIFICATE_RECORD_CONSTANTS} from 'src/Constants';
-import {CompositeTag, ITlvCount} from 'src/parser/CompositeTag';
-import {RawTag} from 'src/parser/RawTag';
-import {TlvError} from 'src/parser/TlvError';
-import {TlvTag} from 'src/parser/TlvTag';
+import {CERTIFICATE_RECORD_CONSTANTS} from '../Constants';
+import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {RawTag} from '../parser/RawTag';
+import {TlvError} from '../parser/TlvError';
+import {TlvTag} from '../parser/TlvTag';
 
 /**
  * Certificate Record TLV object
@@ -15,11 +15,12 @@ export class CertificateRecord extends CompositeTag {
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
 
-        this.decodeValue(this.create.bind(this));
+        this.decodeValue(this.parseChild.bind(this));
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
     }
+
     public getX509Certificate(): Uint8Array {
         return this.x509Certificate.getValue();
     }
@@ -28,7 +29,7 @@ export class CertificateRecord extends CompositeTag {
         return this.certificateId.getValue();
     }
 
-    private create(tlvTag: TlvTag): TlvTag {
+    private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType:
                 return this.certificateId = new RawTag(tlvTag);

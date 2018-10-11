@@ -1,7 +1,7 @@
-import {HexCoder} from 'node_modules/gt-js-common/lib/main';
-import {TlvError} from 'src/parser/TlvError';
-import {TlvInputStream} from 'src/parser/TlvInputStream';
-import {TlvTag} from 'src/parser/TlvTag';
+import {HexCoder} from 'gt-js-common';
+import {TlvError} from '../../src/parser/TlvError';
+import {TlvInputStream} from '../../src/parser/TlvInputStream';
+import {TlvTag} from '../../src/parser/TlvTag';
 
 /**
  * TlvInputStream tests

@@ -1,5 +1,5 @@
-import {HexCoder} from 'node_modules/gt-js-common/lib/main';
-import {TlvTag} from 'src/parser/TlvTag';
+import {HexCoder} from 'gt-js-common';
+import {TlvTag} from './TlvTag';
 
 /**
  * Byte array TLV object
@@ -10,7 +10,7 @@ export class RawTag extends TlvTag {
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
-        this.getValue = () => tlvTag.getValueBytes();
+        this.getValue = (): Uint8Array => tlvTag.getValueBytes();
         Object.freeze(this);
     }
 

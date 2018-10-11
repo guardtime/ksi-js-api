@@ -1,15 +1,18 @@
-import BigInteger from 'node_modules/big-integer/BigInteger';
-import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATIONS_FILE_CONSTANTS, PUBLICATIONS_FILE_HEADER_CONSTANTS} from 'src/Constants';
-import {CompositeTag, ITlvCount} from 'src/parser/CompositeTag';
-import {RawTag} from 'src/parser/RawTag';
-import {TlvOutputStream} from 'src/parser/TlvOutputStream';
-import {TlvTag} from 'src/parser/TlvTag';
-import {CertificateRecord} from 'src/publication/CertificateRecord';
-import {IPublicationsFile} from 'src/publication/IPublicationsFile';
-import {PublicationRecord} from 'src/publication/PublicationRecord';
-import {PublicationsFileError} from 'src/publication/PublicationsFileError';
-import {PublicationsFileHeader} from 'src/publication/PublicationsFileHeader';
+import bigInteger from 'big-integer';
+import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATIONS_FILE_CONSTANTS, PUBLICATIONS_FILE_HEADER_CONSTANTS} from '../Constants';
+import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {RawTag} from '../parser/RawTag';
+import {TlvOutputStream} from '../parser/TlvOutputStream';
+import {TlvTag} from '../parser/TlvTag';
+import {CertificateRecord} from './CertificateRecord';
+import {IPublicationsFile} from './IPublicationsFile';
+import {PublicationRecord} from './PublicationRecord';
+import {PublicationsFileError} from './PublicationsFileError';
+import {PublicationsFileHeader} from './PublicationsFileHeader';
 
+/**
+ * Publications File TLV object
+ */
 export class PublicationsFile extends CompositeTag implements IPublicationsFile {
     public static get FileBeginningMagicBytes(): Uint8Array {
         return new Uint8Array([0x4B, 0x53, 0x49, 0x50, 0x55, 0x42, 0x4B, 0x46]);
@@ -27,7 +30,7 @@ export class PublicationsFile extends CompositeTag implements IPublicationsFile 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
 
-        this.decodeValue(this.create.bind(this));
+        this.decodeValue(this.parseChild.bind(this));
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
@@ -64,7 +67,7 @@ export class PublicationsFile extends CompositeTag implements IPublicationsFile 
     public getNearestPublicationRecord(unixTime: number): PublicationRecord | null {
         let nearestPublicationRecord: PublicationRecord | null = null;
         for (const publicationRecord of this.publicationRecordList) {
-            const publicationTime: BigInteger.BigInteger = publicationRecord.getPublicationTime();
+            const publicationTime: bigInteger.BigInteger = publicationRecord.getPublicationTime();
             if (publicationTime.compareTo(unixTime) < 0) {
                 continue;
             }
@@ -96,7 +99,7 @@ export class PublicationsFile extends CompositeTag implements IPublicationsFile 
         return stream.getData();
     }
 
-    private create(tlvTag: TlvTag, position: number): TlvTag {
+    private parseChild(tlvTag: TlvTag, position: number): TlvTag {
         switch (tlvTag.id) {
             case PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType:
                 this.headerIndex = position;

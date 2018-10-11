@@ -1,5 +1,5 @@
-import {DataHash} from 'node_modules/gt-js-common/lib/main';
-import {TlvTag} from 'src/parser/TlvTag';
+import {DataHash} from 'gt-js-common';
+import {TlvTag} from './TlvTag';
 
 /**
  * DataHash TLV object

@@ -1,11 +1,11 @@
-import BigInteger from 'node_modules/big-integer/BigInteger';
-import DataHash from 'node_modules/gt-js-common/lib/hash/DataHash';
-import {PUBLICATION_DATA_CONSTANTS, PUBLICATION_RECORD_CONSTANTS} from 'src/Constants';
-import {CompositeTag, ITlvCount} from 'src/parser/CompositeTag';
-import {StringTag} from 'src/parser/StringTag';
-import {TlvError} from 'src/parser/TlvError';
-import {TlvTag} from 'src/parser/TlvTag';
-import {PublicationData} from 'src/publication/PublicationData';
+import bigInteger from 'big-integer';
+import {DataHash} from 'gt-js-common';
+import {PUBLICATION_DATA_CONSTANTS, PUBLICATION_RECORD_CONSTANTS} from '../Constants';
+import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {StringTag} from '../parser/StringTag';
+import {TlvError} from '../parser/TlvError';
+import {TlvTag} from '../parser/TlvTag';
+import {PublicationData} from './PublicationData';
 
 /**
  * Publication Record TLV object
@@ -13,13 +13,13 @@ import {PublicationData} from 'src/publication/PublicationData';
 export class PublicationRecord extends CompositeTag {
 
     public publicationData: PublicationData;
-    private publicationReferences: StringTag[];
-    private repositoryUri: StringTag[];
+    private publicationReferences: StringTag[] = [];
+    private repositoryUri: StringTag[] = [];
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
 
-        this.decodeValue(this.create.bind(this));
+        this.decodeValue(this.parseChild.bind(this));
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
@@ -28,11 +28,11 @@ export class PublicationRecord extends CompositeTag {
     public getPublicationHash(): DataHash {
         return this.publicationData.getPublicationHash();
     }
-    public getPublicationTime(): BigInteger.BigInteger {
+    public getPublicationTime(): bigInteger.BigInteger {
         return this.publicationData.getPublicationTime();
     }
 
-    private create(tlvTag: TlvTag): TlvTag {
+    private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case PUBLICATION_DATA_CONSTANTS.TagType:
                 return this.publicationData = new PublicationData(tlvTag);

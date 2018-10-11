@@ -1,6 +1,6 @@
-import {DataHash, HashAlgorithm} from 'node_modules/gt-js-common/lib/main';
-import {ImprintTag} from 'src/parser/ImprintTag';
-import {TlvTag} from 'src/parser/TlvTag';
+import {DataHash, HashAlgorithm} from 'gt-js-common';
+import {ImprintTag} from '../../src/parser/ImprintTag';
+import {TlvTag} from '../../src/parser/TlvTag';
 
 /**
  * ImprintTag tests

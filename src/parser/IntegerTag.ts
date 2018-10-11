@@ -1,13 +1,13 @@
-import BigInteger from 'node_modules/big-integer/BigInteger';
-import {UnsignedLongCoder} from 'node_modules/gt-js-common/lib/main';
-import {TlvTag} from 'src/parser/TlvTag';
+import bigInteger from 'big-integer';
+import {UnsignedLongCoder} from 'gt-js-common';
+import {TlvTag} from './TlvTag';
 
 /**
  * Long TLV object
  */
 export class IntegerTag extends TlvTag {
 
-    private readonly value: BigInteger.BigInteger;
+    private readonly value: bigInteger.BigInteger;
 
     constructor(tlvTag: TlvTag) {
         const bytes: Uint8Array = tlvTag.getValueBytes();
@@ -18,10 +18,10 @@ export class IntegerTag extends TlvTag {
 
     public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: number): IntegerTag {
         return new IntegerTag(
-            new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(BigInteger(value))));
+            new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(bigInteger(value))));
     }
 
-    public getValue(): BigInteger.BigInteger {
+    public getValue(): bigInteger.BigInteger {
         return this.value;
     }
 

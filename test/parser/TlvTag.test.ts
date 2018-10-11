@@ -1,4 +1,4 @@
-import {TlvTag} from 'src/parser/TlvTag';
+import {TlvTag} from '../../src/parser/TlvTag';
 
 /**
  * TlvTag tests

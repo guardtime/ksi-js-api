@@ -1,11 +1,11 @@
-import BigInteger from 'node_modules/big-integer/BigInteger';
-import DataHash from 'node_modules/gt-js-common/lib/hash/DataHash';
-import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATION_DATA_CONSTANTS} from 'src/Constants';
-import {CompositeTag, ITlvCount} from 'src/parser/CompositeTag';
-import {ImprintTag} from 'src/parser/ImprintTag';
-import {IntegerTag} from 'src/parser/IntegerTag';
-import {TlvError} from 'src/parser/TlvError';
-import {TlvTag} from 'src/parser/TlvTag';
+import bigInteger from 'big-integer';
+import {DataHash} from 'gt-js-common';
+import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATION_DATA_CONSTANTS} from '../Constants';
+import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {ImprintTag} from '../parser/ImprintTag';
+import {IntegerTag} from '../parser/IntegerTag';
+import {TlvError} from '../parser/TlvError';
+import {TlvTag} from '../parser/TlvTag';
 
 /**
  * Publication Data TLV object
@@ -18,22 +18,22 @@ export class PublicationData extends CompositeTag {
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
 
-        this.decodeValue(this.create.bind(this));
+        this.decodeValue(this.parseChild.bind(this));
         this.validateValue(this.validate.bind(this));
         Object.freeze(this);
     }
     public getPublicationHash(): DataHash {
         return this.publicationHash.getValue();
     }
-    public getPublicationTime(): BigInteger.BigInteger {
+    public getPublicationTime(): bigInteger.BigInteger {
         return this.publicationTime.getValue();
     }
 
-    private create(tlvTag: TlvTag): TlvTag {
+    private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
-            case CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType:
+            case PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType:
                 return this.publicationTime = new IntegerTag(tlvTag);
-            case CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType:
+            case PUBLICATION_DATA_CONSTANTS.PublicationHashTagType:
                 return this.publicationHash = new ImprintTag(tlvTag);
             default:
                 return CompositeTag.parseTlvTag(tlvTag);

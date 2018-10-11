@@ -11,8 +11,7 @@
             return response.arrayBuffer();
         }).then((data) => {
             const publicationFileFactory = new KSI.PublicationsFileFactory();
-            console.log(publicationFileFactory);
-            publicationFileFactory.create(new Uint8Array(data));
+            console.log(publicationFileFactory.create(new Uint8Array(data)));
         });
 
     </script>

@@ -1,11 +1,13 @@
 import {PUBLICATIONS_FILE_HEADER_CONSTANTS} from '../Constants';
-import {ITlvCount} from 'src/parser/CompositeTag';
-import {CompositeTag} from 'src/parser/CompositeTag';
-import {IntegerTag} from 'src/parser/IntegerTag';
-import {StringTag} from 'src/parser/StringTag';
-import {TlvError} from 'src/parser/TlvError';
-import {TlvTag} from 'src/parser/TlvTag';
+import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {IntegerTag} from '../parser/IntegerTag';
+import {StringTag} from '../parser/StringTag';
+import {TlvError} from '../parser/TlvError';
+import {TlvTag} from '../parser/TlvTag';
 
+/**
+ * Publications File Header TLV Object
+ */
 export class PublicationsFileHeader extends CompositeTag {
 
     private version: IntegerTag;
@@ -15,12 +17,12 @@ export class PublicationsFileHeader extends CompositeTag {
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
 
-        this.decodeValue(this.create.bind(this));
+        this.decodeValue(this.parseChild.bind(this));
         this.validateValue(this.validate.bind(this));
         Object.freeze(this);
     }
 
-    private create(tlvTag: TlvTag): TlvTag {
+    private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType:
                 return this.version = new IntegerTag(tlvTag);

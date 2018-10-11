@@ -1,7 +1,10 @@
-import {PublicationsFile} from 'src/publication/PublicationsFile';
-import {PublicationsFileError} from 'src/publication/PublicationsFileError';
-import {RawTag} from 'src/parser/RawTag';
+import {RawTag} from '../parser/RawTag';
+import {PublicationsFile} from './PublicationsFile';
+import {PublicationsFileError} from './PublicationsFileError';
 
+/**
+ * Publications file factory for publications file creation from byte array
+ */
 export class PublicationsFileFactory {
 
     public create(publicationFileBytes: Uint8Array): PublicationsFile {
@@ -17,6 +20,6 @@ export class PublicationsFileFactory {
                 0x0,
                 false,
                 false,
-                publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length)));;
+                publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length)));
     }
 }

@@ -1,6 +1,6 @@
-import {TLV_STREAM_CONSTANTS} from 'src/Constants';
-import {TlvError} from 'src/parser/TlvError';
-import {TlvTag} from 'src/parser/TlvTag';
+import {TLV_STREAM_CONSTANTS} from '../Constants';
+import {TlvError} from './TlvError';
+import {TlvTag} from './TlvTag';
 
 /**
  * Specialized input stream for decoding TLV data from bytes

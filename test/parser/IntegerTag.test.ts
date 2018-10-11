@@ -1,6 +1,6 @@
-import BigInteger from 'node_modules/big-integer/BigInteger';
-import {IntegerTag} from 'src/parser/IntegerTag';
-import {TlvTag} from 'src/parser/TlvTag';
+import bigInteger from 'big-integer';
+import {IntegerTag} from '../../src/parser/IntegerTag';
+import {TlvTag} from '../../src/parser/TlvTag';
 
 /**
  * IntegerTag tests
@@ -12,7 +12,7 @@ describe('IntegerTag', () => {
         expect(objectTag.id).toEqual(0x1);
         expect(objectTag.nonCriticalFlag).toBeTruthy();
         expect(objectTag.forwardFlag).toBeTruthy();
-        expect(objectTag.getValue()).toEqual(BigInteger(25000));
+        expect(objectTag.getValue()).toEqual(bigInteger(25000));
     });
 
     it('Creation with CREATE', () => {
@@ -20,7 +20,7 @@ describe('IntegerTag', () => {
         expect(objectTag.id).toEqual(0x1);
         expect(objectTag.nonCriticalFlag).toBeTruthy();
         expect(objectTag.forwardFlag).toBeTruthy();
-        expect(objectTag.getValue()).toEqual(BigInteger(25000));
+        expect(objectTag.getValue()).toEqual(bigInteger(25000));
     });
 
     it('toString output', () => {

@@ -1,5 +1,5 @@
-import {CertificateRecord} from 'src/publication/CertificateRecord';
-import {PublicationRecord} from 'src/publication/PublicationRecord';
+import {CertificateRecord} from './CertificateRecord';
+import {PublicationRecord} from './PublicationRecord';
 
 /**
  * Publications File interface for functionality

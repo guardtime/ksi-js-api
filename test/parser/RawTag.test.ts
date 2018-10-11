@@ -1,5 +1,5 @@
-import {RawTag} from 'src/parser/RawTag';
-import {TlvTag} from 'src/parser/TlvTag';
+import {RawTag} from '../../src/parser/RawTag';
+import {TlvTag} from '../../src/parser/TlvTag';
 
 /**
  * RawTag tests

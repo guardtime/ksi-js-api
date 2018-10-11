@@ -62,12 +62,12 @@ export abstract class CompositeTag extends TlvTag {
         return result;
     }
 
-    protected decodeValue(create: (tlvTag: TlvTag, position: number) => TlvTag): void {
+    protected decodeValue(createFunc: (tlvTag: TlvTag, position: number) => TlvTag): void {
         const valueBytes: Uint8Array = this.getValueBytes();
         const stream: TlvInputStream = new TlvInputStream(valueBytes);
         let position: number = 0;
         while (stream.getPosition() < stream.getLength()) {
-            const tlvTag: TlvTag = create(stream.readTag(), position);
+            const tlvTag: TlvTag = createFunc(stream.readTag(), position);
             this.value.push(tlvTag);
 
             if (!this.tlvCount.hasOwnProperty(tlvTag.id)) {

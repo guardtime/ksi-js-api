@@ -1,6 +1,6 @@
-import {ASCIIConverter} from 'node_modules/gt-js-common/lib/main';
-import {TlvError} from 'src/parser/TlvError';
-import {TlvTag} from 'src/parser/TlvTag';
+import {util} from 'node-forge';
+import {TlvError} from './TlvError';
+import {TlvTag} from './TlvTag';
 
 /**
  * String TLV object
@@ -20,12 +20,12 @@ export class StringTag extends TlvTag {
         }
 
         super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes);
-        this.value = ASCIIConverter.ToString(valueBytes.slice(0, valueBytes.length - 1));
+        this.value = util.text.utf8.decode(valueBytes.slice(0, valueBytes.length - 1));
         Object.freeze(this);
     }
 
     public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: string): StringTag {
-        return new StringTag(new TlvTag(id, nonCriticalFlag, forwardFlag, ASCIIConverter.ToBytes(`${value}\0`)));
+        return new StringTag(new TlvTag(id, nonCriticalFlag, forwardFlag, util.text.utf8.encode(`${value}\0`)));
     }
 
     public getValue(): string {
