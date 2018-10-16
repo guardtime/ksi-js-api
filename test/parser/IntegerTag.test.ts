@@ -16,7 +16,7 @@ describe('IntegerTag', () => {
     });
 
     it('Creation with CREATE', () => {
-        const objectTag: IntegerTag = IntegerTag.CREATE(0x1, true, true, 25000);
+        const objectTag: IntegerTag = IntegerTag.CREATE(0x1, true, true, bigInteger(25000));
         expect(objectTag.id).toEqual(0x1);
         expect(objectTag.nonCriticalFlag).toBeTruthy();
         expect(objectTag.forwardFlag).toBeTruthy();
@@ -24,14 +24,14 @@ describe('IntegerTag', () => {
     });
 
     it('toString output', () => {
-        let objectTag: IntegerTag = IntegerTag.CREATE(0x1, true, true, 25000);
+        let objectTag: IntegerTag = IntegerTag.CREATE(0x1, true, true, bigInteger(25000));
         expect(objectTag.toString()).toEqual('TLV[0x1,N,F]:i25000');
-        objectTag = IntegerTag.CREATE(0x20, false, false, 25000);
+        objectTag = IntegerTag.CREATE(0x20, false, false, bigInteger(25000));
         expect(objectTag.toString()).toEqual('TLV[0x20]:i25000');
     });
 
     it('Value cannot be changed', () => {
-        const objectTag: IntegerTag = IntegerTag.CREATE(0x1, false, false, 25000);
+        const objectTag: IntegerTag = IntegerTag.CREATE(0x1, false, false, bigInteger(25000));
         // @ts-ignore
         expect(() => { objectTag.value = 5000; }).toThrow(TypeError);
     });

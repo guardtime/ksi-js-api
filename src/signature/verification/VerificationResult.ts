@@ -34,8 +34,8 @@ export class VerificationResult {
     }
 
     public static CREATE_FROM_RESULTS(ruleName: string, childResults: VerificationResult[]): VerificationResult {
-        if (!Array.isArray(childResults) || childResults.length > 0) {
-            throw new Error('Invalid Child results.');
+        if (!Array.isArray(childResults) || childResults.length === 0) {
+            throw new Error('Invalid child results.');
         }
 
         const lastResult: VerificationResult = childResults[childResults.length - 1];

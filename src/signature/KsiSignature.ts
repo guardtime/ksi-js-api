@@ -35,6 +35,10 @@ export class KsiSignature extends CompositeTag {
         Object.freeze(this);
     }
 
+    public getPublicationRecord(): PublicationRecord | null {
+        return this.publicationRecord;
+    }
+
     public getCalendarHashChain(): CalendarHashChain | null {
         return this.calendarHashChain;
     }
@@ -65,6 +69,10 @@ export class KsiSignature extends CompositeTag {
 
     public getRfc3161Record(): Rfc3161Record | null {
         return this.rfc3161Record;
+    }
+
+    public getCalendarAuthenticationRecord(): CalendarAuthenticationRecord | null {
+        return this.calendarAuthenticationRecord;
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {

@@ -1,4 +1,4 @@
-import bigInteger from 'big-integer';
+import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash} from 'gt-js-common';
 import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATION_DATA_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
@@ -22,6 +22,14 @@ export class PublicationData extends CompositeTag {
         this.validateValue(this.validate.bind(this));
         Object.freeze(this);
     }
+
+    public static CREATE(publicationTime: BigInteger, publicationHash: DataHash): PublicationData {
+        return new PublicationData(CompositeTag.createCompositeTagTlv(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
+            IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
+            ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash)
+        ]));
+    }
+
     public getPublicationHash(): DataHash {
         return this.publicationHash.getValue();
     }

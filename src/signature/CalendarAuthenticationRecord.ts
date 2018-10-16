@@ -3,12 +3,12 @@ import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationData} from '../publication/PublicationData';
+import {SignatureData} from './SignatureData';
 
 /**
  * Calendar Authentication Record TLV Object
  */
 export class CalendarAuthenticationRecord extends CompositeTag {
-
     private publicationData: PublicationData;
     private signatureData: SignatureData;
 
@@ -19,6 +19,10 @@ export class CalendarAuthenticationRecord extends CompositeTag {
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
+    }
+
+    public getPublicationData(): PublicationData {
+        return this.publicationData;
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {

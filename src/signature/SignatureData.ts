@@ -8,7 +8,7 @@ import {TlvTag} from '../parser/TlvTag';
 /**
  * Signature data TLV Object
  */
-class SignatureData extends CompositeTag {
+export class SignatureData extends CompositeTag {
 
     private certificateId: RawTag;
     private certificateRepositoryUri: StringTag;

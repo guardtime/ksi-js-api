@@ -3098,10 +3098,1339 @@ util.estimateCores = function(options, callback) {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18), __webpack_require__(41).setImmediate, __webpack_require__(12).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18), __webpack_require__(41).setImmediate, __webpack_require__(13).Buffer))
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var bigInt = (function (undefined) {
+    "use strict";
+
+    var BASE = 1e7,
+        LOG_BASE = 7,
+        MAX_INT = 9007199254740992,
+        MAX_INT_ARR = smallToArray(MAX_INT),
+        LOG_MAX_INT = Math.log(MAX_INT);
+
+    function Integer(v, radix) {
+        if (typeof v === "undefined") return Integer[0];
+        if (typeof radix !== "undefined") return +radix === 10 ? parseValue(v) : parseBase(v, radix);
+        return parseValue(v);
+    }
+
+    function BigInteger(value, sign) {
+        this.value = value;
+        this.sign = sign;
+        this.isSmall = false;
+    }
+    BigInteger.prototype = Object.create(Integer.prototype);
+
+    function SmallInteger(value) {
+        this.value = value;
+        this.sign = value < 0;
+        this.isSmall = true;
+    }
+    SmallInteger.prototype = Object.create(Integer.prototype);
+
+    function isPrecise(n) {
+        return -MAX_INT < n && n < MAX_INT;
+    }
+
+    function smallToArray(n) { // For performance reasons doesn't reference BASE, need to change this function if BASE changes
+        if (n < 1e7)
+            return [n];
+        if (n < 1e14)
+            return [n % 1e7, Math.floor(n / 1e7)];
+        return [n % 1e7, Math.floor(n / 1e7) % 1e7, Math.floor(n / 1e14)];
+    }
+
+    function arrayToSmall(arr) { // If BASE changes this function may need to change
+        trim(arr);
+        var length = arr.length;
+        if (length < 4 && compareAbs(arr, MAX_INT_ARR) < 0) {
+            switch (length) {
+                case 0: return 0;
+                case 1: return arr[0];
+                case 2: return arr[0] + arr[1] * BASE;
+                default: return arr[0] + (arr[1] + arr[2] * BASE) * BASE;
+            }
+        }
+        return arr;
+    }
+
+    function trim(v) {
+        var i = v.length;
+        while (v[--i] === 0);
+        v.length = i + 1;
+    }
+
+    function createArray(length) { // function shamelessly stolen from Yaffle's library https://github.com/Yaffle/BigInteger
+        var x = new Array(length);
+        var i = -1;
+        while (++i < length) {
+            x[i] = 0;
+        }
+        return x;
+    }
+
+    function truncate(n) {
+        if (n > 0) return Math.floor(n);
+        return Math.ceil(n);
+    }
+
+    function add(a, b) { // assumes a and b are arrays with a.length >= b.length
+        var l_a = a.length,
+            l_b = b.length,
+            r = new Array(l_a),
+            carry = 0,
+            base = BASE,
+            sum, i;
+        for (i = 0; i < l_b; i++) {
+            sum = a[i] + b[i] + carry;
+            carry = sum >= base ? 1 : 0;
+            r[i] = sum - carry * base;
+        }
+        while (i < l_a) {
+            sum = a[i] + carry;
+            carry = sum === base ? 1 : 0;
+            r[i++] = sum - carry * base;
+        }
+        if (carry > 0) r.push(carry);
+        return r;
+    }
+
+    function addAny(a, b) {
+        if (a.length >= b.length) return add(a, b);
+        return add(b, a);
+    }
+
+    function addSmall(a, carry) { // assumes a is array, carry is number with 0 <= carry < MAX_INT
+        var l = a.length,
+            r = new Array(l),
+            base = BASE,
+            sum, i;
+        for (i = 0; i < l; i++) {
+            sum = a[i] - base + carry;
+            carry = Math.floor(sum / base);
+            r[i] = sum - carry * base;
+            carry += 1;
+        }
+        while (carry > 0) {
+            r[i++] = carry % base;
+            carry = Math.floor(carry / base);
+        }
+        return r;
+    }
+
+    BigInteger.prototype.add = function (v) {
+        var n = parseValue(v);
+        if (this.sign !== n.sign) {
+            return this.subtract(n.negate());
+        }
+        var a = this.value, b = n.value;
+        if (n.isSmall) {
+            return new BigInteger(addSmall(a, Math.abs(b)), this.sign);
+        }
+        return new BigInteger(addAny(a, b), this.sign);
+    };
+    BigInteger.prototype.plus = BigInteger.prototype.add;
+
+    SmallInteger.prototype.add = function (v) {
+        var n = parseValue(v);
+        var a = this.value;
+        if (a < 0 !== n.sign) {
+            return this.subtract(n.negate());
+        }
+        var b = n.value;
+        if (n.isSmall) {
+            if (isPrecise(a + b)) return new SmallInteger(a + b);
+            b = smallToArray(Math.abs(b));
+        }
+        return new BigInteger(addSmall(b, Math.abs(a)), a < 0);
+    };
+    SmallInteger.prototype.plus = SmallInteger.prototype.add;
+
+    function subtract(a, b) { // assumes a and b are arrays with a >= b
+        var a_l = a.length,
+            b_l = b.length,
+            r = new Array(a_l),
+            borrow = 0,
+            base = BASE,
+            i, difference;
+        for (i = 0; i < b_l; i++) {
+            difference = a[i] - borrow - b[i];
+            if (difference < 0) {
+                difference += base;
+                borrow = 1;
+            } else borrow = 0;
+            r[i] = difference;
+        }
+        for (i = b_l; i < a_l; i++) {
+            difference = a[i] - borrow;
+            if (difference < 0) difference += base;
+            else {
+                r[i++] = difference;
+                break;
+            }
+            r[i] = difference;
+        }
+        for (; i < a_l; i++) {
+            r[i] = a[i];
+        }
+        trim(r);
+        return r;
+    }
+
+    function subtractAny(a, b, sign) {
+        var value;
+        if (compareAbs(a, b) >= 0) {
+            value = subtract(a, b);
+        } else {
+            value = subtract(b, a);
+            sign = !sign;
+        }
+        value = arrayToSmall(value);
+        if (typeof value === "number") {
+            if (sign) value = -value;
+            return new SmallInteger(value);
+        }
+        return new BigInteger(value, sign);
+    }
+
+    function subtractSmall(a, b, sign) { // assumes a is array, b is number with 0 <= b < MAX_INT
+        var l = a.length,
+            r = new Array(l),
+            carry = -b,
+            base = BASE,
+            i, difference;
+        for (i = 0; i < l; i++) {
+            difference = a[i] + carry;
+            carry = Math.floor(difference / base);
+            difference %= base;
+            r[i] = difference < 0 ? difference + base : difference;
+        }
+        r = arrayToSmall(r);
+        if (typeof r === "number") {
+            if (sign) r = -r;
+            return new SmallInteger(r);
+        } return new BigInteger(r, sign);
+    }
+
+    BigInteger.prototype.subtract = function (v) {
+        var n = parseValue(v);
+        if (this.sign !== n.sign) {
+            return this.add(n.negate());
+        }
+        var a = this.value, b = n.value;
+        if (n.isSmall)
+            return subtractSmall(a, Math.abs(b), this.sign);
+        return subtractAny(a, b, this.sign);
+    };
+    BigInteger.prototype.minus = BigInteger.prototype.subtract;
+
+    SmallInteger.prototype.subtract = function (v) {
+        var n = parseValue(v);
+        var a = this.value;
+        if (a < 0 !== n.sign) {
+            return this.add(n.negate());
+        }
+        var b = n.value;
+        if (n.isSmall) {
+            return new SmallInteger(a - b);
+        }
+        return subtractSmall(b, Math.abs(a), a >= 0);
+    };
+    SmallInteger.prototype.minus = SmallInteger.prototype.subtract;
+
+    BigInteger.prototype.negate = function () {
+        return new BigInteger(this.value, !this.sign);
+    };
+    SmallInteger.prototype.negate = function () {
+        var sign = this.sign;
+        var small = new SmallInteger(-this.value);
+        small.sign = !sign;
+        return small;
+    };
+
+    BigInteger.prototype.abs = function () {
+        return new BigInteger(this.value, false);
+    };
+    SmallInteger.prototype.abs = function () {
+        return new SmallInteger(Math.abs(this.value));
+    };
+
+    function multiplyLong(a, b) {
+        var a_l = a.length,
+            b_l = b.length,
+            l = a_l + b_l,
+            r = createArray(l),
+            base = BASE,
+            product, carry, i, a_i, b_j;
+        for (i = 0; i < a_l; ++i) {
+            a_i = a[i];
+            for (var j = 0; j < b_l; ++j) {
+                b_j = b[j];
+                product = a_i * b_j + r[i + j];
+                carry = Math.floor(product / base);
+                r[i + j] = product - carry * base;
+                r[i + j + 1] += carry;
+            }
+        }
+        trim(r);
+        return r;
+    }
+
+    function multiplySmall(a, b) { // assumes a is array, b is number with |b| < BASE
+        var l = a.length,
+            r = new Array(l),
+            base = BASE,
+            carry = 0,
+            product, i;
+        for (i = 0; i < l; i++) {
+            product = a[i] * b + carry;
+            carry = Math.floor(product / base);
+            r[i] = product - carry * base;
+        }
+        while (carry > 0) {
+            r[i++] = carry % base;
+            carry = Math.floor(carry / base);
+        }
+        return r;
+    }
+
+    function shiftLeft(x, n) {
+        var r = [];
+        while (n-- > 0) r.push(0);
+        return r.concat(x);
+    }
+
+    function multiplyKaratsuba(x, y) {
+        var n = Math.max(x.length, y.length);
+
+        if (n <= 30) return multiplyLong(x, y);
+        n = Math.ceil(n / 2);
+
+        var b = x.slice(n),
+            a = x.slice(0, n),
+            d = y.slice(n),
+            c = y.slice(0, n);
+
+        var ac = multiplyKaratsuba(a, c),
+            bd = multiplyKaratsuba(b, d),
+            abcd = multiplyKaratsuba(addAny(a, b), addAny(c, d));
+
+        var product = addAny(addAny(ac, shiftLeft(subtract(subtract(abcd, ac), bd), n)), shiftLeft(bd, 2 * n));
+        trim(product);
+        return product;
+    }
+
+    // The following function is derived from a surface fit of a graph plotting the performance difference
+    // between long multiplication and karatsuba multiplication versus the lengths of the two arrays.
+    function useKaratsuba(l1, l2) {
+        return -0.012 * l1 - 0.012 * l2 + 0.000015 * l1 * l2 > 0;
+    }
+
+    BigInteger.prototype.multiply = function (v) {
+        var n = parseValue(v),
+            a = this.value, b = n.value,
+            sign = this.sign !== n.sign,
+            abs;
+        if (n.isSmall) {
+            if (b === 0) return Integer[0];
+            if (b === 1) return this;
+            if (b === -1) return this.negate();
+            abs = Math.abs(b);
+            if (abs < BASE) {
+                return new BigInteger(multiplySmall(a, abs), sign);
+            }
+            b = smallToArray(abs);
+        }
+        if (useKaratsuba(a.length, b.length)) // Karatsuba is only faster for certain array sizes
+            return new BigInteger(multiplyKaratsuba(a, b), sign);
+        return new BigInteger(multiplyLong(a, b), sign);
+    };
+
+    BigInteger.prototype.times = BigInteger.prototype.multiply;
+
+    function multiplySmallAndArray(a, b, sign) { // a >= 0
+        if (a < BASE) {
+            return new BigInteger(multiplySmall(b, a), sign);
+        }
+        return new BigInteger(multiplyLong(b, smallToArray(a)), sign);
+    }
+    SmallInteger.prototype._multiplyBySmall = function (a) {
+        if (isPrecise(a.value * this.value)) {
+            return new SmallInteger(a.value * this.value);
+        }
+        return multiplySmallAndArray(Math.abs(a.value), smallToArray(Math.abs(this.value)), this.sign !== a.sign);
+    };
+    BigInteger.prototype._multiplyBySmall = function (a) {
+        if (a.value === 0) return Integer[0];
+        if (a.value === 1) return this;
+        if (a.value === -1) return this.negate();
+        return multiplySmallAndArray(Math.abs(a.value), this.value, this.sign !== a.sign);
+    };
+    SmallInteger.prototype.multiply = function (v) {
+        return parseValue(v)._multiplyBySmall(this);
+    };
+    SmallInteger.prototype.times = SmallInteger.prototype.multiply;
+
+    function square(a) {
+        //console.assert(2 * BASE * BASE < MAX_INT);
+        var l = a.length,
+            r = createArray(l + l),
+            base = BASE,
+            product, carry, i, a_i, a_j;
+        for (i = 0; i < l; i++) {
+            a_i = a[i];
+            carry = 0 - a_i * a_i;
+            for (var j = i; j < l; j++) {
+                a_j = a[j];
+                product = 2 * (a_i * a_j) + r[i + j] + carry;
+                carry = Math.floor(product / base);
+                r[i + j] = product - carry * base;
+            }
+            r[i + l] = carry;
+        }
+        trim(r);
+        return r;
+    }
+
+    BigInteger.prototype.square = function () {
+        return new BigInteger(square(this.value), false);
+    };
+
+    SmallInteger.prototype.square = function () {
+        var value = this.value * this.value;
+        if (isPrecise(value)) return new SmallInteger(value);
+        return new BigInteger(square(smallToArray(Math.abs(this.value))), false);
+    };
+
+    function divMod1(a, b) { // Left over from previous version. Performs faster than divMod2 on smaller input sizes.
+        var a_l = a.length,
+            b_l = b.length,
+            base = BASE,
+            result = createArray(b.length),
+            divisorMostSignificantDigit = b[b_l - 1],
+            // normalization
+            lambda = Math.ceil(base / (2 * divisorMostSignificantDigit)),
+            remainder = multiplySmall(a, lambda),
+            divisor = multiplySmall(b, lambda),
+            quotientDigit, shift, carry, borrow, i, l, q;
+        if (remainder.length <= a_l) remainder.push(0);
+        divisor.push(0);
+        divisorMostSignificantDigit = divisor[b_l - 1];
+        for (shift = a_l - b_l; shift >= 0; shift--) {
+            quotientDigit = base - 1;
+            if (remainder[shift + b_l] !== divisorMostSignificantDigit) {
+                quotientDigit = Math.floor((remainder[shift + b_l] * base + remainder[shift + b_l - 1]) / divisorMostSignificantDigit);
+            }
+            // quotientDigit <= base - 1
+            carry = 0;
+            borrow = 0;
+            l = divisor.length;
+            for (i = 0; i < l; i++) {
+                carry += quotientDigit * divisor[i];
+                q = Math.floor(carry / base);
+                borrow += remainder[shift + i] - (carry - q * base);
+                carry = q;
+                if (borrow < 0) {
+                    remainder[shift + i] = borrow + base;
+                    borrow = -1;
+                } else {
+                    remainder[shift + i] = borrow;
+                    borrow = 0;
+                }
+            }
+            while (borrow !== 0) {
+                quotientDigit -= 1;
+                carry = 0;
+                for (i = 0; i < l; i++) {
+                    carry += remainder[shift + i] - base + divisor[i];
+                    if (carry < 0) {
+                        remainder[shift + i] = carry + base;
+                        carry = 0;
+                    } else {
+                        remainder[shift + i] = carry;
+                        carry = 1;
+                    }
+                }
+                borrow += carry;
+            }
+            result[shift] = quotientDigit;
+        }
+        // denormalization
+        remainder = divModSmall(remainder, lambda)[0];
+        return [arrayToSmall(result), arrayToSmall(remainder)];
+    }
+
+    function divMod2(a, b) { // Implementation idea shamelessly stolen from Silent Matt's library http://silentmatt.com/biginteger/
+        // Performs faster than divMod1 on larger input sizes.
+        var a_l = a.length,
+            b_l = b.length,
+            result = [],
+            part = [],
+            base = BASE,
+            guess, xlen, highx, highy, check;
+        while (a_l) {
+            part.unshift(a[--a_l]);
+            trim(part);
+            if (compareAbs(part, b) < 0) {
+                result.push(0);
+                continue;
+            }
+            xlen = part.length;
+            highx = part[xlen - 1] * base + part[xlen - 2];
+            highy = b[b_l - 1] * base + b[b_l - 2];
+            if (xlen > b_l) {
+                highx = (highx + 1) * base;
+            }
+            guess = Math.ceil(highx / highy);
+            do {
+                check = multiplySmall(b, guess);
+                if (compareAbs(check, part) <= 0) break;
+                guess--;
+            } while (guess);
+            result.push(guess);
+            part = subtract(part, check);
+        }
+        result.reverse();
+        return [arrayToSmall(result), arrayToSmall(part)];
+    }
+
+    function divModSmall(value, lambda) {
+        var length = value.length,
+            quotient = createArray(length),
+            base = BASE,
+            i, q, remainder, divisor;
+        remainder = 0;
+        for (i = length - 1; i >= 0; --i) {
+            divisor = remainder * base + value[i];
+            q = truncate(divisor / lambda);
+            remainder = divisor - q * lambda;
+            quotient[i] = q | 0;
+        }
+        return [quotient, remainder | 0];
+    }
+
+    function divModAny(self, v) {
+        var value, n = parseValue(v);
+        var a = self.value, b = n.value;
+        var quotient;
+        if (b === 0) throw new Error("Cannot divide by zero");
+        if (self.isSmall) {
+            if (n.isSmall) {
+                return [new SmallInteger(truncate(a / b)), new SmallInteger(a % b)];
+            }
+            return [Integer[0], self];
+        }
+        if (n.isSmall) {
+            if (b === 1) return [self, Integer[0]];
+            if (b == -1) return [self.negate(), Integer[0]];
+            var abs = Math.abs(b);
+            if (abs < BASE) {
+                value = divModSmall(a, abs);
+                quotient = arrayToSmall(value[0]);
+                var remainder = value[1];
+                if (self.sign) remainder = -remainder;
+                if (typeof quotient === "number") {
+                    if (self.sign !== n.sign) quotient = -quotient;
+                    return [new SmallInteger(quotient), new SmallInteger(remainder)];
+                }
+                return [new BigInteger(quotient, self.sign !== n.sign), new SmallInteger(remainder)];
+            }
+            b = smallToArray(abs);
+        }
+        var comparison = compareAbs(a, b);
+        if (comparison === -1) return [Integer[0], self];
+        if (comparison === 0) return [Integer[self.sign === n.sign ? 1 : -1], Integer[0]];
+
+        // divMod1 is faster on smaller input sizes
+        if (a.length + b.length <= 200)
+            value = divMod1(a, b);
+        else value = divMod2(a, b);
+
+        quotient = value[0];
+        var qSign = self.sign !== n.sign,
+            mod = value[1],
+            mSign = self.sign;
+        if (typeof quotient === "number") {
+            if (qSign) quotient = -quotient;
+            quotient = new SmallInteger(quotient);
+        } else quotient = new BigInteger(quotient, qSign);
+        if (typeof mod === "number") {
+            if (mSign) mod = -mod;
+            mod = new SmallInteger(mod);
+        } else mod = new BigInteger(mod, mSign);
+        return [quotient, mod];
+    }
+
+    BigInteger.prototype.divmod = function (v) {
+        var result = divModAny(this, v);
+        return {
+            quotient: result[0],
+            remainder: result[1]
+        };
+    };
+    SmallInteger.prototype.divmod = BigInteger.prototype.divmod;
+
+    BigInteger.prototype.divide = function (v) {
+        return divModAny(this, v)[0];
+    };
+    SmallInteger.prototype.over = SmallInteger.prototype.divide = BigInteger.prototype.over = BigInteger.prototype.divide;
+
+    BigInteger.prototype.mod = function (v) {
+        return divModAny(this, v)[1];
+    };
+    SmallInteger.prototype.remainder = SmallInteger.prototype.mod = BigInteger.prototype.remainder = BigInteger.prototype.mod;
+
+    BigInteger.prototype.pow = function (v) {
+        var n = parseValue(v),
+            a = this.value,
+            b = n.value,
+            value, x, y;
+        if (b === 0) return Integer[1];
+        if (a === 0) return Integer[0];
+        if (a === 1) return Integer[1];
+        if (a === -1) return n.isEven() ? Integer[1] : Integer[-1];
+        if (n.sign) {
+            return Integer[0];
+        }
+        if (!n.isSmall) throw new Error("The exponent " + n.toString() + " is too large.");
+        if (this.isSmall) {
+            if (isPrecise(value = Math.pow(a, b)))
+                return new SmallInteger(truncate(value));
+        }
+        x = this;
+        y = Integer[1];
+        while (true) {
+            if (b & 1 === 1) {
+                y = y.times(x);
+                --b;
+            }
+            if (b === 0) break;
+            b /= 2;
+            x = x.square();
+        }
+        return y;
+    };
+    SmallInteger.prototype.pow = BigInteger.prototype.pow;
+
+    BigInteger.prototype.modPow = function (exp, mod) {
+        exp = parseValue(exp);
+        mod = parseValue(mod);
+        if (mod.isZero()) throw new Error("Cannot take modPow with modulus 0");
+        var r = Integer[1],
+            base = this.mod(mod);
+        while (exp.isPositive()) {
+            if (base.isZero()) return Integer[0];
+            if (exp.isOdd()) r = r.multiply(base).mod(mod);
+            exp = exp.divide(2);
+            base = base.square().mod(mod);
+        }
+        return r;
+    };
+    SmallInteger.prototype.modPow = BigInteger.prototype.modPow;
+
+    function compareAbs(a, b) {
+        if (a.length !== b.length) {
+            return a.length > b.length ? 1 : -1;
+        }
+        for (var i = a.length - 1; i >= 0; i--) {
+            if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1;
+        }
+        return 0;
+    }
+
+    BigInteger.prototype.compareAbs = function (v) {
+        var n = parseValue(v),
+            a = this.value,
+            b = n.value;
+        if (n.isSmall) return 1;
+        return compareAbs(a, b);
+    };
+    SmallInteger.prototype.compareAbs = function (v) {
+        var n = parseValue(v),
+            a = Math.abs(this.value),
+            b = n.value;
+        if (n.isSmall) {
+            b = Math.abs(b);
+            return a === b ? 0 : a > b ? 1 : -1;
+        }
+        return -1;
+    };
+
+    BigInteger.prototype.compare = function (v) {
+        // See discussion about comparison with Infinity:
+        // https://github.com/peterolson/BigInteger.js/issues/61
+        if (v === Infinity) {
+            return -1;
+        }
+        if (v === -Infinity) {
+            return 1;
+        }
+
+        var n = parseValue(v),
+            a = this.value,
+            b = n.value;
+        if (this.sign !== n.sign) {
+            return n.sign ? 1 : -1;
+        }
+        if (n.isSmall) {
+            return this.sign ? -1 : 1;
+        }
+        return compareAbs(a, b) * (this.sign ? -1 : 1);
+    };
+    BigInteger.prototype.compareTo = BigInteger.prototype.compare;
+
+    SmallInteger.prototype.compare = function (v) {
+        if (v === Infinity) {
+            return -1;
+        }
+        if (v === -Infinity) {
+            return 1;
+        }
+
+        var n = parseValue(v),
+            a = this.value,
+            b = n.value;
+        if (n.isSmall) {
+            return a == b ? 0 : a > b ? 1 : -1;
+        }
+        if (a < 0 !== n.sign) {
+            return a < 0 ? -1 : 1;
+        }
+        return a < 0 ? 1 : -1;
+    };
+    SmallInteger.prototype.compareTo = SmallInteger.prototype.compare;
+
+    BigInteger.prototype.equals = function (v) {
+        return this.compare(v) === 0;
+    };
+    SmallInteger.prototype.eq = SmallInteger.prototype.equals = BigInteger.prototype.eq = BigInteger.prototype.equals;
+
+    BigInteger.prototype.notEquals = function (v) {
+        return this.compare(v) !== 0;
+    };
+    SmallInteger.prototype.neq = SmallInteger.prototype.notEquals = BigInteger.prototype.neq = BigInteger.prototype.notEquals;
+
+    BigInteger.prototype.greater = function (v) {
+        return this.compare(v) > 0;
+    };
+    SmallInteger.prototype.gt = SmallInteger.prototype.greater = BigInteger.prototype.gt = BigInteger.prototype.greater;
+
+    BigInteger.prototype.lesser = function (v) {
+        return this.compare(v) < 0;
+    };
+    SmallInteger.prototype.lt = SmallInteger.prototype.lesser = BigInteger.prototype.lt = BigInteger.prototype.lesser;
+
+    BigInteger.prototype.greaterOrEquals = function (v) {
+        return this.compare(v) >= 0;
+    };
+    SmallInteger.prototype.geq = SmallInteger.prototype.greaterOrEquals = BigInteger.prototype.geq = BigInteger.prototype.greaterOrEquals;
+
+    BigInteger.prototype.lesserOrEquals = function (v) {
+        return this.compare(v) <= 0;
+    };
+    SmallInteger.prototype.leq = SmallInteger.prototype.lesserOrEquals = BigInteger.prototype.leq = BigInteger.prototype.lesserOrEquals;
+
+    BigInteger.prototype.isEven = function () {
+        return (this.value[0] & 1) === 0;
+    };
+    SmallInteger.prototype.isEven = function () {
+        return (this.value & 1) === 0;
+    };
+
+    BigInteger.prototype.isOdd = function () {
+        return (this.value[0] & 1) === 1;
+    };
+    SmallInteger.prototype.isOdd = function () {
+        return (this.value & 1) === 1;
+    };
+
+    BigInteger.prototype.isPositive = function () {
+        return !this.sign;
+    };
+    SmallInteger.prototype.isPositive = function () {
+        return this.value > 0;
+    };
+
+    BigInteger.prototype.isNegative = function () {
+        return this.sign;
+    };
+    SmallInteger.prototype.isNegative = function () {
+        return this.value < 0;
+    };
+
+    BigInteger.prototype.isUnit = function () {
+        return false;
+    };
+    SmallInteger.prototype.isUnit = function () {
+        return Math.abs(this.value) === 1;
+    };
+
+    BigInteger.prototype.isZero = function () {
+        return false;
+    };
+    SmallInteger.prototype.isZero = function () {
+        return this.value === 0;
+    };
+    BigInteger.prototype.isDivisibleBy = function (v) {
+        var n = parseValue(v);
+        var value = n.value;
+        if (value === 0) return false;
+        if (value === 1) return true;
+        if (value === 2) return this.isEven();
+        return this.mod(n).equals(Integer[0]);
+    };
+    SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
+
+    function isBasicPrime(v) {
+        var n = v.abs();
+        if (n.isUnit()) return false;
+        if (n.equals(2) || n.equals(3) || n.equals(5)) return true;
+        if (n.isEven() || n.isDivisibleBy(3) || n.isDivisibleBy(5)) return false;
+        if (n.lesser(49)) return true;
+        // we don't know if it's prime: let the other functions figure it out
+    }
+    
+    function millerRabinTest(n, a) {
+        var nPrev = n.prev(),
+            b = nPrev,
+            r = 0,
+            d, t, i, x;
+        while (b.isEven()) b = b.divide(2), r++;
+        next : for (i = 0; i < a.length; i++) {
+            if (n.lesser(a[i])) continue;
+            x = bigInt(a[i]).modPow(b, n);
+            if (x.equals(Integer[1]) || x.equals(nPrev)) continue;
+            for (d = r - 1; d != 0; d--) {
+                x = x.square().mod(n);
+                if (x.isUnit()) return false;    
+                if (x.equals(nPrev)) continue next;
+            }
+            return false;
+        }
+        return true;
+    }
+    
+// Set "strict" to true to force GRH-supported lower bound of 2*log(N)^2
+    BigInteger.prototype.isPrime = function (strict) {
+        var isPrime = isBasicPrime(this);
+        if (isPrime !== undefined) return isPrime;
+        var n = this.abs();
+        var bits = n.bitLength();
+        if(bits <= 64)
+            return millerRabinTest(n, [2, 325, 9375, 28178, 450775, 9780504, 1795265022]);
+        var logN = Math.log(2) * bits;
+        var t = Math.ceil((strict === true) ? (2 * Math.pow(logN, 2)) : logN);
+        for (var a = [], i = 0; i < t; i++) {
+            a.push(bigInt(i + 2));
+        }
+        return millerRabinTest(n, a);
+    };
+    SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
+
+    BigInteger.prototype.isProbablePrime = function (iterations) {
+        var isPrime = isBasicPrime(this);
+        if (isPrime !== undefined) return isPrime;
+        var n = this.abs();
+        var t = iterations === undefined ? 5 : iterations;
+        for (var a = [], i = 0; i < t; i++) {
+            a.push(bigInt.randBetween(2, n.minus(2)));
+        }
+        return millerRabinTest(n, a);
+    };
+    SmallInteger.prototype.isProbablePrime = BigInteger.prototype.isProbablePrime;
+
+    BigInteger.prototype.modInv = function (n) {
+        var t = bigInt.zero, newT = bigInt.one, r = parseValue(n), newR = this.abs(), q, lastT, lastR;
+        while (!newR.equals(bigInt.zero)) {
+            q = r.divide(newR);
+            lastT = t;
+            lastR = r;
+            t = newT;
+            r = newR;
+            newT = lastT.subtract(q.multiply(newT));
+            newR = lastR.subtract(q.multiply(newR));
+        }
+        if (!r.equals(1)) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
+        if (t.compare(0) === -1) {
+            t = t.add(n);
+        }
+        if (this.isNegative()) {
+            return t.negate();
+        }
+        return t;
+    };
+
+    SmallInteger.prototype.modInv = BigInteger.prototype.modInv;
+
+    BigInteger.prototype.next = function () {
+        var value = this.value;
+        if (this.sign) {
+            return subtractSmall(value, 1, this.sign);
+        }
+        return new BigInteger(addSmall(value, 1), this.sign);
+    };
+    SmallInteger.prototype.next = function () {
+        var value = this.value;
+        if (value + 1 < MAX_INT) return new SmallInteger(value + 1);
+        return new BigInteger(MAX_INT_ARR, false);
+    };
+
+    BigInteger.prototype.prev = function () {
+        var value = this.value;
+        if (this.sign) {
+            return new BigInteger(addSmall(value, 1), true);
+        }
+        return subtractSmall(value, 1, this.sign);
+    };
+    SmallInteger.prototype.prev = function () {
+        var value = this.value;
+        if (value - 1 > -MAX_INT) return new SmallInteger(value - 1);
+        return new BigInteger(MAX_INT_ARR, true);
+    };
+
+    var powersOfTwo = [1];
+    while (2 * powersOfTwo[powersOfTwo.length - 1] <= BASE) powersOfTwo.push(2 * powersOfTwo[powersOfTwo.length - 1]);
+    var powers2Length = powersOfTwo.length, highestPower2 = powersOfTwo[powers2Length - 1];
+
+    function shift_isSmall(n) {
+        return ((typeof n === "number" || typeof n === "string") && +Math.abs(n) <= BASE) ||
+            (n instanceof BigInteger && n.value.length <= 1);
+    }
+
+    BigInteger.prototype.shiftLeft = function (n) {
+        if (!shift_isSmall(n)) {
+            throw new Error(String(n) + " is too large for shifting.");
+        }
+        n = +n;
+        if (n < 0) return this.shiftRight(-n);
+        var result = this;
+        if (result.isZero()) return result;
+        while (n >= powers2Length) {
+            result = result.multiply(highestPower2);
+            n -= powers2Length - 1;
+        }
+        return result.multiply(powersOfTwo[n]);
+    };
+    SmallInteger.prototype.shiftLeft = BigInteger.prototype.shiftLeft;
+
+    BigInteger.prototype.shiftRight = function (n) {
+        var remQuo;
+        if (!shift_isSmall(n)) {
+            throw new Error(String(n) + " is too large for shifting.");
+        }
+        n = +n;
+        if (n < 0) return this.shiftLeft(-n);
+        var result = this;
+        while (n >= powers2Length) {
+            if (result.isZero() || (result.isNegative() && result.isUnit())) return result;
+            remQuo = divModAny(result, highestPower2);
+            result = remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
+            n -= powers2Length - 1;
+        }
+        remQuo = divModAny(result, powersOfTwo[n]);
+        return remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
+    };
+    SmallInteger.prototype.shiftRight = BigInteger.prototype.shiftRight;
+
+    function bitwise(x, y, fn) {
+        y = parseValue(y);
+        var xSign = x.isNegative(), ySign = y.isNegative();
+        var xRem = xSign ? x.not() : x,
+            yRem = ySign ? y.not() : y;
+        var xDigit = 0, yDigit = 0;
+        var xDivMod = null, yDivMod = null;
+        var result = [];
+        while (!xRem.isZero() || !yRem.isZero()) {
+            xDivMod = divModAny(xRem, highestPower2);
+            xDigit = xDivMod[1].toJSNumber();
+            if (xSign) {
+                xDigit = highestPower2 - 1 - xDigit; // two's complement for negative numbers
+            }
+
+            yDivMod = divModAny(yRem, highestPower2);
+            yDigit = yDivMod[1].toJSNumber();
+            if (ySign) {
+                yDigit = highestPower2 - 1 - yDigit; // two's complement for negative numbers
+            }
+
+            xRem = xDivMod[0];
+            yRem = yDivMod[0];
+            result.push(fn(xDigit, yDigit));
+        }
+        var sum = fn(xSign ? 1 : 0, ySign ? 1 : 0) !== 0 ? bigInt(-1) : bigInt(0);
+        for (var i = result.length - 1; i >= 0; i -= 1) {
+            sum = sum.multiply(highestPower2).add(bigInt(result[i]));
+        }
+        return sum;
+    }
+
+    BigInteger.prototype.not = function () {
+        return this.negate().prev();
+    };
+    SmallInteger.prototype.not = BigInteger.prototype.not;
+
+    BigInteger.prototype.and = function (n) {
+        return bitwise(this, n, function (a, b) { return a & b; });
+    };
+    SmallInteger.prototype.and = BigInteger.prototype.and;
+
+    BigInteger.prototype.or = function (n) {
+        return bitwise(this, n, function (a, b) { return a | b; });
+    };
+    SmallInteger.prototype.or = BigInteger.prototype.or;
+
+    BigInteger.prototype.xor = function (n) {
+        return bitwise(this, n, function (a, b) { return a ^ b; });
+    };
+    SmallInteger.prototype.xor = BigInteger.prototype.xor;
+
+    var LOBMASK_I = 1 << 30, LOBMASK_BI = (BASE & -BASE) * (BASE & -BASE) | LOBMASK_I;
+    function roughLOB(n) { // get lowestOneBit (rough)
+        // SmallInteger: return Min(lowestOneBit(n), 1 << 30)
+        // BigInteger: return Min(lowestOneBit(n), 1 << 14) [BASE=1e7]
+        var v = n.value, x = typeof v === "number" ? v | LOBMASK_I : v[0] + v[1] * BASE | LOBMASK_BI;
+        return x & -x;
+    }
+
+    function integerLogarithm(value, base) {
+        if (base.compareTo(value) <= 0) {
+            var tmp = integerLogarithm(value, base.square(base));
+            var p = tmp.p;
+            var e = tmp.e;
+            var t = p.multiply(base);
+            return t.compareTo(value) <= 0 ? { p: t, e: e * 2 + 1 } : { p: p, e: e * 2 };
+        }
+        return { p: bigInt(1), e: 0 };
+    }
+
+    BigInteger.prototype.bitLength = function () {
+        var n = this;
+        if (n.compareTo(bigInt(0)) < 0) {
+            n = n.negate().subtract(bigInt(1));
+        }
+        if (n.compareTo(bigInt(0)) === 0) {
+            return bigInt(0);
+        }
+        return bigInt(integerLogarithm(n, bigInt(2)).e).add(bigInt(1));
+    }
+    SmallInteger.prototype.bitLength = BigInteger.prototype.bitLength;
+
+    function max(a, b) {
+        a = parseValue(a);
+        b = parseValue(b);
+        return a.greater(b) ? a : b;
+    }
+    function min(a, b) {
+        a = parseValue(a);
+        b = parseValue(b);
+        return a.lesser(b) ? a : b;
+    }
+    function gcd(a, b) {
+        a = parseValue(a).abs();
+        b = parseValue(b).abs();
+        if (a.equals(b)) return a;
+        if (a.isZero()) return b;
+        if (b.isZero()) return a;
+        var c = Integer[1], d, t;
+        while (a.isEven() && b.isEven()) {
+            d = Math.min(roughLOB(a), roughLOB(b));
+            a = a.divide(d);
+            b = b.divide(d);
+            c = c.multiply(d);
+        }
+        while (a.isEven()) {
+            a = a.divide(roughLOB(a));
+        }
+        do {
+            while (b.isEven()) {
+                b = b.divide(roughLOB(b));
+            }
+            if (a.greater(b)) {
+                t = b; b = a; a = t;
+            }
+            b = b.subtract(a);
+        } while (!b.isZero());
+        return c.isUnit() ? a : a.multiply(c);
+    }
+    function lcm(a, b) {
+        a = parseValue(a).abs();
+        b = parseValue(b).abs();
+        return a.divide(gcd(a, b)).multiply(b);
+    }
+    function randBetween(a, b) {
+        a = parseValue(a);
+        b = parseValue(b);
+        var low = min(a, b), high = max(a, b);
+        var range = high.subtract(low).add(1);
+        if (range.isSmall) return low.add(Math.floor(Math.random() * range));
+        var length = range.value.length - 1;
+        var result = [], restricted = true;
+        for (var i = length; i >= 0; i--) {
+            var top = restricted ? range.value[i] : BASE;
+            var digit = truncate(Math.random() * top);
+            result.unshift(digit);
+            if (digit < top) restricted = false;
+        }
+        result = arrayToSmall(result);
+        return low.add(typeof result === "number" ? new SmallInteger(result) : new BigInteger(result, false));
+    }
+    var parseBase = function (text, base) {
+        var length = text.length;
+        var i;
+        var absBase = Math.abs(base);
+        for (var i = 0; i < length; i++) {
+            var c = text[i].toLowerCase();
+            if (c === "-") continue;
+            if (/[a-z0-9]/.test(c)) {
+                if (/[0-9]/.test(c) && +c >= absBase) {
+                    if (c === "1" && absBase === 1) continue;
+                    throw new Error(c + " is not a valid digit in base " + base + ".");
+                } else if (c.charCodeAt(0) - 87 >= absBase) {
+                    throw new Error(c + " is not a valid digit in base " + base + ".");
+                }
+            }
+        }
+        if (2 <= base && base <= 36) {
+            if (length <= LOG_MAX_INT / Math.log(base)) {
+                var result = parseInt(text, base);
+                if (isNaN(result)) {
+                    throw new Error(c + " is not a valid digit in base " + base + ".");
+                }
+                return new SmallInteger(parseInt(text, base));
+            }
+        }
+        base = parseValue(base);
+        var digits = [];
+        var isNegative = text[0] === "-";
+        for (i = isNegative ? 1 : 0; i < text.length; i++) {
+            var c = text[i].toLowerCase(),
+                charCode = c.charCodeAt(0);
+            if (48 <= charCode && charCode <= 57) digits.push(parseValue(c));
+            else if (97 <= charCode && charCode <= 122) digits.push(parseValue(c.charCodeAt(0) - 87));
+            else if (c === "<") {
+                var start = i;
+                do { i++; } while (text[i] !== ">");
+                digits.push(parseValue(text.slice(start + 1, i)));
+            }
+            else throw new Error(c + " is not a valid character");
+        }
+        return parseBaseFromArray(digits, base, isNegative);
+    };
+
+    function parseBaseFromArray(digits, base, isNegative) {
+        var val = Integer[0], pow = Integer[1], i;
+        for (i = digits.length - 1; i >= 0; i--) {
+            val = val.add(digits[i].times(pow));
+            pow = pow.times(base);
+        }
+        return isNegative ? val.negate() : val;
+    }
+
+    function stringify(digit) {
+        if (digit <= 35) {
+            return "0123456789abcdefghijklmnopqrstuvwxyz".charAt(digit);
+        }
+        return "<" + digit + ">";
+    }
+
+    function toBase(n, base) {
+        base = bigInt(base);
+        if (base.isZero()) {
+            if (n.isZero()) return { value: [0], isNegative: false };
+            throw new Error("Cannot convert nonzero numbers to base 0.");
+        }
+        if (base.equals(-1)) {
+            if (n.isZero()) return { value: [0], isNegative: false };
+            if (n.isNegative())
+                return {
+                    value: [].concat.apply([], Array.apply(null, Array(-n))
+                        .map(Array.prototype.valueOf, [1, 0])
+                    ),
+                    isNegative: false
+                };
+
+            var arr = Array.apply(null, Array(+n - 1))
+                .map(Array.prototype.valueOf, [0, 1]);
+            arr.unshift([1]);
+            return {
+                value: [].concat.apply([], arr),
+                isNegative: false
+            };
+        }
+
+        var neg = false;
+        if (n.isNegative() && base.isPositive()) {
+            neg = true;
+            n = n.abs();
+        }
+        if (base.equals(1)) {
+            if (n.isZero()) return { value: [0], isNegative: false };
+
+            return {
+                value: Array.apply(null, Array(+n))
+                    .map(Number.prototype.valueOf, 1),
+                isNegative: neg
+            };
+        }
+        var out = [];
+        var left = n, divmod;
+        while (left.isNegative() || left.compareAbs(base) >= 0) {
+            divmod = left.divmod(base);
+            left = divmod.quotient;
+            var digit = divmod.remainder;
+            if (digit.isNegative()) {
+                digit = base.minus(digit).abs();
+                left = left.next();
+            }
+            out.push(digit.toJSNumber());
+        }
+        out.push(left.toJSNumber());
+        return { value: out.reverse(), isNegative: neg };
+    }
+
+    function toBaseString(n, base) {
+        var arr = toBase(n, base);
+        return (arr.isNegative ? "-" : "") + arr.value.map(stringify).join('');
+    }
+
+    BigInteger.prototype.toArray = function (radix) {
+        return toBase(this, radix);
+    };
+
+    SmallInteger.prototype.toArray = function (radix) {
+        return toBase(this, radix);
+    };
+
+    BigInteger.prototype.toString = function (radix) {
+        if (radix === undefined) radix = 10;
+        if (radix !== 10) return toBaseString(this, radix);
+        var v = this.value, l = v.length, str = String(v[--l]), zeros = "0000000", digit;
+        while (--l >= 0) {
+            digit = String(v[l]);
+            str += zeros.slice(digit.length) + digit;
+        }
+        var sign = this.sign ? "-" : "";
+        return sign + str;
+    };
+
+    SmallInteger.prototype.toString = function (radix) {
+        if (radix === undefined) radix = 10;
+        if (radix != 10) return toBaseString(this, radix);
+        return String(this.value);
+    };
+    BigInteger.prototype.toJSON = SmallInteger.prototype.toJSON = function () { return this.toString(); }
+
+    BigInteger.prototype.valueOf = function () {
+        return parseInt(this.toString(), 10);
+    };
+    BigInteger.prototype.toJSNumber = BigInteger.prototype.valueOf;
+
+    SmallInteger.prototype.valueOf = function () {
+        return this.value;
+    };
+    SmallInteger.prototype.toJSNumber = SmallInteger.prototype.valueOf;
+
+    function parseStringValue(v) {
+        if (isPrecise(+v)) {
+            var x = +v;
+            if (x === truncate(x))
+                return new SmallInteger(x);
+            throw new Error("Invalid integer: " + v);
+        }
+        var sign = v[0] === "-";
+        if (sign) v = v.slice(1);
+        var split = v.split(/e/i);
+        if (split.length > 2) throw new Error("Invalid integer: " + split.join("e"));
+        if (split.length === 2) {
+            var exp = split[1];
+            if (exp[0] === "+") exp = exp.slice(1);
+            exp = +exp;
+            if (exp !== truncate(exp) || !isPrecise(exp)) throw new Error("Invalid integer: " + exp + " is not a valid exponent.");
+            var text = split[0];
+            var decimalPlace = text.indexOf(".");
+            if (decimalPlace >= 0) {
+                exp -= text.length - decimalPlace - 1;
+                text = text.slice(0, decimalPlace) + text.slice(decimalPlace + 1);
+            }
+            if (exp < 0) throw new Error("Cannot include negative exponent part for integers");
+            text += (new Array(exp + 1)).join("0");
+            v = text;
+        }
+        var isValid = /^([0-9][0-9]*)$/.test(v);
+        if (!isValid) throw new Error("Invalid integer: " + v);
+        var r = [], max = v.length, l = LOG_BASE, min = max - l;
+        while (max > 0) {
+            r.push(+v.slice(min, max));
+            min -= l;
+            if (min < 0) min = 0;
+            max -= l;
+        }
+        trim(r);
+        return new BigInteger(r, sign);
+    }
+
+    function parseNumberValue(v) {
+        if (isPrecise(v)) {
+            if (v !== truncate(v)) throw new Error(v + " is not an integer.");
+            return new SmallInteger(v);
+        }
+        return parseStringValue(v.toString());
+    }
+
+    function parseValue(v) {
+        if (typeof v === "number") {
+            return parseNumberValue(v);
+        }
+        if (typeof v === "string") {
+            return parseStringValue(v);
+        }
+        return v;
+    }
+    // Pre-define numbers in range [-999,999]
+    for (var i = 0; i < 1000; i++) {
+        Integer[i] = new SmallInteger(i);
+        if (i > 0) Integer[-i] = new SmallInteger(-i);
+    }
+    // Backwards compatibility
+    Integer.one = Integer[1];
+    Integer.zero = Integer[0];
+    Integer.minusOne = Integer[-1];
+    Integer.max = max;
+    Integer.min = min;
+    Integer.gcd = gcd;
+    Integer.lcm = lcm;
+    Integer.isInstance = function (x) { return x instanceof BigInteger || x instanceof SmallInteger; };
+    Integer.randBetween = randBetween;
+
+    Integer.fromArray = function (digits, base, isNegative) {
+        return parseBaseFromArray(digits.map(parseValue), parseValue(base || 10), isNegative);
+    };
+
+    return Integer;
+})();
+
+// Node.js check
+if (typeof module !== "undefined" && module.hasOwnProperty("exports")) {
+    module.exports = bigInt;
+}
+
+//amd check
+if (true) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+        return bigInt;
+    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+}
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(40)(module)))
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3120,7 +4449,7 @@ util.estimateCores = function(options, callback) {
  * Copyright (c) 2009-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(7);
 __webpack_require__(29);
 __webpack_require__(30);
 __webpack_require__(1);
@@ -3298,7 +4627,7 @@ module.exports = forge.random;
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3438,7 +4767,7 @@ module.exports = forge.random;
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(6);
+__webpack_require__(8);
 
 /* ASN.1 API */
 var asn1 = module.exports = forge.asn1 = forge.asn1 || {};
@@ -4712,7 +6041,7 @@ asn1.prettyPrint = function(obj, level, indentation) {
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4729,7 +6058,8 @@ forge.md.algorithms = forge.md.algorithms || {};
 
 
 /***/ }),
-/* 5 */
+/* 6 */,
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -5826,7 +7156,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -5993,7 +7323,7 @@ _IN('1.3.6.1.5.5.7.3.8', 'timeStamping');
 
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6229,7 +7559,7 @@ function ltrim(str) {
 
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6242,7 +7572,7 @@ function ltrim(str) {
  * Copyright (c) 2010-2012 Digital Bazaar, Inc. All rights reserved.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
+__webpack_require__(5);
 __webpack_require__(1);
 
 /* HMAC API */
@@ -6381,7 +7711,7 @@ hmac.create = function() {
 
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6392,7 +7722,7 @@ hmac.create = function() {
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var sha1 = module.exports = forge.sha1 = forge.sha1 || {};
@@ -6706,7 +8036,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6717,20 +8047,20 @@ function _update(s, w, bytes) {
  * Copyright 2011-2016 Digital Bazaar, Inc.
  */
 module.exports = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(7);
 __webpack_require__(47);
-__webpack_require__(3);
+__webpack_require__(4);
 __webpack_require__(17);
 __webpack_require__(37);
-__webpack_require__(13);
+__webpack_require__(14);
 __webpack_require__(49);
-__webpack_require__(8);
+__webpack_require__(10);
 __webpack_require__(50);
 __webpack_require__(39);
 __webpack_require__(51);
 __webpack_require__(36);
 __webpack_require__(21);
-__webpack_require__(7);
+__webpack_require__(9);
 __webpack_require__(32);
 __webpack_require__(34);
 __webpack_require__(52);
@@ -6738,7 +8068,7 @@ __webpack_require__(26);
 __webpack_require__(33);
 __webpack_require__(30);
 __webpack_require__(23);
-__webpack_require__(2);
+__webpack_require__(3);
 __webpack_require__(31);
 __webpack_require__(53);
 __webpack_require__(54);
@@ -6747,8 +8077,7 @@ __webpack_require__(1);
 
 
 /***/ }),
-/* 11 */,
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8545,7 +9874,7 @@ function isnan (val) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9046,7 +10375,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9113,12 +10442,12 @@ function _createCipher(options) {
  * The OID for the RSA key algorithm is: 1.2.840.113549.1.1.1
  */
 var forge = __webpack_require__(0);
-__webpack_require__(3);
-__webpack_require__(15);
-__webpack_require__(6);
+__webpack_require__(4);
+__webpack_require__(16);
+__webpack_require__(8);
 __webpack_require__(32);
 __webpack_require__(33);
-__webpack_require__(2);
+__webpack_require__(3);
 __webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
@@ -10848,7 +12177,7 @@ function _base64ToBigInt(b64) {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright (c) 2005  Tom Wu
@@ -12118,1335 +13447,6 @@ BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
 
 
 /***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var bigInt = (function (undefined) {
-    "use strict";
-
-    var BASE = 1e7,
-        LOG_BASE = 7,
-        MAX_INT = 9007199254740992,
-        MAX_INT_ARR = smallToArray(MAX_INT),
-        LOG_MAX_INT = Math.log(MAX_INT);
-
-    function Integer(v, radix) {
-        if (typeof v === "undefined") return Integer[0];
-        if (typeof radix !== "undefined") return +radix === 10 ? parseValue(v) : parseBase(v, radix);
-        return parseValue(v);
-    }
-
-    function BigInteger(value, sign) {
-        this.value = value;
-        this.sign = sign;
-        this.isSmall = false;
-    }
-    BigInteger.prototype = Object.create(Integer.prototype);
-
-    function SmallInteger(value) {
-        this.value = value;
-        this.sign = value < 0;
-        this.isSmall = true;
-    }
-    SmallInteger.prototype = Object.create(Integer.prototype);
-
-    function isPrecise(n) {
-        return -MAX_INT < n && n < MAX_INT;
-    }
-
-    function smallToArray(n) { // For performance reasons doesn't reference BASE, need to change this function if BASE changes
-        if (n < 1e7)
-            return [n];
-        if (n < 1e14)
-            return [n % 1e7, Math.floor(n / 1e7)];
-        return [n % 1e7, Math.floor(n / 1e7) % 1e7, Math.floor(n / 1e14)];
-    }
-
-    function arrayToSmall(arr) { // If BASE changes this function may need to change
-        trim(arr);
-        var length = arr.length;
-        if (length < 4 && compareAbs(arr, MAX_INT_ARR) < 0) {
-            switch (length) {
-                case 0: return 0;
-                case 1: return arr[0];
-                case 2: return arr[0] + arr[1] * BASE;
-                default: return arr[0] + (arr[1] + arr[2] * BASE) * BASE;
-            }
-        }
-        return arr;
-    }
-
-    function trim(v) {
-        var i = v.length;
-        while (v[--i] === 0);
-        v.length = i + 1;
-    }
-
-    function createArray(length) { // function shamelessly stolen from Yaffle's library https://github.com/Yaffle/BigInteger
-        var x = new Array(length);
-        var i = -1;
-        while (++i < length) {
-            x[i] = 0;
-        }
-        return x;
-    }
-
-    function truncate(n) {
-        if (n > 0) return Math.floor(n);
-        return Math.ceil(n);
-    }
-
-    function add(a, b) { // assumes a and b are arrays with a.length >= b.length
-        var l_a = a.length,
-            l_b = b.length,
-            r = new Array(l_a),
-            carry = 0,
-            base = BASE,
-            sum, i;
-        for (i = 0; i < l_b; i++) {
-            sum = a[i] + b[i] + carry;
-            carry = sum >= base ? 1 : 0;
-            r[i] = sum - carry * base;
-        }
-        while (i < l_a) {
-            sum = a[i] + carry;
-            carry = sum === base ? 1 : 0;
-            r[i++] = sum - carry * base;
-        }
-        if (carry > 0) r.push(carry);
-        return r;
-    }
-
-    function addAny(a, b) {
-        if (a.length >= b.length) return add(a, b);
-        return add(b, a);
-    }
-
-    function addSmall(a, carry) { // assumes a is array, carry is number with 0 <= carry < MAX_INT
-        var l = a.length,
-            r = new Array(l),
-            base = BASE,
-            sum, i;
-        for (i = 0; i < l; i++) {
-            sum = a[i] - base + carry;
-            carry = Math.floor(sum / base);
-            r[i] = sum - carry * base;
-            carry += 1;
-        }
-        while (carry > 0) {
-            r[i++] = carry % base;
-            carry = Math.floor(carry / base);
-        }
-        return r;
-    }
-
-    BigInteger.prototype.add = function (v) {
-        var n = parseValue(v);
-        if (this.sign !== n.sign) {
-            return this.subtract(n.negate());
-        }
-        var a = this.value, b = n.value;
-        if (n.isSmall) {
-            return new BigInteger(addSmall(a, Math.abs(b)), this.sign);
-        }
-        return new BigInteger(addAny(a, b), this.sign);
-    };
-    BigInteger.prototype.plus = BigInteger.prototype.add;
-
-    SmallInteger.prototype.add = function (v) {
-        var n = parseValue(v);
-        var a = this.value;
-        if (a < 0 !== n.sign) {
-            return this.subtract(n.negate());
-        }
-        var b = n.value;
-        if (n.isSmall) {
-            if (isPrecise(a + b)) return new SmallInteger(a + b);
-            b = smallToArray(Math.abs(b));
-        }
-        return new BigInteger(addSmall(b, Math.abs(a)), a < 0);
-    };
-    SmallInteger.prototype.plus = SmallInteger.prototype.add;
-
-    function subtract(a, b) { // assumes a and b are arrays with a >= b
-        var a_l = a.length,
-            b_l = b.length,
-            r = new Array(a_l),
-            borrow = 0,
-            base = BASE,
-            i, difference;
-        for (i = 0; i < b_l; i++) {
-            difference = a[i] - borrow - b[i];
-            if (difference < 0) {
-                difference += base;
-                borrow = 1;
-            } else borrow = 0;
-            r[i] = difference;
-        }
-        for (i = b_l; i < a_l; i++) {
-            difference = a[i] - borrow;
-            if (difference < 0) difference += base;
-            else {
-                r[i++] = difference;
-                break;
-            }
-            r[i] = difference;
-        }
-        for (; i < a_l; i++) {
-            r[i] = a[i];
-        }
-        trim(r);
-        return r;
-    }
-
-    function subtractAny(a, b, sign) {
-        var value;
-        if (compareAbs(a, b) >= 0) {
-            value = subtract(a, b);
-        } else {
-            value = subtract(b, a);
-            sign = !sign;
-        }
-        value = arrayToSmall(value);
-        if (typeof value === "number") {
-            if (sign) value = -value;
-            return new SmallInteger(value);
-        }
-        return new BigInteger(value, sign);
-    }
-
-    function subtractSmall(a, b, sign) { // assumes a is array, b is number with 0 <= b < MAX_INT
-        var l = a.length,
-            r = new Array(l),
-            carry = -b,
-            base = BASE,
-            i, difference;
-        for (i = 0; i < l; i++) {
-            difference = a[i] + carry;
-            carry = Math.floor(difference / base);
-            difference %= base;
-            r[i] = difference < 0 ? difference + base : difference;
-        }
-        r = arrayToSmall(r);
-        if (typeof r === "number") {
-            if (sign) r = -r;
-            return new SmallInteger(r);
-        } return new BigInteger(r, sign);
-    }
-
-    BigInteger.prototype.subtract = function (v) {
-        var n = parseValue(v);
-        if (this.sign !== n.sign) {
-            return this.add(n.negate());
-        }
-        var a = this.value, b = n.value;
-        if (n.isSmall)
-            return subtractSmall(a, Math.abs(b), this.sign);
-        return subtractAny(a, b, this.sign);
-    };
-    BigInteger.prototype.minus = BigInteger.prototype.subtract;
-
-    SmallInteger.prototype.subtract = function (v) {
-        var n = parseValue(v);
-        var a = this.value;
-        if (a < 0 !== n.sign) {
-            return this.add(n.negate());
-        }
-        var b = n.value;
-        if (n.isSmall) {
-            return new SmallInteger(a - b);
-        }
-        return subtractSmall(b, Math.abs(a), a >= 0);
-    };
-    SmallInteger.prototype.minus = SmallInteger.prototype.subtract;
-
-    BigInteger.prototype.negate = function () {
-        return new BigInteger(this.value, !this.sign);
-    };
-    SmallInteger.prototype.negate = function () {
-        var sign = this.sign;
-        var small = new SmallInteger(-this.value);
-        small.sign = !sign;
-        return small;
-    };
-
-    BigInteger.prototype.abs = function () {
-        return new BigInteger(this.value, false);
-    };
-    SmallInteger.prototype.abs = function () {
-        return new SmallInteger(Math.abs(this.value));
-    };
-
-    function multiplyLong(a, b) {
-        var a_l = a.length,
-            b_l = b.length,
-            l = a_l + b_l,
-            r = createArray(l),
-            base = BASE,
-            product, carry, i, a_i, b_j;
-        for (i = 0; i < a_l; ++i) {
-            a_i = a[i];
-            for (var j = 0; j < b_l; ++j) {
-                b_j = b[j];
-                product = a_i * b_j + r[i + j];
-                carry = Math.floor(product / base);
-                r[i + j] = product - carry * base;
-                r[i + j + 1] += carry;
-            }
-        }
-        trim(r);
-        return r;
-    }
-
-    function multiplySmall(a, b) { // assumes a is array, b is number with |b| < BASE
-        var l = a.length,
-            r = new Array(l),
-            base = BASE,
-            carry = 0,
-            product, i;
-        for (i = 0; i < l; i++) {
-            product = a[i] * b + carry;
-            carry = Math.floor(product / base);
-            r[i] = product - carry * base;
-        }
-        while (carry > 0) {
-            r[i++] = carry % base;
-            carry = Math.floor(carry / base);
-        }
-        return r;
-    }
-
-    function shiftLeft(x, n) {
-        var r = [];
-        while (n-- > 0) r.push(0);
-        return r.concat(x);
-    }
-
-    function multiplyKaratsuba(x, y) {
-        var n = Math.max(x.length, y.length);
-
-        if (n <= 30) return multiplyLong(x, y);
-        n = Math.ceil(n / 2);
-
-        var b = x.slice(n),
-            a = x.slice(0, n),
-            d = y.slice(n),
-            c = y.slice(0, n);
-
-        var ac = multiplyKaratsuba(a, c),
-            bd = multiplyKaratsuba(b, d),
-            abcd = multiplyKaratsuba(addAny(a, b), addAny(c, d));
-
-        var product = addAny(addAny(ac, shiftLeft(subtract(subtract(abcd, ac), bd), n)), shiftLeft(bd, 2 * n));
-        trim(product);
-        return product;
-    }
-
-    // The following function is derived from a surface fit of a graph plotting the performance difference
-    // between long multiplication and karatsuba multiplication versus the lengths of the two arrays.
-    function useKaratsuba(l1, l2) {
-        return -0.012 * l1 - 0.012 * l2 + 0.000015 * l1 * l2 > 0;
-    }
-
-    BigInteger.prototype.multiply = function (v) {
-        var n = parseValue(v),
-            a = this.value, b = n.value,
-            sign = this.sign !== n.sign,
-            abs;
-        if (n.isSmall) {
-            if (b === 0) return Integer[0];
-            if (b === 1) return this;
-            if (b === -1) return this.negate();
-            abs = Math.abs(b);
-            if (abs < BASE) {
-                return new BigInteger(multiplySmall(a, abs), sign);
-            }
-            b = smallToArray(abs);
-        }
-        if (useKaratsuba(a.length, b.length)) // Karatsuba is only faster for certain array sizes
-            return new BigInteger(multiplyKaratsuba(a, b), sign);
-        return new BigInteger(multiplyLong(a, b), sign);
-    };
-
-    BigInteger.prototype.times = BigInteger.prototype.multiply;
-
-    function multiplySmallAndArray(a, b, sign) { // a >= 0
-        if (a < BASE) {
-            return new BigInteger(multiplySmall(b, a), sign);
-        }
-        return new BigInteger(multiplyLong(b, smallToArray(a)), sign);
-    }
-    SmallInteger.prototype._multiplyBySmall = function (a) {
-        if (isPrecise(a.value * this.value)) {
-            return new SmallInteger(a.value * this.value);
-        }
-        return multiplySmallAndArray(Math.abs(a.value), smallToArray(Math.abs(this.value)), this.sign !== a.sign);
-    };
-    BigInteger.prototype._multiplyBySmall = function (a) {
-        if (a.value === 0) return Integer[0];
-        if (a.value === 1) return this;
-        if (a.value === -1) return this.negate();
-        return multiplySmallAndArray(Math.abs(a.value), this.value, this.sign !== a.sign);
-    };
-    SmallInteger.prototype.multiply = function (v) {
-        return parseValue(v)._multiplyBySmall(this);
-    };
-    SmallInteger.prototype.times = SmallInteger.prototype.multiply;
-
-    function square(a) {
-        //console.assert(2 * BASE * BASE < MAX_INT);
-        var l = a.length,
-            r = createArray(l + l),
-            base = BASE,
-            product, carry, i, a_i, a_j;
-        for (i = 0; i < l; i++) {
-            a_i = a[i];
-            carry = 0 - a_i * a_i;
-            for (var j = i; j < l; j++) {
-                a_j = a[j];
-                product = 2 * (a_i * a_j) + r[i + j] + carry;
-                carry = Math.floor(product / base);
-                r[i + j] = product - carry * base;
-            }
-            r[i + l] = carry;
-        }
-        trim(r);
-        return r;
-    }
-
-    BigInteger.prototype.square = function () {
-        return new BigInteger(square(this.value), false);
-    };
-
-    SmallInteger.prototype.square = function () {
-        var value = this.value * this.value;
-        if (isPrecise(value)) return new SmallInteger(value);
-        return new BigInteger(square(smallToArray(Math.abs(this.value))), false);
-    };
-
-    function divMod1(a, b) { // Left over from previous version. Performs faster than divMod2 on smaller input sizes.
-        var a_l = a.length,
-            b_l = b.length,
-            base = BASE,
-            result = createArray(b.length),
-            divisorMostSignificantDigit = b[b_l - 1],
-            // normalization
-            lambda = Math.ceil(base / (2 * divisorMostSignificantDigit)),
-            remainder = multiplySmall(a, lambda),
-            divisor = multiplySmall(b, lambda),
-            quotientDigit, shift, carry, borrow, i, l, q;
-        if (remainder.length <= a_l) remainder.push(0);
-        divisor.push(0);
-        divisorMostSignificantDigit = divisor[b_l - 1];
-        for (shift = a_l - b_l; shift >= 0; shift--) {
-            quotientDigit = base - 1;
-            if (remainder[shift + b_l] !== divisorMostSignificantDigit) {
-                quotientDigit = Math.floor((remainder[shift + b_l] * base + remainder[shift + b_l - 1]) / divisorMostSignificantDigit);
-            }
-            // quotientDigit <= base - 1
-            carry = 0;
-            borrow = 0;
-            l = divisor.length;
-            for (i = 0; i < l; i++) {
-                carry += quotientDigit * divisor[i];
-                q = Math.floor(carry / base);
-                borrow += remainder[shift + i] - (carry - q * base);
-                carry = q;
-                if (borrow < 0) {
-                    remainder[shift + i] = borrow + base;
-                    borrow = -1;
-                } else {
-                    remainder[shift + i] = borrow;
-                    borrow = 0;
-                }
-            }
-            while (borrow !== 0) {
-                quotientDigit -= 1;
-                carry = 0;
-                for (i = 0; i < l; i++) {
-                    carry += remainder[shift + i] - base + divisor[i];
-                    if (carry < 0) {
-                        remainder[shift + i] = carry + base;
-                        carry = 0;
-                    } else {
-                        remainder[shift + i] = carry;
-                        carry = 1;
-                    }
-                }
-                borrow += carry;
-            }
-            result[shift] = quotientDigit;
-        }
-        // denormalization
-        remainder = divModSmall(remainder, lambda)[0];
-        return [arrayToSmall(result), arrayToSmall(remainder)];
-    }
-
-    function divMod2(a, b) { // Implementation idea shamelessly stolen from Silent Matt's library http://silentmatt.com/biginteger/
-        // Performs faster than divMod1 on larger input sizes.
-        var a_l = a.length,
-            b_l = b.length,
-            result = [],
-            part = [],
-            base = BASE,
-            guess, xlen, highx, highy, check;
-        while (a_l) {
-            part.unshift(a[--a_l]);
-            trim(part);
-            if (compareAbs(part, b) < 0) {
-                result.push(0);
-                continue;
-            }
-            xlen = part.length;
-            highx = part[xlen - 1] * base + part[xlen - 2];
-            highy = b[b_l - 1] * base + b[b_l - 2];
-            if (xlen > b_l) {
-                highx = (highx + 1) * base;
-            }
-            guess = Math.ceil(highx / highy);
-            do {
-                check = multiplySmall(b, guess);
-                if (compareAbs(check, part) <= 0) break;
-                guess--;
-            } while (guess);
-            result.push(guess);
-            part = subtract(part, check);
-        }
-        result.reverse();
-        return [arrayToSmall(result), arrayToSmall(part)];
-    }
-
-    function divModSmall(value, lambda) {
-        var length = value.length,
-            quotient = createArray(length),
-            base = BASE,
-            i, q, remainder, divisor;
-        remainder = 0;
-        for (i = length - 1; i >= 0; --i) {
-            divisor = remainder * base + value[i];
-            q = truncate(divisor / lambda);
-            remainder = divisor - q * lambda;
-            quotient[i] = q | 0;
-        }
-        return [quotient, remainder | 0];
-    }
-
-    function divModAny(self, v) {
-        var value, n = parseValue(v);
-        var a = self.value, b = n.value;
-        var quotient;
-        if (b === 0) throw new Error("Cannot divide by zero");
-        if (self.isSmall) {
-            if (n.isSmall) {
-                return [new SmallInteger(truncate(a / b)), new SmallInteger(a % b)];
-            }
-            return [Integer[0], self];
-        }
-        if (n.isSmall) {
-            if (b === 1) return [self, Integer[0]];
-            if (b == -1) return [self.negate(), Integer[0]];
-            var abs = Math.abs(b);
-            if (abs < BASE) {
-                value = divModSmall(a, abs);
-                quotient = arrayToSmall(value[0]);
-                var remainder = value[1];
-                if (self.sign) remainder = -remainder;
-                if (typeof quotient === "number") {
-                    if (self.sign !== n.sign) quotient = -quotient;
-                    return [new SmallInteger(quotient), new SmallInteger(remainder)];
-                }
-                return [new BigInteger(quotient, self.sign !== n.sign), new SmallInteger(remainder)];
-            }
-            b = smallToArray(abs);
-        }
-        var comparison = compareAbs(a, b);
-        if (comparison === -1) return [Integer[0], self];
-        if (comparison === 0) return [Integer[self.sign === n.sign ? 1 : -1], Integer[0]];
-
-        // divMod1 is faster on smaller input sizes
-        if (a.length + b.length <= 200)
-            value = divMod1(a, b);
-        else value = divMod2(a, b);
-
-        quotient = value[0];
-        var qSign = self.sign !== n.sign,
-            mod = value[1],
-            mSign = self.sign;
-        if (typeof quotient === "number") {
-            if (qSign) quotient = -quotient;
-            quotient = new SmallInteger(quotient);
-        } else quotient = new BigInteger(quotient, qSign);
-        if (typeof mod === "number") {
-            if (mSign) mod = -mod;
-            mod = new SmallInteger(mod);
-        } else mod = new BigInteger(mod, mSign);
-        return [quotient, mod];
-    }
-
-    BigInteger.prototype.divmod = function (v) {
-        var result = divModAny(this, v);
-        return {
-            quotient: result[0],
-            remainder: result[1]
-        };
-    };
-    SmallInteger.prototype.divmod = BigInteger.prototype.divmod;
-
-    BigInteger.prototype.divide = function (v) {
-        return divModAny(this, v)[0];
-    };
-    SmallInteger.prototype.over = SmallInteger.prototype.divide = BigInteger.prototype.over = BigInteger.prototype.divide;
-
-    BigInteger.prototype.mod = function (v) {
-        return divModAny(this, v)[1];
-    };
-    SmallInteger.prototype.remainder = SmallInteger.prototype.mod = BigInteger.prototype.remainder = BigInteger.prototype.mod;
-
-    BigInteger.prototype.pow = function (v) {
-        var n = parseValue(v),
-            a = this.value,
-            b = n.value,
-            value, x, y;
-        if (b === 0) return Integer[1];
-        if (a === 0) return Integer[0];
-        if (a === 1) return Integer[1];
-        if (a === -1) return n.isEven() ? Integer[1] : Integer[-1];
-        if (n.sign) {
-            return Integer[0];
-        }
-        if (!n.isSmall) throw new Error("The exponent " + n.toString() + " is too large.");
-        if (this.isSmall) {
-            if (isPrecise(value = Math.pow(a, b)))
-                return new SmallInteger(truncate(value));
-        }
-        x = this;
-        y = Integer[1];
-        while (true) {
-            if (b & 1 === 1) {
-                y = y.times(x);
-                --b;
-            }
-            if (b === 0) break;
-            b /= 2;
-            x = x.square();
-        }
-        return y;
-    };
-    SmallInteger.prototype.pow = BigInteger.prototype.pow;
-
-    BigInteger.prototype.modPow = function (exp, mod) {
-        exp = parseValue(exp);
-        mod = parseValue(mod);
-        if (mod.isZero()) throw new Error("Cannot take modPow with modulus 0");
-        var r = Integer[1],
-            base = this.mod(mod);
-        while (exp.isPositive()) {
-            if (base.isZero()) return Integer[0];
-            if (exp.isOdd()) r = r.multiply(base).mod(mod);
-            exp = exp.divide(2);
-            base = base.square().mod(mod);
-        }
-        return r;
-    };
-    SmallInteger.prototype.modPow = BigInteger.prototype.modPow;
-
-    function compareAbs(a, b) {
-        if (a.length !== b.length) {
-            return a.length > b.length ? 1 : -1;
-        }
-        for (var i = a.length - 1; i >= 0; i--) {
-            if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1;
-        }
-        return 0;
-    }
-
-    BigInteger.prototype.compareAbs = function (v) {
-        var n = parseValue(v),
-            a = this.value,
-            b = n.value;
-        if (n.isSmall) return 1;
-        return compareAbs(a, b);
-    };
-    SmallInteger.prototype.compareAbs = function (v) {
-        var n = parseValue(v),
-            a = Math.abs(this.value),
-            b = n.value;
-        if (n.isSmall) {
-            b = Math.abs(b);
-            return a === b ? 0 : a > b ? 1 : -1;
-        }
-        return -1;
-    };
-
-    BigInteger.prototype.compare = function (v) {
-        // See discussion about comparison with Infinity:
-        // https://github.com/peterolson/BigInteger.js/issues/61
-        if (v === Infinity) {
-            return -1;
-        }
-        if (v === -Infinity) {
-            return 1;
-        }
-
-        var n = parseValue(v),
-            a = this.value,
-            b = n.value;
-        if (this.sign !== n.sign) {
-            return n.sign ? 1 : -1;
-        }
-        if (n.isSmall) {
-            return this.sign ? -1 : 1;
-        }
-        return compareAbs(a, b) * (this.sign ? -1 : 1);
-    };
-    BigInteger.prototype.compareTo = BigInteger.prototype.compare;
-
-    SmallInteger.prototype.compare = function (v) {
-        if (v === Infinity) {
-            return -1;
-        }
-        if (v === -Infinity) {
-            return 1;
-        }
-
-        var n = parseValue(v),
-            a = this.value,
-            b = n.value;
-        if (n.isSmall) {
-            return a == b ? 0 : a > b ? 1 : -1;
-        }
-        if (a < 0 !== n.sign) {
-            return a < 0 ? -1 : 1;
-        }
-        return a < 0 ? 1 : -1;
-    };
-    SmallInteger.prototype.compareTo = SmallInteger.prototype.compare;
-
-    BigInteger.prototype.equals = function (v) {
-        return this.compare(v) === 0;
-    };
-    SmallInteger.prototype.eq = SmallInteger.prototype.equals = BigInteger.prototype.eq = BigInteger.prototype.equals;
-
-    BigInteger.prototype.notEquals = function (v) {
-        return this.compare(v) !== 0;
-    };
-    SmallInteger.prototype.neq = SmallInteger.prototype.notEquals = BigInteger.prototype.neq = BigInteger.prototype.notEquals;
-
-    BigInteger.prototype.greater = function (v) {
-        return this.compare(v) > 0;
-    };
-    SmallInteger.prototype.gt = SmallInteger.prototype.greater = BigInteger.prototype.gt = BigInteger.prototype.greater;
-
-    BigInteger.prototype.lesser = function (v) {
-        return this.compare(v) < 0;
-    };
-    SmallInteger.prototype.lt = SmallInteger.prototype.lesser = BigInteger.prototype.lt = BigInteger.prototype.lesser;
-
-    BigInteger.prototype.greaterOrEquals = function (v) {
-        return this.compare(v) >= 0;
-    };
-    SmallInteger.prototype.geq = SmallInteger.prototype.greaterOrEquals = BigInteger.prototype.geq = BigInteger.prototype.greaterOrEquals;
-
-    BigInteger.prototype.lesserOrEquals = function (v) {
-        return this.compare(v) <= 0;
-    };
-    SmallInteger.prototype.leq = SmallInteger.prototype.lesserOrEquals = BigInteger.prototype.leq = BigInteger.prototype.lesserOrEquals;
-
-    BigInteger.prototype.isEven = function () {
-        return (this.value[0] & 1) === 0;
-    };
-    SmallInteger.prototype.isEven = function () {
-        return (this.value & 1) === 0;
-    };
-
-    BigInteger.prototype.isOdd = function () {
-        return (this.value[0] & 1) === 1;
-    };
-    SmallInteger.prototype.isOdd = function () {
-        return (this.value & 1) === 1;
-    };
-
-    BigInteger.prototype.isPositive = function () {
-        return !this.sign;
-    };
-    SmallInteger.prototype.isPositive = function () {
-        return this.value > 0;
-    };
-
-    BigInteger.prototype.isNegative = function () {
-        return this.sign;
-    };
-    SmallInteger.prototype.isNegative = function () {
-        return this.value < 0;
-    };
-
-    BigInteger.prototype.isUnit = function () {
-        return false;
-    };
-    SmallInteger.prototype.isUnit = function () {
-        return Math.abs(this.value) === 1;
-    };
-
-    BigInteger.prototype.isZero = function () {
-        return false;
-    };
-    SmallInteger.prototype.isZero = function () {
-        return this.value === 0;
-    };
-    BigInteger.prototype.isDivisibleBy = function (v) {
-        var n = parseValue(v);
-        var value = n.value;
-        if (value === 0) return false;
-        if (value === 1) return true;
-        if (value === 2) return this.isEven();
-        return this.mod(n).equals(Integer[0]);
-    };
-    SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
-
-    function isBasicPrime(v) {
-        var n = v.abs();
-        if (n.isUnit()) return false;
-        if (n.equals(2) || n.equals(3) || n.equals(5)) return true;
-        if (n.isEven() || n.isDivisibleBy(3) || n.isDivisibleBy(5)) return false;
-        if (n.lesser(49)) return true;
-        // we don't know if it's prime: let the other functions figure it out
-    }
-    
-    function millerRabinTest(n, a) {
-        var nPrev = n.prev(),
-            b = nPrev,
-            r = 0,
-            d, t, i, x;
-        while (b.isEven()) b = b.divide(2), r++;
-        next : for (i = 0; i < a.length; i++) {
-            if (n.lesser(a[i])) continue;
-            x = bigInt(a[i]).modPow(b, n);
-            if (x.equals(Integer[1]) || x.equals(nPrev)) continue;
-            for (d = r - 1; d != 0; d--) {
-                x = x.square().mod(n);
-                if (x.isUnit()) return false;    
-                if (x.equals(nPrev)) continue next;
-            }
-            return false;
-        }
-        return true;
-    }
-    
-// Set "strict" to true to force GRH-supported lower bound of 2*log(N)^2
-    BigInteger.prototype.isPrime = function (strict) {
-        var isPrime = isBasicPrime(this);
-        if (isPrime !== undefined) return isPrime;
-        var n = this.abs();
-        var bits = n.bitLength();
-        if(bits <= 64)
-            return millerRabinTest(n, [2, 325, 9375, 28178, 450775, 9780504, 1795265022]);
-        var logN = Math.log(2) * bits;
-        var t = Math.ceil((strict === true) ? (2 * Math.pow(logN, 2)) : logN);
-        for (var a = [], i = 0; i < t; i++) {
-            a.push(bigInt(i + 2));
-        }
-        return millerRabinTest(n, a);
-    };
-    SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
-
-    BigInteger.prototype.isProbablePrime = function (iterations) {
-        var isPrime = isBasicPrime(this);
-        if (isPrime !== undefined) return isPrime;
-        var n = this.abs();
-        var t = iterations === undefined ? 5 : iterations;
-        for (var a = [], i = 0; i < t; i++) {
-            a.push(bigInt.randBetween(2, n.minus(2)));
-        }
-        return millerRabinTest(n, a);
-    };
-    SmallInteger.prototype.isProbablePrime = BigInteger.prototype.isProbablePrime;
-
-    BigInteger.prototype.modInv = function (n) {
-        var t = bigInt.zero, newT = bigInt.one, r = parseValue(n), newR = this.abs(), q, lastT, lastR;
-        while (!newR.equals(bigInt.zero)) {
-            q = r.divide(newR);
-            lastT = t;
-            lastR = r;
-            t = newT;
-            r = newR;
-            newT = lastT.subtract(q.multiply(newT));
-            newR = lastR.subtract(q.multiply(newR));
-        }
-        if (!r.equals(1)) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
-        if (t.compare(0) === -1) {
-            t = t.add(n);
-        }
-        if (this.isNegative()) {
-            return t.negate();
-        }
-        return t;
-    };
-
-    SmallInteger.prototype.modInv = BigInteger.prototype.modInv;
-
-    BigInteger.prototype.next = function () {
-        var value = this.value;
-        if (this.sign) {
-            return subtractSmall(value, 1, this.sign);
-        }
-        return new BigInteger(addSmall(value, 1), this.sign);
-    };
-    SmallInteger.prototype.next = function () {
-        var value = this.value;
-        if (value + 1 < MAX_INT) return new SmallInteger(value + 1);
-        return new BigInteger(MAX_INT_ARR, false);
-    };
-
-    BigInteger.prototype.prev = function () {
-        var value = this.value;
-        if (this.sign) {
-            return new BigInteger(addSmall(value, 1), true);
-        }
-        return subtractSmall(value, 1, this.sign);
-    };
-    SmallInteger.prototype.prev = function () {
-        var value = this.value;
-        if (value - 1 > -MAX_INT) return new SmallInteger(value - 1);
-        return new BigInteger(MAX_INT_ARR, true);
-    };
-
-    var powersOfTwo = [1];
-    while (2 * powersOfTwo[powersOfTwo.length - 1] <= BASE) powersOfTwo.push(2 * powersOfTwo[powersOfTwo.length - 1]);
-    var powers2Length = powersOfTwo.length, highestPower2 = powersOfTwo[powers2Length - 1];
-
-    function shift_isSmall(n) {
-        return ((typeof n === "number" || typeof n === "string") && +Math.abs(n) <= BASE) ||
-            (n instanceof BigInteger && n.value.length <= 1);
-    }
-
-    BigInteger.prototype.shiftLeft = function (n) {
-        if (!shift_isSmall(n)) {
-            throw new Error(String(n) + " is too large for shifting.");
-        }
-        n = +n;
-        if (n < 0) return this.shiftRight(-n);
-        var result = this;
-        if (result.isZero()) return result;
-        while (n >= powers2Length) {
-            result = result.multiply(highestPower2);
-            n -= powers2Length - 1;
-        }
-        return result.multiply(powersOfTwo[n]);
-    };
-    SmallInteger.prototype.shiftLeft = BigInteger.prototype.shiftLeft;
-
-    BigInteger.prototype.shiftRight = function (n) {
-        var remQuo;
-        if (!shift_isSmall(n)) {
-            throw new Error(String(n) + " is too large for shifting.");
-        }
-        n = +n;
-        if (n < 0) return this.shiftLeft(-n);
-        var result = this;
-        while (n >= powers2Length) {
-            if (result.isZero() || (result.isNegative() && result.isUnit())) return result;
-            remQuo = divModAny(result, highestPower2);
-            result = remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
-            n -= powers2Length - 1;
-        }
-        remQuo = divModAny(result, powersOfTwo[n]);
-        return remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
-    };
-    SmallInteger.prototype.shiftRight = BigInteger.prototype.shiftRight;
-
-    function bitwise(x, y, fn) {
-        y = parseValue(y);
-        var xSign = x.isNegative(), ySign = y.isNegative();
-        var xRem = xSign ? x.not() : x,
-            yRem = ySign ? y.not() : y;
-        var xDigit = 0, yDigit = 0;
-        var xDivMod = null, yDivMod = null;
-        var result = [];
-        while (!xRem.isZero() || !yRem.isZero()) {
-            xDivMod = divModAny(xRem, highestPower2);
-            xDigit = xDivMod[1].toJSNumber();
-            if (xSign) {
-                xDigit = highestPower2 - 1 - xDigit; // two's complement for negative numbers
-            }
-
-            yDivMod = divModAny(yRem, highestPower2);
-            yDigit = yDivMod[1].toJSNumber();
-            if (ySign) {
-                yDigit = highestPower2 - 1 - yDigit; // two's complement for negative numbers
-            }
-
-            xRem = xDivMod[0];
-            yRem = yDivMod[0];
-            result.push(fn(xDigit, yDigit));
-        }
-        var sum = fn(xSign ? 1 : 0, ySign ? 1 : 0) !== 0 ? bigInt(-1) : bigInt(0);
-        for (var i = result.length - 1; i >= 0; i -= 1) {
-            sum = sum.multiply(highestPower2).add(bigInt(result[i]));
-        }
-        return sum;
-    }
-
-    BigInteger.prototype.not = function () {
-        return this.negate().prev();
-    };
-    SmallInteger.prototype.not = BigInteger.prototype.not;
-
-    BigInteger.prototype.and = function (n) {
-        return bitwise(this, n, function (a, b) { return a & b; });
-    };
-    SmallInteger.prototype.and = BigInteger.prototype.and;
-
-    BigInteger.prototype.or = function (n) {
-        return bitwise(this, n, function (a, b) { return a | b; });
-    };
-    SmallInteger.prototype.or = BigInteger.prototype.or;
-
-    BigInteger.prototype.xor = function (n) {
-        return bitwise(this, n, function (a, b) { return a ^ b; });
-    };
-    SmallInteger.prototype.xor = BigInteger.prototype.xor;
-
-    var LOBMASK_I = 1 << 30, LOBMASK_BI = (BASE & -BASE) * (BASE & -BASE) | LOBMASK_I;
-    function roughLOB(n) { // get lowestOneBit (rough)
-        // SmallInteger: return Min(lowestOneBit(n), 1 << 30)
-        // BigInteger: return Min(lowestOneBit(n), 1 << 14) [BASE=1e7]
-        var v = n.value, x = typeof v === "number" ? v | LOBMASK_I : v[0] + v[1] * BASE | LOBMASK_BI;
-        return x & -x;
-    }
-
-    function integerLogarithm(value, base) {
-        if (base.compareTo(value) <= 0) {
-            var tmp = integerLogarithm(value, base.square(base));
-            var p = tmp.p;
-            var e = tmp.e;
-            var t = p.multiply(base);
-            return t.compareTo(value) <= 0 ? { p: t, e: e * 2 + 1 } : { p: p, e: e * 2 };
-        }
-        return { p: bigInt(1), e: 0 };
-    }
-
-    BigInteger.prototype.bitLength = function () {
-        var n = this;
-        if (n.compareTo(bigInt(0)) < 0) {
-            n = n.negate().subtract(bigInt(1));
-        }
-        if (n.compareTo(bigInt(0)) === 0) {
-            return bigInt(0);
-        }
-        return bigInt(integerLogarithm(n, bigInt(2)).e).add(bigInt(1));
-    }
-    SmallInteger.prototype.bitLength = BigInteger.prototype.bitLength;
-
-    function max(a, b) {
-        a = parseValue(a);
-        b = parseValue(b);
-        return a.greater(b) ? a : b;
-    }
-    function min(a, b) {
-        a = parseValue(a);
-        b = parseValue(b);
-        return a.lesser(b) ? a : b;
-    }
-    function gcd(a, b) {
-        a = parseValue(a).abs();
-        b = parseValue(b).abs();
-        if (a.equals(b)) return a;
-        if (a.isZero()) return b;
-        if (b.isZero()) return a;
-        var c = Integer[1], d, t;
-        while (a.isEven() && b.isEven()) {
-            d = Math.min(roughLOB(a), roughLOB(b));
-            a = a.divide(d);
-            b = b.divide(d);
-            c = c.multiply(d);
-        }
-        while (a.isEven()) {
-            a = a.divide(roughLOB(a));
-        }
-        do {
-            while (b.isEven()) {
-                b = b.divide(roughLOB(b));
-            }
-            if (a.greater(b)) {
-                t = b; b = a; a = t;
-            }
-            b = b.subtract(a);
-        } while (!b.isZero());
-        return c.isUnit() ? a : a.multiply(c);
-    }
-    function lcm(a, b) {
-        a = parseValue(a).abs();
-        b = parseValue(b).abs();
-        return a.divide(gcd(a, b)).multiply(b);
-    }
-    function randBetween(a, b) {
-        a = parseValue(a);
-        b = parseValue(b);
-        var low = min(a, b), high = max(a, b);
-        var range = high.subtract(low).add(1);
-        if (range.isSmall) return low.add(Math.floor(Math.random() * range));
-        var length = range.value.length - 1;
-        var result = [], restricted = true;
-        for (var i = length; i >= 0; i--) {
-            var top = restricted ? range.value[i] : BASE;
-            var digit = truncate(Math.random() * top);
-            result.unshift(digit);
-            if (digit < top) restricted = false;
-        }
-        result = arrayToSmall(result);
-        return low.add(typeof result === "number" ? new SmallInteger(result) : new BigInteger(result, false));
-    }
-    var parseBase = function (text, base) {
-        var length = text.length;
-        var i;
-        var absBase = Math.abs(base);
-        for (var i = 0; i < length; i++) {
-            var c = text[i].toLowerCase();
-            if (c === "-") continue;
-            if (/[a-z0-9]/.test(c)) {
-                if (/[0-9]/.test(c) && +c >= absBase) {
-                    if (c === "1" && absBase === 1) continue;
-                    throw new Error(c + " is not a valid digit in base " + base + ".");
-                } else if (c.charCodeAt(0) - 87 >= absBase) {
-                    throw new Error(c + " is not a valid digit in base " + base + ".");
-                }
-            }
-        }
-        if (2 <= base && base <= 36) {
-            if (length <= LOG_MAX_INT / Math.log(base)) {
-                var result = parseInt(text, base);
-                if (isNaN(result)) {
-                    throw new Error(c + " is not a valid digit in base " + base + ".");
-                }
-                return new SmallInteger(parseInt(text, base));
-            }
-        }
-        base = parseValue(base);
-        var digits = [];
-        var isNegative = text[0] === "-";
-        for (i = isNegative ? 1 : 0; i < text.length; i++) {
-            var c = text[i].toLowerCase(),
-                charCode = c.charCodeAt(0);
-            if (48 <= charCode && charCode <= 57) digits.push(parseValue(c));
-            else if (97 <= charCode && charCode <= 122) digits.push(parseValue(c.charCodeAt(0) - 87));
-            else if (c === "<") {
-                var start = i;
-                do { i++; } while (text[i] !== ">");
-                digits.push(parseValue(text.slice(start + 1, i)));
-            }
-            else throw new Error(c + " is not a valid character");
-        }
-        return parseBaseFromArray(digits, base, isNegative);
-    };
-
-    function parseBaseFromArray(digits, base, isNegative) {
-        var val = Integer[0], pow = Integer[1], i;
-        for (i = digits.length - 1; i >= 0; i--) {
-            val = val.add(digits[i].times(pow));
-            pow = pow.times(base);
-        }
-        return isNegative ? val.negate() : val;
-    }
-
-    function stringify(digit) {
-        if (digit <= 35) {
-            return "0123456789abcdefghijklmnopqrstuvwxyz".charAt(digit);
-        }
-        return "<" + digit + ">";
-    }
-
-    function toBase(n, base) {
-        base = bigInt(base);
-        if (base.isZero()) {
-            if (n.isZero()) return { value: [0], isNegative: false };
-            throw new Error("Cannot convert nonzero numbers to base 0.");
-        }
-        if (base.equals(-1)) {
-            if (n.isZero()) return { value: [0], isNegative: false };
-            if (n.isNegative())
-                return {
-                    value: [].concat.apply([], Array.apply(null, Array(-n))
-                        .map(Array.prototype.valueOf, [1, 0])
-                    ),
-                    isNegative: false
-                };
-
-            var arr = Array.apply(null, Array(+n - 1))
-                .map(Array.prototype.valueOf, [0, 1]);
-            arr.unshift([1]);
-            return {
-                value: [].concat.apply([], arr),
-                isNegative: false
-            };
-        }
-
-        var neg = false;
-        if (n.isNegative() && base.isPositive()) {
-            neg = true;
-            n = n.abs();
-        }
-        if (base.equals(1)) {
-            if (n.isZero()) return { value: [0], isNegative: false };
-
-            return {
-                value: Array.apply(null, Array(+n))
-                    .map(Number.prototype.valueOf, 1),
-                isNegative: neg
-            };
-        }
-        var out = [];
-        var left = n, divmod;
-        while (left.isNegative() || left.compareAbs(base) >= 0) {
-            divmod = left.divmod(base);
-            left = divmod.quotient;
-            var digit = divmod.remainder;
-            if (digit.isNegative()) {
-                digit = base.minus(digit).abs();
-                left = left.next();
-            }
-            out.push(digit.toJSNumber());
-        }
-        out.push(left.toJSNumber());
-        return { value: out.reverse(), isNegative: neg };
-    }
-
-    function toBaseString(n, base) {
-        var arr = toBase(n, base);
-        return (arr.isNegative ? "-" : "") + arr.value.map(stringify).join('');
-    }
-
-    BigInteger.prototype.toArray = function (radix) {
-        return toBase(this, radix);
-    };
-
-    SmallInteger.prototype.toArray = function (radix) {
-        return toBase(this, radix);
-    };
-
-    BigInteger.prototype.toString = function (radix) {
-        if (radix === undefined) radix = 10;
-        if (radix !== 10) return toBaseString(this, radix);
-        var v = this.value, l = v.length, str = String(v[--l]), zeros = "0000000", digit;
-        while (--l >= 0) {
-            digit = String(v[l]);
-            str += zeros.slice(digit.length) + digit;
-        }
-        var sign = this.sign ? "-" : "";
-        return sign + str;
-    };
-
-    SmallInteger.prototype.toString = function (radix) {
-        if (radix === undefined) radix = 10;
-        if (radix != 10) return toBaseString(this, radix);
-        return String(this.value);
-    };
-    BigInteger.prototype.toJSON = SmallInteger.prototype.toJSON = function () { return this.toString(); }
-
-    BigInteger.prototype.valueOf = function () {
-        return parseInt(this.toString(), 10);
-    };
-    BigInteger.prototype.toJSNumber = BigInteger.prototype.valueOf;
-
-    SmallInteger.prototype.valueOf = function () {
-        return this.value;
-    };
-    SmallInteger.prototype.toJSNumber = SmallInteger.prototype.valueOf;
-
-    function parseStringValue(v) {
-        if (isPrecise(+v)) {
-            var x = +v;
-            if (x === truncate(x))
-                return new SmallInteger(x);
-            throw new Error("Invalid integer: " + v);
-        }
-        var sign = v[0] === "-";
-        if (sign) v = v.slice(1);
-        var split = v.split(/e/i);
-        if (split.length > 2) throw new Error("Invalid integer: " + split.join("e"));
-        if (split.length === 2) {
-            var exp = split[1];
-            if (exp[0] === "+") exp = exp.slice(1);
-            exp = +exp;
-            if (exp !== truncate(exp) || !isPrecise(exp)) throw new Error("Invalid integer: " + exp + " is not a valid exponent.");
-            var text = split[0];
-            var decimalPlace = text.indexOf(".");
-            if (decimalPlace >= 0) {
-                exp -= text.length - decimalPlace - 1;
-                text = text.slice(0, decimalPlace) + text.slice(decimalPlace + 1);
-            }
-            if (exp < 0) throw new Error("Cannot include negative exponent part for integers");
-            text += (new Array(exp + 1)).join("0");
-            v = text;
-        }
-        var isValid = /^([0-9][0-9]*)$/.test(v);
-        if (!isValid) throw new Error("Invalid integer: " + v);
-        var r = [], max = v.length, l = LOG_BASE, min = max - l;
-        while (max > 0) {
-            r.push(+v.slice(min, max));
-            min -= l;
-            if (min < 0) min = 0;
-            max -= l;
-        }
-        trim(r);
-        return new BigInteger(r, sign);
-    }
-
-    function parseNumberValue(v) {
-        if (isPrecise(v)) {
-            if (v !== truncate(v)) throw new Error(v + " is not an integer.");
-            return new SmallInteger(v);
-        }
-        return parseStringValue(v.toString());
-    }
-
-    function parseValue(v) {
-        if (typeof v === "number") {
-            return parseNumberValue(v);
-        }
-        if (typeof v === "string") {
-            return parseStringValue(v);
-        }
-        return v;
-    }
-    // Pre-define numbers in range [-999,999]
-    for (var i = 0; i < 1000; i++) {
-        Integer[i] = new SmallInteger(i);
-        if (i > 0) Integer[-i] = new SmallInteger(-i);
-    }
-    // Backwards compatibility
-    Integer.one = Integer[1];
-    Integer.zero = Integer[0];
-    Integer.minusOne = Integer[-1];
-    Integer.max = max;
-    Integer.min = min;
-    Integer.gcd = gcd;
-    Integer.lcm = lcm;
-    Integer.isInstance = function (x) { return x instanceof BigInteger || x instanceof SmallInteger; };
-    Integer.randBetween = randBetween;
-
-    Integer.fromArray = function (digits, base, isNegative) {
-        return parseBaseFromArray(digits.map(parseValue), parseValue(base || 10), isNegative);
-    };
-
-    return Integer;
-})();
-
-// Node.js check
-if (typeof module !== "undefined" && module.hasOwnProperty("exports")) {
-    module.exports = bigInt;
-}
-
-//amd check
-if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
-        return bigInt;
-    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-}
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(40)(module)))
-
-/***/ }),
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13910,7 +13910,7 @@ module.exports = g;
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var md5 = module.exports = forge.md5 = forge.md5 || {};
@@ -14207,8 +14207,8 @@ function _update(s, w, bytes) {
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(8);
-__webpack_require__(4);
+__webpack_require__(10);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var pkcs5 = forge.pkcs5 = forge.pkcs5 || {};
@@ -14409,7 +14409,7 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
   outer();
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(13).Buffer))
 
 /***/ }),
 /* 22 */
@@ -14525,15 +14525,15 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
  * }
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
-__webpack_require__(3);
-__webpack_require__(13);
-__webpack_require__(4);
-__webpack_require__(48);
-__webpack_require__(6);
 __webpack_require__(7);
-__webpack_require__(23);
+__webpack_require__(4);
 __webpack_require__(14);
+__webpack_require__(5);
+__webpack_require__(48);
+__webpack_require__(8);
+__webpack_require__(9);
+__webpack_require__(23);
+__webpack_require__(15);
 __webpack_require__(1);
 
 // shortcut for asn.1 API
@@ -17700,7 +17700,7 @@ pki.verifyCertificateChain = function(caStore, chain, verify) {
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(3);
 __webpack_require__(1);
 
 // shortcut for PSS API
@@ -19165,13 +19165,13 @@ function from64To32(num) {
  * timing signal.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(3);
-__webpack_require__(8);
+__webpack_require__(4);
+__webpack_require__(10);
 __webpack_require__(20);
-__webpack_require__(7);
-__webpack_require__(26);
-__webpack_require__(2);
 __webpack_require__(9);
+__webpack_require__(26);
+__webpack_require__(3);
+__webpack_require__(11);
 __webpack_require__(1);
 
 /**
@@ -23216,14 +23216,14 @@ forge.tls.createConnection = tls.createConnection;
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(3);
-__webpack_require__(6);
+__webpack_require__(4);
+__webpack_require__(8);
 __webpack_require__(27);
-__webpack_require__(7);
+__webpack_require__(9);
 __webpack_require__(21);
 __webpack_require__(34);
 __webpack_require__(23);
-__webpack_require__(14);
+__webpack_require__(15);
 __webpack_require__(1);
 __webpack_require__(22);
 
@@ -23335,16 +23335,16 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
  * EncryptedData ::= OCTET STRING
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
-__webpack_require__(3);
-__webpack_require__(13);
-__webpack_require__(4);
-__webpack_require__(6);
-__webpack_require__(21);
 __webpack_require__(7);
-__webpack_require__(2);
-__webpack_require__(31);
+__webpack_require__(4);
 __webpack_require__(14);
+__webpack_require__(5);
+__webpack_require__(8);
+__webpack_require__(21);
+__webpack_require__(9);
+__webpack_require__(3);
+__webpack_require__(31);
+__webpack_require__(15);
 __webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
@@ -24360,7 +24360,7 @@ function createPbkdf2Params(salt, countBytes, dkLen, prfAlgorithm) {
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var sha256 = module.exports = forge.sha256 = forge.sha256 || {};
@@ -25573,8 +25573,8 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(2);
-__webpack_require__(9);
+__webpack_require__(3);
+__webpack_require__(11);
 
 // shortcut for PKCS#1 API
 var pkcs1 = module.exports = forge.pkcs1 = forge.pkcs1 || {};
@@ -25817,8 +25817,8 @@ function rsa_mgf1(seed, maskLength, hash) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(15);
-__webpack_require__(2);
+__webpack_require__(16);
+__webpack_require__(3);
 
 (function() {
 
@@ -26207,14 +26207,14 @@ function getMillerRabinTests(bits) {
  * }
  */
 var forge = __webpack_require__(0);
-__webpack_require__(3);
+__webpack_require__(4);
+__webpack_require__(10);
 __webpack_require__(8);
-__webpack_require__(6);
 __webpack_require__(35);
 __webpack_require__(27);
-__webpack_require__(2);
-__webpack_require__(14);
-__webpack_require__(9);
+__webpack_require__(3);
+__webpack_require__(15);
+__webpack_require__(11);
 __webpack_require__(1);
 __webpack_require__(22);
 
@@ -27301,7 +27301,7 @@ p12.generateKey = forge.pbe.generatePkcs12Key;
  * EncryptedKey ::= OCTET STRING
  */
 var forge = __webpack_require__(0);
-__webpack_require__(3);
+__webpack_require__(4);
 __webpack_require__(1);
 
 // shortcut for ASN.1 API
@@ -27766,7 +27766,7 @@ forge.debug.clear = function(cat, name) {
  * Copyright (c) 2014-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var sha512 = module.exports = forge.sha512 = forge.sha512 || {};
@@ -29380,7 +29380,7 @@ function _encodeWithByteBuffer(input, alphabet) {
   return output;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(13).Buffer))
 
 /***/ }),
 /* 47 */
@@ -29395,7 +29395,7 @@ function _encodeWithByteBuffer(input, alphabet) {
  *
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(7);
 __webpack_require__(25);
 
 var tls = module.exports = forge.tls;
@@ -29705,8 +29705,8 @@ forge.mgf.mgf1 = forge.mgf1;
  * https://github.com/dchest/tweetnacl-js
  */
 var forge = __webpack_require__(0);
-__webpack_require__(15);
-__webpack_require__(2);
+__webpack_require__(16);
+__webpack_require__(3);
 __webpack_require__(38);
 __webpack_require__(1);
 
@@ -30691,7 +30691,7 @@ function M(o, a, b) {
   o[15] = t15;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(13).Buffer))
 
 /***/ }),
 /* 50 */
@@ -30708,8 +30708,8 @@ function M(o, a, b) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(2);
-__webpack_require__(15);
+__webpack_require__(3);
+__webpack_require__(16);
 
 module.exports = forge.kem = forge.kem || {};
 
@@ -30878,10 +30878,10 @@ function _createKDF(kdf, md, counterStart, digestLength) {
  *
  * Copyright 2011-2017 Digital Bazaar, Inc.
  */
-module.exports = __webpack_require__(4);
+module.exports = __webpack_require__(5);
 
 __webpack_require__(20);
-__webpack_require__(9);
+__webpack_require__(11);
 __webpack_require__(29);
 __webpack_require__(38);
 
@@ -30909,13 +30909,13 @@ __webpack_require__(38);
  * PKCS standards like PKCS #12.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
-__webpack_require__(3);
-__webpack_require__(13);
-__webpack_require__(6);
 __webpack_require__(7);
+__webpack_require__(4);
+__webpack_require__(14);
+__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(35);
-__webpack_require__(2);
+__webpack_require__(3);
 __webpack_require__(1);
 __webpack_require__(22);
 
@@ -32164,10 +32164,10 @@ function _decryptContent(msg) {
  * @author https://github.com/shellac
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
-__webpack_require__(8);
+__webpack_require__(7);
+__webpack_require__(10);
 __webpack_require__(20);
-__webpack_require__(9);
+__webpack_require__(11);
 __webpack_require__(1);
 
 var ssh = module.exports = forge.ssh = forge.ssh || {};
@@ -33130,7 +33130,7 @@ forge.task.createCondition = function() {
 __webpack_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: ./node_modules/big-integer/BigInteger.js
-var BigInteger = __webpack_require__(16);
+var BigInteger = __webpack_require__(2);
 var BigInteger_default = /*#__PURE__*/__webpack_require__.n(BigInteger);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/UnsignedLongCoder.js
@@ -33215,7 +33215,6 @@ var __extends = (undefined && undefined.__extends) || (function () {
 })();
 
 
-
 /**
  * Long TLV object
  */
@@ -33230,7 +33229,7 @@ var IntegerTag_IntegerTag = /** @class */ (function (_super) {
         return _this;
     }
     IntegerTag.CREATE = function (id, nonCriticalFlag, forwardFlag, value) {
-        return new IntegerTag(new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder_UnsignedLongCoder.encode(BigInteger_default()(value))));
+        return new IntegerTag(new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder_UnsignedLongCoder.encode(value)));
     };
     IntegerTag.prototype.getValue = function () {
         return this.value;
@@ -33500,10 +33499,11 @@ var SIGNATURE_DATA_CONSTANTS = Object.freeze({
     CertificateIdTagType: 0x3,
     CertificateRepositoryUriTagType: 0x4
 });
-var LINK_DIRECTION_CONSTANTS = Object.freeze({
-    Left: 0x7,
-    Right: 0x8
-});
+var LinkDirection;
+(function (LinkDirection) {
+    LinkDirection[LinkDirection["Left"] = 7] = "Left";
+    LinkDirection[LinkDirection["Right"] = 8] = "Right";
+})(LinkDirection || (LinkDirection = {}));
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/strings/StringUtils.js
 /**
@@ -33808,7 +33808,7 @@ var CertificateRecord_CertificateRecord = /** @class */ (function (_super) {
 
 
 // EXTERNAL MODULE: ./node_modules/node-forge/lib/index.js
-var lib = __webpack_require__(10);
+var lib = __webpack_require__(12);
 
 // CONCATENATED MODULE: ./src/parser/StringTag.ts
 var StringTag_extends = (undefined && undefined.__extends) || (function () {
@@ -33868,8 +33868,21 @@ var StringTag_StringTag = /** @class */ (function (_super) {
 }(TlvTag));
 
 
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/HashingError.js
+/**
+ * Hashing error
+ */
+class HashingError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'HashingError';
+        Object.setPrototypeOf(this, HashingError.prototype);
+    }
+}
+
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/HashAlgorithm.js
-class HashAlgorithm {
+
+class HashAlgorithm_HashAlgorithm {
     /**
      * SHA1 HashAlgorithm instance
      * @return HashAlgorithm
@@ -33890,13 +33903,6 @@ class HashAlgorithm {
      */
     static get RIPEMD160() {
         return RIPEMD160;
-    }
-    /**
-     * SHA2_224 HashAlgorithm instance
-     * @return HashAlgorithm
-     */
-    static get SHA2_224() {
-        return SHA2_224;
     }
     /**
      * SHA2_384 HashAlgorithm instance
@@ -33952,11 +33958,14 @@ class HashAlgorithm {
      * @returns HashAlgorithm|null
      */
     static getById(id) {
-        const values = HashAlgorithm.Values();
+        const values = HashAlgorithm_HashAlgorithm.Values();
         for (const i in values) {
             if (values[i].id == id) {
                 return values[i];
             }
+        }
+        if (this.isInvalidAlgorithm(id)) {
+            throw new HashingError(`Invalid hash algorithm. Id: ${id}`);
         }
         return null;
     }
@@ -33965,33 +33974,113 @@ class HashAlgorithm {
      * @returns Array HashAlgorithm array
      */
     static Values() {
-        return [SHA1, SHA2_256, RIPEMD160, SHA2_224, SHA2_384, SHA2_512, SHA3_224, SHA3_256, SHA3_384, SHA3_512, SM3];
+        return [SHA1, SHA2_256, RIPEMD160, SHA2_384, SHA2_512, SHA3_224, SHA3_256, SHA3_384, SHA3_512, SM3];
     }
     /**
      * Create HashAlgorithm instance from id, name, length
      * @param id Guardtime algorithm id
      * @param name algorithm name
      * @param length algorithm digest length
+     * @param status algorithm status
+     * @param deprecatedSince date from which the algorithm is deprecated
+     * @param obsoleteSince date from which the algorithm is obsolete
      */
-    constructor(id, name, length) {
+    constructor(id, name, length, status, deprecatedSince = null, obsoleteSince = null) {
         this.id = id;
         this.name = name;
         this.length = length;
+        this.status = status;
+        if (deprecatedSince === null) {
+            this.deprecatedSince = deprecatedSince;
+        }
+        else if (obsoleteSince === null) {
+            this.deprecatedSince = deprecatedSince;
+        }
+        else {
+            this.deprecatedSince = deprecatedSince > obsoleteSince ? obsoleteSince : deprecatedSince;
+        }
+        this.obsoleteSince = obsoleteSince;
+    }
+    /**
+     * Returns true if the algorithm has deprecated since date set.
+     */
+    hasDeprecatedSinceDate() {
+        return this.deprecatedSince !== null;
+    }
+    /**
+     * Returns deprecated since date.
+     */
+    getDeprecatedSinceDate() {
+        return this.deprecatedSince;
+    }
+    /**
+     * Returns true if the algorithm is deprecated at the given date
+     * @param time unix time to check against
+     * @return boolean
+     */
+    isDeprecated(time) {
+        return (this.deprecatedSince !== null && time >= this.deprecatedSince) || this.isObsolete(time);
+    }
+    /**
+     * Returns obsolete since date.
+     */
+    getObsoleteSinceDate() {
+        return this.obsoleteSince;
+    }
+    /**
+     * Returns true if the algorithm is obsolete at the given date
+     * @param time unix time to check against
+     * @return boolean
+     */
+    isObsolete(time) {
+        return this.obsoleteSince !== null && time >= this.obsoleteSince;
+    }
+    /**
+     * Returns true if algorithm with given id is marked as invalid.
+     */
+    static isInvalidAlgorithm(algorithmId) {
+        for (const id of INVALID_HASH_ALGORITHM_IDS) {
+            if (id === algorithmId) {
+                return true;
+            }
+        }
+        return false;
     }
 }
-const SHA1 = new HashAlgorithm(0x0, 'SHA-1', 20);
-const SHA2_256 = new HashAlgorithm(0x1, 'SHA-256', 32);
-const RIPEMD160 = new HashAlgorithm(0x2, 'RIPEMD160', 20);
-const SHA2_224 = new HashAlgorithm(0x3, 'SHA-224', 28);
-const SHA2_384 = new HashAlgorithm(0x4, 'SHA-384', 48);
-const SHA2_512 = new HashAlgorithm(0x5, 'SHA-512', 64);
-const SHA3_224 = new HashAlgorithm(0x7, 'SHA3-224', 28);
-const SHA3_256 = new HashAlgorithm(0x8, 'SHA3-256', 32);
-const SHA3_384 = new HashAlgorithm(0x9, 'SHA3-384', 48);
-const SHA3_512 = new HashAlgorithm(0xA, 'SHA3-512', 64);
-const SM3 = new HashAlgorithm(0xB, 'SM3', 32);
+/**
+ * HashAlgorithm Status enum.
+ */
+var AlgorithmStatus;
+(function (AlgorithmStatus) {
+    /**
+     * Normal fully supported algorithm.
+     */
+    AlgorithmStatus[AlgorithmStatus["Normal"] = 0] = "Normal";
+    /**
+     * Algorithm no longer considered secure and only kept for backwards
+     * compatibility. Should not be used in new signatures. Should trigger
+     * verification warnings when encountered in existing signatures.
+     */
+    AlgorithmStatus[AlgorithmStatus["NotTrusted"] = 1] = "NotTrusted";
+    /**
+     * Algorithm defined in the specification, but not yet available in the implementation.
+     */
+    AlgorithmStatus[AlgorithmStatus["NotImplemented"] = 2] = "NotImplemented";
+})(AlgorithmStatus || (AlgorithmStatus = {}));
+const INVALID_HASH_ALGORITHM_IDS = new Uint8Array([0x03, 0x7E]);
+const SHA1 = new HashAlgorithm_HashAlgorithm(0x0, 'SHA-1', 20, AlgorithmStatus.NotTrusted, 1467331200);
+const SHA2_256 = new HashAlgorithm_HashAlgorithm(0x1, 'SHA-256', 32, AlgorithmStatus.Normal);
+const RIPEMD160 = new HashAlgorithm_HashAlgorithm(0x2, 'RIPEMD160', 20, AlgorithmStatus.Normal);
+const SHA2_384 = new HashAlgorithm_HashAlgorithm(0x4, 'SHA-384', 48, AlgorithmStatus.Normal);
+const SHA2_512 = new HashAlgorithm_HashAlgorithm(0x5, 'SHA-512', 64, AlgorithmStatus.Normal);
+const SHA3_224 = new HashAlgorithm_HashAlgorithm(0x7, 'SHA3-224', 28, AlgorithmStatus.NotImplemented);
+const SHA3_256 = new HashAlgorithm_HashAlgorithm(0x8, 'SHA3-256', 32, AlgorithmStatus.NotImplemented);
+const SHA3_384 = new HashAlgorithm_HashAlgorithm(0x9, 'SHA3-384', 48, AlgorithmStatus.NotImplemented);
+const SHA3_512 = new HashAlgorithm_HashAlgorithm(0xA, 'SHA3-512', 64, AlgorithmStatus.NotImplemented);
+const SM3 = new HashAlgorithm_HashAlgorithm(0xB, 'SM3', 32, AlgorithmStatus.NotImplemented);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/DataHash.js
+
 
 
 class DataHash_DataHash {
@@ -34001,19 +34090,19 @@ class DataHash_DataHash {
      */
     constructor(bytes) {
         if (!(bytes instanceof Uint8Array)) {
-            throw new Error('Invalid imprint bytes');
+            throw new HashingError('Invalid imprint bytes');
         }
-        let algorithm = HashAlgorithm.getById(bytes[0]);
+        let algorithm = HashAlgorithm_HashAlgorithm.getById(bytes[0]);
         if (algorithm === null) {
-            throw Error(`Invalid algorithm id: ${bytes[0]}`);
+            throw new HashingError(`Invalid algorithm id: ${bytes[0]}`);
         }
         this.hashAlgorithm = algorithm;
         if (this.hashAlgorithm == null) {
-            throw new Error('Invalid HashAlgorithm');
+            throw new HashingError('Invalid HashAlgorithm');
         }
         this.value = new Uint8Array(bytes.subarray(1));
         if (this.value.length != this.hashAlgorithm.length) {
-            throw new Error('Invalid algorithm data length');
+            throw new HashingError('Invalid algorithm data length');
         }
         this.imprint = new Uint8Array(bytes);
         Object.freeze(this);
@@ -34024,11 +34113,11 @@ class DataHash_DataHash {
      * @param value byte array
      */
     static create(hashAlgorithm, value) {
-        if (!(hashAlgorithm instanceof HashAlgorithm)) {
-            throw new Error('Invalid HashAlgorithm');
+        if (!(hashAlgorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            throw new HashingError('Invalid HashAlgorithm');
         }
         if (!(value instanceof Uint8Array)) {
-            throw new Error('Invalid value');
+            throw new HashingError('Invalid value');
         }
         const bytes = new Uint8Array(value.length + 1);
         bytes[0] = hashAlgorithm.id;
@@ -34144,6 +34233,12 @@ var PublicationData_PublicationData = /** @class */ (function (_super) {
         Object.freeze(_this);
         return _this;
     }
+    PublicationData.CREATE = function (publicationTime, publicationHash) {
+        return new PublicationData(CompositeTag_CompositeTag.createCompositeTagTlv(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
+            IntegerTag_IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
+            ImprintTag_ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash)
+        ]));
+    };
     PublicationData.prototype.getPublicationHash = function () {
         return this.publicationHash.getValue();
     };
@@ -34492,6 +34587,82 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
 }());
 
 
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/WebHasher.js
+
+
+class WebHasher_WebHasher {
+    /**
+     * Uses web crypto for hashing operation.
+     *
+     * @param {HashAlgorithm} algorithm
+     * @param {Uint8Array} data
+     * @returns {Promise.<Uint8Array, Error>}
+     */
+    static digest(algorithm, data) {
+        if (!(algorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            return Promise.reject(new HashingError(`Invalid hash algorithm, must be HashAlgorithm but is ${typeof data}`));
+        }
+        if (!(data instanceof Uint8Array)) {
+            return Promise.reject(new HashingError(`Invalid data, must be Uint8Array but is ${typeof data}`));
+        }
+        return window.crypto.subtle.digest({ name: algorithm.name }, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer));
+    }
+}
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/DataHasher.js
+
+
+
+
+/**
+ * Does hashing with asynchronous way
+ */
+class DataHasher_DataHasher {
+    /**
+     * Create DataHasher instance the hash algorithm
+     * @param {HashAlgorithm} hashAlgorithm
+     */
+    constructor(hashAlgorithm) {
+        if (!(hashAlgorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            throw new HashingError('Invalid HashAlgorithm');
+        }
+        this.hashAlgorithm = hashAlgorithm;
+        // Since crypto API is working different for web and node store data here
+        this.data = new Uint8Array(0);
+    }
+    /**
+     * Add data for hashing
+     * @param {Uint8Array} data byte array
+     * @returns {DataHasher}
+     */
+    update(data) {
+        if (!(data instanceof Uint8Array)) {
+            throw new HashingError('Invalid array for hashing');
+        }
+        const previousData = this.data;
+        this.data = new Uint8Array(previousData.length + data.length);
+        this.data.set(previousData);
+        this.data.set(data, previousData.length);
+        return this;
+    }
+    /**
+     * Create hashing Promise for getting result DataHash
+     * @returns Promise.<DataHash, Error>
+     */
+    digest() {
+        return WebHasher_WebHasher.digest(this.hashAlgorithm, this.data)
+            .then(hashBytes => DataHash_DataHash.create(this.hashAlgorithm, hashBytes));
+    }
+    /**
+     * Resets the hash calculation.
+     * @returns {DataHasher} The same data hasher object object for chaining calls.
+     */
+    reset() {
+        this.data = new Uint8Array(0);
+        return this;
+    }
+}
+
 // CONCATENATED MODULE: ./src/signature/AggregationHashChain.ts
 var AggregationHashChain_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -34506,6 +34677,43 @@ var AggregationHashChain_extends = (undefined && undefined.__extends) || (functi
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
 
 
 
@@ -34521,11 +34729,15 @@ var AggregationHashChain_AggregationHashChainLinkMetaData = /** @class */ (funct
     AggregationHashChain_extends(AggregationHashChainLinkMetaData, _super);
     function AggregationHashChainLinkMetaData(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
+        _this.padding = null;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }
+    AggregationHashChainLinkMetaData.prototype.getPaddingTag = function () {
+        return this.padding;
+    };
     AggregationHashChainLinkMetaData.prototype.parseChild = function (tlvTag, position) {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingTagType:
@@ -34558,6 +34770,7 @@ var AggregationHashChain_AggregationHashChainLinkMetaData = /** @class */ (funct
     };
     return AggregationHashChainLinkMetaData;
 }(CompositeTag_CompositeTag));
+
 /**
  * Aggregation Hash Chain Link TLV Object
  */
@@ -34565,6 +34778,10 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
     AggregationHashChain_extends(AggregationHashChainLink, _super);
     function AggregationHashChainLink(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
+        _this.levelCorrection = null;
+        _this.siblingHash = null;
+        _this.legacyId = null;
+        _this.metadata = null;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
@@ -34594,6 +34811,31 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
         }
         return lib["util"].text.utf8.decode(bytes.slice(3, idStringLength));
     };
+    AggregationHashChainLink.prototype.getLevelCorrection = function () {
+        return this.levelCorrection === null ? BigInteger_default()(0) : this.levelCorrection.getValue();
+    };
+    AggregationHashChainLink.prototype.getMetadata = function () {
+        return this.metadata;
+    };
+    AggregationHashChainLink.prototype.getDirection = function () {
+        switch (this.id) {
+            case LinkDirection.Left:
+                return LinkDirection.Left;
+            case LinkDirection.Right:
+                return LinkDirection.Right;
+            default:
+                throw new TlvError('Invalid Link direction');
+        }
+    };
+    AggregationHashChainLink.prototype.getSiblingData = function () {
+        if (this.siblingHash !== null) {
+            return this.siblingHash.getValue().imprint;
+        }
+        if (this.legacyId !== null) {
+            return this.legacyId.getValue();
+        }
+        return this.metadata.getValueBytes();
+    };
     AggregationHashChainLink.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType:
@@ -34602,6 +34844,7 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
                 return this.siblingHash = new ImprintTag_ImprintTag(tlvTag);
             case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId:
                 var legacyIdTag = new RawTag_RawTag(tlvTag);
+                this.legacyId = legacyIdTag;
                 // TODO: Make it better
                 this.legacyIdString = AggregationHashChainLink.getLegacyIdString(legacyIdTag.getValue());
                 return legacyIdTag;
@@ -34625,6 +34868,7 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
     AggregationHashChainLink.LEGACY_ID_LENGTH = 29;
     return AggregationHashChainLink;
 }(CompositeTag_CompositeTag));
+
 /**
  * Aggregation Hash Chain TLV Object
  */
@@ -34639,6 +34883,87 @@ var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super)
         Object.freeze(_this);
         return _this;
     }
+    AggregationHashChain.prototype.getChainLinks = function () {
+        return this.chainLinks;
+    };
+    /**
+     * Get chain index values
+     */
+    AggregationHashChain.prototype.getChainIndex = function () {
+        var result = [];
+        for (var _i = 0, _a = this.chainIndexes; _i < _a.length; _i++) {
+            var tag = _a[_i];
+            result.push(tag.getValue());
+        }
+        return result;
+    };
+    AggregationHashChain.prototype.getAggregationTime = function () {
+        return this.aggregationTime.getValue();
+    };
+    AggregationHashChain.prototype.getAggregationAlgorithm = function () {
+        return this.aggregationAlgorithm;
+    };
+    AggregationHashChain.prototype.getOutputHash = function (result) {
+        return __awaiter(this, void 0, void 0, function () {
+            var level, lastHash, _i, _a, link;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        level = result.level;
+                        lastHash = result.hash;
+                        _i = 0, _a = this.chainLinks;
+                        _b.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 6];
+                        link = _a[_i];
+                        level = level.plus(link.getLevelCorrection().plus(1));
+                        if (!(link.getDirection() === LinkDirection.Left)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.getStepHash(lastHash.imprint, link.getSiblingData(), level)];
+                    case 2:
+                        lastHash = _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        if (!(link.getDirection() === LinkDirection.Right)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.getStepHash(link.getSiblingData(), lastHash.imprint, level)];
+                    case 4:
+                        lastHash = _b.sent();
+                        _b.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 6: return [2 /*return*/, Object.freeze({ level: level, hash: lastHash })];
+                }
+            });
+        });
+    };
+    AggregationHashChain.prototype.getInputHash = function () {
+        return this.inputHash.getValue();
+    };
+    /**
+     * Returns location pointer based on aggregation hash chain links
+     */
+    AggregationHashChain.prototype.calculateLocationPointer = function () {
+        var result = BigInteger_default()(0);
+        var links = this.getChainLinks();
+        for (var i = 0; i < this.getChainLinks().length; i += 1) {
+            if (links[i].getDirection() === LinkDirection.Left) {
+                result = result.or(BigInteger_default()(1).shiftLeft(i));
+            }
+        }
+        return result.or(BigInteger_default()(1).shiftLeft(links.length));
+    };
+    AggregationHashChain.prototype.getStepHash = function (hashA, hashB, level) {
+        return __awaiter(this, void 0, void 0, function () {
+            var hasher;
+            return __generator(this, function (_a) {
+                hasher = new DataHasher_DataHasher(this.aggregationAlgorithm);
+                hasher.update(hashA);
+                hasher.update(hashB);
+                hasher.update(UnsignedLongCoder_UnsignedLongCoder.encode(level));
+                return [2 /*return*/, hasher.digest()];
+            });
+        });
+    };
     AggregationHashChain.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType:
@@ -34652,10 +34977,15 @@ var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super)
             case AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType:
                 return this.inputHash = new ImprintTag_ImprintTag(tlvTag);
             case AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType:
-                // TODO: Better solution
-                return this.aggregationAlgorithm = new IntegerTag_IntegerTag(tlvTag);
-            case LINK_DIRECTION_CONSTANTS.Left:
-            case LINK_DIRECTION_CONSTANTS.Right:
+                var algorithmTag = new IntegerTag_IntegerTag(tlvTag);
+                var algorithm = HashAlgorithm_HashAlgorithm.getById(algorithmTag.getValue().valueOf());
+                if (algorithm === null) {
+                    throw new TlvError('Invalid algorithm: null');
+                }
+                this.aggregationAlgorithm = algorithm;
+                return algorithmTag;
+            case LinkDirection.Left:
+            case LinkDirection.Right:
                 var linkTag = new AggregationHashChain_AggregationHashChainLink(tlvTag);
                 this.chainLinks.push(linkTag);
                 return linkTag;
@@ -34687,8 +35017,8 @@ var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super)
 }(CompositeTag_CompositeTag));
 
 
-// CONCATENATED MODULE: ./src/signature/KsiSignature.ts
-var KsiSignature_extends = (undefined && undefined.__extends) || (function () {
+// CONCATENATED MODULE: ./src/signature/SignatureData.ts
+var SignatureData_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -34706,17 +35036,11 @@ var KsiSignature_extends = (undefined && undefined.__extends) || (function () {
 
 
 
-
-
-
-
-
-
 /**
  * Signature data TLV Object
  */
-var KsiSignature_SignatureData = /** @class */ (function (_super) {
-    KsiSignature_extends(SignatureData, _super);
+var SignatureData_SignatureData = /** @class */ (function (_super) {
+    SignatureData_extends(SignatureData, _super);
     function SignatureData(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
         _this.decodeValue(_this.parseChild.bind(_this));
@@ -34754,11 +35078,32 @@ var KsiSignature_SignatureData = /** @class */ (function (_super) {
     };
     return SignatureData;
 }(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/signature/CalendarAuthenticationRecord.ts
+var CalendarAuthenticationRecord_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
 /**
  * Calendar Authentication Record TLV Object
  */
-var KsiSignature_CalendarAuthenticationRecord = /** @class */ (function (_super) {
-    KsiSignature_extends(CalendarAuthenticationRecord, _super);
+var CalendarAuthenticationRecord_CalendarAuthenticationRecord = /** @class */ (function (_super) {
+    CalendarAuthenticationRecord_extends(CalendarAuthenticationRecord, _super);
     function CalendarAuthenticationRecord(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
         _this.decodeValue(_this.parseChild.bind(_this));
@@ -34766,12 +35111,15 @@ var KsiSignature_CalendarAuthenticationRecord = /** @class */ (function (_super)
         Object.freeze(_this);
         return _this;
     }
+    CalendarAuthenticationRecord.prototype.getPublicationData = function () {
+        return this.publicationData;
+    };
     CalendarAuthenticationRecord.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case PUBLICATION_DATA_CONSTANTS.TagType:
                 return this.publicationData = new PublicationData_PublicationData(tlvTag);
             case SIGNATURE_DATA_CONSTANTS.TagType:
-                return this.signatureData = new KsiSignature_SignatureData(tlvTag);
+                return this.signatureData = new SignatureData_SignatureData(tlvTag);
             default:
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
@@ -34786,11 +35134,70 @@ var KsiSignature_CalendarAuthenticationRecord = /** @class */ (function (_super)
     };
     return CalendarAuthenticationRecord;
 }(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/signature/CalendarHashChain.ts
+var CalendarHashChain_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarHashChain_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarHashChain_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
 /**
  * Calendar Hash Chain TLV Object
  */
-var KsiSignature_CalendarHashChain = /** @class */ (function (_super) {
-    KsiSignature_extends(CalendarHashChain, _super);
+var CalendarHashChain_CalendarHashChain = /** @class */ (function (_super) {
+    CalendarHashChain_extends(CalendarHashChain, _super);
     function CalendarHashChain(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
         _this.chainLinks = [];
@@ -34799,6 +35206,125 @@ var KsiSignature_CalendarHashChain = /** @class */ (function (_super) {
         Object.freeze(_this);
         return _this;
     }
+    /**
+     * Calculate highest bit.
+     */
+    CalendarHashChain.highBit = function (n) {
+        var v = n;
+        v = v.or(v.shiftRight(1));
+        v = v.or(v.shiftRight(2));
+        v = v.or(v.shiftRight(4));
+        v = v.or(v.shiftRight(8));
+        v = v.or(v.shiftRight(16));
+        v = v.or(v.shiftRight(32));
+        return v.minus(v.shiftRight(1));
+    };
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="algorithm">hash algorithm</param>
+    /// <param name="hashA">hash a</param>
+    /// <param name="hashB">hash b</param>
+    /// <returns>result hash</returns>
+    /**
+     * Hash two hashes together with algorithm.
+     */
+    CalendarHashChain.getStepHash = function (algorithm, hashA, hashB) {
+        return CalendarHashChain_awaiter(this, void 0, void 0, function () {
+            var hasher;
+            return CalendarHashChain_generator(this, function (_a) {
+                hasher = new DataHasher_DataHasher(algorithm);
+                hasher.update(hashA);
+                hasher.update(hashB);
+                hasher.update(new Uint8Array([0xFF]));
+                return [2 /*return*/, hasher.digest()];
+            });
+        });
+    };
+    CalendarHashChain.prototype.calculateRegistrationTime = function () {
+        var r = this.publicationTime.getValue();
+        var t = BigInteger_default()(0);
+        // iterate over the chain in reverse
+        for (var i = this.chainLinks.length - 1; i >= 0; i -= -1) {
+            if (r.lt(0)) {
+                console.log('Invalid calendar hash chain shape for publication time. Cannot calculate registration time.');
+                return BigInteger_default()(0);
+            }
+            if (this.chainLinks[i].id === LinkDirection.Left) {
+                r = CalendarHashChain.highBit(r).minus(1);
+            }
+            else {
+                t = t.plus(CalendarHashChain.highBit(r));
+                r = r.minus(CalendarHashChain.highBit(r));
+            }
+        }
+        if (r.neq(0)) {
+            console.log('Calendar hash chain shape inconsistent with publication time. Cannot calculate registration time.');
+            return BigInteger_default()(0);
+        }
+        return t;
+    };
+    CalendarHashChain.prototype.getChainLinks = function () {
+        return this.chainLinks;
+    };
+    CalendarHashChain.prototype.getPublicationTime = function () {
+        return this.publicationTime.getValue();
+    };
+    CalendarHashChain.prototype.getInputHash = function () {
+        return this.inputHash.getValue();
+    };
+    CalendarHashChain.prototype.getAggregationTime = function () {
+        return this.aggregationTime ? this.aggregationTime.getValue() : this.getPublicationTime();
+    };
+    /**
+     * Calculate output hash.
+     */
+    CalendarHashChain.prototype.calculateOutputHash = function () {
+        return CalendarHashChain_awaiter(this, void 0, void 0, function () {
+            var inputHash, _i, _a, link, siblingHash;
+            return CalendarHashChain_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        inputHash = this.getInputHash();
+                        _i = 0, _a = this.getChainLinks();
+                        _b.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 6];
+                        link = _a[_i];
+                        siblingHash = link.getValue();
+                        if (!(link.id === LinkDirection.Left)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, CalendarHashChain.getStepHash(siblingHash.hashAlgorithm, inputHash.imprint, siblingHash.imprint)];
+                    case 2:
+                        inputHash = _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        if (!(link.id === LinkDirection.Right)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, CalendarHashChain.getStepHash(inputHash.hashAlgorithm, siblingHash.imprint, inputHash.imprint)];
+                    case 4:
+                        inputHash = _b.sent();
+                        _b.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 6: return [2 /*return*/, inputHash];
+                }
+            });
+        });
+    };
+    CalendarHashChain.prototype.getPublicationData = function () {
+        return CalendarHashChain_awaiter(this, void 0, void 0, function () {
+            var _a, _b, _c;
+            return CalendarHashChain_generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        _b = (_a = PublicationData_PublicationData).CREATE;
+                        _c = [this.publicationTime.getValue()];
+                        return [4 /*yield*/, this.calculateOutputHash()];
+                    case 1: return [2 /*return*/, _b.apply(_a, _c.concat([_d.sent()]))];
+                }
+            });
+        });
+    };
     CalendarHashChain.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType:
@@ -34807,8 +35333,8 @@ var KsiSignature_CalendarHashChain = /** @class */ (function (_super) {
                 return this.aggregationTime = new IntegerTag_IntegerTag(tlvTag);
             case CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType:
                 return this.inputHash = new ImprintTag_ImprintTag(tlvTag);
-            case LINK_DIRECTION_CONSTANTS.Left:
-            case LINK_DIRECTION_CONSTANTS.Right:
+            case LinkDirection.Left:
+            case LinkDirection.Right:
                 var link = new ImprintTag_ImprintTag(tlvTag);
                 this.chainLinks.push(link);
                 return link;
@@ -34832,11 +35358,69 @@ var KsiSignature_CalendarHashChain = /** @class */ (function (_super) {
     };
     return CalendarHashChain;
 }(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/signature/Rfc3161Record.ts
+var Rfc3161Record_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Rfc3161Record_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Rfc3161Record_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
 /**
  * RFC 3161 Record TLV Object
  */
-var KsiSignature_Rfc3161Record = /** @class */ (function (_super) {
-    KsiSignature_extends(Rfc3161Record, _super);
+var Rfc3161Record_Rfc3161Record = /** @class */ (function (_super) {
+    Rfc3161Record_extends(Rfc3161Record, _super);
     function Rfc3161Record(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
         _this.chainIndexes = [];
@@ -34845,6 +35429,51 @@ var KsiSignature_Rfc3161Record = /** @class */ (function (_super) {
         Object.freeze(_this);
         return _this;
     }
+    Rfc3161Record.prototype.getInputHash = function () {
+        return this.inputHash.getValue();
+    };
+    Rfc3161Record.prototype.getTstInfoAlgorithm = function () {
+        return this.tstInfoAlgorithm;
+    };
+    Rfc3161Record.prototype.getSignedAttributesAlgorithm = function () {
+        return this.signedAttributesAlgorithm;
+    };
+    Rfc3161Record.prototype.getAggregationTime = function () {
+        return this.aggregationTime.getValue();
+    };
+    /**
+     * Get chain index values
+     */
+    Rfc3161Record.prototype.getChainIndex = function () {
+        var result = [];
+        for (var _i = 0, _a = this.chainIndexes; _i < _a.length; _i++) {
+            var tag = _a[_i];
+            result.push(tag.getValue());
+        }
+        return result;
+    };
+    Rfc3161Record.prototype.getOutputHash = function () {
+        return Rfc3161Record_awaiter(this, void 0, void 0, function () {
+            var hasher, inputHash;
+            return Rfc3161Record_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        hasher = new DataHasher_DataHasher(this.tstInfoAlgorithm);
+                        hasher.update(this.tstInfoPrefix.getValue());
+                        hasher.update(this.inputHash.getValue().value);
+                        hasher.update(this.tstInfoSuffix.getValue());
+                        return [4 /*yield*/, hasher.digest()];
+                    case 1:
+                        inputHash = _a.sent();
+                        hasher = new DataHasher_DataHasher(this.signedAttributesAlgorithm);
+                        hasher.update(this.signedAttributesPrefix.getValue());
+                        hasher.update(inputHash.value);
+                        hasher.update(this.signedAttributesSuffix.getValue());
+                        return [2 /*return*/, hasher.digest()];
+                }
+            });
+        });
+    };
     Rfc3161Record.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType:
@@ -34862,7 +35491,11 @@ var KsiSignature_Rfc3161Record = /** @class */ (function (_super) {
             case RFC_3161_RECORD_CONSTANTS.TstInfoAlgorithmTagType:
                 // TODO: Better solution
                 var tstInfoAlgorithmTag = new IntegerTag_IntegerTag(tlvTag);
-                this.tstInfoAlgorithm = HashAlgorithm.getById(tstInfoAlgorithmTag.getValue().valueOf());
+                var tstInfoAlgorithm = HashAlgorithm_HashAlgorithm.getById(tstInfoAlgorithmTag.getValue().valueOf());
+                if (tstInfoAlgorithm === null) {
+                    throw new Error("Invalid algorithm: " + tstInfoAlgorithmTag.getValue());
+                }
+                this.tstInfoAlgorithm = tstInfoAlgorithm;
                 return tstInfoAlgorithmTag;
             case RFC_3161_RECORD_CONSTANTS.SignedAttributesPrefixTagType:
                 return this.signedAttributesPrefix = new RawTag_RawTag(tlvTag);
@@ -34870,7 +35503,11 @@ var KsiSignature_Rfc3161Record = /** @class */ (function (_super) {
                 return this.signedAttributesSuffix = new RawTag_RawTag(tlvTag);
             case RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType:
                 var signedAttributesAlgorithmTag = new IntegerTag_IntegerTag(tlvTag);
-                this.signedAttributesAlgorithm = HashAlgorithm.getById(signedAttributesAlgorithmTag.getValue().valueOf());
+                var signedAttributesAlgorithm = HashAlgorithm_HashAlgorithm.getById(signedAttributesAlgorithmTag.getValue().valueOf());
+                if (signedAttributesAlgorithm === null) {
+                    throw new Error("Invalid algorithm: " + signedAttributesAlgorithmTag.getValue());
+                }
+                this.signedAttributesAlgorithm = signedAttributesAlgorithm;
                 return signedAttributesAlgorithmTag;
             default:
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
@@ -34913,6 +35550,66 @@ var KsiSignature_Rfc3161Record = /** @class */ (function (_super) {
     };
     return Rfc3161Record;
 }(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/signature/KsiSignature.ts
+var KsiSignature_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var KsiSignature_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var KsiSignature_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+
 /**
  * KSI Signature TLV object
  */
@@ -34921,11 +35618,63 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
     function KsiSignature(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
         _this.aggregationHashChains = [];
+        _this.publicationRecord = null;
+        _this.calendarAuthenticationRecord = null;
+        _this.calendarHashChain = null;
+        _this.rfc3161Record = null;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }
+    KsiSignature.prototype.getPublicationRecord = function () {
+        return this.publicationRecord;
+    };
+    KsiSignature.prototype.getCalendarHashChain = function () {
+        return this.calendarHashChain;
+    };
+    KsiSignature.prototype.getAggregationTime = function () {
+        return BigInteger_default()(0);
+    };
+    KsiSignature.prototype.getAggregationHashChains = function () {
+        return this.aggregationHashChains.slice();
+    };
+    /**
+     * Get last aggregation hash chain output hash that is calculated from all aggregation hash chains
+     */
+    KsiSignature.prototype.getLastAggregationHashChainRootHash = function () {
+        return KsiSignature_awaiter(this, void 0, void 0, function () {
+            var lastResult, _i, _a, chain;
+            return KsiSignature_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        lastResult = { level: BigInteger_default()(0), hash: this.aggregationHashChains[0].getInputHash() };
+                        _i = 0, _a = this.aggregationHashChains;
+                        _b.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        chain = _a[_i];
+                        return [4 /*yield*/, chain.getOutputHash(lastResult)];
+                    case 2:
+                        lastResult = _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, lastResult.hash];
+                }
+            });
+        });
+    };
+    KsiSignature.prototype.getInputHash = function () {
+        return this.rfc3161Record !== null ? this.rfc3161Record.getInputHash() : this.aggregationHashChains[0].getInputHash();
+    };
+    KsiSignature.prototype.getRfc3161Record = function () {
+        return this.rfc3161Record;
+    };
+    KsiSignature.prototype.getCalendarAuthenticationRecord = function () {
+        return this.calendarAuthenticationRecord;
+    };
     KsiSignature.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
@@ -34933,13 +35682,13 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
                 this.aggregationHashChains.push(aggregationHashChain);
                 return aggregationHashChain;
             case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
-                return this.calendarHashChain = new KsiSignature_CalendarHashChain(tlvTag);
+                return this.calendarHashChain = new CalendarHashChain_CalendarHashChain(tlvTag);
             case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
                 return this.publicationRecord = new PublicationRecord_PublicationRecord(tlvTag);
             case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
-                return this.calendarAuthenticationRecord = new KsiSignature_CalendarAuthenticationRecord(tlvTag);
+                return this.calendarAuthenticationRecord = new CalendarAuthenticationRecord_CalendarAuthenticationRecord(tlvTag);
             case RFC_3161_RECORD_CONSTANTS.TagType:
-                return this.rfc3161Record = new KsiSignature_Rfc3161Record(tlvTag);
+                return this.rfc3161Record = new Rfc3161Record_Rfc3161Record(tlvTag);
             default:
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
@@ -34970,14 +35719,1344 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
 }(CompositeTag_CompositeTag));
 
 
+// CONCATENATED MODULE: ./src/signature/verification/KsiVerificationError.ts
+var KsiVerificationError_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+ * KSI verification error
+ */
+var KsiVerificationError = /** @class */ (function (_super) {
+    KsiVerificationError_extends(KsiVerificationError, _super);
+    function KsiVerificationError(message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = 'KsiVerificationError';
+        Object.setPrototypeOf(_this, KsiVerificationError.prototype);
+        return _this;
+    }
+    return KsiVerificationError;
+}(Error));
+
+
+// CONCATENATED MODULE: ./src/signature/verification/VerificationError.ts
+/**
+ * Verification error
+ */
+var VerificationError = /** @class */ (function () {
+    function VerificationError(code, message) {
+        this.code = code;
+        this.message = message;
+    }
+    /**
+     * Returns a string that represents the current object.
+     */
+    VerificationError.prototype.toString = function () {
+        return this.code + ": " + this.message;
+    };
+    /**
+     * Wrong document error
+     */
+    VerificationError.GEN_01 = new VerificationError('GEN-01', 'Wrong document');
+    /**
+     * Verification inconclusive error.
+     */
+    VerificationError.GEN_02 = new VerificationError('GEN-02', 'Verification inconclusive');
+    /**
+     * Input hash level too large error.
+     */
+    VerificationError.GEN_03 = new VerificationError('GEN-03', 'Input hash level too large');
+    /**
+     * Wrong input hash algorithm.
+     */
+    VerificationError.GEN_04 = new VerificationError('GEN-04', 'Wrong input hash algorithm');
+    /**
+     * Inconsistent aggregation hash chains error.
+     */
+    VerificationError.INT_01 = new VerificationError('INT-01', 'Inconsistent aggregation hash chains');
+    /**
+     *  Inconsistent aggregation hash chain aggregation times error.
+     */
+    VerificationError.INT_02 = new VerificationError('INT-02', 'Inconsistent aggregation hash chain aggregation times');
+    /**
+     * Calendar hash chain input hash mismatch error.
+     */
+    VerificationError.INT_03 = new VerificationError('INT-03', 'Calendar hash chain input hash mismatch');
+    /**
+     * Calendar hash chain aggregation time mismatch error.
+     */
+    VerificationError.INT_04 = new VerificationError('INT-04', 'Calendar hash chain aggregation time mismatch');
+    /**
+     * Calendar hash chain shape inconsistent with aggregation time error.
+     */
+    VerificationError.INT_05 = new VerificationError('INT-05', 'Calendar hash chain shape inconsistent with aggregation time');
+    /**
+     * Calendar hash chain time inconsistent with calendar authentication record time error.
+     */
+    VerificationError.INT_06 = new VerificationError('INT-06', 'Calendar hash chain time inconsistent with calendar authentication record time');
+    /**
+     * Calendar hash chain time inconsistent with publication time error.
+     */
+    VerificationError.INT_07 = new VerificationError('INT-07', 'Calendar hash chain time inconsistent with publication time');
+    /**
+     * Calendar hash chain root hash is inconsistent with calendar authentication record input hash error.
+     */
+    VerificationError.INT_08 = new VerificationError('INT-08', 'Calendar hash chain root hash is inconsistent with calendar authentication record input hash');
+    /**
+     * Calendar hash chain root hash is inconsistent with published hash value error.
+     */
+    VerificationError.INT_09 = new VerificationError('INT-09', 'Calendar hash chain root hash is inconsistent with published hash value');
+    /**
+     * Aggregation hash chain chain index mismatch error.
+     */
+    VerificationError.INT_10 = new VerificationError('INT-10', 'Aggregation hash chain chain index mismatch');
+    /**
+     * The meta-data record in the aggregation hash chain may not be trusted error.
+     */
+    VerificationError.INT_11 = new VerificationError('INT-11', 'The meta-data record in the aggregation hash chain may not be trusted');
+    /**
+     * Inconsistent chain indexes error.
+     */
+    VerificationError.INT_12 = new VerificationError('INT-12', 'Inconsistent chain indexes');
+    /**
+     * Document hash algorithm deprecated at the time of signing.
+     */
+    VerificationError.INT_13 = new VerificationError('INT-13', 'Document hash algorithm deprecated at the time of signing');
+    /**
+     *  RFC3161 compatibility record composed of hash algorithms that where deprecated at the time of signing.
+     */
+    VerificationError.INT_14 = new VerificationError('INT-14', 'RFC3161 compatibility record composed of hash algorithms that where deprecated at the time of signing');
+    /**
+     * Aggregation hash chain uses hash algorithm that was deprecated at the time of signing.
+     */
+    VerificationError.INT_15 = new VerificationError('INT-15', 'Aggregation hash chain uses hash algorithm that was deprecated at the time of signing');
+    /**
+     * Calendar hash chain hash algorithm was obsolete at publication time.
+     */
+    VerificationError.INT_16 = new VerificationError('INT-16', 'Calendar hash chain hash algorithm was obsolete at publication time');
+    /**
+     * The RFC3161 compatibility record output hash algorithm was deprecated at the time of signing.
+     */
+    VerificationError.INT_17 = new VerificationError('INT-17', 'The RFC3161 compatibility record output hash algorithm was deprecated at the time of signing');
+    /**
+     * Extender response calendar root hash mismatch error.
+     */
+    VerificationError.PUB_01 = new VerificationError('PUB-01', 'Extender response calendar root hash mismatch');
+    /**
+     * Extender response inconsistent error.
+     */
+    VerificationError.PUB_02 = new VerificationError('PUB-02', 'Extender response inconsistent');
+    /**
+     * Extender response input hash mismatch error.
+     */
+    VerificationError.PUB_03 = new VerificationError('PUB-03', 'Extender response input hash mismatch');
+    /**
+     * Publication record hash and user provided publication hash mismatch error.
+     */
+    VerificationError.PUB_04 = new VerificationError('PUB-04', 'Publication record hash and user provided publication hash mismatch');
+    /**
+     * Publication record hash and publications file publication hash mismatch error.
+     */
+    VerificationError.PUB_05 = new VerificationError('PUB-05', 'Publication record hash and publications file publication hash mismatch');
+    /**
+     * Certificate not found error.
+     */
+    VerificationError.KEY_01 = new VerificationError('KEY-01', 'Certificate not found');
+    /**
+     * PKI signature not verified with certificate error.
+     */
+    VerificationError.KEY_02 = new VerificationError('KEY-02', 'PKI signature not verified with certificate');
+    /**
+     * Signing certificate not valid at aggregation time error.
+     */
+    VerificationError.KEY_03 = new VerificationError('KEY-03', 'Signing certificate not valid at aggregation time');
+    /**
+     * Calendar root hash mismatch error between signature and calendar database chain.
+     */
+    VerificationError.CAL_01 = new VerificationError('CAL-01', 'Calendar root hash mismatch between signature and calendar database chain');
+    /**
+     * Aggregation hash chain root hash and calendar database hash chain input hash mismatch error.
+     */
+    VerificationError.CAL_02 = new VerificationError('CAL-02', 'Aggregation hash chain root hash and calendar database hash chain input hash mismatch');
+    /**
+     * Aggregation time mismatch error.
+     */
+    VerificationError.CAL_03 = new VerificationError('CAL-03', 'Aggregation time mismatch');
+    /**
+     * Calendar hash chain right links are inconsistent error.
+     */
+    VerificationError.CAL_04 = new VerificationError('CAL-04', 'Calendar hash chain right links are inconsistent');
+    return VerificationError;
+}());
+
+
+// CONCATENATED MODULE: ./src/signature/verification/VerificationResult.ts
+var VerificationResultCode;
+(function (VerificationResultCode) {
+    VerificationResultCode[VerificationResultCode["OK"] = 0] = "OK";
+    VerificationResultCode[VerificationResultCode["FAIL"] = 1] = "FAIL";
+    VerificationResultCode[VerificationResultCode["NA"] = 2] = "NA";
+})(VerificationResultCode || (VerificationResultCode = {}));
+var VerificationResult = /** @class */ (function () {
+    function VerificationResult(ruleName, resultCode, verificationError, childResults) {
+        if (verificationError === void 0) { verificationError = null; }
+        if (childResults === void 0) { childResults = null; }
+        var _this = this;
+        this.childResults = [];
+        this.ruleName = ruleName;
+        this.resultCode = resultCode;
+        this.verificationError = verificationError || null;
+        if (Array.isArray(childResults)) {
+            childResults.forEach(function (result) {
+                if (!(result instanceof VerificationResult)) {
+                    throw new Error('Invalid verification result.');
+                }
+                _this.childResults.push(result);
+            });
+        }
+    }
+    VerificationResult.CREATE_FROM_RESULTS = function (ruleName, childResults) {
+        if (!Array.isArray(childResults) || childResults.length === 0) {
+            throw new Error('Invalid child results.');
+        }
+        var lastResult = childResults[childResults.length - 1];
+        if (!(lastResult instanceof VerificationResult)) {
+            throw new Error('Invalid verification result.');
+        }
+        return new VerificationResult(ruleName, lastResult.resultCode, lastResult.verificationError, childResults);
+    };
+    VerificationResult.prototype.getResultCode = function () {
+        return this.resultCode;
+    };
+    VerificationResult.prototype.getVerificationError = function () {
+        return this.verificationError;
+    };
+    VerificationResult.prototype.getRuleName = function () {
+        return this.ruleName;
+    };
+    return VerificationResult;
+}());
+
+
+// CONCATENATED MODULE: ./src/signature/verification/VerificationContext.ts
+/**
+ * Verification context for KSI signature
+ */
+
+
+
+
+
+
+var VerificationContext_KsiService = /** @class */ (function () {
+    function KsiService() {
+        return;
+    }
+    KsiService.prototype.extend = function (aggregationTime, publicationTime) {
+        return new CalendarHashChain_CalendarHashChain(new TlvTag(0, false, false, new Uint8Array(0)));
+    };
+    return KsiService;
+}());
+
+var VerificationContext_VerificationContext = /** @class */ (function () {
+    function VerificationContext(signature) {
+        this.documentHash = null;
+        if (!(signature instanceof KsiSignature_KsiSignature)) {
+            throw new Error("Invalid signature: " + signature);
+        }
+        this.ksiSignature = signature;
+    }
+    VerificationContext.prototype.getSignature = function () {
+        return this.ksiSignature;
+    };
+    /**
+     * Get extended latest calendar hash chain.
+     */
+    VerificationContext.prototype.getExtendedLatestCalendarHashChain = function () {
+        return this.getExtendedCalendarHashChain(null);
+    };
+    /**
+     * Get extended calendar hash chain from given publication time.
+     */
+    VerificationContext.prototype.getExtendedCalendarHashChain = function (publicationTime) {
+        if (!(this.ksiService instanceof VerificationContext_KsiService)) {
+            throw new KsiVerificationError('Invalid KSI service in context.');
+        }
+        if (!(this.getSignature() instanceof KsiSignature_KsiSignature)) {
+            throw new KsiVerificationError('Invalid KSI signature in context.');
+        }
+        return this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime);
+    };
+    /**
+     * Get document hash.
+     */
+    VerificationContext.prototype.getDocumentHash = function () {
+        return this.documentHash;
+    };
+    VerificationContext.prototype.setDocumentHash = function (documentHash) {
+        if (documentHash === null || !(documentHash instanceof DataHash_DataHash)) {
+            throw new KsiVerificationError("Invalid document hash: " + documentHash);
+        }
+        this.documentHash = documentHash;
+    };
+    /**
+     * Get document hash node level value in the aggregation tree
+     */
+    VerificationContext.prototype.getDocumentHashLevel = function () {
+        return BigInteger_default()(0);
+    };
+    return VerificationContext;
+}());
+
+
+// CONCATENATED MODULE: ./src/signature/verification/VerificationRule.ts
+/**
+ * Verification Rule for KSI Signature
+ */
+
+
+
+
+
+var VerificationRule_VerificationRule = /** @class */ (function () {
+    function VerificationRule() {
+        this.onSuccessRule = null;
+        this.onFailureRule = null;
+        this.onNaRule = null;
+    }
+    VerificationRule.verifyContext = function (context) {
+        if (!(context instanceof VerificationContext_VerificationContext)) {
+            throw new KsiVerificationError('Invalid context');
+        }
+    };
+    VerificationRule.getSignature = function (context) {
+        VerificationRule.verifyContext(context);
+        if (!(context.getSignature() instanceof KsiSignature_KsiSignature)) {
+            throw new KsiVerificationError('Invalid KSI signature in context: null.');
+        }
+        return context.getSignature();
+    };
+    VerificationRule.getCalendarHashChain = function (signature) {
+        var calendarHashChain = signature.getCalendarHashChain();
+        if (!(calendarHashChain instanceof CalendarHashChain_CalendarHashChain)) {
+            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+        }
+        return calendarHashChain;
+    };
+    VerificationRule.verifyRule = function (rule) {
+        if (!(rule instanceof VerificationRule)) {
+            throw new Error("Invalid rule: " + rule);
+        }
+    };
+    VerificationRule.prototype.getRuleName = function () {
+        return this.constructor.name;
+    };
+    VerificationRule.prototype.onSuccess = function (rule) {
+        VerificationRule.verifyRule(rule);
+        this.onSuccessRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.onFailure = function (rule) {
+        VerificationRule.verifyRule(rule);
+        this.onFailureRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.onNa = function (rule) {
+        VerificationRule.verifyRule(rule);
+        this.onNaRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.getNextRule = function (resultCode) {
+        switch (resultCode) {
+            case VerificationResultCode.OK:
+                return this.onSuccessRule;
+            case VerificationResultCode.FAIL:
+                return this.onFailureRule;
+            case VerificationResultCode.NA:
+                return this.onNaRule;
+            default:
+                return null;
+        }
+    };
+    return VerificationRule;
+}());
+
+
+// CONCATENATED MODULE: ./src/signature/verification/policy/VerificationPolicy.ts
+var VerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var VerificationPolicy_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var VerificationPolicy_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+/**
+ * Verification policy for KSI signature
+ */
+var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
+    VerificationPolicy_extends(VerificationPolicy, _super);
+    function VerificationPolicy(rule) {
+        if (rule === void 0) { rule = null; }
+        var _this = _super.call(this) || this;
+        _this.verificationResults = [];
+        if (rule !== null) {
+            VerificationRule_VerificationRule.verifyRule(rule);
+        }
+        _this.firstRule = rule;
+        return _this;
+    }
+    VerificationPolicy.prototype.verify = function (context) {
+        return VerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var verificationRule, result, error_1;
+            return VerificationPolicy_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!(context instanceof VerificationContext_VerificationContext)) {
+                            throw new Error('Context is invalid');
+                        }
+                        if (!(context.getSignature() instanceof KsiSignature_KsiSignature)) {
+                            throw new KsiVerificationError('Invalid KSI signature in context');
+                        }
+                        verificationRule = this.firstRule;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 5, , 6]);
+                        _a.label = 2;
+                    case 2:
+                        if (!(verificationRule !== null)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, verificationRule.verify(context)];
+                    case 3:
+                        result = _a.sent();
+                        this.verificationResults.push(result);
+                        verificationRule = verificationRule.getNextRule(result.getResultCode());
+                        return [3 /*break*/, 2];
+                    case 4: return [3 /*break*/, 6];
+                    case 5:
+                        error_1 = _a.sent();
+                        throw error_1;
+                    case 6:
+                        Object.freeze(this.verificationResults);
+                        return [2 /*return*/, VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), this.verificationResults)];
+                }
+            });
+        });
+    };
+    return VerificationPolicy;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/signature/verification/policy/InternalVerificationPolicy.ts
+var InternalVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var InternalVerificationPolicy_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var InternalVerificationPolicy_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+
+var InternalVerificationPolicy_InputHashAlgorithmVerificationRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(InputHashAlgorithmVerificationRule, _super);
+    function InputHashAlgorithmVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InputHashAlgorithmVerificationRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, documentHash, inputHash;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                documentHash = context.getDocumentHash();
+                if (documentHash === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                inputHash = signature.getInputHash();
+                if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
+                    // TODO: Turn off console logging
+                    console.log("Wrong input hash algorithm. Expected " + documentHash.hashAlgorithm + ", found " + inputHash.hashAlgorithm);
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return InputHashAlgorithmVerificationRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_DocumentHashVerificationRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(DocumentHashVerificationRule, _super);
+    function DocumentHashVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    DocumentHashVerificationRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, documentHash, inputHash;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                documentHash = context.getDocumentHash();
+                if (documentHash === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                inputHash = signature.getInputHash();
+                if (!documentHash.equals(inputHash)) {
+                    console.log("Invalid document hash. Expected " + documentHash + ", found " + inputHash);
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return DocumentHashVerificationRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_DocumentHashLevelVerificationRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(DocumentHashLevelVerificationRule, _super);
+    function DocumentHashLevelVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    DocumentHashLevelVerificationRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, levelCorrection;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                levelCorrection = signature.getRfc3161Record() !== null
+                    ? BigInteger_default()(0)
+                    : signature.getAggregationHashChains()[0].getChainLinks()[0].getLevelCorrection();
+                return [2 /*return*/, context.getDocumentHashLevel() > levelCorrection
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return DocumentHashLevelVerificationRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_InputHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(InputHashAlgorithmDeprecatedRule, _super);
+    function InputHashAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InputHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, inputHash;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                inputHash = signature.getInputHash();
+                if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
+                    console.log("Input hash algorithm was deprecated at aggregation time. Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime());
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return InputHashAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_Rfc3161RecordHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(Rfc3161RecordHashAlgorithmDeprecatedRule, _super);
+    function Rfc3161RecordHashAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                rfc3161Record = signature.getRfc3161Record();
+                if (rfc3161Record === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                if (rfc3161Record.getTstInfoAlgorithm() != null
+                    && rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
+                    console.log("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time.\n                             Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + ";\n                             Aggregation time: " + rfc3161Record.getAggregationTime());
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
+                }
+                if (rfc3161Record.getSignedAttributesAlgorithm() != null
+                    && rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
+                    console.log("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time.\n                             Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + ";\n                             Aggregation time: " + rfc3161Record.getAggregationTime());
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return Rfc3161RecordHashAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_Rfc3161RecordOutputHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(Rfc3161RecordOutputHashAlgorithmDeprecatedRule, _super);
+    function Rfc3161RecordOutputHashAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordOutputHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record, aggregationHashChain, hashAlgorithm, aggregationTime;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                rfc3161Record = signature.getRfc3161Record();
+                if (signature.getRfc3161Record() === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                aggregationHashChain = signature.getAggregationHashChains()[0];
+                hashAlgorithm = aggregationHashChain.getInputHash().hashAlgorithm;
+                aggregationTime = aggregationHashChain.getAggregationTime();
+                if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
+                    console.log("RFC3161 output hash algorithm was deprecated at aggregation time.\n                         Algorithm: " + hashAlgorithm + ";\n                         Aggregation time: " + aggregationTime);
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return Rfc3161RecordOutputHashAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_Rfc3161RecordChainIndexRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(Rfc3161RecordChainIndexRule, _super);
+    function Rfc3161RecordChainIndexRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordChainIndexRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record, aggregationHashChains, rfc3161ChainIndex, aggregationChainIndex, rfc3161ChainIndexJson, aggregationChainIndexJson;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                rfc3161Record = signature.getRfc3161Record();
+                if (rfc3161Record === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                aggregationHashChains = signature.getAggregationHashChains();
+                rfc3161ChainIndex = rfc3161Record.getChainIndex();
+                aggregationChainIndex = aggregationHashChains[0].getChainIndex();
+                rfc3161ChainIndexJson = JSON.stringify(rfc3161ChainIndex);
+                aggregationChainIndexJson = JSON.stringify(aggregationChainIndex);
+                if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
+                    console.log("Aggregation hash chain index and RFC3161 chain index mismatch.\n                         Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson);
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return Rfc3161RecordChainIndexRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_Rfc3161RecordOutputHashVerificationRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(Rfc3161RecordOutputHashVerificationRule, _super);
+    function Rfc3161RecordOutputHashVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordOutputHashVerificationRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record, aggregationHashChainInputHash, inputHash, _a, _b;
+            return InternalVerificationPolicy_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        rfc3161Record = signature.getRfc3161Record();
+                        if (rfc3161Record === null) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        }
+                        aggregationHashChainInputHash = signature.getAggregationHashChains()[0].getInputHash();
+                        _b = (_a = new DataHasher_DataHasher(aggregationHashChainInputHash.hashAlgorithm)).update;
+                        return [4 /*yield*/, rfc3161Record.getOutputHash()];
+                    case 1: return [4 /*yield*/, _b.apply(_a, [(_c.sent()).imprint])
+                            .digest()];
+                    case 2:
+                        inputHash = _c.sent();
+                        return [2 /*return*/, !inputHash.equals(aggregationHashChainInputHash)
+                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)
+                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return Rfc3161RecordOutputHashVerificationRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_Rfc3161RecordAggregationTimeRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(Rfc3161RecordAggregationTimeRule, _super);
+    function Rfc3161RecordAggregationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordAggregationTimeRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record, aggregationHashChains;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                rfc3161Record = signature.getRfc3161Record();
+                if (rfc3161Record === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                aggregationHashChains = signature.getAggregationHashChains();
+                if (aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
+                    console.log("Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.");
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return Rfc3161RecordAggregationTimeRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_AggregationHashChainIndexSuccessorRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(AggregationHashChainIndexSuccessorRule, _super);
+    function AggregationHashChainIndexSuccessorRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainIndexSuccessorRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, parentChainIndex, chainIndex, _i, aggregationHashChains_1, chain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                aggregationHashChains = signature.getAggregationHashChains();
+                parentChainIndex = null;
+                chainIndex = null;
+                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
+                    chain = aggregationHashChains_1[_i];
+                    chainIndex = chain.getChainIndex();
+                    if (parentChainIndex !== null && !(parentChainIndex.length !== chainIndex.length
+                        || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
+                        console.log("Chain index is not the successor to the parent aggregation hash chain index.\n                            Chain index: " + chainIndex + ";\n                            Parent chain index: " + parentChainIndex);
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                    }
+                    parentChainIndex = chainIndex;
+                }
+                if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
+                    console.log("Highest aggregation hash chain index length is not 1. Chain index: " + chainIndex + ";");
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainIndexSuccessorRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_AggregationHashChainMetadataRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(AggregationHashChainMetadataRule, _super);
+    function AggregationHashChainMetadataRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainMetadataRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, _i, aggregationHashChains_2, chain, _a, _b, link, metadata, paddingTag, metadataBytes, hashAlgorithmId, hashAlgorithm, valueBytesString, stream;
+            return InternalVerificationPolicy_generator(this, function (_c) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                aggregationHashChains = signature.getAggregationHashChains();
+                for (_i = 0, aggregationHashChains_2 = aggregationHashChains; _i < aggregationHashChains_2.length; _i++) {
+                    chain = aggregationHashChains_2[_i];
+                    for (_a = 0, _b = chain.getChainLinks(); _a < _b.length; _a++) {
+                        link = _b[_a];
+                        metadata = link.getMetadata();
+                        if (metadata === null) {
+                            continue;
+                        }
+                        paddingTag = metadata.getPaddingTag();
+                        if (paddingTag === null) {
+                            metadataBytes = metadata.getValueBytes();
+                            if (metadataBytes.length === 0) {
+                                continue;
+                            }
+                            hashAlgorithmId = metadataBytes[0];
+                            if (HashAlgorithm_HashAlgorithm.isInvalidAlgorithm(hashAlgorithmId)) {
+                                continue;
+                            }
+                            hashAlgorithm = HashAlgorithm_HashAlgorithm.getById(hashAlgorithmId);
+                            if (hashAlgorithm !== null && hashAlgorithm.length === metadataBytes.length - 1) {
+                                console.log("Metadata without padding may not be trusted. Metadata: " + metadata);
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                            }
+                        }
+                        else {
+                            try {
+                                if (metadata.value.indexOf(paddingTag) !== 0) {
+                                    throw new Error('Padding is not the first element.');
+                                }
+                                if (paddingTag.tlv16BitFlag) {
+                                    throw new Error('Padding is not TLV8.');
+                                }
+                                if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
+                                    throw new Error('Non-critical and forward flags must be set.');
+                                }
+                                valueBytesString = JSON.stringify(paddingTag.getValueBytes());
+                                if (valueBytesString !== JSON.stringify([0x0, 0x0]) && valueBytesString !== JSON.stringify([0x0])) {
+                                    throw new Error('Unknown padding value.');
+                                }
+                                stream = new TlvOutputStream_TlvOutputStream();
+                                stream.writeTag(metadata);
+                                if (stream.getData().length % 2 !== 0) {
+                                    throw new Error('Invalid padding value.');
+                                }
+                            }
+                            catch (error) {
+                                console.log("Metadata with padding may not be trusted. " + error.message + " Metadata: " + metadata);
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                            }
+                        }
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainMetadataRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_AggregationHashChainAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(AggregationHashChainAlgorithmDeprecatedRule, _super);
+    function AggregationHashChainAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, _i, aggregationHashChains_3, chain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                aggregationHashChains = signature.getAggregationHashChains();
+                for (_i = 0, aggregationHashChains_3 = aggregationHashChains; _i < aggregationHashChains_3.length; _i++) {
+                    chain = aggregationHashChains_3[_i];
+                    if (chain.getAggregationAlgorithm().isDeprecated(chain.getAggregationTime().valueOf())) {
+                        console.log("Aggregation hash chain aggregation algorithm was deprecated at aggregation time.\n                             Algorithm: " + chain.getAggregationAlgorithm().name + ";\n                             Aggregation time: " + chain.getAggregationTime());
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15)];
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_AggregationHashChainConsistencyRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(AggregationHashChainConsistencyRule, _super);
+    function AggregationHashChainConsistencyRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainConsistencyRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, chainHashResult, _i, aggregationHashChains_4, chain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        aggregationHashChains = signature.getAggregationHashChains();
+                        chainHashResult = null;
+                        _i = 0, aggregationHashChains_4 = aggregationHashChains;
+                        _a.label = 1;
+                    case 1:
+                        if (!(_i < aggregationHashChains_4.length)) return [3 /*break*/, 4];
+                        chain = aggregationHashChains_4[_i];
+                        if (chainHashResult === null) {
+                            chainHashResult = { level: BigInteger_default()(0), hash: chain.getInputHash() };
+                        }
+                        if (!chain.getInputHash().equals(chainHashResult.hash)) {
+                            console.log("Aggregation hash chains not consistent.\n                             Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous\n                             aggregation hash chain output hash " + chainHashResult.hash + ".");
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)];
+                        }
+                        return [4 /*yield*/, chain.getOutputHash(chainHashResult)];
+                    case 2:
+                        chainHashResult = _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return AggregationHashChainConsistencyRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_AggregationHashChainTimeConsistencyRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(AggregationHashChainTimeConsistencyRule, _super);
+    function AggregationHashChainTimeConsistencyRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainTimeConsistencyRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, time, _i, aggregationHashChains_5, chain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                aggregationHashChains = signature.getAggregationHashChains();
+                time = null;
+                for (_i = 0, aggregationHashChains_5 = aggregationHashChains; _i < aggregationHashChains_5.length; _i++) {
+                    chain = aggregationHashChains_5[_i];
+                    if (time === null) {
+                        time = chain.getAggregationTime();
+                    }
+                    if (!chain.getAggregationTime().equals(time)) {
+                        console.log("Previous aggregation hash chain aggregation time " + time + " does not match\n                             current aggregation time " + chain.getAggregationTime() + ".");
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainTimeConsistencyRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_AggregationHashChainShapeRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(AggregationHashChainShapeRule, _super);
+    function AggregationHashChainShapeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainShapeRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, _i, aggregationHashChains_6, chain, chainIndex, calculatedValue, lastIndexValue;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                aggregationHashChains = signature.getAggregationHashChains();
+                for (_i = 0, aggregationHashChains_6 = aggregationHashChains; _i < aggregationHashChains_6.length; _i++) {
+                    chain = aggregationHashChains_6[_i];
+                    chainIndex = chain.getChainIndex();
+                    calculatedValue = chain.calculateLocationPointer();
+                    lastIndexValue = chainIndex[chainIndex.length - 1];
+                    if (!lastIndexValue.eq(calculatedValue)) {
+                        console.log("The shape of the aggregation hash chain does not match with the chain index.\n                              Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue);
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10)];
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainShapeRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_CalendarHashChainExistenceRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(CalendarHashChainExistenceRule, _super);
+    function CalendarHashChainExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainExistenceRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                return [2 /*return*/, VerificationRule_VerificationRule.getSignature(context).getCalendarHashChain() === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainExistenceRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_CalendarHashChainInputHashVerificationRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(CalendarHashChainInputHashVerificationRule, _super);
+    function CalendarHashChainInputHashVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainInputHashVerificationRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        calendarHashChain = signature.getCalendarHashChain();
+                        if (calendarHashChain === null) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        }
+                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
+                    case 1: return [2 /*return*/, !(_a.sent()).equals(calendarHashChain.getInputHash())
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return CalendarHashChainInputHashVerificationRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_CalendarHashChainAggregationTimeRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(CalendarHashChainAggregationTimeRule, _super);
+    function CalendarHashChainAggregationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainAggregationTimeRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain, aggregationHashChains;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                aggregationHashChains = signature.getAggregationHashChains();
+                return [2 /*return*/, aggregationHashChains[aggregationHashChains.length - 1].getAggregationTime().neq(calendarHashChain.getAggregationTime())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainAggregationTimeRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_CalendarHashChainAlgorithmObsoleteRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(CalendarHashChainAlgorithmObsoleteRule, _super);
+    function CalendarHashChainAlgorithmObsoleteRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainAlgorithmObsoleteRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain, _i, _a, link;
+            return InternalVerificationPolicy_generator(this, function (_b) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                for (_i = 0, _a = calendarHashChain.getChainLinks(); _i < _a.length; _i++) {
+                    link = _a[_i];
+                    if (link.id !== LinkDirection.Left) {
+                        continue;
+                    }
+                    if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
+                        console.log("Calendar hash chain contains obsolete aggregation algorithm at publication time.\n                             Algorithm: " + link.getValue().hashAlgorithm.name + ";\n                             Publication time: " + calendarHashChain.getPublicationTime());
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16)];
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainAlgorithmObsoleteRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_CalendarHashChainRegistrationTimeRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(CalendarHashChainRegistrationTimeRule, _super);
+    function CalendarHashChainRegistrationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainRegistrationTimeRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                return [2 /*return*/, calendarHashChain.getAggregationTime().neq(calendarHashChain.calculateRegistrationTime())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainRegistrationTimeRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_CalendarAuthenticationRecordExistenceRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(CalendarAuthenticationRecordExistenceRule, _super);
+    function CalendarAuthenticationRecordExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarAuthenticationRecordExistenceRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                return [2 /*return*/, VerificationRule_VerificationRule.getSignature(context).getCalendarAuthenticationRecord() === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarAuthenticationRecordExistenceRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_CalendarAuthenticationRecordPublicationTimeRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(CalendarAuthenticationRecordPublicationTimeRule, _super);
+    function CalendarAuthenticationRecordPublicationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarAuthenticationRecordPublicationTimeRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, calendarAuthenticationRecord, calendarHashChain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
+                if (calendarAuthenticationRecord == null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                }
+                return [2 /*return*/, calendarHashChain.getPublicationTime().neq(calendarAuthenticationRecord.getPublicationData().getPublicationTime())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_06)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarAuthenticationRecordPublicationTimeRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_CalendarAuthenticationRecordAggregationHashRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(CalendarAuthenticationRecordAggregationHashRule, _super);
+    function CalendarAuthenticationRecordAggregationHashRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarAuthenticationRecordAggregationHashRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, calendarAuthenticationRecord, calendarHashChain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
+                        if (calendarAuthenticationRecord == null) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        }
+                        calendarHashChain = signature.getCalendarHashChain();
+                        if (calendarHashChain === null) {
+                            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                        }
+                        return [4 /*yield*/, calendarHashChain.calculateOutputHash()];
+                    case 1: return [2 /*return*/, !(_a.sent())
+                            .equals(calendarAuthenticationRecord.getPublicationData().getPublicationHash())
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return CalendarAuthenticationRecordAggregationHashRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_SignaturePublicationRecordExistenceRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(SignaturePublicationRecordExistenceRule, _super);
+    function SignaturePublicationRecordExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SignaturePublicationRecordExistenceRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                return [2 /*return*/, VerificationRule_VerificationRule.getSignature(context).getPublicationRecord() === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return SignaturePublicationRecordExistenceRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_SignaturePublicationRecordPublicationTimeRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(SignaturePublicationRecordPublicationTimeRule, _super);
+    function SignaturePublicationRecordPublicationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SignaturePublicationRecordPublicationTimeRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, publicationRecord, calendarHashChain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                publicationRecord = signature.getPublicationRecord();
+                if (publicationRecord === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                }
+                return [2 /*return*/, publicationRecord.getPublicationTime().neq(calendarHashChain.getPublicationTime())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_07)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return SignaturePublicationRecordPublicationTimeRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_SignaturePublicationRecordPublicationHashRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(SignaturePublicationRecordPublicationHashRule, _super);
+    function SignaturePublicationRecordPublicationHashRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SignaturePublicationRecordPublicationHashRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var signature, publicationRecord, calendarHashChain;
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                signature = VerificationRule_VerificationRule.getSignature(context);
+                publicationRecord = signature.getPublicationRecord();
+                if (publicationRecord === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                }
+                return [2 /*return*/, publicationRecord.getPublicationHash().equals(calendarHashChain.calculateOutputHash())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return SignaturePublicationRecordPublicationHashRule;
+}(VerificationRule_VerificationRule));
+var InternalVerificationPolicy_SuccessResultRule = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(SuccessResultRule, _super);
+    function SuccessResultRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SuccessResultRule.prototype.verify = function (context) {
+        return InternalVerificationPolicy_awaiter(this, void 0, void 0, function () {
+            return InternalVerificationPolicy_generator(this, function (_a) {
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return SuccessResultRule;
+}(VerificationRule_VerificationRule));
+/**
+ * Policy for verifying KSI signature internal consistency.
+ */
+var InternalVerificationPolicy_InternalVerificationPolicy = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(InternalVerificationPolicy, _super);
+    function InternalVerificationPolicy() {
+        return _super.call(this, InternalVerificationPolicy.verifyInput()
+            .onSuccess(InternalVerificationPolicy.verifyRfc3161()
+            .onSuccess(InternalVerificationPolicy.verifyAggregationChain()
+            .onSuccess(
+        // Verify calendar hash chain if exists
+        new InternalVerificationPolicy_CalendarHashChainExistenceRule() // Gen-02
+            .onSuccess(InternalVerificationPolicy.verifyCalendarChain()
+            .onSuccess(
+        // Verify calendar auth record if exists
+        new InternalVerificationPolicy_CalendarAuthenticationRecordExistenceRule() // Gen-02
+            .onSuccess(new InternalVerificationPolicy_CalendarAuthenticationRecordPublicationTimeRule() // Int-06
+            .onSuccess(new InternalVerificationPolicy_CalendarAuthenticationRecordAggregationHashRule()))
+            // No calendar auth record. Verify publication record.
+            .onNa(new InternalVerificationPolicy_SignaturePublicationRecordExistenceRule() // Gen-02
+            .onSuccess(new InternalVerificationPolicy_SignaturePublicationRecordPublicationTimeRule() // Int-07
+            .onSuccess(new InternalVerificationPolicy_SignaturePublicationRecordPublicationHashRule())) // Int-09
+            // No publication record
+            .onNa(new InternalVerificationPolicy_SuccessResultRule())))))
+            // No calendar hash chain
+            .onNa(new InternalVerificationPolicy_SuccessResultRule())))) || this;
+    }
+    InternalVerificationPolicy.verifyInput = function () {
+        return new VerificationPolicy_VerificationPolicy(new InternalVerificationPolicy_InputHashAlgorithmVerificationRule() // Gen-04
+            .onSuccess(new InternalVerificationPolicy_DocumentHashVerificationRule() // Gen-01
+            .onSuccess(new InternalVerificationPolicy_DocumentHashLevelVerificationRule() // Gen-03
+            .onSuccess(new InternalVerificationPolicy_InputHashAlgorithmDeprecatedRule())))); // Int-13)
+    };
+    InternalVerificationPolicy.verifyRfc3161 = function () {
+        return new VerificationPolicy_VerificationPolicy(new InternalVerificationPolicy_Rfc3161RecordHashAlgorithmDeprecatedRule() // Int-14
+            .onSuccess(new InternalVerificationPolicy_Rfc3161RecordOutputHashAlgorithmDeprecatedRule() // Int-17
+            .onSuccess(new InternalVerificationPolicy_Rfc3161RecordChainIndexRule() // Int-12
+            .onSuccess(new InternalVerificationPolicy_Rfc3161RecordOutputHashVerificationRule() // Int-01
+            .onSuccess(new InternalVerificationPolicy_Rfc3161RecordAggregationTimeRule()))))); // Int-02
+    };
+    InternalVerificationPolicy.verifyAggregationChain = function () {
+        return new VerificationPolicy_VerificationPolicy(new InternalVerificationPolicy_AggregationHashChainIndexSuccessorRule() // Int-12
+            .onSuccess(new InternalVerificationPolicy_AggregationHashChainMetadataRule() // Int-11
+            .onSuccess(new InternalVerificationPolicy_AggregationHashChainAlgorithmDeprecatedRule() // Int-15
+            .onSuccess(new InternalVerificationPolicy_AggregationHashChainConsistencyRule() // Int-01
+            .onSuccess(new InternalVerificationPolicy_AggregationHashChainTimeConsistencyRule() // Int-02
+            .onSuccess(new InternalVerificationPolicy_AggregationHashChainShapeRule())))))); // Int-10
+    };
+    InternalVerificationPolicy.verifyCalendarChain = function () {
+        return new VerificationPolicy_VerificationPolicy(new InternalVerificationPolicy_CalendarHashChainInputHashVerificationRule() // Int-03
+            .onSuccess(new InternalVerificationPolicy_CalendarHashChainAggregationTimeRule() // Int-04
+            .onSuccess(new InternalVerificationPolicy_CalendarHashChainRegistrationTimeRule() // Int-05
+            .onSuccess(new InternalVerificationPolicy_CalendarHashChainAlgorithmObsoleteRule())))); // Int-16 // Int-10
+    };
+    return InternalVerificationPolicy;
+}(VerificationPolicy_VerificationPolicy));
+
+
 // CONCATENATED MODULE: ./src/main.ts
 /* concated harmony reexport IntegerTag */__webpack_require__.d(__webpack_exports__, "IntegerTag", function() { return IntegerTag_IntegerTag; });
 /* concated harmony reexport PublicationsFileFactory */__webpack_require__.d(__webpack_exports__, "PublicationsFileFactory", function() { return PublicationsFileFactory_PublicationsFileFactory; });
 /* concated harmony reexport KsiSignature */__webpack_require__.d(__webpack_exports__, "KsiSignature", function() { return KsiSignature_KsiSignature; });
 /* concated harmony reexport TlvInputStream */__webpack_require__.d(__webpack_exports__, "TlvInputStream", function() { return TlvInputStream_TlvInputStream; });
+/* concated harmony reexport InternalVerificationPolicy */__webpack_require__.d(__webpack_exports__, "InternalVerificationPolicy", function() { return InternalVerificationPolicy_InternalVerificationPolicy; });
+/* concated harmony reexport VerificationContext */__webpack_require__.d(__webpack_exports__, "VerificationContext", function() { return VerificationContext_VerificationContext; });
 /**
  * KSI Javascript API externally visible classes
  */
+
+
 
 
 

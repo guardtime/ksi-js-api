@@ -13,8 +13,8 @@ import {TlvTag} from '../parser/TlvTag';
 /**
  * Aggregation Hash Chain Link Metadata TLV Object
  */
-class AggregationHashChainLinkMetaData extends CompositeTag {
-    private padding: RawTag;
+export class AggregationHashChainLinkMetaData extends CompositeTag {
+    private padding: RawTag | null = null;
     private clientId: StringTag;
     private machineId: StringTag;
     private sequenceNumber: IntegerTag;
@@ -27,6 +27,10 @@ class AggregationHashChainLinkMetaData extends CompositeTag {
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
+    }
+
+    public getPaddingTag(): RawTag | null {
+        return this.padding;
     }
 
     private parseChild(tlvTag: TlvTag, position: number): TlvTag {
@@ -68,15 +72,15 @@ class AggregationHashChainLinkMetaData extends CompositeTag {
 /**
  * Aggregation Hash Chain Link TLV Object
  */
-class AggregationHashChainLink extends CompositeTag {
+export class AggregationHashChainLink extends CompositeTag {
     private static readonly LEGACY_ID_FIRST_OCTET: number = 0x3;
     private static readonly LEGACY_ID_LENGTH: number = 29;
 
-    private levelCorrection: IntegerTag;
-    private siblingHash: ImprintTag;
-    private legacyId: RawTag;
+    private levelCorrection: IntegerTag | null = null;
+    private siblingHash: ImprintTag | null = null;
+    private legacyId: RawTag | null = null;
     private legacyIdString: string;
-    private metadata: AggregationHashChainLinkMetaData;
+    private metadata: AggregationHashChainLinkMetaData | null = null;
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
@@ -120,7 +124,11 @@ class AggregationHashChainLink extends CompositeTag {
     }
 
     public getLevelCorrection(): BigInteger {
-        return this.levelCorrection.getValue();
+        return this.levelCorrection === null ? bigInteger(0) : this.levelCorrection.getValue();
+    }
+
+    public getMetadata(): AggregationHashChainLinkMetaData | null {
+        return this.metadata;
     }
 
     public getDirection(): LinkDirection {
@@ -135,11 +143,15 @@ class AggregationHashChainLink extends CompositeTag {
     }
 
     public getSiblingData(): Uint8Array {
-        if (this.siblingHash instanceof ImprintTag) {
+        if (this.siblingHash !== null) {
             return this.siblingHash.getValue().imprint;
         }
 
-        return this.legacyId != null ? this.legacyId.getValue() : this.metadata.getValueBytes();
+        if (this.legacyId !== null) {
+            return this.legacyId.getValue();
+        }
+
+        return this.metadata!.getValueBytes();
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {
@@ -176,7 +188,7 @@ class AggregationHashChainLink extends CompositeTag {
     }
 }
 
-export type AggregationHashResult = Readonly<{level: bigInteger.BigInteger; hash: DataHash}>;
+export type AggregationHashResult = Readonly<{level: BigInteger; hash: DataHash}>;
 
 /**
  * Aggregation Hash Chain TLV Object
@@ -198,15 +210,15 @@ export class AggregationHashChain extends CompositeTag {
         Object.freeze(this);
     }
 
-    public getChainLinks(): Readonly<AggregationHashChainLink[]> {
+    public getChainLinks(): AggregationHashChainLink[] {
         return this.chainLinks;
     }
 
     /**
      * Get chain index values
      */
-    public getChainIndex(): bigInteger.BigInteger[] {
-        const result: bigInteger.BigInteger[] = [];
+    public getChainIndex(): BigInteger[] {
+        const result: BigInteger[] = [];
         for (const tag of this.chainIndexes) {
             result.push(tag.getValue());
         }
@@ -214,12 +226,16 @@ export class AggregationHashChain extends CompositeTag {
         return result;
     }
 
-    public getAggregationTime(): bigInteger.BigInteger {
+    public getAggregationTime(): BigInteger {
         return this.aggregationTime.getValue();
     }
 
+    public getAggregationAlgorithm(): HashAlgorithm {
+        return this.aggregationAlgorithm;
+    }
+
     public async getOutputHash(result: AggregationHashResult): Promise<AggregationHashResult> {
-        let level: bigInteger.BigInteger = result.level;
+        let level: BigInteger = result.level;
         let lastHash: DataHash = result.hash;
 
         for (const link of this.chainLinks) {
@@ -240,7 +256,23 @@ export class AggregationHashChain extends CompositeTag {
         return this.inputHash.getValue();
     }
 
-    private async getStepHash(hashA: Uint8Array, hashB: Uint8Array, level: bigInteger.BigInteger): Promise<DataHash> {
+    /**
+     * Returns location pointer based on aggregation hash chain links
+     */
+    public calculateLocationPointer(): BigInteger {
+        let result: BigInteger = bigInteger(0);
+        const links: AggregationHashChainLink[] = this.getChainLinks();
+
+        for (let i: number = 0; i < this.getChainLinks().length; i += 1)      {
+            if (links[i].getDirection() === LinkDirection.Left)             {
+                result = result.or(bigInteger(1).shiftLeft(i));
+            }
+        }
+
+        return result.or(bigInteger(1).shiftLeft(links.length));
+    }
+
+    private async getStepHash(hashA: Uint8Array, hashB: Uint8Array, level: BigInteger): Promise<DataHash> {
         const hasher: DataHasher = new DataHasher(this.aggregationAlgorithm);
         hasher.update(hashA);
         hasher.update(hashB);
@@ -308,4 +340,5 @@ export class AggregationHashChain extends CompositeTag {
             throw new TlvError('Links are missing in aggregation hash chain.');
         }
     }
+
 }

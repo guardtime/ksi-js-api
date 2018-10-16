@@ -1,4 +1,4 @@
-import bigInteger from 'big-integer';
+import bigInteger, {BigInteger} from 'big-integer';
 import {UnsignedLongCoder} from 'gt-js-common';
 import {TlvTag} from './TlvTag';
 
@@ -16,9 +16,9 @@ export class IntegerTag extends TlvTag {
         Object.freeze(this);
     }
 
-    public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: number): IntegerTag {
+    public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: BigInteger): IntegerTag {
         return new IntegerTag(
-            new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(bigInteger(value))));
+            new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(value)));
     }
 
     public getValue(): bigInteger.BigInteger {

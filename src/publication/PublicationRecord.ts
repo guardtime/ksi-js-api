@@ -12,7 +12,7 @@ import {PublicationData} from './PublicationData';
  */
 export class PublicationRecord extends CompositeTag {
 
-    public publicationData: PublicationData;
+    private publicationData: PublicationData;
     private publicationReferences: StringTag[] = [];
     private repositoryUri: StringTag[] = [];
 

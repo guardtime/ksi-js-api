@@ -2,11 +2,11 @@
  * Verification context for KSI signature
  */
 import bigInteger, {BigInteger} from 'big-integer';
+import {DataHash} from 'gt-js-common';
 import {TlvTag} from '../../parser/TlvTag';
 import {CalendarHashChain} from '../CalendarHashChain';
 import {KsiSignature} from '../KsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
-import {DataHash} from 'gt-js-common';
 
 export class KsiService {
     constructor() {
@@ -20,9 +20,20 @@ export class KsiService {
 
 export class VerificationContext {
     private ksiService: KsiService;
+    private ksiSignature: KsiSignature;
+    private documentHash: DataHash | null = null;
+
+    constructor(signature: KsiSignature) {
+        if (!(signature instanceof KsiSignature)) {
+            throw new Error(`Invalid signature: ${signature}`);
+        }
+
+        this.ksiSignature = signature;
+
+    }
 
     public getSignature(): KsiSignature {
-        return new KsiSignature(new TlvTag(0, false, false, new Uint8Array(0)));
+        return this.ksiSignature;
     }
 
     /**
@@ -50,17 +61,21 @@ export class VerificationContext {
     /**
      * Get document hash.
      */
-    public getDocumentHash(): DataHash {
-        const hashImprint: Uint8Array = new Uint8Array(33);
-        hashImprint.set([1]);
+    public getDocumentHash(): DataHash | null {
+        return this.documentHash;
+    }
 
-        return new DataHash(hashImprint);
+    public setDocumentHash(documentHash: DataHash | null): void {
+        if (documentHash === null || !(documentHash instanceof DataHash)) {
+            throw new KsiVerificationError(`Invalid document hash: ${documentHash}`);
+        }
+        this.documentHash = documentHash;
     }
 
     /**
      * Get document hash node level value in the aggregation tree
      */
-    public getDocumentHashLevel(): bigInteger.BigInteger {
+    public getDocumentHashLevel(): BigInteger {
         return bigInteger(0);
     }
 }

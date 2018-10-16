@@ -19,8 +19,15 @@
         }).then((data) => {
             const stream = new KSI.TlvInputStream(data);
             const tlvTag = stream.readTag();
-            console.log(tlvTag);
-            console.log(new KSI.KsiSignature(tlvTag));
+            const signature = new KSI.KsiSignature(tlvTag);
+            const policy = new KSI.InternalVerificationPolicy();
+            policy.verify(new KSI.VerificationContext(signature))
+                .then((result) => {
+                    console.log(result);
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
         });
 
     </script>
