@@ -1,3 +1,5 @@
+import bigInteger from 'big-integer';
+import {DataHash} from 'gt-js-common';
 import {
     AGGREGATION_HASH_CHAIN_CONSTANTS,
     CALENDAR_AUTHENTICATION_RECORD_CONSTANTS,
@@ -9,7 +11,7 @@ import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationRecord} from '../publication/PublicationRecord';
-import {AggregationHashChain} from './AggregationHashChain';
+import {AggregationHashChain, AggregationHashResult} from './AggregationHashChain';
 import {CalendarAuthenticationRecord} from './CalendarAuthenticationRecord';
 import {CalendarHashChain} from './CalendarHashChain';
 import {Rfc3161Record} from './Rfc3161Record';
@@ -19,10 +21,10 @@ import {Rfc3161Record} from './Rfc3161Record';
  */
 export class KsiSignature extends CompositeTag {
     private aggregationHashChains: AggregationHashChain[] = [];
-    private publicationRecord: PublicationRecord;
-    private calendarAuthenticationRecord: CalendarAuthenticationRecord;
-    private calendarHashChain: CalendarHashChain;
-    private rfc3161Record: Rfc3161Record;
+    private publicationRecord: PublicationRecord | null = null;
+    private calendarAuthenticationRecord: CalendarAuthenticationRecord | null = null;
+    private calendarHashChain: CalendarHashChain | null = null;
+    private rfc3161Record: Rfc3161Record | null = null;
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
@@ -31,6 +33,38 @@ export class KsiSignature extends CompositeTag {
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
+    }
+
+    public getCalendarHashChain(): CalendarHashChain | null {
+        return this.calendarHashChain;
+    }
+
+    public getAggregationTime(): bigInteger.BigInteger {
+        return bigInteger(0);
+    }
+
+    public getAggregationHashChains(): AggregationHashChain[] {
+        return this.aggregationHashChains.slice();
+    }
+
+    /**
+     * Get last aggregation hash chain output hash that is calculated from all aggregation hash chains
+     */
+    public async getLastAggregationHashChainRootHash(): Promise<DataHash> {
+        let lastResult: AggregationHashResult = {level: bigInteger(0), hash: this.aggregationHashChains[0].getInputHash()};
+        for (const chain of this.aggregationHashChains) {
+            lastResult = await chain.getOutputHash(lastResult);
+        }
+
+        return lastResult.hash;
+    }
+
+    public getInputHash(): DataHash {
+        return this.rfc3161Record !== null ? this.rfc3161Record.getInputHash() : this.aggregationHashChains[0].getInputHash();
+    }
+
+    public getRfc3161Record(): Rfc3161Record | null {
+        return this.rfc3161Record;
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {

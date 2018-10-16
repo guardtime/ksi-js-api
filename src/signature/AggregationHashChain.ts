@@ -1,5 +1,7 @@
+import bigInteger, {BigInteger} from 'big-integer';
+import {DataHash, DataHasher, HashAlgorithm, UnsignedLongCoder} from 'gt-js-common';
 import {util} from 'node-forge';
-import {AGGREGATION_HASH_CHAIN_CONSTANTS, LINK_DIRECTION_CONSTANTS} from '../Constants';
+import {AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
@@ -72,6 +74,7 @@ class AggregationHashChainLink extends CompositeTag {
 
     private levelCorrection: IntegerTag;
     private siblingHash: ImprintTag;
+    private legacyId: RawTag;
     private legacyIdString: string;
     private metadata: AggregationHashChainLinkMetaData;
 
@@ -116,6 +119,29 @@ class AggregationHashChainLink extends CompositeTag {
         return util.text.utf8.decode(bytes.slice(3, idStringLength));
     }
 
+    public getLevelCorrection(): BigInteger {
+        return this.levelCorrection.getValue();
+    }
+
+    public getDirection(): LinkDirection {
+        switch (this.id) {
+            case LinkDirection.Left:
+                return LinkDirection.Left;
+            case LinkDirection.Right:
+                return LinkDirection.Right;
+            default:
+                throw new TlvError('Invalid Link direction');
+        }
+    }
+
+    public getSiblingData(): Uint8Array {
+        if (this.siblingHash instanceof ImprintTag) {
+            return this.siblingHash.getValue().imprint;
+        }
+
+        return this.legacyId != null ? this.legacyId.getValue() : this.metadata.getValueBytes();
+    }
+
     private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType:
@@ -124,6 +150,7 @@ class AggregationHashChainLink extends CompositeTag {
                 return this.siblingHash = new ImprintTag(tlvTag);
             case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId:
                 const legacyIdTag: RawTag = new RawTag(tlvTag);
+                this.legacyId = legacyIdTag;
                 // TODO: Make it better
                 this.legacyIdString = AggregationHashChainLink.getLegacyIdString(legacyIdTag.getValue());
 
@@ -141,23 +168,24 @@ class AggregationHashChainLink extends CompositeTag {
         }
 
         if (((tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType] || 0) +
-             (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId] || 0) +
-             (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType] || 0)) !== 1) {
+            (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId] || 0) +
+            (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType] || 0)) !== 1) {
 
             throw new TlvError('Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.');
         }
     }
 }
 
+export type AggregationHashResult = Readonly<{level: bigInteger.BigInteger; hash: DataHash}>;
+
 /**
  * Aggregation Hash Chain TLV Object
  */
 export class AggregationHashChain extends CompositeTag {
-
     private chainIndexes: IntegerTag[] = [];
     private aggregationTime: IntegerTag;
     private chainLinks: AggregationHashChainLink[] = [];
-    private aggregationAlgorithm: IntegerTag;
+    private aggregationAlgorithm: HashAlgorithm;
     private inputHash: ImprintTag;
     private inputData: RawTag;
 
@@ -168,6 +196,57 @@ export class AggregationHashChain extends CompositeTag {
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
+    }
+
+    public getChainLinks(): Readonly<AggregationHashChainLink[]> {
+        return this.chainLinks;
+    }
+
+    /**
+     * Get chain index values
+     */
+    public getChainIndex(): bigInteger.BigInteger[] {
+        const result: bigInteger.BigInteger[] = [];
+        for (const tag of this.chainIndexes) {
+            result.push(tag.getValue());
+        }
+
+        return result;
+    }
+
+    public getAggregationTime(): bigInteger.BigInteger {
+        return this.aggregationTime.getValue();
+    }
+
+    public async getOutputHash(result: AggregationHashResult): Promise<AggregationHashResult> {
+        let level: bigInteger.BigInteger = result.level;
+        let lastHash: DataHash = result.hash;
+
+        for (const link of this.chainLinks) {
+            level = level.plus(link.getLevelCorrection().plus(1));
+            if (link.getDirection() === LinkDirection.Left) {
+                lastHash = await this.getStepHash(lastHash.imprint, link.getSiblingData(), level);
+            }
+
+            if (link.getDirection() === LinkDirection.Right) {
+                lastHash = await this.getStepHash(link.getSiblingData(), lastHash.imprint, level);
+            }
+        }
+
+        return Object.freeze({level: level, hash: lastHash});
+    }
+
+    public getInputHash(): DataHash {
+        return this.inputHash.getValue();
+    }
+
+    private async getStepHash(hashA: Uint8Array, hashB: Uint8Array, level: bigInteger.BigInteger): Promise<DataHash> {
+        const hasher: DataHasher = new DataHasher(this.aggregationAlgorithm);
+        hasher.update(hashA);
+        hasher.update(hashB);
+        hasher.update(UnsignedLongCoder.encode(level));
+
+        return hasher.digest();
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {
@@ -184,10 +263,17 @@ export class AggregationHashChain extends CompositeTag {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType:
                 return this.inputHash = new ImprintTag(tlvTag);
             case AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType:
-                // TODO: Better solution
-                return this.aggregationAlgorithm = new IntegerTag(tlvTag);
-            case LINK_DIRECTION_CONSTANTS.Left:
-            case LINK_DIRECTION_CONSTANTS.Right:
+                const algorithmTag: IntegerTag = new IntegerTag(tlvTag);
+                const algorithm: HashAlgorithm | null = HashAlgorithm.getById(algorithmTag.getValue().valueOf());
+                if (algorithm === null) {
+                    throw new TlvError('Invalid algorithm: null');
+                }
+
+                this.aggregationAlgorithm = algorithm;
+
+                return algorithmTag;
+            case LinkDirection.Left:
+            case LinkDirection.Right:
                 const linkTag: AggregationHashChainLink = new AggregationHashChainLink(tlvTag);
                 this.chainLinks.push(linkTag);
 

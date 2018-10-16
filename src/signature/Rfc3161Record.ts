@@ -1,4 +1,6 @@
-import {HashAlgorithm} from 'gt-js-common';
+import bigInteger from 'big-integer';
+
+import {DataHash, DataHasher, HashAlgorithm} from 'gt-js-common';
 import {RFC_3161_RECORD_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
@@ -16,10 +18,10 @@ export class Rfc3161Record extends CompositeTag {
     private inputHash: ImprintTag;
     private tstInfoPrefix: RawTag;
     private tstInfoSuffix: RawTag;
-    private tstInfoAlgorithm: HashAlgorithm | null;
+    private tstInfoAlgorithm: HashAlgorithm;
     private signedAttributesPrefix: RawTag;
     private signedAttributesSuffix: RawTag;
-    private signedAttributesAlgorithm: HashAlgorithm | null;
+    private signedAttributesAlgorithm: HashAlgorithm;
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
@@ -28,6 +30,50 @@ export class Rfc3161Record extends CompositeTag {
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
+    }
+
+    public getInputHash(): DataHash {
+        return this.inputHash.getValue();
+    }
+
+    public getTstInfoAlgorithm(): HashAlgorithm {
+        return this.tstInfoAlgorithm;
+    }
+
+    public getSignedAttributesAlgorithm(): HashAlgorithm {
+        return this.signedAttributesAlgorithm;
+    }
+
+    public getAggregationTime(): bigInteger.BigInteger {
+        return this.aggregationTime.getValue();
+    }
+
+    /**
+     * Get chain index values
+     */
+    public getChainIndex(): bigInteger.BigInteger[] {
+        const result: bigInteger.BigInteger[] = [];
+        for (const tag of this.chainIndexes) {
+            result.push(tag.getValue());
+        }
+
+        return result;
+    }
+
+    public async getOutputHash(): Promise<DataHash> {
+        let hasher: DataHasher = new DataHasher(this.tstInfoAlgorithm);
+        hasher.update(this.tstInfoPrefix.getValue());
+        hasher.update(this.inputHash.getValue().value);
+        hasher.update(this.tstInfoSuffix.getValue());
+
+        const inputHash: DataHash = await hasher.digest();
+
+        hasher = new DataHasher(this.signedAttributesAlgorithm);
+        hasher.update(this.signedAttributesPrefix.getValue());
+        hasher.update(inputHash.value);
+        hasher.update(this.signedAttributesSuffix.getValue());
+
+        return hasher.digest();
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {
@@ -49,7 +95,12 @@ export class Rfc3161Record extends CompositeTag {
             case RFC_3161_RECORD_CONSTANTS.TstInfoAlgorithmTagType:
                 // TODO: Better solution
                 const tstInfoAlgorithmTag: IntegerTag = new IntegerTag(tlvTag);
-                this.tstInfoAlgorithm = HashAlgorithm.getById(tstInfoAlgorithmTag.getValue().valueOf());
+                const tstInfoAlgorithm: HashAlgorithm | null = HashAlgorithm.getById(tstInfoAlgorithmTag.getValue().valueOf());
+                if (tstInfoAlgorithm === null) {
+                    throw new Error(`Invalid algorithm: ${tstInfoAlgorithmTag.getValue()}`);
+                }
+
+                this.tstInfoAlgorithm = tstInfoAlgorithm;
 
                 return tstInfoAlgorithmTag;
             case RFC_3161_RECORD_CONSTANTS.SignedAttributesPrefixTagType:
@@ -58,7 +109,14 @@ export class Rfc3161Record extends CompositeTag {
                 return this.signedAttributesSuffix = new RawTag(tlvTag);
             case RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType:
                 const signedAttributesAlgorithmTag: IntegerTag = new IntegerTag(tlvTag);
-                this.signedAttributesAlgorithm = HashAlgorithm.getById(signedAttributesAlgorithmTag.getValue().valueOf());
+                const signedAttributesAlgorithm: HashAlgorithm | null =
+                    HashAlgorithm.getById(signedAttributesAlgorithmTag.getValue().valueOf());
+
+                if (signedAttributesAlgorithm === null) {
+                    throw new Error(`Invalid algorithm: ${signedAttributesAlgorithmTag.getValue()}`);
+                }
+
+                this.signedAttributesAlgorithm = signedAttributesAlgorithm;
 
                 return signedAttributesAlgorithmTag;
             default:

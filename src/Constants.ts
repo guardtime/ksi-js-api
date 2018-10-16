@@ -28,6 +28,34 @@ type AggregationHashChainConstants = Readonly<{
     }>;
 }>;
 
+type SignatureDataConstants = Readonly<{
+    TagType: number;
+    SignatureTypeTagType: number;
+    SignatureValueTagType: number;
+    CertificateIdTagType: number;
+    CertificateRepositoryUriTagType: number;
+}>;
+
+type Rfc3161RecordConstants = Readonly<{
+    TagType: number;
+    AggregationTimeTagType: number;
+    ChainIndexTagType: number;
+    InputHashTagType: number;
+    TstInfoPrefixTagType: number;
+    TstInfoSuffixTagType: number;
+    TstInfoAlgorithmTagType: number;
+    SignedAttributesPrefixTagType: number;
+    SignedAttributesSuffixTagType: number;
+    SignedAttributesAlgorithmTagType: number;
+}>;
+
+type CalendarHashChainConstants = Readonly<{
+    TagType: number;
+    PublicationTimeTagType: number;
+    AggregationTimeTagType: number;
+    InputHashTagType: number;
+}>;
+
 /**
  * TLV stream constants
  */
@@ -112,7 +140,7 @@ export const AGGREGATION_HASH_CHAIN_CONSTANTS: AggregationHashChainConstants = O
     AggregationAlgorithmIdTagType: 0x6
 });
 
-export const CALENDAR_HASH_CHAIN_CONSTANTS = Object.freeze({
+export const CALENDAR_HASH_CHAIN_CONSTANTS: CalendarHashChainConstants = Object.freeze({
     TagType: 0x802,
 
     PublicationTimeTagType: 0x1,
@@ -120,15 +148,15 @@ export const CALENDAR_HASH_CHAIN_CONSTANTS = Object.freeze({
     InputHashTagType: 0x5
 });
 
-export const KSI_SIGNATURE_CONSTANTS = Object.freeze({
+export const KSI_SIGNATURE_CONSTANTS: Readonly<{ PublicationRecordTagType: number }> = Object.freeze({
     PublicationRecordTagType: 0x803
 });
 
-export const CALENDAR_AUTHENTICATION_RECORD_CONSTANTS = Object.freeze({
+export const CALENDAR_AUTHENTICATION_RECORD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
     TagType: 0x805
 });
 
-export const RFC_3161_RECORD_CONSTANTS = Object.freeze({
+export const RFC_3161_RECORD_CONSTANTS: Rfc3161RecordConstants = Object.freeze({
     TagType: 0x806,
 
     AggregationTimeTagType: 0x2,
@@ -142,7 +170,7 @@ export const RFC_3161_RECORD_CONSTANTS = Object.freeze({
     SignedAttributesAlgorithmTagType: 0x15
 });
 
-export const SIGNATURE_DATA_CONSTANTS = Object.freeze({
+export const SIGNATURE_DATA_CONSTANTS: SignatureDataConstants  = Object.freeze({
     TagType: 0xB,
 
     SignatureTypeTagType: 0x1,
@@ -151,7 +179,7 @@ export const SIGNATURE_DATA_CONSTANTS = Object.freeze({
     CertificateRepositoryUriTagType: 0x4
 });
 
-export const LINK_DIRECTION_CONSTANTS: Readonly<{ Left: number; Right: number }> = Object.freeze({
-    Left: 0x7,
-    Right: 0x8
-});
+export enum LinkDirection {
+    Left = 0x7,
+    Right = 0x8
+}

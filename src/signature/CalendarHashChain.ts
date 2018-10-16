@@ -1,4 +1,7 @@
-import {CALENDAR_HASH_CHAIN_CONSTANTS, LINK_DIRECTION_CONSTANTS} from '../Constants';
+import bigInteger from 'big-integer';
+
+import {DataHash} from 'gt-js-common';
+import {CALENDAR_HASH_CHAIN_CONSTANTS, LinkDirection} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
@@ -24,6 +27,18 @@ export class CalendarHashChain extends CompositeTag {
         Object.freeze(this);
     }
 
+    public getPublicationTime(): bigInteger.BigInteger {
+        return this.publicationTime.getValue();
+    }
+
+    public getInputHash(): DataHash {
+        return this.inputHash.getValue();
+    }
+
+    public getAggregationTime(): bigInteger.BigInteger {
+        return this.aggregationTime ? this.aggregationTime.getValue() : this.getPublicationTime();
+    }
+
     private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType:
@@ -32,8 +47,8 @@ export class CalendarHashChain extends CompositeTag {
                 return this.aggregationTime = new IntegerTag(tlvTag);
             case CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType:
                 return this.inputHash = new ImprintTag(tlvTag);
-            case LINK_DIRECTION_CONSTANTS.Left:
-            case LINK_DIRECTION_CONSTANTS.Right:
+            case LinkDirection.Left:
+            case LinkDirection.Right:
                 const link: ImprintTag = new ImprintTag(tlvTag);
                 this.chainLinks.push(link);
 
