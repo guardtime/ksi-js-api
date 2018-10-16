@@ -1,4 +1,4 @@
-import {TLV_STREAM_CONSTANTS} from '../Constants';
+import {TLV_CONSTANTS} from '../Constants';
 import {TlvError} from './TlvError';
 import {TlvTag} from './TlvTag';
 
@@ -17,7 +17,7 @@ export class TlvOutputStream {
     }
 
     public writeTag(tlvTag: TlvTag): void {
-        if (tlvTag.id > TLV_STREAM_CONSTANTS.MaxType) {
+        if (tlvTag.id > TLV_CONSTANTS.MaxType) {
             throw new TlvError('Could not write TlvTag: Type is larger than max id');
         }
 
@@ -26,13 +26,13 @@ export class TlvOutputStream {
             throw new TlvError('Could not write TlvTag: Data length is too large');
         }
 
-        const tlv16BitFlag: boolean = tlvTag.id > TLV_STREAM_CONSTANTS.TypeMask || valueBytes.length > 0xFF;
-        let firstByte: number = (<number>(tlv16BitFlag && TLV_STREAM_CONSTANTS.Tlv16BitFlagBit))
-            + (<number>(tlvTag.nonCriticalFlag && TLV_STREAM_CONSTANTS.NonCriticalFlagBit))
-            + (<number>(tlvTag.forwardFlag && TLV_STREAM_CONSTANTS.ForwardFlagBit));
+        const tlv16BitFlag: boolean = tlvTag.id > TLV_CONSTANTS.TypeMask || valueBytes.length > 0xFF || tlvTag.tlv16BitFlag;
+        let firstByte: number = (<number>(tlv16BitFlag && TLV_CONSTANTS.Tlv16BitFlagBit))
+            + (<number>(tlvTag.nonCriticalFlag && TLV_CONSTANTS.NonCriticalFlagBit))
+            + (<number>(tlvTag.forwardFlag && TLV_CONSTANTS.ForwardFlagBit));
 
         if (tlv16BitFlag) {
-            firstByte |= (tlvTag.id >> 8) & TLV_STREAM_CONSTANTS.TypeMask;
+            firstByte |= (tlvTag.id >> 8) & TLV_CONSTANTS.TypeMask;
             this.write(new Uint8Array([
                 firstByte & 0xFF,
                 tlvTag.id & 0xFF,
@@ -40,7 +40,7 @@ export class TlvOutputStream {
                 valueBytes.length & 0xFF
             ]));
         } else {
-            firstByte |= (tlvTag.id & TLV_STREAM_CONSTANTS.TypeMask);
+            firstByte |= (tlvTag.id & TLV_CONSTANTS.TypeMask);
             this.write(new Uint8Array([firstByte, valueBytes.length & 0xFF]));
         }
 

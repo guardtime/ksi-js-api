@@ -3098,7 +3098,7 @@ util.estimateCores = function(options, callback) {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(17), __webpack_require__(41).setImmediate, __webpack_require__(10).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18), __webpack_require__(41).setImmediate, __webpack_require__(12).Buffer))
 
 /***/ }),
 /* 2 */
@@ -4750,7 +4750,7 @@ forge.md.algorithms = forge.md.algorithms || {};
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(16);
+__webpack_require__(17);
 __webpack_require__(24);
 __webpack_require__(1);
 
@@ -6709,6 +6709,48 @@ function _update(s, w, bytes) {
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/**
+ * Node.js module for Forge.
+ *
+ * @author Dave Longley
+ *
+ * Copyright 2011-2016 Digital Bazaar, Inc.
+ */
+module.exports = __webpack_require__(0);
+__webpack_require__(5);
+__webpack_require__(47);
+__webpack_require__(3);
+__webpack_require__(17);
+__webpack_require__(37);
+__webpack_require__(13);
+__webpack_require__(49);
+__webpack_require__(8);
+__webpack_require__(50);
+__webpack_require__(39);
+__webpack_require__(51);
+__webpack_require__(36);
+__webpack_require__(21);
+__webpack_require__(7);
+__webpack_require__(32);
+__webpack_require__(34);
+__webpack_require__(52);
+__webpack_require__(26);
+__webpack_require__(33);
+__webpack_require__(30);
+__webpack_require__(23);
+__webpack_require__(2);
+__webpack_require__(31);
+__webpack_require__(53);
+__webpack_require__(54);
+__webpack_require__(25);
+__webpack_require__(1);
+
+
+/***/ }),
+/* 11 */,
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {/*!
  * The buffer module from node.js, for the browser.
@@ -8500,10 +8542,10 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8537,7 +8579,7 @@ function isnan (val) {
  * Copyright (c) 2012-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(16);
+__webpack_require__(17);
 __webpack_require__(24);
 __webpack_require__(1);
 
@@ -9004,7 +9046,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9072,7 +9114,7 @@ function _createCipher(options) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(3);
-__webpack_require__(13);
+__webpack_require__(15);
 __webpack_require__(6);
 __webpack_require__(32);
 __webpack_require__(33);
@@ -10806,7 +10848,7 @@ function _base64ToBigInt(b64) {
 
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright (c) 2005  Tom Wu
@@ -12076,7 +12118,7 @@ BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
 
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var bigInt = (function (undefined) {
@@ -13405,8 +13447,7 @@ if (true) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(40)(module)))
 
 /***/ }),
-/* 15 */,
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -13642,7 +13683,7 @@ BlockCipher.prototype.finish = function(pad) {
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -13832,7 +13873,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 var g;
@@ -13858,7 +13899,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -14153,7 +14194,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -14368,10 +14409,10 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
   outer();
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12).Buffer))
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -14486,13 +14527,13 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
 var forge = __webpack_require__(0);
 __webpack_require__(5);
 __webpack_require__(3);
-__webpack_require__(11);
+__webpack_require__(13);
 __webpack_require__(4);
 __webpack_require__(48);
 __webpack_require__(6);
 __webpack_require__(7);
-__webpack_require__(22);
-__webpack_require__(12);
+__webpack_require__(23);
+__webpack_require__(14);
 __webpack_require__(1);
 
 // shortcut for asn.1 API
@@ -17648,7 +17689,7 @@ pki.verifyCertificateChain = function(caStore, chain, verify) {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -17892,47 +17933,6 @@ pss.create = function(options) {
 
   return pssobj;
 };
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Node.js module for Forge.
- *
- * @author Dave Longley
- *
- * Copyright 2011-2016 Digital Bazaar, Inc.
- */
-module.exports = __webpack_require__(0);
-__webpack_require__(5);
-__webpack_require__(47);
-__webpack_require__(3);
-__webpack_require__(16);
-__webpack_require__(37);
-__webpack_require__(11);
-__webpack_require__(49);
-__webpack_require__(8);
-__webpack_require__(50);
-__webpack_require__(39);
-__webpack_require__(51);
-__webpack_require__(36);
-__webpack_require__(20);
-__webpack_require__(7);
-__webpack_require__(32);
-__webpack_require__(34);
-__webpack_require__(52);
-__webpack_require__(26);
-__webpack_require__(33);
-__webpack_require__(30);
-__webpack_require__(22);
-__webpack_require__(2);
-__webpack_require__(31);
-__webpack_require__(53);
-__webpack_require__(54);
-__webpack_require__(25);
-__webpack_require__(1);
 
 
 /***/ }),
@@ -19167,7 +19167,7 @@ function from64To32(num) {
 var forge = __webpack_require__(0);
 __webpack_require__(3);
 __webpack_require__(8);
-__webpack_require__(19);
+__webpack_require__(20);
 __webpack_require__(7);
 __webpack_require__(26);
 __webpack_require__(2);
@@ -23220,12 +23220,12 @@ __webpack_require__(3);
 __webpack_require__(6);
 __webpack_require__(27);
 __webpack_require__(7);
-__webpack_require__(20);
-__webpack_require__(34);
-__webpack_require__(22);
-__webpack_require__(12);
-__webpack_require__(1);
 __webpack_require__(21);
+__webpack_require__(34);
+__webpack_require__(23);
+__webpack_require__(14);
+__webpack_require__(1);
+__webpack_require__(22);
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
@@ -23337,14 +23337,14 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
 var forge = __webpack_require__(0);
 __webpack_require__(5);
 __webpack_require__(3);
-__webpack_require__(11);
+__webpack_require__(13);
 __webpack_require__(4);
 __webpack_require__(6);
-__webpack_require__(20);
+__webpack_require__(21);
 __webpack_require__(7);
 __webpack_require__(2);
 __webpack_require__(31);
-__webpack_require__(12);
+__webpack_require__(14);
 __webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
@@ -25104,7 +25104,7 @@ prng.create = function(plugin) {
   return ctx;
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(17)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18)))
 
 /***/ }),
 /* 31 */
@@ -25817,7 +25817,7 @@ function rsa_mgf1(seed, maskLength, hash) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(13);
+__webpack_require__(15);
 __webpack_require__(2);
 
 (function() {
@@ -26213,10 +26213,10 @@ __webpack_require__(6);
 __webpack_require__(35);
 __webpack_require__(27);
 __webpack_require__(2);
-__webpack_require__(12);
+__webpack_require__(14);
 __webpack_require__(9);
 __webpack_require__(1);
-__webpack_require__(21);
+__webpack_require__(22);
 
 // shortcut for asn.1 & PKI API
 var asn1 = forge.asn1;
@@ -28735,7 +28735,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
 
 /***/ }),
 /* 42 */
@@ -28928,7 +28928,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18), __webpack_require__(17)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19), __webpack_require__(18)))
 
 /***/ }),
 /* 43 */
@@ -29380,7 +29380,7 @@ function _encodeWithByteBuffer(input, alphabet) {
   return output;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12).Buffer))
 
 /***/ }),
 /* 47 */
@@ -29705,7 +29705,7 @@ forge.mgf.mgf1 = forge.mgf1;
  * https://github.com/dchest/tweetnacl-js
  */
 var forge = __webpack_require__(0);
-__webpack_require__(13);
+__webpack_require__(15);
 __webpack_require__(2);
 __webpack_require__(38);
 __webpack_require__(1);
@@ -30691,7 +30691,7 @@ function M(o, a, b) {
   o[15] = t15;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(12).Buffer))
 
 /***/ }),
 /* 50 */
@@ -30709,7 +30709,7 @@ function M(o, a, b) {
 var forge = __webpack_require__(0);
 __webpack_require__(1);
 __webpack_require__(2);
-__webpack_require__(13);
+__webpack_require__(15);
 
 module.exports = forge.kem = forge.kem || {};
 
@@ -30880,7 +30880,7 @@ function _createKDF(kdf, md, counterStart, digestLength) {
  */
 module.exports = __webpack_require__(4);
 
-__webpack_require__(19);
+__webpack_require__(20);
 __webpack_require__(9);
 __webpack_require__(29);
 __webpack_require__(38);
@@ -30911,13 +30911,13 @@ __webpack_require__(38);
 var forge = __webpack_require__(0);
 __webpack_require__(5);
 __webpack_require__(3);
-__webpack_require__(11);
+__webpack_require__(13);
 __webpack_require__(6);
 __webpack_require__(7);
 __webpack_require__(35);
 __webpack_require__(2);
 __webpack_require__(1);
-__webpack_require__(21);
+__webpack_require__(22);
 
 // shortcut for ASN.1 API
 var asn1 = forge.asn1;
@@ -32166,7 +32166,7 @@ function _decryptContent(msg) {
 var forge = __webpack_require__(0);
 __webpack_require__(5);
 __webpack_require__(8);
-__webpack_require__(19);
+__webpack_require__(20);
 __webpack_require__(9);
 __webpack_require__(1);
 
@@ -33130,7 +33130,7 @@ forge.task.createCondition = function() {
 __webpack_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: ./node_modules/big-integer/BigInteger.js
-var BigInteger = __webpack_require__(14);
+var BigInteger = __webpack_require__(16);
 var BigInteger_default = /*#__PURE__*/__webpack_require__.n(BigInteger);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/UnsignedLongCoder.js
@@ -33182,13 +33182,15 @@ class UnsignedLongCoder_UnsignedLongCoder {
  * TLV objects base class
  */
 var TlvTag = /** @class */ (function () {
-    function TlvTag(id, nonCriticalFlag, forwardFlag, bytes) {
+    function TlvTag(id, nonCriticalFlag, forwardFlag, valueBytes, tlv16BitFlag) {
         var _newTarget = this.constructor;
+        if (tlv16BitFlag === void 0) { tlv16BitFlag = false; }
         this.id = id;
         this.nonCriticalFlag = nonCriticalFlag;
         this.forwardFlag = forwardFlag;
-        var valueBytes = new Uint8Array(bytes);
-        this.getValueBytes = function () { return new Uint8Array(valueBytes); };
+        var valueBytesCopy = new Uint8Array(valueBytes);
+        this.getValueBytes = function () { return new Uint8Array(valueBytesCopy); };
+        this.tlv16BitFlag = tlv16BitFlag;
         if (_newTarget === TlvTag) {
             Object.freeze(this);
         }
@@ -33222,7 +33224,7 @@ var IntegerTag_IntegerTag = /** @class */ (function (_super) {
     function IntegerTag(tlvTag) {
         var _this = this;
         var bytes = tlvTag.getValueBytes();
-        _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes) || this;
+        _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes, tlvTag.tlv16BitFlag) || this;
         _this.value = UnsignedLongCoder_UnsignedLongCoder.decode(bytes, 0, bytes.length);
         Object.freeze(_this);
         return _this;
@@ -33373,7 +33375,7 @@ var RawTag_extends = (undefined && undefined.__extends) || (function () {
 var RawTag_RawTag = /** @class */ (function (_super) {
     RawTag_extends(RawTag, _super);
     function RawTag(tlvTag) {
-        var _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes()) || this;
+        var _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag) || this;
         _this.getValue = function () { return tlvTag.getValueBytes(); };
         Object.freeze(_this);
         return _this;
@@ -33400,7 +33402,7 @@ var RawTag_RawTag = /** @class */ (function (_super) {
 /**
  * TLV stream constants
  */
-var TLV_STREAM_CONSTANTS = Object.freeze({
+var TLV_CONSTANTS = Object.freeze({
     ForwardFlagBit: 32,
     MaxType: 0x1FFF,
     NonCriticalFlagBit: 64,
@@ -33445,6 +33447,62 @@ var PUBLICATIONS_FILE_HEADER_CONSTANTS = Object.freeze({
 var PUBLICATIONS_FILE_CONSTANTS = Object.freeze({
     CmsSignatureTagType: 0x704,
     PublicationRecordTagType: 0x703
+});
+var AGGREGATION_HASH_CHAIN_CONSTANTS = Object.freeze({
+    LINK: Object.freeze({
+        LevelCorrectionTagType: 0x1,
+        SiblingHashTagType: 0x2,
+        LegacyId: 0x3
+    }),
+    METADATA: Object.freeze({
+        TagType: 0x4,
+        PaddingTagType: 0x1E,
+        ClientIdTagType: 0x1,
+        MachineIdTagType: 0x2,
+        SequenceNumberTagType: 0x3,
+        RequestTimeTagType: 0x4
+    }),
+    TagType: 0x801,
+    AggregationTimeTagType: 0x2,
+    ChainIndexTagType: 0x3,
+    InputDataTagType: 0x4,
+    InputHashTagType: 0x5,
+    AggregationAlgorithmIdTagType: 0x6
+});
+var CALENDAR_HASH_CHAIN_CONSTANTS = Object.freeze({
+    TagType: 0x802,
+    PublicationTimeTagType: 0x1,
+    AggregationTimeTagType: 0x2,
+    InputHashTagType: 0x5
+});
+var KSI_SIGNATURE_CONSTANTS = Object.freeze({
+    PublicationRecordTagType: 0x803
+});
+var CALENDAR_AUTHENTICATION_RECORD_CONSTANTS = Object.freeze({
+    TagType: 0x805
+});
+var RFC_3161_RECORD_CONSTANTS = Object.freeze({
+    TagType: 0x806,
+    AggregationTimeTagType: 0x2,
+    ChainIndexTagType: 0x3,
+    InputHashTagType: 0x5,
+    TstInfoPrefixTagType: 0x10,
+    TstInfoSuffixTagType: 0x11,
+    TstInfoAlgorithmTagType: 0x12,
+    SignedAttributesPrefixTagType: 0x13,
+    SignedAttributesSuffixTagType: 0x14,
+    SignedAttributesAlgorithmTagType: 0x15
+});
+var SIGNATURE_DATA_CONSTANTS = Object.freeze({
+    TagType: 0xB,
+    SignatureTypeTagType: 0x1,
+    SignatureValueTagType: 0x2,
+    CertificateIdTagType: 0x3,
+    CertificateRepositoryUriTagType: 0x4
+});
+var LINK_DIRECTION_CONSTANTS = Object.freeze({
+    Left: 0x7,
+    Right: 0x8
 });
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/strings/StringUtils.js
@@ -33519,10 +33577,10 @@ var TlvInputStream_TlvInputStream = /** @class */ (function () {
     };
     TlvInputStream.prototype.readTag = function () {
         var firstByte = this.readByte();
-        var tlv16BitFlag = (firstByte & TLV_STREAM_CONSTANTS.Tlv16BitFlagBit) !== 0;
-        var forwardFlag = (firstByte & TLV_STREAM_CONSTANTS.ForwardFlagBit) !== 0;
-        var nonCriticalFlag = (firstByte & TLV_STREAM_CONSTANTS.NonCriticalFlagBit) !== 0;
-        var id = (firstByte & TLV_STREAM_CONSTANTS.TypeMask) & 0xFF;
+        var tlv16BitFlag = (firstByte & TLV_CONSTANTS.Tlv16BitFlagBit) !== 0;
+        var forwardFlag = (firstByte & TLV_CONSTANTS.ForwardFlagBit) !== 0;
+        var nonCriticalFlag = (firstByte & TLV_CONSTANTS.NonCriticalFlagBit) !== 0;
+        var id = (firstByte & TLV_CONSTANTS.TypeMask) & 0xFF;
         var length;
         if (tlv16BitFlag) {
             id = (id << 8) | this.readByte();
@@ -33532,7 +33590,7 @@ var TlvInputStream_TlvInputStream = /** @class */ (function () {
             length = this.readByte();
         }
         var data = this.read(length);
-        return new TlvTag(id, nonCriticalFlag, forwardFlag, data);
+        return new TlvTag(id, nonCriticalFlag, forwardFlag, data, tlv16BitFlag);
     };
     TlvInputStream.prototype.readByte = function () {
         if (this.length <= this.position) {
@@ -33571,19 +33629,19 @@ var TlvOutputStream_TlvOutputStream = /** @class */ (function () {
         return new Uint8Array(this.data);
     };
     TlvOutputStream.prototype.writeTag = function (tlvTag) {
-        if (tlvTag.id > TLV_STREAM_CONSTANTS.MaxType) {
+        if (tlvTag.id > TLV_CONSTANTS.MaxType) {
             throw new TlvError('Could not write TlvTag: Type is larger than max id');
         }
         var valueBytes = tlvTag.getValueBytes();
         if (valueBytes.length > 0xFFFF) {
             throw new TlvError('Could not write TlvTag: Data length is too large');
         }
-        var tlv16BitFlag = tlvTag.id > TLV_STREAM_CONSTANTS.TypeMask || valueBytes.length > 0xFF;
-        var firstByte = (tlv16BitFlag && TLV_STREAM_CONSTANTS.Tlv16BitFlagBit)
-            + (tlvTag.nonCriticalFlag && TLV_STREAM_CONSTANTS.NonCriticalFlagBit)
-            + (tlvTag.forwardFlag && TLV_STREAM_CONSTANTS.ForwardFlagBit);
+        var tlv16BitFlag = tlvTag.id > TLV_CONSTANTS.TypeMask || valueBytes.length > 0xFF || tlvTag.tlv16BitFlag;
+        var firstByte = (tlv16BitFlag && TLV_CONSTANTS.Tlv16BitFlagBit)
+            + (tlvTag.nonCriticalFlag && TLV_CONSTANTS.NonCriticalFlagBit)
+            + (tlvTag.forwardFlag && TLV_CONSTANTS.ForwardFlagBit);
         if (tlv16BitFlag) {
-            firstByte |= (tlvTag.id >> 8) & TLV_STREAM_CONSTANTS.TypeMask;
+            firstByte |= (tlvTag.id >> 8) & TLV_CONSTANTS.TypeMask;
             this.write(new Uint8Array([
                 firstByte & 0xFF,
                 tlvTag.id & 0xFF,
@@ -33592,7 +33650,7 @@ var TlvOutputStream_TlvOutputStream = /** @class */ (function () {
             ]));
         }
         else {
-            firstByte |= (tlvTag.id & TLV_STREAM_CONSTANTS.TypeMask);
+            firstByte |= (tlvTag.id & TLV_CONSTANTS.TypeMask);
             this.write(new Uint8Array([firstByte, valueBytes.length & 0xFF]));
         }
         this.write(valueBytes);
@@ -33621,17 +33679,6 @@ var CompositeTag_extends = (undefined && undefined.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __assign = (undefined && undefined.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 
 
 
@@ -33643,22 +33690,23 @@ var __assign = (undefined && undefined.__assign) || function () {
 var CompositeTag_CompositeTag = /** @class */ (function (_super) {
     CompositeTag_extends(CompositeTag, _super);
     function CompositeTag(tlvTag) {
-        var _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes()) || this;
+        var _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag) || this;
         _this.value = [];
         _this.tlvCount = {};
         return _this;
     }
-    CompositeTag.createCompositeTagTlv = function (id, nonCriticalFlag, forwardFlag, value) {
+    CompositeTag.createCompositeTagTlv = function (id, nonCriticalFlag, forwardFlag, value, tlv16BitFlag) {
+        if (tlv16BitFlag === void 0) { tlv16BitFlag = false; }
         var stream = new TlvOutputStream_TlvOutputStream();
         for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
             var tlvTag = value_1[_i];
             stream.writeTag(tlvTag);
         }
-        return new TlvTag(id, nonCriticalFlag, forwardFlag, stream.getData());
+        return new TlvTag(id, nonCriticalFlag, forwardFlag, stream.getData(), tlv16BitFlag);
     };
     CompositeTag.parseTlvTag = function (tlvTag) {
         if (!tlvTag.nonCriticalFlag) {
-            throw new TlvError("Unknown TLV tag: " + tlvTag.id.toString(16));
+            throw new TlvError("Unknown TLV tag: 0x" + tlvTag.id.toString(16));
         }
         return tlvTag;
     };
@@ -33692,9 +33740,10 @@ var CompositeTag_CompositeTag = /** @class */ (function (_super) {
             this.tlvCount[tlvTag.id] += 1;
             position += 1;
         }
+        Object.freeze(this.tlvCount);
     };
     CompositeTag.prototype.validateValue = function (validate) {
-        validate(__assign({}, this.tlvCount));
+        validate(this.tlvCount);
     };
     return CompositeTag;
 }(TlvTag));
@@ -33759,7 +33808,7 @@ var CertificateRecord_CertificateRecord = /** @class */ (function (_super) {
 
 
 // EXTERNAL MODULE: ./node_modules/node-forge/lib/index.js
-var lib = __webpack_require__(23);
+var lib = __webpack_require__(10);
 
 // CONCATENATED MODULE: ./src/parser/StringTag.ts
 var StringTag_extends = (undefined && undefined.__extends) || (function () {
@@ -33792,8 +33841,8 @@ var StringTag_StringTag = /** @class */ (function (_super) {
         if (valueBytes[valueBytes.length - 1] !== 0) {
             throw new TlvError('String must be null terminated');
         }
-        _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes) || this;
-        _this.value = lib["util"].text.utf8.decode(valueBytes.slice(0, valueBytes.length - 1));
+        _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag) || this;
+        _this.value = lib["util"].text.utf8.decode(valueBytes.slice(0, -1));
         Object.freeze(_this);
         return _this;
     }
@@ -34038,7 +34087,7 @@ var ImprintTag_ImprintTag = /** @class */ (function (_super) {
     function ImprintTag(tlvTag) {
         var _this = this;
         var valueBytes = tlvTag.getValueBytes();
-        _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes) || this;
+        _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag) || this;
         _this.value = new DataHash_DataHash(valueBytes);
         Object.freeze(_this);
         return _this;
@@ -34149,6 +34198,8 @@ var PublicationRecord_PublicationRecord = /** @class */ (function (_super) {
     PublicationRecord_extends(PublicationRecord, _super);
     function PublicationRecord(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
+        _this.publicationReferences = [];
+        _this.repositoryUri = [];
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
@@ -34441,12 +34492,494 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
 }());
 
 
+// CONCATENATED MODULE: ./src/signature/AggregationHashChain.ts
+var AggregationHashChain_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+
+
+/**
+ * Aggregation Hash Chain Link Metadata TLV Object
+ */
+var AggregationHashChain_AggregationHashChainLinkMetaData = /** @class */ (function (_super) {
+    AggregationHashChain_extends(AggregationHashChainLinkMetaData, _super);
+    function AggregationHashChainLinkMetaData(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationHashChainLinkMetaData.prototype.parseChild = function (tlvTag, position) {
+        switch (tlvTag.id) {
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingTagType:
+                return this.padding = new RawTag_RawTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType:
+                return this.clientId = new StringTag_StringTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType:
+                return this.machineId = new StringTag_StringTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType:
+                return this.sequenceNumber = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType:
+                return this.requestTime = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    AggregationHashChainLinkMetaData.prototype.validate = function (tagCount) {
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType] !== 1) {
+            throw new TlvError('Exactly one client id must exist in aggregation hash chain link metadata.');
+        }
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType] > 1) {
+            throw new TlvError('Only one machine id is allowed in aggregation hash chain link metadata.');
+        }
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType] > 1) {
+            throw new TlvError('Only one sequence number is allowed in aggregation hash chain link metadata.');
+        }
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType] > 1) {
+            throw new TlvError('Only one request time is allowed in aggregation hash chain link metadata.');
+        }
+    };
+    return AggregationHashChainLinkMetaData;
+}(CompositeTag_CompositeTag));
+/**
+ * Aggregation Hash Chain Link TLV Object
+ */
+var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_super) {
+    AggregationHashChain_extends(AggregationHashChainLink, _super);
+    function AggregationHashChainLink(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationHashChainLink.getLegacyIdString = function (bytes) {
+        if (bytes.length === 0) {
+            throw new TlvError('Invalid legacy id tag: empty');
+        }
+        if (bytes[0] !== AggregationHashChainLink.LEGACY_ID_FIRST_OCTET) {
+            throw new TlvError("Invalid first octet in legacy id tag: " + bytes[0]);
+        }
+        if (bytes[1] !== 0x0) {
+            throw new TlvError("Invalid second octet in legacy id tag: " + bytes[0]);
+        }
+        if (bytes.length !== AggregationHashChainLink.LEGACY_ID_LENGTH) {
+            throw new TlvError("Invalid legacy id tag length. Length: " + bytes.length);
+        }
+        var idStringLength = bytes[2];
+        if (bytes.length < idStringLength + 4) {
+            throw new TlvError("Invalid legacy id length value: " + idStringLength);
+        }
+        for (var i = idStringLength + 3; i < bytes.length; i += 1) {
+            if (bytes[i] !== 0x0) {
+                throw new TlvError("Invalid padding octet. Index: " + i);
+            }
+        }
+        return lib["util"].text.utf8.decode(bytes.slice(3, idStringLength));
+    };
+    AggregationHashChainLink.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType:
+                return this.levelCorrection = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType:
+                return this.siblingHash = new ImprintTag_ImprintTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId:
+                var legacyIdTag = new RawTag_RawTag(tlvTag);
+                // TODO: Make it better
+                this.legacyIdString = AggregationHashChainLink.getLegacyIdString(legacyIdTag.getValue());
+                return legacyIdTag;
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType:
+                return this.metadata = new AggregationHashChain_AggregationHashChainLinkMetaData(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    AggregationHashChainLink.prototype.validate = function (tagCount) {
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType] > 1) {
+            throw new TlvError('Only one LevelCorrection value is allowed in aggregation hash chain link.');
+        }
+        if (((tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType] || 0) +
+            (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId] || 0) +
+            (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType] || 0)) !== 1) {
+            throw new TlvError('Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.');
+        }
+    };
+    AggregationHashChainLink.LEGACY_ID_FIRST_OCTET = 0x3;
+    AggregationHashChainLink.LEGACY_ID_LENGTH = 29;
+    return AggregationHashChainLink;
+}(CompositeTag_CompositeTag));
+/**
+ * Aggregation Hash Chain TLV Object
+ */
+var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super) {
+    AggregationHashChain_extends(AggregationHashChain, _super);
+    function AggregationHashChain(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.chainIndexes = [];
+        _this.chainLinks = [];
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationHashChain.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType:
+                return this.aggregationTime = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType:
+                var chainIndexTlvTag = new IntegerTag_IntegerTag(tlvTag);
+                this.chainIndexes.push(chainIndexTlvTag);
+                return chainIndexTlvTag;
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType:
+                return this.inputData = new RawTag_RawTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType:
+                return this.inputHash = new ImprintTag_ImprintTag(tlvTag);
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType:
+                // TODO: Better solution
+                return this.aggregationAlgorithm = new IntegerTag_IntegerTag(tlvTag);
+            case LINK_DIRECTION_CONSTANTS.Left:
+            case LINK_DIRECTION_CONSTANTS.Right:
+                var linkTag = new AggregationHashChain_AggregationHashChainLink(tlvTag);
+                this.chainLinks.push(linkTag);
+                return linkTag;
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    AggregationHashChain.prototype.validate = function (tagCount) {
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType] !== 1) {
+            throw new TlvError('Exactly one aggregation time must exist in aggregation hash chain.');
+        }
+        if (this.chainIndexes.length === 0) {
+            throw new TlvError('Chain index is missing in aggregation hash chain.');
+        }
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType] > 1) {
+            throw new TlvError('Only one input data value is allowed in aggregation hash chain.');
+        }
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType] !== 1) {
+            throw new TlvError('Exactly one input hash must exist in aggregation hash chain.');
+        }
+        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType] !== 1) {
+            throw new TlvError('Exactly one algorithm must exist in aggregation hash chain.');
+        }
+        if (this.chainLinks.length === 0) {
+            throw new TlvError('Links are missing in aggregation hash chain.');
+        }
+    };
+    return AggregationHashChain;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/signature/KsiSignature.ts
+var KsiSignature_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Signature data TLV Object
+ */
+var KsiSignature_SignatureData = /** @class */ (function (_super) {
+    KsiSignature_extends(SignatureData, _super);
+    function SignatureData(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    SignatureData.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType:
+                return this.signatureType = new StringTag_StringTag(tlvTag);
+            case SIGNATURE_DATA_CONSTANTS.SignatureValueTagType:
+                return this.signatureValue = new RawTag_RawTag(tlvTag);
+            case SIGNATURE_DATA_CONSTANTS.CertificateIdTagType:
+                return this.certificateId = new RawTag_RawTag(tlvTag);
+            case SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType:
+                return this.certificateRepositoryUri = new StringTag_StringTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    SignatureData.prototype.validate = function (tagCount) {
+        if (tagCount[SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType] !== 1) {
+            throw new TlvError('Exactly one signature type must exist in signature data.');
+        }
+        if (tagCount[SIGNATURE_DATA_CONSTANTS.SignatureValueTagType] !== 1) {
+            throw new TlvError('Exactly one signature value must exist in signature data.');
+        }
+        if (tagCount[SIGNATURE_DATA_CONSTANTS.CertificateIdTagType] !== 1) {
+            throw new TlvError('Exactly one certificate id must exist in signature data.');
+        }
+        if (tagCount[SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType] > 1) {
+            throw new TlvError('Only one certificate repository uri is allowed in signature data.');
+        }
+    };
+    return SignatureData;
+}(CompositeTag_CompositeTag));
+/**
+ * Calendar Authentication Record TLV Object
+ */
+var KsiSignature_CalendarAuthenticationRecord = /** @class */ (function (_super) {
+    KsiSignature_extends(CalendarAuthenticationRecord, _super);
+    function CalendarAuthenticationRecord(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    CalendarAuthenticationRecord.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PUBLICATION_DATA_CONSTANTS.TagType:
+                return this.publicationData = new PublicationData_PublicationData(tlvTag);
+            case SIGNATURE_DATA_CONSTANTS.TagType:
+                return this.signatureData = new KsiSignature_SignatureData(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    CalendarAuthenticationRecord.prototype.validate = function (tagCount) {
+        if (tagCount[PUBLICATION_DATA_CONSTANTS.TagType] !== 1) {
+            throw new TlvError('Exactly one publication data must exist in calendar authentication record.');
+        }
+        if (tagCount[SIGNATURE_DATA_CONSTANTS.TagType] !== 1) {
+            throw new TlvError('Exactly one signature data must exist in calendar authentication record.');
+        }
+    };
+    return CalendarAuthenticationRecord;
+}(CompositeTag_CompositeTag));
+/**
+ * Calendar Hash Chain TLV Object
+ */
+var KsiSignature_CalendarHashChain = /** @class */ (function (_super) {
+    KsiSignature_extends(CalendarHashChain, _super);
+    function CalendarHashChain(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.chainLinks = [];
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    CalendarHashChain.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType:
+                return this.publicationTime = new IntegerTag_IntegerTag(tlvTag);
+            case CALENDAR_HASH_CHAIN_CONSTANTS.AggregationTimeTagType:
+                return this.aggregationTime = new IntegerTag_IntegerTag(tlvTag);
+            case CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType:
+                return this.inputHash = new ImprintTag_ImprintTag(tlvTag);
+            case LINK_DIRECTION_CONSTANTS.Left:
+            case LINK_DIRECTION_CONSTANTS.Right:
+                var link = new ImprintTag_ImprintTag(tlvTag);
+                this.chainLinks.push(link);
+                return link;
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    CalendarHashChain.prototype.validate = function (tagCount) {
+        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType] !== 1) {
+            throw new TlvError('Exactly one publication time must exist in calendar hash chain.');
+        }
+        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.AggregationTimeTagType] > 1) {
+            throw new TlvError('Only one aggregation time is allowed in calendar hash chain.');
+        }
+        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType] !== 1) {
+            throw new TlvError('Exactly one input hash must exist in calendar hash chain.');
+        }
+        if (this.chainLinks.length === 0) {
+            throw new TlvError('Links are missing in calendar hash chain.');
+        }
+    };
+    return CalendarHashChain;
+}(CompositeTag_CompositeTag));
+/**
+ * RFC 3161 Record TLV Object
+ */
+var KsiSignature_Rfc3161Record = /** @class */ (function (_super) {
+    KsiSignature_extends(Rfc3161Record, _super);
+    function Rfc3161Record(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.chainIndexes = [];
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    Rfc3161Record.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType:
+                return this.aggregationTime = new IntegerTag_IntegerTag(tlvTag);
+            case RFC_3161_RECORD_CONSTANTS.ChainIndexTagType:
+                var chainIndexTag = new IntegerTag_IntegerTag(tlvTag);
+                this.chainIndexes.push(chainIndexTag);
+                return chainIndexTag;
+            case RFC_3161_RECORD_CONSTANTS.InputHashTagType:
+                return this.inputHash = new ImprintTag_ImprintTag(tlvTag);
+            case RFC_3161_RECORD_CONSTANTS.TstInfoPrefixTagType:
+                return this.tstInfoPrefix = new RawTag_RawTag(tlvTag);
+            case RFC_3161_RECORD_CONSTANTS.TstInfoSuffixTagType:
+                return this.tstInfoSuffix = new RawTag_RawTag(tlvTag);
+            case RFC_3161_RECORD_CONSTANTS.TstInfoAlgorithmTagType:
+                // TODO: Better solution
+                var tstInfoAlgorithmTag = new IntegerTag_IntegerTag(tlvTag);
+                this.tstInfoAlgorithm = HashAlgorithm.getById(tstInfoAlgorithmTag.getValue().valueOf());
+                return tstInfoAlgorithmTag;
+            case RFC_3161_RECORD_CONSTANTS.SignedAttributesPrefixTagType:
+                return this.signedAttributesPrefix = new RawTag_RawTag(tlvTag);
+            case RFC_3161_RECORD_CONSTANTS.SignedAttributesSuffixTagType:
+                return this.signedAttributesSuffix = new RawTag_RawTag(tlvTag);
+            case RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType:
+                var signedAttributesAlgorithmTag = new IntegerTag_IntegerTag(tlvTag);
+                this.signedAttributesAlgorithm = HashAlgorithm.getById(signedAttributesAlgorithmTag.getValue().valueOf());
+                return signedAttributesAlgorithmTag;
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    Rfc3161Record.prototype.validate = function (tagCount) {
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType] !== 1) {
+            throw new TlvError('Exactly one aggregation time must exist in RFC#3161 record.');
+        }
+        if (this.chainIndexes.length === 0) {
+            throw new TlvError('Chain indexes must exist in RFC#3161 record.');
+        }
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.InputHashTagType] !== 1) {
+            throw new TlvError('Exactly one input hash must exist in RFC#3161 record.');
+        }
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoPrefixTagType] !== 1) {
+            throw new TlvError('Exactly one tstInfo prefix must exist in RFC#3161 record.');
+        }
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoSuffixTagType] !== 1) {
+            throw new TlvError('Exactly one tstInfo suffix must exist in RFC#3161 record.');
+        }
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoAlgorithmTagType] !== 1) {
+            throw new TlvError('Exactly one tstInfo algorithm must exist in RFC#3161 record.');
+        }
+        if (this.tstInfoAlgorithm === null) {
+            throw new TlvError('Invalid tstInfo algorithm value in RFC#3161 record.');
+        }
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesPrefixTagType] !== 1) {
+            throw new TlvError('Exactly one signed attributes prefix must exist in RFC#3161 record.');
+        }
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesSuffixTagType] !== 1) {
+            throw new TlvError('Exactly one signed attributes suffix must exist in RFC#3161 record.');
+        }
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType] !== 1) {
+            throw new TlvError('Exactly one signed attributes algorithm must exist in RFC#3161 record.');
+        }
+        if (this.signedAttributesAlgorithm === null) {
+            throw new TlvError('Invalid signed attributes algorithm value in RFC#3161 record.');
+        }
+    };
+    return Rfc3161Record;
+}(CompositeTag_CompositeTag));
+/**
+ * KSI Signature TLV object
+ */
+var KsiSignature_KsiSignature = /** @class */ (function (_super) {
+    KsiSignature_extends(KsiSignature, _super);
+    function KsiSignature(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.aggregationHashChains = [];
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    KsiSignature.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
+                var aggregationHashChain = new AggregationHashChain_AggregationHashChain(tlvTag);
+                this.aggregationHashChains.push(aggregationHashChain);
+                return aggregationHashChain;
+            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
+                return this.calendarHashChain = new KsiSignature_CalendarHashChain(tlvTag);
+            case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
+                return this.publicationRecord = new PublicationRecord_PublicationRecord(tlvTag);
+            case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
+                return this.calendarAuthenticationRecord = new KsiSignature_CalendarAuthenticationRecord(tlvTag);
+            case RFC_3161_RECORD_CONSTANTS.TagType:
+                return this.rfc3161Record = new KsiSignature_Rfc3161Record(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    KsiSignature.prototype.validate = function (tagCount) {
+        if (this.aggregationHashChains.length === 0) {
+            throw new TlvError('Aggregation hash chains must exist in KSI signature.');
+        }
+        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one calendar hash chain is allowed in KSI signature.');
+        }
+        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] === 0 && (tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] !== 0 ||
+            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] !== 0)) {
+            throw new TlvError('No publication record or calendar authentication record is ' +
+                'allowed in KSI signature if there is no calendar hash chain.');
+        }
+        if ((tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] === 1 &&
+            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] === 1) ||
+            tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] > 1 ||
+            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one from publication record or calendar authentication record is allowed in KSI signature.');
+        }
+        if (tagCount[RFC_3161_RECORD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one RFC 3161 record is allowed in KSI signature.');
+        }
+    };
+    return KsiSignature;
+}(CompositeTag_CompositeTag));
+
+
 // CONCATENATED MODULE: ./src/main.ts
 /* concated harmony reexport IntegerTag */__webpack_require__.d(__webpack_exports__, "IntegerTag", function() { return IntegerTag_IntegerTag; });
 /* concated harmony reexport PublicationsFileFactory */__webpack_require__.d(__webpack_exports__, "PublicationsFileFactory", function() { return PublicationsFileFactory_PublicationsFileFactory; });
+/* concated harmony reexport KsiSignature */__webpack_require__.d(__webpack_exports__, "KsiSignature", function() { return KsiSignature_KsiSignature; });
+/* concated harmony reexport TlvInputStream */__webpack_require__.d(__webpack_exports__, "TlvInputStream", function() { return TlvInputStream_TlvInputStream; });
 /**
  * KSI Javascript API externally visible classes
  */
+
+
 
 
 

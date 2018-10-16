@@ -19,7 +19,7 @@ export class StringTag extends TlvTag {
             throw new TlvError('String must be null terminated');
         }
 
-        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes);
+        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag);
         this.value = util.text.utf8.decode(valueBytes.slice(0, -1));
         Object.freeze(this);
     }

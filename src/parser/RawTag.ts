@@ -9,7 +9,7 @@ export class RawTag extends TlvTag {
     public getValue: () => Uint8Array;
 
     constructor(tlvTag: TlvTag) {
-        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
+        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
         this.getValue = (): Uint8Array => tlvTag.getValueBytes();
         Object.freeze(this);
     }

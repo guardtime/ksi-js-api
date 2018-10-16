@@ -14,6 +14,15 @@
             console.log(publicationFileFactory.create(new Uint8Array(data)));
         });
 
+        fetch('/ksi-signature-ok.tlv').then((response) => {
+            return response.arrayBuffer();
+        }).then((data) => {
+            const stream = new KSI.TlvInputStream(data);
+            const tlvTag = stream.readTag();
+            console.log(tlvTag);
+            console.log(new KSI.KsiSignature(tlvTag));
+        });
+
     </script>
 </body>
 </html>

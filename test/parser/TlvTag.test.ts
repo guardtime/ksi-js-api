@@ -10,6 +10,7 @@ describe('TlvTag', () => {
         expect(tlvTag.nonCriticalFlag).toBeTruthy();
         expect(tlvTag.forwardFlag).toBeTruthy();
         expect(tlvTag.getValueBytes()).toMatchObject(new Uint8Array([0x1, 0x2]));
+        expect(tlvTag.tlv16BitFlag).toBeFalsy();
     });
 
     it('Variables cannot be changed', () => {

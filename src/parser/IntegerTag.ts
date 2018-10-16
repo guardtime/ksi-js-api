@@ -11,7 +11,7 @@ export class IntegerTag extends TlvTag {
 
     constructor(tlvTag: TlvTag) {
         const bytes: Uint8Array = tlvTag.getValueBytes();
-        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes);
+        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes, tlvTag.tlv16BitFlag);
         this.value = UnsignedLongCoder.decode(bytes, 0, bytes.length);
         Object.freeze(this);
     }

@@ -1,6 +1,7 @@
 import {RawTag} from '../../src/parser/RawTag';
 import {TlvError} from '../../src/parser/TlvError';
 import {TlvOutputStream} from '../../src/parser/TlvOutputStream';
+import {TlvTag} from '../../src/parser/TlvTag';
 
 /**
  * TlvOutputStream tests
@@ -18,6 +19,13 @@ describe('TlvOutputStream', () => {
         const tlvTag: RawTag = RawTag.CREATE(1, true, true, new Uint8Array(3));
         stream.writeTag(tlvTag);
         expect(stream.getData()).toMatchObject(new Uint8Array([0x61, 0x3, 0x0, 0x0, 0x0]));
+    });
+
+    it('Write valid forced 16bit TLV', () => {
+        const stream: TlvOutputStream = new TlvOutputStream();
+        const tlvTag: TlvTag = new TlvTag(0x1, false, false, new Uint8Array(3), true);
+        stream.writeTag(tlvTag);
+        expect(stream.getData()).toMatchObject(new Uint8Array([0x80, 0x1, 0x0, 0x3, 0x0, 0x0, 0x0]));
     });
 
     it('Write valid 16bit TLV with large id', () => {

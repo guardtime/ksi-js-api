@@ -17,24 +17,24 @@ export abstract class CompositeTag extends TlvTag {
     private readonly tlvCount: ITlvCount;
 
     protected constructor(tlvTag: TlvTag) {
-        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
+        super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
         this.value = [];
         this.tlvCount = {};
     }
 
     protected static createCompositeTagTlv(id: number, nonCriticalFlag: boolean, forwardFlag: boolean,
-                                           value: TlvTag[]): TlvTag {
+                                           value: TlvTag[], tlv16BitFlag: boolean = false): TlvTag {
         const stream: TlvOutputStream = new TlvOutputStream();
         for (const tlvTag of value) {
             stream.writeTag(tlvTag);
         }
 
-        return new TlvTag(id, nonCriticalFlag, forwardFlag, stream.getData());
+        return new TlvTag(id, nonCriticalFlag, forwardFlag, stream.getData(), tlv16BitFlag);
     }
 
     protected static parseTlvTag(tlvTag: TlvTag): TlvTag {
         if (!tlvTag.nonCriticalFlag) {
-            throw new TlvError(`Unknown TLV tag: ${tlvTag.id.toString(16)}`);
+            throw new TlvError(`Unknown TLV tag: 0x${tlvTag.id.toString(16)}`);
         }
 
         return tlvTag;
@@ -77,9 +77,11 @@ export abstract class CompositeTag extends TlvTag {
             this.tlvCount[tlvTag.id] += 1;
             position += 1;
         }
+
+        Object.freeze(this.tlvCount);
     }
 
     protected validateValue(validate: (tlvCount: ITlvCount) => void): void {
-        validate({...this.tlvCount});
+        validate(this.tlvCount);
     }
 }
