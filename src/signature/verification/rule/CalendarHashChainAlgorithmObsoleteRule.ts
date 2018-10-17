@@ -1,4 +1,4 @@
-import {ImprintTag} from '../../../parser/ImprintTag';
+import {LinkDirection} from '../../../Constants';
 import {CalendarHashChain} from '../../CalendarHashChain';
 import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
@@ -7,10 +7,10 @@ import {VerificationResult, VerificationResultCode} from '../VerificationResult'
 import {VerificationRule} from '../VerificationRule';
 
 /**
- * Verifies that calendar hash chain right link hash algorithms were not deprecated at the publication time.
+ * Verifies that calendar hash chain right link hash algorithms were not obsolete at the publication time.
  * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
  */
-export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
+export class CalendarHashChainAlgorithmObsoleteRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = VerificationRule.getSignature(context);
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
@@ -19,16 +19,20 @@ export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
             return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
         }
 
-        const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain);
-        if (deprecatedLink !== null) {
-            console.log(`Calendar hash chain contains deprecated aggregation algorithm at publication time.
-                             Algorithm: ${deprecatedLink.getValue().hashAlgorithm.name};
+        for (const link of calendarHashChain.getChainLinks()) {
+            if (link.id !== LinkDirection.Left) {
+                continue;
+            }
+
+            if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
+                console.log(`Calendar hash chain contains obsolete aggregation algorithm at publication time.
+                             Algorithm: ${link.getValue().hashAlgorithm.name};
                              Publication time: ${calendarHashChain.getPublicationTime()}`);
 
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02);
+                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16);
+            }
         }
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
-
     }
 }

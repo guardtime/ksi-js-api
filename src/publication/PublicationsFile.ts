@@ -1,4 +1,4 @@
-import bigInteger from 'big-integer';
+import {BigInteger} from 'big-integer';
 import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATIONS_FILE_CONSTANTS, PUBLICATIONS_FILE_HEADER_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {RawTag} from '../parser/RawTag';
@@ -64,10 +64,10 @@ export class PublicationsFile extends CompositeTag implements IPublicationsFile 
         return latestPublicationRecord;
     }
 
-    public getNearestPublicationRecord(unixTime: number): PublicationRecord | null {
+    public getNearestPublicationRecord(unixTime: BigInteger): PublicationRecord | null {
         let nearestPublicationRecord: PublicationRecord | null = null;
         for (const publicationRecord of this.publicationRecordList) {
-            const publicationTime: bigInteger.BigInteger = publicationRecord.getPublicationTime();
+            const publicationTime: BigInteger = publicationRecord.getPublicationTime();
             if (publicationTime.compareTo(unixTime) < 0) {
                 continue;
             }

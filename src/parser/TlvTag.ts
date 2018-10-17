@@ -1,3 +1,6 @@
+import {TLV_CONSTANTS} from '../Constants';
+import {TlvError} from './TlvError';
+
 /**
  * TLV objects base class
  */
@@ -19,5 +22,43 @@ export class TlvTag {
         if (new.target === TlvTag) {
             Object.freeze(this);
         }
+    }
+
+    public encode(): Uint8Array {
+        if (this.id > TLV_CONSTANTS.MaxType) {
+            throw new TlvError('Could not write TlvTag: Type is larger than max id');
+        }
+
+        const valueBytes: Uint8Array = this.getValueBytes();
+        if (valueBytes.length > 0xFFFF) {
+            throw new TlvError('Could not write TlvTag: Data length is too large');
+        }
+
+        const tlv16BitFlag: boolean = this.id > TLV_CONSTANTS.TypeMask || valueBytes.length > 0xFF || this.tlv16BitFlag;
+        let firstByte: number = (<number>(tlv16BitFlag && TLV_CONSTANTS.Tlv16BitFlagBit))
+            + (<number>(this.nonCriticalFlag && TLV_CONSTANTS.NonCriticalFlagBit))
+            + (<number>(this.forwardFlag && TLV_CONSTANTS.ForwardFlagBit));
+
+        let result: Uint8Array;
+        if (tlv16BitFlag) {
+            firstByte |= (this.id >> 8) & TLV_CONSTANTS.TypeMask;
+            result = new Uint8Array(valueBytes.length + 4);
+            result.set([
+                firstByte & 0xFF,
+                this.id & 0xFF,
+                (valueBytes.length >> 8) & 0xFF,
+                valueBytes.length & 0xFF
+            ]);
+
+            result.set(valueBytes, 4);
+        } else {
+            firstByte |= (this.id & TLV_CONSTANTS.TypeMask);
+
+            result = new Uint8Array(valueBytes.length + 2);
+            result.set([firstByte, valueBytes.length & 0xFF]);
+            result.set(valueBytes, 2);
+        }
+
+        return result;
     }
 }

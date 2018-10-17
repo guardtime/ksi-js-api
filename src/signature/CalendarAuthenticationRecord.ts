@@ -25,6 +25,10 @@ export class CalendarAuthenticationRecord extends CompositeTag {
         return this.publicationData;
     }
 
+    public getSignatureData(): SignatureData {
+        return this.signatureData;
+    }
+
     private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case PUBLICATION_DATA_CONSTANTS.TagType:

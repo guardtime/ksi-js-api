@@ -11,8 +11,8 @@ export class VerificationResult {
 
     private readonly ruleName: string;
     private childResults: VerificationResult[] = [];
-    private verificationError: VerificationError | null;
-    private resultCode: VerificationResultCode;
+    private readonly verificationError: VerificationError | null;
+    private readonly resultCode: VerificationResultCode;
 
     constructor(ruleName: string,
                 resultCode: VerificationResultCode,

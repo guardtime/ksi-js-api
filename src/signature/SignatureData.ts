@@ -24,6 +24,14 @@ export class SignatureData extends CompositeTag {
         Object.freeze(this);
     }
 
+    public getCertificateId(): Uint8Array {
+        return this.certificateId.getValue();
+    }
+
+    public getSignatureValue(): Uint8Array {
+        return this.signatureValue.getValue();
+    }
+
     private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType:

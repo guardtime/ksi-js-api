@@ -28,8 +28,13 @@ export class PublicationRecord extends CompositeTag {
     public getPublicationHash(): DataHash {
         return this.publicationData.getPublicationHash();
     }
+
     public getPublicationTime(): bigInteger.BigInteger {
         return this.publicationData.getPublicationTime();
+    }
+
+    public getPublicationData(): PublicationData {
+        return this.publicationData;
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {
@@ -56,5 +61,4 @@ export class PublicationRecord extends CompositeTag {
             throw new TlvError('Exactly one publication data must exist in publication record.');
         }
     }
-
 }

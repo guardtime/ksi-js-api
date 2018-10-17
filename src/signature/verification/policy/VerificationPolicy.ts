@@ -8,7 +8,7 @@ import {VerificationRule} from '../VerificationRule';
  * Verification policy for KSI signature
  */
 export class VerificationPolicy extends VerificationRule {
-    private firstRule: VerificationRule | null;
+    private readonly firstRule: VerificationRule | null;
     private verificationResults: VerificationResult[] = [];
 
     constructor(rule: VerificationRule | null = null) {

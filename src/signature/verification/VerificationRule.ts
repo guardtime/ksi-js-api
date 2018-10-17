@@ -1,6 +1,8 @@
 /**
  * Verification Rule for KSI Signature
  */
+import {LinkDirection} from '../../Constants';
+import {ImprintTag} from '../../parser/ImprintTag';
 import {CalendarHashChain} from '../CalendarHashChain';
 import {KsiSignature} from '../KsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
@@ -35,6 +37,24 @@ export abstract class VerificationRule {
         }
 
         return calendarHashChain;
+    }
+
+    protected static getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain: CalendarHashChain): ImprintTag | null {
+        if (!(calendarHashChain instanceof CalendarHashChain)) {
+            throw new KsiVerificationError('Invalid calendar hash chain.');
+        }
+
+        for (const link of calendarHashChain.getChainLinks()) {
+            if (link.id !== LinkDirection.Left) {
+                continue;
+            }
+
+            if (link.getValue().hashAlgorithm.isDeprecated(calendarHashChain.getPublicationTime().valueOf())) {
+                return link;
+            }
+        }
+
+        return null;
     }
 
     protected static verifyRule(rule: VerificationRule): void {

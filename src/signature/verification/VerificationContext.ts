@@ -4,6 +4,8 @@
 import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash} from 'gt-js-common';
 import {TlvTag} from '../../parser/TlvTag';
+import {PublicationData} from '../../publication/PublicationData';
+import {PublicationsFile} from '../../publication/PublicationsFile';
 import {CalendarHashChain} from '../CalendarHashChain';
 import {KsiSignature} from '../KsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
@@ -20,8 +22,11 @@ export class KsiService {
 
 export class VerificationContext {
     private ksiService: KsiService;
-    private ksiSignature: KsiSignature;
+    private readonly ksiSignature: KsiSignature;
     private documentHash: DataHash | null = null;
+    private publicationsFile: PublicationsFile | null = null;
+    private publicationData: PublicationData | null = null;
+    private extendingAllowed: boolean = false;
 
     constructor(signature: KsiSignature) {
         if (!(signature instanceof KsiSignature)) {
@@ -77,5 +82,37 @@ export class VerificationContext {
      */
     public getDocumentHashLevel(): BigInteger {
         return bigInteger(0);
+    }
+
+    public getPublicationsFile(): PublicationsFile | null {
+        return this.publicationsFile;
+    }
+
+    public setPublicationsFile(publicationsFile: PublicationsFile | null): void {
+        if (publicationsFile === null || !(publicationsFile instanceof PublicationsFile)) {
+            throw new KsiVerificationError(`Invalid publications file: ${publicationsFile}`);
+        }
+
+        this.publicationsFile = publicationsFile;
+    }
+
+    public getUserPublication(): PublicationData | null {
+        return this.publicationData;
+    }
+
+    public setUserPublication(publicationData: PublicationData | null): void {
+        if (publicationData === null || !(publicationData instanceof PublicationData)) {
+            throw new KsiVerificationError(`Invalid publications file: ${publicationData}`);
+        }
+
+        this.publicationData = publicationData;
+    }
+
+    public isExtendingAllowed(): boolean {
+        return this.extendingAllowed;
+    }
+
+    public setExtendingAllowed(extendingAllowed: boolean): void {
+        this.extendingAllowed = extendingAllowed;
     }
 }

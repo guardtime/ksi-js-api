@@ -1,5 +1,3 @@
-import {TLV_CONSTANTS} from '../Constants';
-import {TlvError} from './TlvError';
 import {TlvTag} from './TlvTag';
 
 /**
@@ -17,34 +15,7 @@ export class TlvOutputStream {
     }
 
     public writeTag(tlvTag: TlvTag): void {
-        if (tlvTag.id > TLV_CONSTANTS.MaxType) {
-            throw new TlvError('Could not write TlvTag: Type is larger than max id');
-        }
-
-        const valueBytes: Uint8Array = tlvTag.getValueBytes();
-        if (valueBytes.length > 0xFFFF) {
-            throw new TlvError('Could not write TlvTag: Data length is too large');
-        }
-
-        const tlv16BitFlag: boolean = tlvTag.id > TLV_CONSTANTS.TypeMask || valueBytes.length > 0xFF || tlvTag.tlv16BitFlag;
-        let firstByte: number = (<number>(tlv16BitFlag && TLV_CONSTANTS.Tlv16BitFlagBit))
-            + (<number>(tlvTag.nonCriticalFlag && TLV_CONSTANTS.NonCriticalFlagBit))
-            + (<number>(tlvTag.forwardFlag && TLV_CONSTANTS.ForwardFlagBit));
-
-        if (tlv16BitFlag) {
-            firstByte |= (tlvTag.id >> 8) & TLV_CONSTANTS.TypeMask;
-            this.write(new Uint8Array([
-                firstByte & 0xFF,
-                tlvTag.id & 0xFF,
-                (valueBytes.length >> 8) & 0xFF,
-                valueBytes.length & 0xFF
-            ]));
-        } else {
-            firstByte |= (tlvTag.id & TLV_CONSTANTS.TypeMask);
-            this.write(new Uint8Array([firstByte, valueBytes.length & 0xFF]));
-        }
-
-        this.write(valueBytes);
+        this.write(tlvTag.encode());
     }
 
     public write(data: Uint8Array): void {

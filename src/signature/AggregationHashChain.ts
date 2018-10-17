@@ -33,7 +33,7 @@ export class AggregationHashChainLinkMetaData extends CompositeTag {
         return this.padding;
     }
 
-    private parseChild(tlvTag: TlvTag, position: number): TlvTag {
+    private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingTagType:
                 return this.padding = new RawTag(tlvTag);

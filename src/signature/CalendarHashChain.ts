@@ -8,7 +8,6 @@ import {IntegerTag} from '../parser/IntegerTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationData} from '../publication/PublicationData';
-import {AggregationHashChainLink, AggregationHashResult} from './AggregationHashChain';
 
 /**
  * Calendar Hash Chain TLV Object
@@ -44,13 +43,6 @@ export class CalendarHashChain extends CompositeTag {
         return v.minus(v.shiftRight(1));
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="algorithm">hash algorithm</param>
-    /// <param name="hashA">hash a</param>
-    /// <param name="hashB">hash b</param>
-    /// <returns>result hash</returns>
     /**
      * Hash two hashes together with algorithm.
      */
@@ -62,6 +54,34 @@ export class CalendarHashChain extends CompositeTag {
 
         return hasher.digest();
     }
+
+    /**
+     * Compare right links if they are equal.
+     */
+    public areRightLinksEqual(calendarHashChain: CalendarHashChain): boolean {
+        let i: number = 0;
+        let j: number = 0;
+        while (i < this.chainLinks.length || j < calendarHashChain.chainLinks.length) {
+            if (this.chainLinks[i].id !== LinkDirection.Right) {
+                i += 1;
+                continue;
+            }
+
+            if (calendarHashChain.chainLinks[j].id !== LinkDirection.Right) {
+                j += 1;
+                continue;
+            }
+
+            if (!this.chainLinks[i].getValue().equals(calendarHashChain.chainLinks[j].getValue())) {
+                return false;
+            }
+
+            i += 1;
+            j += 1;
+        }
+
+        return true;
+}
 
     public calculateRegistrationTime(): BigInteger {
         let r: BigInteger = this.publicationTime.getValue();

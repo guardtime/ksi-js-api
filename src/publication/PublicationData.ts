@@ -1,6 +1,6 @@
 import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash} from 'gt-js-common';
-import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATION_DATA_CONSTANTS} from '../Constants';
+import {PUBLICATION_DATA_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
