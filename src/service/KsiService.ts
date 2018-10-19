@@ -1,6 +1,5 @@
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash, HashAlgorithm, pseudoRandomLong} from 'gt-js-common';
-import {asn1} from 'node-forge';
+import {DataHash, HashAlgorithm, HMAC, pseudoRandomLong} from 'gt-js-common';
 import {
     AGGREGATION_REQUEST_PAYLOAD_CONSTANTS, AGGREGATION_REQUEST_PDU_CONSTANTS, AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS, PDU_CONSTANTS,
     PDU_HEADER_CONSTANTS,
@@ -11,14 +10,10 @@ import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
+import {TlvInputStream} from '../parser/TlvInputStream';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationsFileFactory} from '../publication/PublicationsFileFactory';
 import {KsiServiceError} from './KsiServiceError';
-import Class = module;
-
-class SigningServiceProtocol {
-
-}
 
 class AggregationRequestPayload extends CompositeTag {
     private requestId: IntegerTag;
@@ -96,6 +91,43 @@ interface IServiceCredentials {
     getHmacAlgorithm(): HashAlgorithm;
 }
 
+export class ServiceCredentials implements IServiceCredentials {
+    private hmacAlgorithm: HashAlgorithm;
+    private readonly loginId: string;
+    private readonly loginKey: Uint8Array;
+
+    constructor(loginId: string, loginKey: Uint8Array, hmacAlgorithm: HashAlgorithm = HashAlgorithm.SHA2_256) {
+        if ((typeof loginId) !== 'string') {
+            throw new KsiServiceError(`Invalid loginId: ${loginId}`);
+        }
+
+        if (!(loginKey instanceof Uint8Array)) {
+            throw new KsiServiceError(`Invalid loginKey: ${loginId}`);
+        }
+
+        if (!(hmacAlgorithm instanceof HashAlgorithm)) {
+            throw new KsiServiceError(`Invalid hmacAlgorithm: ${hmacAlgorithm}`);
+        }
+
+        this.loginId = loginId;
+        this.loginKey = loginKey;
+        this.hmacAlgorithm = hmacAlgorithm;
+    }
+
+    public getHmacAlgorithm(): HashAlgorithm {
+        return this.hmacAlgorithm;
+    }
+
+    public getLoginId(): string {
+        return this.loginId;
+    }
+
+    public getLoginKey(): Uint8Array {
+        return this.loginKey;
+    }
+
+}
+
 class PduHeader extends CompositeTag {
     private loginId: StringTag;
     private instanceId: IntegerTag;
@@ -111,7 +143,7 @@ class PduHeader extends CompositeTag {
     }
 
     public static CREATE_FROM_LOGIN_ID(loginId: string): PduHeader {
-        if (!(typeof loginId !== 'string')) {
+        if ((typeof loginId) !== 'string') {
             throw new TlvError(`Invalid loginId: ${loginId}`);
         }
 
@@ -316,6 +348,19 @@ abstract class Pdu extends CompositeTag {
         super(tlvTag);
     }
 
+    // TODO: Change TLVTag to PduPayload
+    public static async CREATE_PDU(tagType: number, header: PduHeader, payload: TlvTag, algorithm: HashAlgorithm, key: Uint8Array): Promise<TlvTag> {
+
+        const pduBytes: Uint8Array = CompositeTag.createCompositeTagTlv(tagType, false, false, [
+            header,
+            payload,
+            ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash.create(algorithm, new Uint8Array(algorithm.length)))
+        ]).encode();
+        pduBytes.set(await HMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length)), pduBytes.length - algorithm.length);
+
+        return new TlvInputStream(pduBytes).readTag();
+    }
+
     protected parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case PDU_HEADER_CONSTANTS.TagType:
@@ -355,10 +400,9 @@ class AggregationRequestPdu extends Pdu {
         Object.freeze(this);
     }
 
-    public static CREATE(header: PduHeader, payload: AggregationRequestPayload, hmac: ImprintTag): AggregationRequestPdu {
-        return new AggregationRequestPdu(
-            CompositeTag.createCompositeTagTlv(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, false, false, [
-                header, payload, hmac]));
+    public static async CREATE(header: PduHeader, payload: AggregationRequestPayload,
+                               algorithm: HashAlgorithm, key: Uint8Array): Promise<AggregationRequestPdu> {
+        return new AggregationRequestPdu(await Pdu.CREATE_PDU(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key));
     }
 
     protected parseChild(tlvTag: TlvTag): TlvTag {
@@ -395,36 +439,51 @@ class AggregationRequestPdu extends Pdu {
         }
     }
 
+}
 
+export class SigningServiceProtocol {
+    private signingUrl: string;
+
+    constructor(signingUrl: string) {
+        this.signingUrl = signingUrl;
+    }
+
+    public async sign(data: Uint8Array): Promise<Uint8Array> {
+        const headers: Headers = new Headers();
+        headers.append('Content-Type', 'application/ksi-request');
+        headers.append('Content-Length', data.length.toString());
+
+        const response: Response = await fetch(this.signingUrl, {
+            method: 'POST',
+            body: data,
+            headers: headers
+        });
+
+        return new Uint8Array(await response.arrayBuffer());
+    }
 }
 
 /**
  * KSI service.
  */
-class KsiService {
-    private static readonly DEFAULT_HMAC_ALGORITHM: HashAlgorithm = HashAlgorithm.SHA2_256;
+export class KsiService {
 
     private signingServiceProtocol: SigningServiceProtocol;
     private signingServiceCredentials: IServiceCredentials;
-    private extendingServiceProtocol: ExtendingServiceProtocol;
+    // private extendingServiceProtocol: ExtendingServiceProtocol;
     private extendingServiceCredentials: IServiceCredentials;
-    private publicationsFileServiceProtocol: PublicationsFileServiceProtocol;
+    // private publicationsFileServiceProtocol: PublicationsFileServiceProtocol;
     private publicationsFileFactory: PublicationsFileFactory;
 
-    constructor(signingServiceProtocol: SigningServiceProtocol, signingServiceCredentials: IServiceCredentials,
-                extendingServiceProtocol: ExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials,
-                publicationsFileServiceProtocol: PublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory) {
+    constructor(signingServiceProtocol: SigningServiceProtocol, signingServiceCredentials: IServiceCredentials) {
+        // extendingServiceProtocol: ExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials,
+        // publicationsFileServiceProtocol: PublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory) {
         this.signingServiceProtocol = signingServiceProtocol;
         this.signingServiceCredentials = signingServiceCredentials;
-        this.extendingServiceProtocol = extendingServiceProtocol;
-        this.extendingServiceCredentials = extendingServiceCredentials;
-        this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
-        this.publicationsFileFactory = publicationsFileFactory;
-
-    }
-
-    public getSigningHmacAlgorithm(): HashAlgorithm {
-        return this.signingServiceCredentials.getHmacAlgorithm() || KsiService.DEFAULT_HMAC_ALGORITHM;
+        // this.extendingServiceProtocol = extendingServiceProtocol;
+        // this.extendingServiceCredentials = extendingServiceCredentials;
+        // this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
+        // this.publicationsFileFactory = publicationsFileFactory;
     }
 
     public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<void> {
@@ -440,11 +499,10 @@ class KsiService {
         const requestId: BigInteger = pseudoRandomLong();
         const payload: AggregationRequestPayload = AggregationRequestPayload.CREATE(requestId, hash, level);
 
-        // TODO: Calculate hmac correctly
-        const pdu = AggregationRequestPdu.CREATE(header, payload, this.getSigningHmacAlgorithm(), this.signingServiceCredentials.getLoginId());
-
-        // AggregationRequestPdu pdu = new AggregationRequestPdu(header, payload, _signingMacAlgorithm, _signingServiceCredentials.LoginKey);
-        // Logger.Debug("Begin sign (request id: {0}){1}{2}", payload.RequestId, Environment.NewLine, pdu);
+        const pdu: AggregationRequestPdu = await AggregationRequestPdu.CREATE(header, payload,
+                                                                              this.signingServiceCredentials.getHmacAlgorithm(),
+                                                                              this.signingServiceCredentials.getLoginKey());
+        this.signingServiceProtocol.sign(pdu.encode());
         // return BeginSignRequest(pdu.Encode(), requestId, hash, level, callback, asyncState);
     }
 

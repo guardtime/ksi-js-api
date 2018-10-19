@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 56);
+/******/ 	return __webpack_require__(__webpack_require__.s = 60);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -125,7 +125,7 @@ module.exports = {
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-var baseN = __webpack_require__(46);
+var baseN = __webpack_require__(50);
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -3098,7 +3098,7 @@ util.estimateCores = function(options, callback) {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(15), __webpack_require__(25).setImmediate, __webpack_require__(11).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(24).setImmediate, __webpack_require__(10).Buffer))
 
 /***/ }),
 /* 2 */
@@ -4427,7 +4427,7 @@ if (true) {
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(55)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(59)(module)))
 
 /***/ }),
 /* 3 */
@@ -4449,9 +4449,9 @@ if (true) {
  * Copyright (c) 2009-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
+__webpack_require__(6);
+__webpack_require__(30);
 __webpack_require__(31);
-__webpack_require__(32);
 __webpack_require__(1);
 
 (function() {
@@ -4627,8 +4627,7 @@ module.exports = forge.random;
 
 
 /***/ }),
-/* 4 */,
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4768,7 +4767,7 @@ module.exports = forge.random;
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(8);
+__webpack_require__(7);
 
 /* ASN.1 API */
 var asn1 = module.exports = forge.asn1 = forge.asn1 || {};
@@ -6042,7 +6041,7 @@ asn1.prettyPrint = function(obj, level, indentation) {
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6059,7 +6058,7 @@ forge.md.algorithms = forge.md.algorithms || {};
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6080,8 +6079,8 @@ forge.md.algorithms = forge.md.algorithms || {};
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(19);
-__webpack_require__(26);
+__webpack_require__(18);
+__webpack_require__(25);
 __webpack_require__(1);
 
 /* AES API */
@@ -7156,7 +7155,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7323,7 +7322,7 @@ _IN('1.3.6.1.5.5.7.3.8', 'timeStamping');
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7559,7 +7558,7 @@ function ltrim(str) {
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, setImmediate, Buffer) {(function webpackUniversalModuleDefinition(root, factory) {
@@ -24204,10 +24203,10 @@ hmac.create = function() {
 /***/ })
 /******/ ]);
 });
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(15), __webpack_require__(25).setImmediate, __webpack_require__(11).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(24).setImmediate, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24221,9 +24220,9 @@ hmac.create = function() {
 
 
 
-var base64 = __webpack_require__(43)
-var ieee754 = __webpack_require__(44)
-var isArray = __webpack_require__(45)
+var base64 = __webpack_require__(47)
+var ieee754 = __webpack_require__(48)
+var isArray = __webpack_require__(49)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -26001,10 +26000,10 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -26017,7 +26016,7 @@ function isnan (val) {
  * Copyright (c) 2010-2012 Digital Bazaar, Inc. All rights reserved.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
+__webpack_require__(5);
 __webpack_require__(1);
 
 /* HMAC API */
@@ -26156,7 +26155,7 @@ hmac.create = function() {
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -26167,7 +26166,7 @@ hmac.create = function() {
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var sha1 = module.exports = forge.sha1 = forge.sha1 || {};
@@ -26481,7 +26480,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -26492,37 +26491,37 @@ function _update(s, w, bytes) {
  * Copyright 2011-2016 Digital Bazaar, Inc.
  */
 module.exports = __webpack_require__(0);
-__webpack_require__(7);
-__webpack_require__(47);
-__webpack_require__(5);
-__webpack_require__(19);
-__webpack_require__(39);
-__webpack_require__(16);
-__webpack_require__(49);
-__webpack_require__(12);
-__webpack_require__(50);
-__webpack_require__(41);
+__webpack_require__(6);
 __webpack_require__(51);
+__webpack_require__(4);
+__webpack_require__(18);
 __webpack_require__(38);
-__webpack_require__(22);
-__webpack_require__(9);
-__webpack_require__(34);
-__webpack_require__(36);
-__webpack_require__(52);
-__webpack_require__(28);
-__webpack_require__(35);
-__webpack_require__(32);
-__webpack_require__(24);
-__webpack_require__(3);
-__webpack_require__(33);
+__webpack_require__(15);
 __webpack_require__(53);
+__webpack_require__(11);
 __webpack_require__(54);
+__webpack_require__(40);
+__webpack_require__(55);
+__webpack_require__(37);
+__webpack_require__(21);
+__webpack_require__(8);
+__webpack_require__(33);
+__webpack_require__(35);
+__webpack_require__(56);
 __webpack_require__(27);
+__webpack_require__(34);
+__webpack_require__(31);
+__webpack_require__(23);
+__webpack_require__(3);
+__webpack_require__(32);
+__webpack_require__(57);
+__webpack_require__(58);
+__webpack_require__(26);
 __webpack_require__(1);
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -26712,7 +26711,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -26746,8 +26745,8 @@ process.umask = function() { return 0; };
  * Copyright (c) 2012-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(19);
-__webpack_require__(26);
+__webpack_require__(18);
+__webpack_require__(25);
 __webpack_require__(1);
 
 /* DES API */
@@ -27213,7 +27212,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -27280,11 +27279,11 @@ function _createCipher(options) {
  * The OID for the RSA key algorithm is: 1.2.840.113549.1.1.1
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
-__webpack_require__(18);
-__webpack_require__(8);
+__webpack_require__(4);
+__webpack_require__(17);
+__webpack_require__(7);
+__webpack_require__(33);
 __webpack_require__(34);
-__webpack_require__(35);
 __webpack_require__(3);
 __webpack_require__(1);
 
@@ -29015,7 +29014,7 @@ function _base64ToBigInt(b64) {
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright (c) 2005  Tom Wu
@@ -30285,7 +30284,7 @@ BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -30521,7 +30520,7 @@ BlockCipher.prototype.finish = function(pad) {
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports) {
 
 var g;
@@ -30547,7 +30546,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -30558,7 +30557,7 @@ module.exports = g;
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var md5 = module.exports = forge.md5 = forge.md5 || {};
@@ -30842,7 +30841,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -30855,15 +30854,15 @@ function _update(s, w, bytes) {
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(12);
-__webpack_require__(6);
+__webpack_require__(11);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var pkcs5 = forge.pkcs5 = forge.pkcs5 || {};
 
 var crypto;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript) {
-  crypto = __webpack_require__(30);
+  crypto = __webpack_require__(29);
 }
 
 /**
@@ -31057,10 +31056,10 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
   outer();
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(11).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -31173,15 +31172,15 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
  * }
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
-__webpack_require__(5);
-__webpack_require__(16);
 __webpack_require__(6);
-__webpack_require__(48);
+__webpack_require__(4);
+__webpack_require__(15);
+__webpack_require__(5);
+__webpack_require__(52);
+__webpack_require__(7);
 __webpack_require__(8);
-__webpack_require__(9);
-__webpack_require__(24);
-__webpack_require__(17);
+__webpack_require__(23);
+__webpack_require__(16);
 __webpack_require__(1);
 
 // shortcut for asn.1 API
@@ -34337,7 +34336,7 @@ pki.verifyCertificateChain = function(caStore, chain, verify) {
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -34584,7 +34583,7 @@ pss.create = function(options) {
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var scope = (typeof global !== "undefined" && global) ||
@@ -34640,7 +34639,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(42);
+__webpack_require__(46);
 // On some exotic environments, it's not clear which object `setimmediate` was
 // able to install onto.  Search each possibility in the same order as the
 // `setimmediate` library.
@@ -34651,10 +34650,10 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -35647,7 +35646,7 @@ function from64To32(num) {
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -35883,13 +35882,13 @@ function from64To32(num) {
  * timing signal.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
-__webpack_require__(12);
-__webpack_require__(21);
-__webpack_require__(9);
-__webpack_require__(28);
+__webpack_require__(4);
+__webpack_require__(11);
+__webpack_require__(20);
+__webpack_require__(8);
+__webpack_require__(27);
 __webpack_require__(3);
-__webpack_require__(13);
+__webpack_require__(12);
 __webpack_require__(1);
 
 /**
@@ -39922,7 +39921,7 @@ forge.tls.createConnection = tls.createConnection;
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -39934,16 +39933,16 @@ forge.tls.createConnection = tls.createConnection;
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(4);
+__webpack_require__(7);
+__webpack_require__(28);
 __webpack_require__(8);
-__webpack_require__(29);
-__webpack_require__(9);
-__webpack_require__(22);
-__webpack_require__(36);
-__webpack_require__(24);
-__webpack_require__(17);
-__webpack_require__(1);
+__webpack_require__(21);
+__webpack_require__(35);
 __webpack_require__(23);
+__webpack_require__(16);
+__webpack_require__(1);
+__webpack_require__(22);
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
@@ -40030,7 +40029,7 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40053,16 +40052,16 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
  * EncryptedData ::= OCTET STRING
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
-__webpack_require__(5);
-__webpack_require__(16);
 __webpack_require__(6);
+__webpack_require__(4);
+__webpack_require__(15);
+__webpack_require__(5);
+__webpack_require__(7);
+__webpack_require__(21);
 __webpack_require__(8);
-__webpack_require__(22);
-__webpack_require__(9);
 __webpack_require__(3);
-__webpack_require__(33);
-__webpack_require__(17);
+__webpack_require__(32);
+__webpack_require__(16);
 __webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
@@ -41059,13 +41058,13 @@ function createPbkdf2Params(salt, countBytes, dkLen, prfAlgorithm) {
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -41078,7 +41077,7 @@ function createPbkdf2Params(salt, countBytes, dkLen, prfAlgorithm) {
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var sha256 = module.exports = forge.sha256 = forge.sha256 || {};
@@ -41398,7 +41397,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -41418,7 +41417,7 @@ __webpack_require__(1);
 var _crypto = null;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript &&
   !process.versions['node-webkit']) {
-  _crypto = __webpack_require__(30);
+  _crypto = __webpack_require__(29);
 }
 
 /* PRNG API */
@@ -41822,10 +41821,10 @@ prng.create = function(plugin) {
   return ctx;
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(15)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14)))
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42241,7 +42240,7 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
 
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42292,7 +42291,7 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
 var forge = __webpack_require__(0);
 __webpack_require__(1);
 __webpack_require__(3);
-__webpack_require__(13);
+__webpack_require__(12);
 
 // shortcut for PKCS#1 API
 var pkcs1 = module.exports = forge.pkcs1 = forge.pkcs1 || {};
@@ -42523,7 +42522,7 @@ function rsa_mgf1(seed, maskLength, hash) {
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42535,7 +42534,7 @@ function rsa_mgf1(seed, maskLength, hash) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(18);
+__webpack_require__(17);
 __webpack_require__(3);
 
 (function() {
@@ -42826,7 +42825,7 @@ function getMillerRabinTests(bits) {
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42925,16 +42924,16 @@ function getMillerRabinTests(bits) {
  * }
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
-__webpack_require__(12);
-__webpack_require__(8);
-__webpack_require__(37);
-__webpack_require__(29);
+__webpack_require__(4);
+__webpack_require__(11);
+__webpack_require__(7);
+__webpack_require__(36);
+__webpack_require__(28);
 __webpack_require__(3);
-__webpack_require__(17);
-__webpack_require__(13);
+__webpack_require__(16);
+__webpack_require__(12);
 __webpack_require__(1);
-__webpack_require__(23);
+__webpack_require__(22);
 
 // shortcut for asn.1 & PKI API
 var asn1 = forge.asn1;
@@ -43906,7 +43905,7 @@ p12.generateKey = forge.pbe.generatePkcs12Key;
 
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44019,7 +44018,7 @@ p12.generateKey = forge.pbe.generatePkcs12Key;
  * EncryptedKey ::= OCTET STRING
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(4);
 __webpack_require__(1);
 
 // shortcut for ASN.1 API
@@ -44321,7 +44320,7 @@ p7v.recipientInfoValidator = {
 
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44384,7 +44383,7 @@ mgf1.create = function(md) {
 
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44468,7 +44467,7 @@ forge.debug.clear = function(cat, name) {
 
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44484,7 +44483,7 @@ forge.debug.clear = function(cat, name) {
  * Copyright (c) 2014-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
+__webpack_require__(5);
 __webpack_require__(1);
 
 var sha512 = module.exports = forge.sha512 = forge.sha512 || {};
@@ -45035,7 +45034,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45358,7 +45357,12 @@ forge.log.consoleLogger = sConsoleLogger;
 
 
 /***/ }),
-/* 42 */
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -45548,10 +45552,10 @@ forge.log.consoleLogger = sConsoleLogger;
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20), __webpack_require__(15)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19), __webpack_require__(14)))
 
 /***/ }),
-/* 43 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45709,7 +45713,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 44 */
+/* 48 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -45799,7 +45803,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 45 */
+/* 49 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -45810,7 +45814,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 46 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -46000,10 +46004,10 @@ function _encodeWithByteBuffer(input, alphabet) {
   return output;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(11).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 47 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46015,8 +46019,8 @@ function _encodeWithByteBuffer(input, alphabet) {
  *
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
-__webpack_require__(27);
+__webpack_require__(6);
+__webpack_require__(26);
 
 var tls = module.exports = forge.tls;
 
@@ -46293,7 +46297,7 @@ function compareMacs(key, mac1, mac2) {
 
 
 /***/ }),
-/* 48 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46304,14 +46308,14 @@ function compareMacs(key, mac1, mac2) {
  * Copyright 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 var forge = __webpack_require__(0);
-__webpack_require__(38);
+__webpack_require__(37);
 
 module.exports = forge.mgf = forge.mgf || {};
 forge.mgf.mgf1 = forge.mgf1;
 
 
 /***/ }),
-/* 49 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -46325,9 +46329,9 @@ forge.mgf.mgf1 = forge.mgf1;
  * https://github.com/dchest/tweetnacl-js
  */
 var forge = __webpack_require__(0);
-__webpack_require__(18);
+__webpack_require__(17);
 __webpack_require__(3);
-__webpack_require__(40);
+__webpack_require__(39);
 __webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
@@ -47311,10 +47315,10 @@ function M(o, a, b) {
   o[15] = t15;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(11).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 50 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47329,7 +47333,7 @@ function M(o, a, b) {
 var forge = __webpack_require__(0);
 __webpack_require__(1);
 __webpack_require__(3);
-__webpack_require__(18);
+__webpack_require__(17);
 
 module.exports = forge.kem = forge.kem || {};
 
@@ -47488,7 +47492,7 @@ function _createKDF(kdf, md, counterStart, digestLength) {
 
 
 /***/ }),
-/* 51 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47498,16 +47502,16 @@ function _createKDF(kdf, md, counterStart, digestLength) {
  *
  * Copyright 2011-2017 Digital Bazaar, Inc.
  */
-module.exports = __webpack_require__(6);
+module.exports = __webpack_require__(5);
 
-__webpack_require__(21);
-__webpack_require__(13);
-__webpack_require__(31);
-__webpack_require__(40);
+__webpack_require__(20);
+__webpack_require__(12);
+__webpack_require__(30);
+__webpack_require__(39);
 
 
 /***/ }),
-/* 52 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47529,15 +47533,15 @@ __webpack_require__(40);
  * PKCS standards like PKCS #12.
  */
 var forge = __webpack_require__(0);
+__webpack_require__(6);
+__webpack_require__(4);
+__webpack_require__(15);
 __webpack_require__(7);
-__webpack_require__(5);
-__webpack_require__(16);
 __webpack_require__(8);
-__webpack_require__(9);
-__webpack_require__(37);
+__webpack_require__(36);
 __webpack_require__(3);
 __webpack_require__(1);
-__webpack_require__(23);
+__webpack_require__(22);
 
 // shortcut for ASN.1 API
 var asn1 = forge.asn1;
@@ -48770,7 +48774,7 @@ function _decryptContent(msg) {
 
 
 /***/ }),
-/* 53 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -48784,10 +48788,10 @@ function _decryptContent(msg) {
  * @author https://github.com/shellac
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
+__webpack_require__(6);
+__webpack_require__(11);
+__webpack_require__(20);
 __webpack_require__(12);
-__webpack_require__(21);
-__webpack_require__(13);
 __webpack_require__(1);
 
 var ssh = module.exports = forge.ssh = forge.ssh || {};
@@ -49012,7 +49016,7 @@ function _sha1() {
 
 
 /***/ }),
-/* 54 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -49025,8 +49029,8 @@ function _sha1() {
  * Copyright (c) 2009-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(39);
-__webpack_require__(41);
+__webpack_require__(38);
+__webpack_require__(40);
 __webpack_require__(1);
 
 // logging category
@@ -49743,7 +49747,7 @@ forge.task.createCondition = function() {
 
 
 /***/ }),
-/* 55 */
+/* 59 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -49771,7 +49775,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 56 */
+/* 60 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -49981,6 +49985,31 @@ var SIGNATURE_DATA_CONSTANTS = Object.freeze({
     SignatureValueTagType: 0x2,
     CertificateIdTagType: 0x3,
     CertificateRepositoryUriTagType: 0x4
+});
+var PDU_HEADER_CONSTANTS = Object.freeze({
+    TagType: 0x1,
+    LoginIdTagType: 0x1,
+    InstanceIdTagType: 0x2,
+    MessageIdTagType: 0x3
+});
+var PDU_PAYLOAD_CONSTANTS = Object.freeze({
+    RequestIdTagType: 0x1,
+    StatusTagType: 0x4,
+    ErrorMessageTagType: 0x5
+});
+var AGGREGATION_REQUEST_PAYLOAD_CONSTANTS = Object.freeze({
+    TagType: 0x2,
+    RequestHashTagType: 0x2,
+    RequestLevelTagType: 0x3
+});
+var AGGREGATION_REQUEST_PDU_CONSTANTS = Object.freeze({
+    TagType: 0x220
+});
+var AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS = Object.freeze({
+    TagType: 0x4
+});
+var PDU_CONSTANTS = Object.freeze({
+    MacTagType: 0x1F
 });
 var LinkDirection;
 (function (LinkDirection) {
@@ -50366,7 +50395,7 @@ var CertificateRecord_CertificateRecord = /** @class */ (function (_super) {
 
 
 // EXTERNAL MODULE: ./node_modules/node-forge/lib/index.js
-var lib = __webpack_require__(14);
+var lib = __webpack_require__(13);
 
 // CONCATENATED MODULE: ./src/parser/StringTag.ts
 var StringTag_extends = (undefined && undefined.__extends) || (function () {
@@ -51397,7 +51426,7 @@ var AggregationHashChain_AggregationHashChainLinkMetaData = /** @class */ (funct
     AggregationHashChainLinkMetaData.prototype.getPaddingTag = function () {
         return this.padding;
     };
-    AggregationHashChainLinkMetaData.prototype.parseChild = function (tlvTag, position) {
+    AggregationHashChainLinkMetaData.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingTagType:
                 return this.padding = new RawTag_RawTag(tlvTag);
@@ -52818,6 +52847,80 @@ var VerificationRule_VerificationRule = /** @class */ (function () {
     };
     return VerificationRule;
 }());
+
+
+// CONCATENATED MODULE: ./src/signature/verification/rule/UserProvidedPublicationExistenceRule.ts
+var UserProvidedPublicationExistenceRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var UserProvidedPublicationExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var UserProvidedPublicationExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule checks that user has provided a publication.
+ */
+var UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule = /** @class */ (function (_super) {
+    UserProvidedPublicationExistenceRule_extends(UserProvidedPublicationExistenceRule, _super);
+    function UserProvidedPublicationExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    UserProvidedPublicationExistenceRule.prototype.verify = function (context) {
+        return UserProvidedPublicationExistenceRule_awaiter(this, void 0, void 0, function () {
+            return UserProvidedPublicationExistenceRule_generator(this, function (_a) {
+                VerificationRule_VerificationRule.verifyContext(context);
+                return [2 /*return*/, context.getUserPublication() === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return UserProvidedPublicationExistenceRule;
+}(VerificationRule_VerificationRule));
 
 
 // CONCATENATED MODULE: ./src/signature/verification/rule/AggregationHashChainAlgorithmDeprecatedRule.ts
@@ -55826,7 +55929,7 @@ var PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFileP
                 signature = VerificationRule_VerificationRule.getSignature(context);
                 publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
                 if (publicationRecord == null) {
-                    throw new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".");
+                    throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
                 }
                 extendedCalendarHashChain = context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
                 if (publicationRecord.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
@@ -56057,80 +56160,6 @@ var UserProvidedPublicationCreationTimeVerificationRule_UserProvidedPublicationC
         });
     };
     return UserProvidedPublicationCreationTimeVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/signature/verification/rule/UserProvidedPublicationExistenceRule.ts
-var UserProvidedPublicationExistenceRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var UserProvidedPublicationExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var UserProvidedPublicationExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule checks that user has provided a publication.
- */
-var UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule = /** @class */ (function (_super) {
-    UserProvidedPublicationExistenceRule_extends(UserProvidedPublicationExistenceRule, _super);
-    function UserProvidedPublicationExistenceRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    UserProvidedPublicationExistenceRule.prototype.verify = function (context) {
-        return UserProvidedPublicationExistenceRule_awaiter(this, void 0, void 0, function () {
-            return UserProvidedPublicationExistenceRule_generator(this, function (_a) {
-                VerificationRule_VerificationRule.verifyContext(context);
-                return [2 /*return*/, context.getUserPublication() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return UserProvidedPublicationExistenceRule;
 }(VerificationRule_VerificationRule));
 
 
@@ -56556,7 +56585,7 @@ var PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy = /** 
 
 
 // EXTERNAL MODULE: ./node_modules/gt-js-common/node_modules/node-forge/dist/forge.gt.js
-var forge_gt = __webpack_require__(10);
+var forge_gt = __webpack_require__(9);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/SyncDataHasher.js
 
@@ -56636,8 +56665,6 @@ class SyncDataHasher_SyncDataHasher {
 
 
 
-
-
 class X509_X509 {
     /**
      * Verifies that the data is signed with the provided signature and that the signature matches
@@ -56664,7 +56691,6 @@ class X509_X509 {
         return cert.publicKey.verify(ASCIIConverter.ToString(hashOfData), ASCIIConverter.ToString(signature));
     }
 }
-
 /**
  * Hashes the signed data for the verification process.
  * Support only some hashing algorithms.
@@ -56689,7 +56715,6 @@ function hashData(certificate, signedData) {
     hasher.update(signedData);
     return hasher.digest();
 }
-
 /**
  * Converts bytes to the Forge certificate object
  *
@@ -56698,7 +56723,6 @@ function hashData(certificate, signedData) {
  */
 function convertToForgeCert(certificateBytes) {
     const certAsn1Format = forge_gt["asn1"].fromDer(ASCIIConverter.ToString(certificateBytes));
-
     return forge_gt["pki"].certificateFromAsn1(certAsn1Format);
 }
 
@@ -56926,6 +56950,604 @@ var KeyBasedVerificationPolicy_KeyBasedVerificationPolicy = /** @class */ (funct
 }(VerificationPolicy_VerificationPolicy));
 
 
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/WebHMAC.js
+
+class WebHMAC_WebHMAC {
+    /**
+     * @param {HashAlgorithm} algorithm
+     * @param {Uint8Array} key
+     * @param {Uint8Array} data
+     * @returns {Promise.<Uint8Array, Error>}
+     */
+    static digest(algorithm, key, data) {
+        if (!(algorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            return Promise.reject(new Error(`Invalid hash algorithm, must be HashAlgorithm but is ${typeof data}`));
+        }
+        if (!(key instanceof Uint8Array)) {
+            return Promise.reject(new Error(`Invalid key, must be Uint8Array but is ${typeof key}`));
+        }
+        if (!(data instanceof Uint8Array)) {
+            return Promise.reject(new Error(`Invalid data, must be Uint8Array but is ${typeof data}`));
+        }
+        return window.crypto.subtle.importKey('raw', key, {
+            name: 'HMAC',
+            hash: { name: algorithm.name },
+        }, false, ['sign']).then(key => window.crypto.subtle.sign('HMAC', key, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer)));
+    }
+}
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/random/RandomUtil.js
+
+const pseudoRandomLong = () => {
+    return BigInteger_default.a.randBetween(0, 9223372036854775807);
+};
+
+// CONCATENATED MODULE: ./src/service/KsiServiceError.ts
+var KsiServiceError_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+ * KSI Service related error
+ */
+var KsiServiceError = /** @class */ (function (_super) {
+    KsiServiceError_extends(KsiServiceError, _super);
+    function KsiServiceError(message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = 'KsiServiceError';
+        Object.setPrototypeOf(_this, KsiServiceError.prototype);
+        return _this;
+    }
+    return KsiServiceError;
+}(Error));
+
+
+// CONCATENATED MODULE: ./src/service/KsiService.ts
+var KsiService_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var KsiService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var KsiService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+var KsiService_AggregationRequestPayload = /** @class */ (function (_super) {
+    KsiService_extends(AggregationRequestPayload, _super);
+    function AggregationRequestPayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationRequestPayload.CREATE = function (requestId, hash, level) {
+        if (level === void 0) { level = BigInteger_default()(0); }
+        if (!BigInteger_default.a.isInstance(requestId)) {
+            throw new TlvError("Invalid requestId: " + requestId);
+        }
+        if (!(hash instanceof DataHash_DataHash)) {
+            throw new TlvError("Invalid requestId: " + hash);
+        }
+        if (!BigInteger_default.a.isInstance(level)) {
+            throw new TlvError("Invalid level: " + level);
+        }
+        var childTlv = [
+            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
+            ImprintTag_ImprintTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType, false, false, hash)
+        ];
+        if (level.neq(0)) {
+            childTlv.push(IntegerTag_IntegerTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType, false, false, level));
+        }
+        return new AggregationRequestPayload(CompositeTag_CompositeTag.createCompositeTagTlv(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+    };
+    AggregationRequestPayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType:
+                return this.requestHash = new ImprintTag_ImprintTag(tlvTag);
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType:
+                return this.requestLevel = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    AggregationRequestPayload.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+            throw new TlvError('Exactly one request id must exist in aggregation request payload.');
+        }
+        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType] !== 1) {
+            throw new TlvError('Exactly one request hash must exist in aggregation request payload.');
+        }
+        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType] > 1) {
+            throw new TlvError('Only one request level is allowed in aggregation request payload.');
+        }
+    };
+    return AggregationRequestPayload;
+}(CompositeTag_CompositeTag));
+var KsiService_ServiceCredentials = /** @class */ (function () {
+    function ServiceCredentials(loginId, loginKey, hmacAlgorithm) {
+        if (hmacAlgorithm === void 0) { hmacAlgorithm = HashAlgorithm_HashAlgorithm.SHA2_256; }
+        if ((typeof loginId) !== 'string') {
+            throw new KsiServiceError("Invalid loginId: " + loginId);
+        }
+        if (!(loginKey instanceof Uint8Array)) {
+            throw new KsiServiceError("Invalid loginKey: " + loginId);
+        }
+        if (!(hmacAlgorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            throw new KsiServiceError("Invalid hmacAlgorithm: " + hmacAlgorithm);
+        }
+        this.loginId = loginId;
+        this.loginKey = loginKey;
+        this.hmacAlgorithm = hmacAlgorithm;
+    }
+    ServiceCredentials.prototype.getHmacAlgorithm = function () {
+        return this.hmacAlgorithm;
+    };
+    ServiceCredentials.prototype.getLoginId = function () {
+        return this.loginId;
+    };
+    ServiceCredentials.prototype.getLoginKey = function () {
+        return this.loginKey;
+    };
+    return ServiceCredentials;
+}());
+
+var KsiService_PduHeader = /** @class */ (function (_super) {
+    KsiService_extends(PduHeader, _super);
+    function PduHeader(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    PduHeader.CREATE_FROM_LOGIN_ID = function (loginId) {
+        if ((typeof loginId) !== 'string') {
+            throw new TlvError("Invalid loginId: " + loginId);
+        }
+        return new PduHeader(CompositeTag_CompositeTag.createCompositeTagTlv(PDU_HEADER_CONSTANTS.TagType, false, false, [
+            StringTag_StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
+        ]));
+    };
+    PduHeader.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_HEADER_CONSTANTS.LoginIdTagType:
+                return this.loginId = new StringTag_StringTag(tlvTag);
+            case PDU_HEADER_CONSTANTS.InstanceIdTagType:
+                return this.instanceId = new IntegerTag_IntegerTag(tlvTag);
+            case PDU_HEADER_CONSTANTS.MessageIdTagType:
+                return this.messageId = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    PduHeader.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
+            throw new TlvError('Exactly one login id must exist in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
+            throw new TlvError('Only one instance id is allowed in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
+            throw new TlvError('Only one message id is allowed in PDU header.');
+        }
+    };
+    return PduHeader;
+}(CompositeTag_CompositeTag));
+var KsiService_Pdu = /** @class */ (function (_super) {
+    KsiService_extends(Pdu, _super);
+    //     int _headerIndex;
+    //     int _macIndex;
+    //
+    //     public List<PduPayload> Payloads { get; } = new List<PduPayload>();
+    //
+    //
+    // public ErrorPayload ErrorPayload { get; set; }
+    //
+    //
+    // public PduHeader Header { get; private set; }
+    //
+    //
+    // protected Pdu(ITlvTag tag) : base(tag)
+    // {
+    // }
+    // protected override ITlvTag ParseChild(ITlvTag childTag)
+    // {
+    //     foreach (uint tagType in Constants.AllPayloadTypes)
+    //     {
+    //         if (tagType == childTag.Type)
+    //         {
+    //             return childTag;
+    //         }
+    //     }
+    //
+    //     switch (childTag.Type)
+    //     {
+    //         case Constants.PduHeader.TagType:
+    //             _headerIndex = Count;
+    //             return Header = childTag as PduHeader ?? new PduHeader(childTag);
+    //         case Constants.Pdu.MacTagType:
+    //             _macIndex = Count;
+    //             return Mac = GetImprintTag(childTag);
+    //     }
+    //
+    //     return base.ParseChild(childTag);
+    // }
+    // protected override void Validate(TagCounter tagCounter)
+    // {
+    //     base.Validate(tagCounter);
+    //
+    //     if (ErrorPayload == null)
+    //     {
+    //         if (Payloads.Count == 0)
+    //         {
+    //             throw new TlvException("Payloads are missing in PDU.");
+    //         }
+    //
+    //         if (tagCounter[Constants.PduHeader.TagType] != 1)
+    //         {
+    //             throw new TlvException("Exactly one header must exist in PDU.");
+    //         }
+    //
+    //         if (_headerIndex != 0)
+    //         {
+    //             throw new TlvException("Header must be the first element in PDU.");
+    //         }
+    //
+    //         if (tagCounter[Constants.Pdu.MacTagType] != 1)
+    //         {
+    //             throw new TlvException("Exactly one MAC must exist in PDU");
+    //         }
+    //
+    //         if (_macIndex != Count - 1)
+    //         {
+    //             throw new TlvException("MAC must be the last element in PDU");
+    //         }
+    //     }
+    // }
+    // protected Pdu(uint tagType, PduHeader header, PduPayload payload, HashAlgorithm hmacAlgorithm, byte[] key)
+    // : base(tagType, false, false, new ITlvTag[] { header, payload, GetEmptyMacTag(hmacAlgorithm) })
+    // {
+    //     SetMacValue(hmacAlgorithm, key);
+    // }
+    // public ImprintTag Mac { get; private set; }
+    // protected void SetMacValue(HashAlgorithm macAlgorithm, byte[] key)
+    // {
+    //     for (int i = 0; i < Count; i++)
+    //     {
+    //         ITlvTag childTag = this[i];
+    //
+    //         if (childTag.Type == Constants.Pdu.MacTagType)
+    //         {
+    //             this[i] = Mac = CreateMacTag(CalcMacValue(macAlgorithm, key));
+    //             break;
+    //         }
+    //     }
+    // }
+    // private DataHash CalcMacValue(HashAlgorithm macAlgorithm, byte[] key)
+    // {
+    //     MemoryStream stream = new MemoryStream();
+    //     using (TlvWriter writer = new TlvWriter(stream))
+    //     {
+    //         writer.WriteTag(this);
+    //
+    //         return CalcMacValue(stream.ToArray(), macAlgorithm, key);
+    //     }
+    // }
+    // private static DataHash CalcMacValue(byte[] pduBytes, HashAlgorithm macAlgorithm, byte[] key)
+    // {
+    //     byte[] target = pduBytes.Length < macAlgorithm.Length ? new byte[0] : new byte[pduBytes.Length - macAlgorithm.Length];
+    //     Array.Copy(pduBytes, 0, target, 0, target.Length);
+    //
+    //     IHmacHasher hasher = KsiProvider.CreateHmacHasher(macAlgorithm);
+    //     return hasher.GetHash(key, target);
+    // }
+    // private static ImprintTag CreateMacTag(DataHash dataHash)
+    // {
+    //     return new ImprintTag(Constants.Pdu.MacTagType, false, false, dataHash);
+    // }
+    // protected static ImprintTag GetEmptyMacTag(HashAlgorithm macAlgorithm)
+    // {
+    //     if (macAlgorithm == null)
+    //     {
+    //         throw new ArgumentNullException(nameof(macAlgorithm));
+    //     }
+    //
+    //     byte[] imprintBytes = new byte[macAlgorithm.Length + 1];
+    //     imprintBytes[0] = macAlgorithm.Id;
+    //     return CreateMacTag(new DataHash(imprintBytes));
+    // }
+    //
+    // public static bool ValidateMac(byte[] pduBytes, ImprintTag mac, byte[] key)
+    // {
+    //     if (pduBytes == null)
+    //     {
+    //         throw new ArgumentNullException(nameof(pduBytes));
+    //     }
+    //
+    //     if (mac == null)
+    //     {
+    //         throw new ArgumentNullException(nameof(mac));
+    //     }
+    //
+    //     if (pduBytes.Length < mac.Value.Algorithm.Length)
+    //     {
+    //         Logger.Warn("PDU MAC validation failed. PDU bytes array is too short to contain given MAC.");
+    //         return false;
+    //     }
+    //
+    //     DataHash calculatedMac = CalcMacValue(pduBytes, mac.Value.Algorithm, key);
+    //
+    //     if (!calculatedMac.Equals(mac.Value))
+    //     {
+    //         Logger.Warn("PDU MAC validation failed. Calculated MAC and given MAC do not match.");
+    //         return false;
+    //     }
+    //
+    //     return true;
+    // }
+    function Pdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.payloads = [];
+        return _this;
+    }
+    // TODO: Change TLVTag to PduPayload
+    Pdu.CREATE_PDU = function (tagType, header, payload, algorithm, key) {
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            var pduBytes, _a, _b;
+            return KsiService_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        pduBytes = CompositeTag_CompositeTag.createCompositeTagTlv(tagType, false, false, [
+                            header,
+                            payload,
+                            ImprintTag_ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash_DataHash.create(algorithm, new Uint8Array(algorithm.length)))
+                        ]).encode();
+                        _b = (_a = pduBytes).set;
+                        return [4 /*yield*/, WebHMAC_WebHMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length))];
+                    case 1:
+                        _b.apply(_a, [_c.sent(), pduBytes.length - algorithm.length]);
+                        return [2 /*return*/, new TlvInputStream_TlvInputStream(pduBytes).readTag()];
+                }
+            });
+        });
+    };
+    Pdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_HEADER_CONSTANTS.TagType:
+                // _headerIndex = Count;
+                return this.header = new KsiService_PduHeader(tlvTag);
+            case PDU_CONSTANTS.MacTagType:
+                // _macIndex = Count;
+                return this.hmac = new ImprintTag_ImprintTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    Pdu.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
+            throw new TlvError('Exactly one login id must exist in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
+            throw new TlvError('Only one instance id is allowed in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
+            throw new TlvError('Only one message id is allowed in PDU header.');
+        }
+    };
+    return Pdu;
+}(CompositeTag_CompositeTag));
+var KsiService_AggregationRequestPdu = /** @class */ (function (_super) {
+    KsiService_extends(AggregationRequestPdu, _super);
+    function AggregationRequestPdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationRequestPdu.CREATE = function (header, payload, algorithm, key) {
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            var _a;
+            return KsiService_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = AggregationRequestPdu.bind;
+                        return [4 /*yield*/, KsiService_Pdu.CREATE_PDU(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
+                    case 1: return [2 /*return*/, new (_a.apply(AggregationRequestPdu, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    AggregationRequestPdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                var aggregationRequestPayload = new KsiService_AggregationRequestPayload(tlvTag);
+                this.payloads.push(aggregationRequestPayload);
+                return aggregationRequestPayload;
+            case AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                // TODO: Replace
+                return new TlvTag_TlvTag(0, false, false, new Uint8Array(0));
+            // AggregatorConfigRequestPayload; aggregatorConfigRequestPayload = childTag as AggregatorConfigRequestPayload ? ? new AggregatorConfigRequestPayload(childTag) ;
+            // Payloads.Add(aggregatorConfigRequestPayload);
+            // return aggregatorConfigRequestPayload;
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    AggregationRequestPdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
+            throw new TlvError('Exactly one login id must exist in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
+            throw new TlvError('Only one instance id is allowed in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
+            throw new TlvError('Only one message id is allowed in PDU header.');
+        }
+    };
+    return AggregationRequestPdu;
+}(KsiService_Pdu));
+var SigningServiceProtocol = /** @class */ (function () {
+    function SigningServiceProtocol(signingUrl) {
+        this.signingUrl = signingUrl;
+    }
+    SigningServiceProtocol.prototype.sign = function (data) {
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            var headers, response, _a;
+            return KsiService_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        headers = new Headers();
+                        headers.append('Content-Type', 'application/ksi-request');
+                        headers.append('Content-Length', data.length.toString());
+                        return [4 /*yield*/, fetch(this.signingUrl, {
+                                method: 'POST',
+                                body: data,
+                                headers: headers
+                            })];
+                    case 1:
+                        response = _b.sent();
+                        _a = Uint8Array.bind;
+                        return [4 /*yield*/, response.arrayBuffer()];
+                    case 2: return [2 /*return*/, new (_a.apply(Uint8Array, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    return SigningServiceProtocol;
+}());
+
+/**
+ * KSI service.
+ */
+var KsiService_KsiService = /** @class */ (function () {
+    function KsiService(signingServiceProtocol, signingServiceCredentials) {
+        // extendingServiceProtocol: ExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials,
+        // publicationsFileServiceProtocol: PublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory) {
+        this.signingServiceProtocol = signingServiceProtocol;
+        this.signingServiceCredentials = signingServiceCredentials;
+        // this.extendingServiceProtocol = extendingServiceProtocol;
+        // this.extendingServiceCredentials = extendingServiceCredentials;
+        // this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
+        // this.publicationsFileFactory = publicationsFileFactory;
+    }
+    KsiService.prototype.sign = function (hash, level) {
+        if (level === void 0) { level = BigInteger_default()(0); }
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            var header, requestId, payload, pdu;
+            return KsiService_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!(hash instanceof DataHash_DataHash)) {
+                            throw new KsiServiceError("Invalid hash: " + hash);
+                        }
+                        if (!BigInteger_default.a.isInstance(level)) {
+                            throw new KsiServiceError("Invalid level: " + level + ", must be BigInteger");
+                        }
+                        header = KsiService_PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
+                        requestId = pseudoRandomLong();
+                        payload = KsiService_AggregationRequestPayload.CREATE(requestId, hash, level);
+                        return [4 /*yield*/, KsiService_AggregationRequestPdu.CREATE(header, payload, this.signingServiceCredentials.getHmacAlgorithm(), this.signingServiceCredentials.getLoginKey())];
+                    case 1:
+                        pdu = _a.sent();
+                        this.signingServiceProtocol.sign(pdu.encode());
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return KsiService;
+}());
+
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/main.mjs
+// Crypto package
+
+
+
+// Coders
+
+
+
+
+// CRC32
+
+// String utils
+
+
+// Math
+
+// Hash package
+
+
+
+
+// Models
+
+
 // CONCATENATED MODULE: ./src/main.ts
 /* concated harmony reexport PublicationsFileFactory */__webpack_require__.d(__webpack_exports__, "PublicationsFileFactory", function() { return PublicationsFileFactory_PublicationsFileFactory; });
 /* concated harmony reexport KsiSignature */__webpack_require__.d(__webpack_exports__, "KsiSignature", function() { return KsiSignature_KsiSignature; });
@@ -56933,9 +57555,16 @@ var KeyBasedVerificationPolicy_KeyBasedVerificationPolicy = /** @class */ (funct
 /* concated harmony reexport PublicationBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationBasedVerificationPolicy", function() { return PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy; });
 /* concated harmony reexport VerificationContext */__webpack_require__.d(__webpack_exports__, "VerificationContext", function() { return VerificationContext_VerificationContext; });
 /* concated harmony reexport KeyBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "KeyBasedVerificationPolicy", function() { return KeyBasedVerificationPolicy_KeyBasedVerificationPolicy; });
+/* concated harmony reexport KsiService */__webpack_require__.d(__webpack_exports__, "KsiService", function() { return KsiService_KsiService; });
+/* concated harmony reexport SigningServiceProtocol */__webpack_require__.d(__webpack_exports__, "SigningServiceProtocol", function() { return SigningServiceProtocol; });
+/* concated harmony reexport ServiceCredentials */__webpack_require__.d(__webpack_exports__, "ServiceCredentials", function() { return KsiService_ServiceCredentials; });
+/* concated harmony reexport DataHash */__webpack_require__.d(__webpack_exports__, "DataHash", function() { return DataHash_DataHash; });
+/* concated harmony reexport HashAlgorithm */__webpack_require__.d(__webpack_exports__, "HashAlgorithm", function() { return HashAlgorithm_HashAlgorithm; });
 /**
  * KSI Javascript API externally visible classes
  */
+
+
 
 
 
