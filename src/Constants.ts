@@ -56,6 +56,10 @@ type CalendarHashChainConstants = Readonly<{
     InputHashTagType: number;
 }>;
 
+type PduHeaderConstants = Readonly<{ TagType: number; LoginIdTagType: number; InstanceIdTagType: number; MessageIdTagType: number }>;
+type PduPayloadConstants = Readonly<{ RequestIdTagType: number; StatusTagType: number; ErrorMessageTagType: number }>;
+type AggregationRequestPayloadConstants = Readonly<{ TagType: number; RequestHashTagType: number; RequestLevelTagType: number }>;
+
 /**
  * TLV stream constants
  */
@@ -170,7 +174,7 @@ export const RFC_3161_RECORD_CONSTANTS: Rfc3161RecordConstants = Object.freeze({
     SignedAttributesAlgorithmTagType: 0x15
 });
 
-export const SIGNATURE_DATA_CONSTANTS: SignatureDataConstants  = Object.freeze({
+export const SIGNATURE_DATA_CONSTANTS: SignatureDataConstants = Object.freeze({
     TagType: 0xB,
 
     SignatureTypeTagType: 0x1,
@@ -178,6 +182,41 @@ export const SIGNATURE_DATA_CONSTANTS: SignatureDataConstants  = Object.freeze({
     CertificateIdTagType: 0x3,
     CertificateRepositoryUriTagType: 0x4
 });
+
+export const PDU_HEADER_CONSTANTS: PduHeaderConstants = Object.freeze({
+    TagType: 0x1,
+
+    LoginIdTagType: 0x1,
+    InstanceIdTagType: 0x2,
+    MessageIdTagType: 0x3
+});
+
+export const PDU_PAYLOAD_CONSTANTS: PduPayloadConstants = Object.freeze({
+    RequestIdTagType: 0x1,
+    StatusTagType: 0x4,
+    ErrorMessageTagType: 0x5
+});
+
+export const AGGREGATION_REQUEST_PAYLOAD_CONSTANTS: AggregationRequestPayloadConstants = Object.freeze({
+    TagType: 0x2,
+
+    RequestHashTagType: 0x2,
+    RequestLevelTagType: 0x3
+});
+
+export const AGGREGATION_REQUEST_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x220
+});
+
+export const AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x4
+});
+
+export const PDU_CONSTANTS: Readonly<{ MacTagType: number }> = Object.freeze({
+    MacTagType: 0x1F
+});
+
+
 
 export enum LinkDirection {
     Left = 0x7,
