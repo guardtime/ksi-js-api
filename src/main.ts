@@ -7,5 +7,7 @@ export {TlvInputStream} from './parser/TlvInputStream';
 export {PublicationBasedVerificationPolicy} from './signature/verification/policy/PublicationBasedVerificationPolicy';
 export {VerificationContext} from './signature/verification/VerificationContext';
 export {KeyBasedVerificationPolicy} from './signature/verification/policy/KeyBasedVerificationPolicy';
-export {KsiService, SigningServiceProtocol, ServiceCredentials} from './service/KsiService';
+export {KsiService} from './service/KsiService';
 export {DataHash, HashAlgorithm} from 'gt-js-common';
+export {SigningServiceProtocol} from './service/SigningServiceProtocol';
+export {ServiceCredentials} from './service/ServiceCredentials';

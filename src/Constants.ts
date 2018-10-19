@@ -152,7 +152,9 @@ export const CALENDAR_HASH_CHAIN_CONSTANTS: CalendarHashChainConstants = Object.
     InputHashTagType: 0x5
 });
 
-export const KSI_SIGNATURE_CONSTANTS: Readonly<{ PublicationRecordTagType: number }> = Object.freeze({
+export const KSI_SIGNATURE_CONSTANTS: Readonly<{ TagType: number; PublicationRecordTagType: number }> = Object.freeze({
+    TagType: 0x800,
+
     PublicationRecordTagType: 0x803
 });
 
@@ -206,6 +208,32 @@ export const AGGREGATION_REQUEST_PAYLOAD_CONSTANTS: AggregationRequestPayloadCon
 
 export const AGGREGATION_REQUEST_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
     TagType: 0x220
+});
+
+export const AGGREGATION_RESPONSE_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x221
+});
+
+export const AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x2
+});
+
+export const ERROR_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x3
+});
+
+export const AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number; MaxLevelTagType: number; AggregationAlgorithmTagType: number; AggregationPeriodTagType: number; MaxRequestsTagType: number; ParentUriTagType: number }> = Object.freeze({
+    TagType: 0x4,
+
+    MaxLevelTagType: 0x1,
+    AggregationAlgorithmTagType: 0x2,
+    AggregationPeriodTagType: 0x3,
+    MaxRequestsTagType: 0x4,
+    ParentUriTagType: 0x5
+});
+
+export const AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x5
 });
 
 export const AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({

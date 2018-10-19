@@ -11,6 +11,8 @@ import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationRecord} from '../publication/PublicationRecord';
+import {AggregationResponsePayload} from '../service/AggregationResponsePayload';
+import {AggregationResponsePdu} from '../service/AggregationResponsePdu';
 import {AggregationHashChain, AggregationHashResult} from './AggregationHashChain';
 import {CalendarAuthenticationRecord} from './CalendarAuthenticationRecord';
 import {CalendarHashChain} from './CalendarHashChain';
@@ -33,6 +35,11 @@ export class KsiSignature extends CompositeTag {
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
+    }
+
+    public static CREATE(payload: AggregationResponsePayload): KsiSignature {
+        return new KsiSignature(CompositeTag.createCompositeTagTlv(KSI_SIGNATURE_CONSTANTS.TagType, false, false,
+                                                                   payload.getSignatureTags()));
     }
 
     public getPublicationRecord(): PublicationRecord | null {
