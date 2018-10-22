@@ -12,7 +12,6 @@ import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationRecord} from '../publication/PublicationRecord';
 import {AggregationResponsePayload} from '../service/AggregationResponsePayload';
-import {AggregationResponsePdu} from '../service/AggregationResponsePdu';
 import {AggregationHashChain, AggregationHashResult} from './AggregationHashChain';
 import {CalendarAuthenticationRecord} from './CalendarAuthenticationRecord';
 import {CalendarHashChain} from './CalendarHashChain';

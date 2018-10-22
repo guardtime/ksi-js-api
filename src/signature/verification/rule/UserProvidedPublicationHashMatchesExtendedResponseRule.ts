@@ -16,7 +16,8 @@ export class UserProvidedPublicationHashMatchesExtendedResponseRule extends Veri
             throw new KsiVerificationError('Invalid user publication in context: null.');
         }
 
-        const extendedCalendarHashChain: CalendarHashChain = context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
+        const extendedCalendarHashChain: CalendarHashChain =
+            await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
 
         return (await extendedCalendarHashChain.calculateOutputHash()).equals(userPublication.getPublicationHash())
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)

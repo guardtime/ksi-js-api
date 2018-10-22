@@ -1,12 +1,12 @@
 import {HashAlgorithm} from 'gt-js-common';
-import {KsiServiceError} from './KsiServiceError';
 import {IServiceCredentials} from './IServiceCredentials';
+import {KsiServiceError} from './KsiServiceError';
 
 /**
  * Service credentials class for KSI service
  */
 export class ServiceCredentials implements IServiceCredentials {
-    private hmacAlgorithm: HashAlgorithm;
+    private readonly hmacAlgorithm: HashAlgorithm;
     private readonly loginId: string;
     private readonly loginKey: Uint8Array;
 

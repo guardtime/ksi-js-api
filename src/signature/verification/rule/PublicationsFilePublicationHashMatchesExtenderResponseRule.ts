@@ -25,7 +25,8 @@ export class PublicationsFilePublicationHashMatchesExtenderResponseRule extends 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02);
         }
 
-        const extendedCalendarHashChain: CalendarHashChain = context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
+        const extendedCalendarHashChain: CalendarHashChain =
+            await context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
 
         return !(await extendedCalendarHashChain.calculateOutputHash()).equals(publicationRecord.getPublicationHash())
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)

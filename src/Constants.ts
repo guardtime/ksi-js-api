@@ -222,7 +222,15 @@ export const ERROR_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.fre
     TagType: 0x3
 });
 
-export const AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number; MaxLevelTagType: number; AggregationAlgorithmTagType: number; AggregationPeriodTagType: number; MaxRequestsTagType: number; ParentUriTagType: number }> = Object.freeze({
+type AggregatorConfigResponsePayloadConstants = Readonly<{
+    TagType: number;
+    MaxLevelTagType: number;
+    AggregationAlgorithmTagType: number;
+    AggregationPeriodTagType: number;
+    MaxRequestsTagType: number;
+    ParentUriTagType: number;
+}>;
+export const AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: AggregatorConfigResponsePayloadConstants = Object.freeze({
     TagType: 0x4,
 
     MaxLevelTagType: 0x1,
@@ -240,7 +248,8 @@ export const AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: nu
     TagType: 0x4
 });
 
-export const EXTEND_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: number; AggregationTimeTagType: number; PublicationTimeTagType: number }> = Object.freeze({
+type ExtendRequestPayloadConstants = Readonly<{ TagType: number; AggregationTimeTagType: number; PublicationTimeTagType: number }>;
+export const EXTEND_REQUEST_PAYLOAD_CONSTANTS: ExtendRequestPayloadConstants = Object.freeze({
     TagType: 0x2,
 
     AggregationTimeTagType: 0x2,
@@ -265,7 +274,14 @@ export const EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: numb
     TagType: 0x4
 });
 
-export const EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number; MaxRequestsTagType: number; ParentUriTagType: number; CalendarFirstTimeTagType: number; CalendarLastTimeTagType: number }> = Object.freeze({
+type ExtenderConfigResponsePayloadConstants = Readonly<{
+    TagType: number;
+    MaxRequestsTagType: number;
+    ParentUriTagType: number;
+    CalendarFirstTimeTagType: number;
+    CalendarLastTimeTagType: number;
+}>;
+export const EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: ExtenderConfigResponsePayloadConstants = Object.freeze({
     TagType: 0x4,
 
     MaxRequestsTagType: 0x4,

@@ -26,7 +26,8 @@ export class PublicationsFilePublicationTimeMatchesExtenderResponseRule extends 
                                             ${signature.getAggregationTime()}.`);
         }
 
-        const extendedCalendarHashChain: CalendarHashChain = context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
+        const extendedCalendarHashChain: CalendarHashChain =
+            await context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
 
         if (publicationRecord.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02);

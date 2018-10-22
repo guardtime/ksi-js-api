@@ -3,25 +3,15 @@
  */
 import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash} from 'gt-js-common';
-import {TlvTag} from '../../parser/TlvTag';
 import {PublicationData} from '../../publication/PublicationData';
 import {PublicationsFile} from '../../publication/PublicationsFile';
+import {KsiService} from '../../service/KsiService';
 import {CalendarHashChain} from '../CalendarHashChain';
 import {KsiSignature} from '../KsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
 
-export class KsiService {
-    constructor() {
-        return;
-    }
-
-    public extend(aggregationTime: bigInteger.BigInteger, publicationTime: bigInteger.BigInteger | null): CalendarHashChain {
-        return new CalendarHashChain(new TlvTag(0, false, false, new Uint8Array(0)));
-    }
-}
-
 export class VerificationContext {
-    private ksiService: KsiService;
+    private ksiService: KsiService | null;
     private readonly ksiSignature: KsiSignature;
     private documentHash: DataHash | null = null;
     private publicationsFile: PublicationsFile | null = null;
@@ -34,7 +24,6 @@ export class VerificationContext {
         }
 
         this.ksiSignature = signature;
-
     }
 
     public getSignature(): KsiSignature {
@@ -44,14 +33,14 @@ export class VerificationContext {
     /**
      * Get extended latest calendar hash chain.
      */
-    public getExtendedLatestCalendarHashChain(): CalendarHashChain {
+    public async getExtendedLatestCalendarHashChain(): Promise<CalendarHashChain> {
         return this.getExtendedCalendarHashChain(null);
     }
 
     /**
      * Get extended calendar hash chain from given publication time.
      */
-    public getExtendedCalendarHashChain(publicationTime: bigInteger.BigInteger | null): CalendarHashChain {
+    public async getExtendedCalendarHashChain(publicationTime: bigInteger.BigInteger | null): Promise<CalendarHashChain> {
         if (!(this.ksiService instanceof KsiService)) {
             throw new KsiVerificationError('Invalid KSI service in context.');
         }
@@ -71,10 +60,18 @@ export class VerificationContext {
     }
 
     public setDocumentHash(documentHash: DataHash | null): void {
-        if (documentHash === null || !(documentHash instanceof DataHash)) {
+        if (documentHash !== null && !(documentHash instanceof DataHash)) {
             throw new KsiVerificationError(`Invalid document hash: ${documentHash}`);
         }
         this.documentHash = documentHash;
+    }
+
+    public setKsiService(ksiService: KsiService | null): void {
+        if (ksiService !== null && !(ksiService instanceof KsiService)) {
+            throw new KsiVerificationError(`Invalid ksi service: ${ksiService}`);
+        }
+
+        this.ksiService = ksiService;
     }
 
     /**
@@ -89,7 +86,7 @@ export class VerificationContext {
     }
 
     public setPublicationsFile(publicationsFile: PublicationsFile | null): void {
-        if (publicationsFile === null || !(publicationsFile instanceof PublicationsFile)) {
+        if (publicationsFile !== null && !(publicationsFile instanceof PublicationsFile)) {
             throw new KsiVerificationError(`Invalid publications file: ${publicationsFile}`);
         }
 
@@ -101,7 +98,7 @@ export class VerificationContext {
     }
 
     public setUserPublication(publicationData: PublicationData | null): void {
-        if (publicationData === null || !(publicationData instanceof PublicationData)) {
+        if (publicationData !== null && !(publicationData instanceof PublicationData)) {
             throw new KsiVerificationError(`Invalid publications file: ${publicationData}`);
         }
 

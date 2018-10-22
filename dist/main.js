@@ -52695,7 +52695,1996 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
 }(CompositeTag_CompositeTag));
 
 
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/random/RandomUtil.js
+
+const pseudoRandomLong = () => {
+    return BigInteger_default.a.randBetween(0, 9223372036854775807);
+};
+
+// CONCATENATED MODULE: ./src/service/KsiServiceError.ts
+var KsiServiceError_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+ * KSI Service related error
+ */
+var KsiServiceError = /** @class */ (function (_super) {
+    KsiServiceError_extends(KsiServiceError, _super);
+    function KsiServiceError(message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = 'KsiServiceError';
+        Object.setPrototypeOf(_this, KsiServiceError.prototype);
+        return _this;
+    }
+    return KsiServiceError;
+}(Error));
+
+
+// CONCATENATED MODULE: ./src/service/PduPayload.ts
+var PduPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Base class for PDU payloads
+ */
+var PduPayload = /** @class */ (function (_super) {
+    PduPayload_extends(PduPayload, _super);
+    function PduPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return PduPayload;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/service/KsiRequest.ts
+
+
+/**
+ * KSI request for PDU exchanging with KSI servers.
+ */
+var KsiRequest_KsiRequest = /** @class */ (function () {
+    function KsiRequest(requestBytes) {
+        this.abortController = new AbortController();
+        if (!(requestBytes instanceof Uint8Array)) {
+            throw new KsiServiceError("Invalid request bytes: " + requestBytes);
+        }
+        this.requestBytes = requestBytes;
+    }
+    KsiRequest.prototype.abort = function (responsePdu) {
+        if (!(responsePdu instanceof PduPayload)) {
+            throw new KsiServiceError("Invalid response bytes: " + responsePdu);
+        }
+        this.responsePdu = responsePdu;
+        this.abortController.abort();
+    };
+    KsiRequest.prototype.getResponsePdu = function () {
+        return this.responsePdu;
+    };
+    KsiRequest.prototype.getRequestBytes = function () {
+        return this.requestBytes;
+    };
+    KsiRequest.prototype.getAbortSignal = function () {
+        return this.abortController.signal;
+    };
+    return KsiRequest;
+}());
+
+
+// CONCATENATED MODULE: ./src/service/ExtendingServiceProtocol.ts
+var ExtendingServiceProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var ExtendingServiceProtocol_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+/**
+ * HTTP extending service protocol
+ */
+var ExtendingServiceProtocol_ExtendingServiceProtocol = /** @class */ (function () {
+    function ExtendingServiceProtocol(extendingUrl) {
+        this.extendingUrl = extendingUrl;
+    }
+    ExtendingServiceProtocol.prototype.extend = function (request) {
+        return ExtendingServiceProtocol_awaiter(this, void 0, void 0, function () {
+            var headers, response, _a;
+            return ExtendingServiceProtocol_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!(request instanceof KsiRequest_KsiRequest)) {
+                            throw new KsiServiceError("Invalid KSI request: " + request);
+                        }
+                        headers = new Headers();
+                        headers.append('Content-Type', 'application/ksi-request');
+                        headers.append('Content-Length', request.getRequestBytes().length.toString());
+                        return [4 /*yield*/, fetch(this.extendingUrl, {
+                                method: 'POST',
+                                body: request.getRequestBytes(),
+                                headers: headers,
+                                signal: request.getAbortSignal()
+                            })];
+                    case 1:
+                        response = _b.sent();
+                        if (request.getAbortSignal().aborted) {
+                            return [2 /*return*/, null];
+                        }
+                        _a = Uint8Array.bind;
+                        return [4 /*yield*/, response.arrayBuffer()];
+                    case 2: return [2 /*return*/, new (_a.apply(Uint8Array, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    return ExtendingServiceProtocol;
+}());
+
+
+// CONCATENATED MODULE: ./src/service/ExtendRequestPayload.ts
+var ExtendRequestPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Aggregation request payload
+ */
+var ExtendRequestPayload_ExtendRequestPayload = /** @class */ (function (_super) {
+    ExtendRequestPayload_extends(ExtendRequestPayload, _super);
+    function ExtendRequestPayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtendRequestPayload.CREATE = function (requestId, aggregationTime, publicationTime) {
+        if (publicationTime === void 0) { publicationTime = null; }
+        if (!BigInteger_default.a.isInstance(requestId)) {
+            throw new TlvError("Invalid requestId: " + requestId);
+        }
+        if (!BigInteger_default.a.isInstance(aggregationTime)) {
+            throw new TlvError("Invalid aggregation time: " + aggregationTime);
+        }
+        if (publicationTime !== null && !BigInteger_default.a.isInstance(publicationTime)) {
+            throw new TlvError("Invalid publication time: " + publicationTime);
+        }
+        var childTlv = [
+            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
+            IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType, false, false, aggregationTime)
+        ];
+        if (publicationTime !== null) {
+            childTlv.push(IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType, false, false, publicationTime));
+        }
+        return new ExtendRequestPayload(CompositeTag_CompositeTag.createCompositeTagTlv(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+    };
+    ExtendRequestPayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
+            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType:
+                return this.aggregationTime = new IntegerTag_IntegerTag(tlvTag);
+            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType:
+                return this.publicationTime = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    ExtendRequestPayload.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+            throw new TlvError('Exactly one request id must exist in extend request payload.');
+        }
+        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType] !== 1) {
+            throw new TlvError('Exactly one aggregation time must exist in extend request payload.');
+        }
+        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType] > 1) {
+            throw new TlvError('Only one publication time is allowed in extend request payload.');
+        }
+    };
+    return ExtendRequestPayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/WebHMAC.js
+
+class WebHMAC_WebHMAC {
+    /**
+     * @param {HashAlgorithm} algorithm
+     * @param {Uint8Array} key
+     * @param {Uint8Array} data
+     * @returns {Promise.<Uint8Array, Error>}
+     */
+    static digest(algorithm, key, data) {
+        if (!(algorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            return Promise.reject(new Error(`Invalid hash algorithm, must be HashAlgorithm but is ${typeof data}`));
+        }
+        if (!(key instanceof Uint8Array)) {
+            return Promise.reject(new Error(`Invalid key, must be Uint8Array but is ${typeof key}`));
+        }
+        if (!(data instanceof Uint8Array)) {
+            return Promise.reject(new Error(`Invalid data, must be Uint8Array but is ${typeof data}`));
+        }
+        return window.crypto.subtle.importKey('raw', key, {
+            name: 'HMAC',
+            hash: { name: algorithm.name },
+        }, false, ['sign']).then(key => window.crypto.subtle.sign('HMAC', key, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer)));
+    }
+}
+
+// CONCATENATED MODULE: ./src/service/ResponsePayload.ts
+var ResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * PDU payload base class for responses
+ */
+var ResponsePayload_ResponsePayload = /** @class */ (function (_super) {
+    ResponsePayload_extends(ResponsePayload, _super);
+    function ResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.errorMessage = null;
+        return _this;
+    }
+    ResponsePayload.prototype.getStatus = function () {
+        return this.status.getValue();
+    };
+    ResponsePayload.prototype.getErrorMessage = function () {
+        return this.errorMessage !== null ? this.errorMessage.getValue() : null;
+    };
+    ResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.StatusTagType:
+                return this.status = new IntegerTag_IntegerTag(tlvTag);
+            case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
+                return this.errorMessage = new StringTag_StringTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    ResponsePayload.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.StatusTagType] !== 1) {
+            throw new TlvError('Exactly one status code must exist in response payload.');
+        }
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType] > 1) {
+            throw new TlvError('Only one error message is allowed in response payload.');
+        }
+    };
+    return ResponsePayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/service/ErrorPayload.ts
+var ErrorPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * KSI service error response payload.
+ */
+var ErrorPayload = /** @class */ (function (_super) {
+    ErrorPayload_extends(ErrorPayload, _super);
+    function ErrorPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return ErrorPayload;
+}(ResponsePayload_ResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/service/PduHeader.ts
+var PduHeader_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+/**
+ * PDU header class
+ */
+var PduHeader_PduHeader = /** @class */ (function (_super) {
+    PduHeader_extends(PduHeader, _super);
+    function PduHeader(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    PduHeader.CREATE_FROM_LOGIN_ID = function (loginId) {
+        if ((typeof loginId) !== 'string') {
+            throw new TlvError("Invalid loginId: " + loginId);
+        }
+        return new PduHeader(CompositeTag_CompositeTag.createCompositeTagTlv(PDU_HEADER_CONSTANTS.TagType, false, false, [
+            StringTag_StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
+        ]));
+    };
+    PduHeader.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_HEADER_CONSTANTS.LoginIdTagType:
+                return this.loginId = new StringTag_StringTag(tlvTag);
+            case PDU_HEADER_CONSTANTS.InstanceIdTagType:
+                return this.instanceId = new IntegerTag_IntegerTag(tlvTag);
+            case PDU_HEADER_CONSTANTS.MessageIdTagType:
+                return this.messageId = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    PduHeader.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
+            throw new TlvError('Exactly one login id must exist in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
+            throw new TlvError('Only one instance id is allowed in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
+            throw new TlvError('Only one message id is allowed in PDU header.');
+        }
+    };
+    return PduHeader;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/service/Pdu.ts
+var Pdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Pdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Pdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+/**
+ * PDU base classs
+ */
+var Pdu_Pdu = /** @class */ (function (_super) {
+    Pdu_extends(Pdu, _super);
+    function Pdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.payloads = [];
+        _this.errorPayload = null;
+        return _this;
+    }
+    Pdu.create = function (tagType, header, payload, algorithm, key) {
+        return Pdu_awaiter(this, void 0, void 0, function () {
+            var pduBytes, _a, _b;
+            return Pdu_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        pduBytes = CompositeTag_CompositeTag.createCompositeTagTlv(tagType, false, false, [
+                            header,
+                            payload,
+                            ImprintTag_ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash_DataHash.create(algorithm, new Uint8Array(algorithm.length)))
+                        ]).encode();
+                        _b = (_a = pduBytes).set;
+                        return [4 /*yield*/, WebHMAC_WebHMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length))];
+                    case 1:
+                        _b.apply(_a, [_c.sent(), pduBytes.length - algorithm.length]);
+                        return [2 /*return*/, new TlvInputStream_TlvInputStream(pduBytes).readTag()];
+                }
+            });
+        });
+    };
+    Pdu.prototype.getErrorPayload = function () {
+        return this.errorPayload;
+    };
+    Pdu.prototype.getPayloads = function () {
+        return this.payloads;
+    };
+    Pdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_HEADER_CONSTANTS.TagType:
+                return this.header = new PduHeader_PduHeader(tlvTag);
+            case PDU_CONSTANTS.MacTagType:
+                return this.hmac = new ImprintTag_ImprintTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    Pdu.prototype.validate = function (tagCount) {
+        if (ErrorPayload != null) {
+            return;
+        }
+        if (this.payloads.length === 0) {
+            throw new TlvError('Payloads are missing in PDU.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.TagType] !== 1) {
+            throw new TlvError('Exactly one header must exist in PDU.');
+        }
+        if (this.value[0] !== this.header) {
+            throw new TlvError('Header must be the first element in PDU.');
+        }
+        if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
+            throw new TlvError('Exactly one MAC must exist in PDU');
+        }
+        if (this.value[this.value.length - 1] !== this.hmac) {
+            throw new TlvError('MAC must be the last element in PDU');
+        }
+    };
+    return Pdu;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/service/ExtendRequestPdu.ts
+var ExtendRequestPdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var ExtendRequestPdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var ExtendRequestPdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+var ExtenderConfigRequestPayload = /** @class */ (function (_super) {
+    ExtendRequestPdu_extends(ExtenderConfigRequestPayload, _super);
+    function ExtenderConfigRequestPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return ExtenderConfigRequestPayload;
+}(PduPayload));
+/**
+ * Extend request PDU
+ */
+var ExtendRequestPdu_ExtendRequestPdu = /** @class */ (function (_super) {
+    ExtendRequestPdu_extends(ExtendRequestPdu, _super);
+    function ExtendRequestPdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtendRequestPdu.CREATE = function (header, payload, algorithm, key) {
+        return ExtendRequestPdu_awaiter(this, void 0, void 0, function () {
+            var _a;
+            return ExtendRequestPdu_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = ExtendRequestPdu.bind;
+                        return [4 /*yield*/, Pdu_Pdu.create(EXTEND_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
+                    case 1: return [2 /*return*/, new (_a.apply(ExtendRequestPdu, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    ExtendRequestPdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                var extendRequestPayload = new ExtendRequestPayload_ExtendRequestPayload(tlvTag);
+                this.payloads.push(extendRequestPayload);
+                return extendRequestPayload;
+            case EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                return this.extenderConfigRequest = new ExtenderConfigRequestPayload(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    ExtendRequestPdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config request payload is allowed in PDU.');
+        }
+    };
+    return ExtendRequestPdu;
+}(Pdu_Pdu));
+
+
+// CONCATENATED MODULE: ./src/service/RequestResponsePayload.ts
+var RequestResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+/**
+ * PDU payload base class for requested responses
+ */
+var RequestResponsePayload_RequestResponsePayload = /** @class */ (function (_super) {
+    RequestResponsePayload_extends(RequestResponsePayload, _super);
+    function RequestResponsePayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    RequestResponsePayload.prototype.getRequestId = function () {
+        return this.requestId.getValue();
+    };
+    RequestResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    RequestResponsePayload.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+            throw new TlvError('Exactly one request id must exist in response payload.');
+        }
+    };
+    return RequestResponsePayload;
+}(ResponsePayload_ResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/service/ExtendResponsePayload.ts
+var ExtendResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+/**
+ * Extend response payload
+ */
+var ExtendResponsePayload_ExtendResponsePayload = /** @class */ (function (_super) {
+    ExtendResponsePayload_extends(ExtendResponsePayload, _super);
+    function ExtendResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtendResponsePayload.prototype.getCalendarHashChain = function () {
+        return this.getCalendarHashChain();
+    };
+    ExtendResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
+                return this.calendarLastTime = new IntegerTag_IntegerTag(tlvTag);
+            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
+                return this.calendarHashChain = new CalendarHashChain_CalendarHashChain(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    ExtendResponsePayload.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
+            throw new TlvError('Only one calendar last time is allowed in extend response payload.');
+        }
+        if (this.getStatus().eq(0) && tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] !== 1) {
+            throw new TlvError('Exactly one calendar hash chain must exist in extend response payload.');
+        }
+    };
+    return ExtendResponsePayload;
+}(RequestResponsePayload_RequestResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/service/ExtenderConfigResponsePayload.ts
+var ExtenderConfigResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Aggregator configuration response payload.
+ */
+var ExtenderConfigResponsePayload_ExtenderConfigResponsePayload = /** @class */ (function (_super) {
+    ExtenderConfigResponsePayload_extends(ExtenderConfigResponsePayload, _super);
+    function ExtenderConfigResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.parentUriList = [];
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtenderConfigResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
+                return this.maxRequests = new IntegerTag_IntegerTag(tlvTag);
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.ParentUriTagType:
+                var uriTag = new StringTag_StringTag(tlvTag);
+                this.parentUriList.push(uriTag);
+                return uriTag;
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType:
+                return this.calendarFirstTime = new IntegerTag_IntegerTag(tlvTag);
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
+                return this.calendarLastTime = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    ExtenderConfigResponsePayload.prototype.validate = function (tagCount) {
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
+            throw new TlvError('Only one max requests tag is allowed in extender config response payload.');
+        }
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType] > 1) {
+            throw new TlvError('Only one calendar first time tag is allowed in extender config response payload.');
+        }
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
+            throw new TlvError('Only one calendar last time tag is allowed in extender config response payload.');
+        }
+    };
+    return ExtenderConfigResponsePayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/service/ExtendErrorPayload.ts
+var ExtendErrorPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Extends Error payload TLV element.
+ */
+var ExtendErrorPayload = /** @class */ (function (_super) {
+    ExtendErrorPayload_extends(ExtendErrorPayload, _super);
+    function ExtendErrorPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return ExtendErrorPayload;
+}(ErrorPayload));
+
+
+// CONCATENATED MODULE: ./src/service/ExtendResponsePdu.ts
+var ExtendResponsePdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Extend response PDU
+ */
+var ExtendResponsePdu_ExtendResponsePdu = /** @class */ (function (_super) {
+    ExtendResponsePdu_extends(ExtendResponsePdu, _super);
+    function ExtendResponsePdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtendResponsePdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                var extendResponsePayload = new ExtendResponsePayload_ExtendResponsePayload(tlvTag);
+                this.payloads.push(extendResponsePayload);
+                return extendResponsePayload;
+            case ERROR_PAYLOAD_CONSTANTS.TagType:
+                return this.errorPayload = new ExtendErrorPayload(tlvTag);
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return this.extenderConfigResponse = new ExtenderConfigResponsePayload_ExtenderConfigResponsePayload(tlvTag);
+            // not implemented yet, so just return the tag
+            case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return tlvTag;
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    ExtendResponsePdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config response payload is allowed in PDU.');
+        }
+    };
+    return ExtendResponsePdu;
+}(Pdu_Pdu));
+
+
+// CONCATENATED MODULE: ./src/service/IServiceCredentials.ts
+function isIServiceCredentials(object) {
+    return 'getLoginId' in object
+        && 'getLoginKey' in object
+        && 'getHmacAlgorithm' in object;
+}
+
+// CONCATENATED MODULE: ./src/service/ExtendingService.ts
+var ExtendingService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var ExtendingService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Extending service
+ */
+var ExtendingService_ExtendingService = /** @class */ (function () {
+    function ExtendingService(extendingServiceProtocol, extendingServiceCredentials) {
+        this.requests = {};
+        if (!(extendingServiceProtocol instanceof ExtendingServiceProtocol_ExtendingServiceProtocol)) {
+            throw new KsiServiceError("Invalid extending service protocol: " + extendingServiceProtocol);
+        }
+        if (!isIServiceCredentials(extendingServiceCredentials)) {
+            throw new KsiServiceError("Invalid extending service credentials: " + extendingServiceCredentials);
+        }
+        this.extendingServiceProtocol = extendingServiceProtocol;
+        this.extendingServiceCredentials = extendingServiceCredentials;
+    }
+    ExtendingService.processPayload = function (payload) {
+        if (!(payload instanceof ExtendResponsePayload_ExtendResponsePayload)) {
+            throw new KsiServiceError("Invalid ExtendResponsePayload: " + payload);
+        }
+        if (payload.getStatus().neq(0)) {
+            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
+        }
+        return payload.getCalendarHashChain();
+    };
+    ExtendingService.prototype.extend = function (aggregationTime, publicationTime) {
+        if (publicationTime === void 0) { publicationTime = null; }
+        return ExtendingService_awaiter(this, void 0, void 0, function () {
+            var header, requestId, requestPayload, requestPdu, ksiRequest, responseBytes, stream, responsePdu, errorPayload, currentExtendPayload, _i, _a, responsePayload, extendPayload, payloadRequestId, request;
+            return ExtendingService_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.extendingServiceCredentials.getLoginId());
+                        requestId = pseudoRandomLong();
+                        requestPayload = ExtendRequestPayload_ExtendRequestPayload.CREATE(requestId, aggregationTime, publicationTime);
+                        return [4 /*yield*/, ExtendRequestPdu_ExtendRequestPdu.CREATE(header, requestPayload, this.extendingServiceCredentials.getHmacAlgorithm(), this.extendingServiceCredentials.getLoginKey())];
+                    case 1:
+                        requestPdu = _b.sent();
+                        ksiRequest = new KsiRequest_KsiRequest(requestPdu.encode());
+                        this.requests[requestId.toString()] = ksiRequest;
+                        return [4 /*yield*/, this.extendingServiceProtocol.extend(ksiRequest)];
+                    case 2:
+                        responseBytes = _b.sent();
+                        if (ksiRequest.getAbortSignal().aborted) {
+                            return [2 /*return*/, ExtendingService.processPayload(ksiRequest.getResponsePdu())];
+                        }
+                        stream = new TlvInputStream_TlvInputStream(responseBytes);
+                        responsePdu = new ExtendResponsePdu_ExtendResponsePdu(stream.readTag());
+                        if (stream.getPosition() < stream.getLength()) {
+                            throw new KsiServiceError("Response contains more bytes than PDU length");
+                        }
+                        errorPayload = responsePdu.getErrorPayload();
+                        if (errorPayload !== null) {
+                            if (responsePdu.getPayloads().length > 0) {
+                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
+                            }
+                            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
+                        }
+                        currentExtendPayload = null;
+                        for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
+                            responsePayload = _a[_i];
+                            extendPayload = responsePayload;
+                            payloadRequestId = extendPayload.getRequestId().toString();
+                            if (!this.requests.hasOwnProperty(payloadRequestId)) {
+                                throw new KsiServiceError('Extend response request ID does not match any request id which is sent!');
+                            }
+                            request = this.requests[payloadRequestId];
+                            delete this.requests[payloadRequestId];
+                            if (payloadRequestId !== requestId.toString()) {
+                                request.abort(extendPayload);
+                                continue;
+                            }
+                            if (currentExtendPayload !== null) {
+                                throw new KsiServiceError('Multiple extend payload responses in single PDU.');
+                            }
+                            currentExtendPayload = extendPayload;
+                        }
+                        return [2 /*return*/, ExtendingService.processPayload(currentExtendPayload)];
+                }
+            });
+        });
+    };
+    return ExtendingService;
+}());
+
+
+// CONCATENATED MODULE: ./src/publication/PublicationsFileFactory.ts
+
+
+
+/**
+ * Publications file factory for publications file creation from byte array
+ */
+var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function () {
+    function PublicationsFileFactory() {
+    }
+    PublicationsFileFactory.prototype.create = function (publicationFileBytes) {
+        if (JSON.stringify(publicationFileBytes.slice(0, PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length - 1)) ===
+            JSON.stringify(PublicationsFile_PublicationsFile.FileBeginningMagicBytes)) {
+            throw new PublicationsFileError('Publications file header is incorrect. Invalid publications file magic bytes.');
+        }
+        // TODO: Verification
+        return new PublicationsFile_PublicationsFile(RawTag_RawTag.CREATE(0x0, false, false, publicationFileBytes.slice(PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length)));
+    };
+    return PublicationsFileFactory;
+}());
+
+
+// CONCATENATED MODULE: ./src/service/PublicationsFileServiceProtocol.ts
+var PublicationsFileServiceProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var PublicationsFileServiceProtocol_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+/**
+ * HTTP publications file service protocol
+ */
+var PublicationsFileServiceProtocol = /** @class */ (function () {
+    function PublicationsFileServiceProtocol(publicationsFileUrl) {
+        this.publicationsFileUrl = publicationsFileUrl;
+    }
+    PublicationsFileServiceProtocol.prototype.getPublicationsFile = function () {
+        return PublicationsFileServiceProtocol_awaiter(this, void 0, void 0, function () {
+            var response, _a;
+            return PublicationsFileServiceProtocol_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, fetch(this.publicationsFileUrl, {
+                            method: 'GET'
+                        })];
+                    case 1:
+                        response = _b.sent();
+                        _a = Uint8Array.bind;
+                        return [4 /*yield*/, response.arrayBuffer()];
+                    case 2: return [2 /*return*/, new (_a.apply(Uint8Array, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    return PublicationsFileServiceProtocol;
+}());
+
+
+// CONCATENATED MODULE: ./src/service/PublicationsFileService.ts
+var PublicationsFileService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var PublicationsFileService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Publications file service
+ */
+var PublicationsFileService_PublicationsFileService = /** @class */ (function () {
+    function PublicationsFileService(publicationsFileServiceProtocol, publicationsFileFactory) {
+        if (!(publicationsFileServiceProtocol instanceof PublicationsFileServiceProtocol)) {
+            throw new KsiServiceError("Invalid publications file service protocol: " + publicationsFileServiceProtocol);
+        }
+        if (!(publicationsFileFactory instanceof PublicationsFileFactory_PublicationsFileFactory)) {
+            throw new KsiServiceError("Invalid publications file factory: " + publicationsFileFactory);
+        }
+        this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
+        this.publicationsFileFactory = publicationsFileFactory;
+    }
+    PublicationsFileService.prototype.getPublicationsFile = function () {
+        return PublicationsFileService_awaiter(this, void 0, void 0, function () {
+            var _a, _b;
+            return PublicationsFileService_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _b = (_a = this.publicationsFileFactory).create;
+                        return [4 /*yield*/, this.publicationsFileServiceProtocol.getPublicationsFile()];
+                    case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
+                }
+            });
+        });
+    };
+    return PublicationsFileService;
+}());
+
+
+// CONCATENATED MODULE: ./src/service/AggregationRequestPayload.ts
+var AggregationRequestPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+
+/**
+ * Aggregation request payload
+ */
+var AggregationRequestPayload_AggregationRequestPayload = /** @class */ (function (_super) {
+    AggregationRequestPayload_extends(AggregationRequestPayload, _super);
+    function AggregationRequestPayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationRequestPayload.CREATE = function (requestId, hash, level) {
+        if (level === void 0) { level = BigInteger_default()(0); }
+        if (!BigInteger_default.a.isInstance(requestId)) {
+            throw new TlvError("Invalid requestId: " + requestId);
+        }
+        if (!(hash instanceof DataHash_DataHash)) {
+            throw new TlvError("Invalid requestId: " + hash);
+        }
+        if (!BigInteger_default.a.isInstance(level)) {
+            throw new TlvError("Invalid level: " + level);
+        }
+        var childTlv = [
+            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
+            ImprintTag_ImprintTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType, false, false, hash)
+        ];
+        if (level.neq(0)) {
+            childTlv.push(IntegerTag_IntegerTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType, false, false, level));
+        }
+        return new AggregationRequestPayload(CompositeTag_CompositeTag.createCompositeTagTlv(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+    };
+    AggregationRequestPayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType:
+                return this.requestHash = new ImprintTag_ImprintTag(tlvTag);
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType:
+                return this.requestLevel = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    AggregationRequestPayload.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+            throw new TlvError('Exactly one request id must exist in aggregation request payload.');
+        }
+        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType] !== 1) {
+            throw new TlvError('Exactly one request hash must exist in aggregation request payload.');
+        }
+        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType] > 1) {
+            throw new TlvError('Only one request level is allowed in aggregation request payload.');
+        }
+    };
+    return AggregationRequestPayload;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/service/AggregatorConfigRequestPayload.ts
+var AggregatorConfigRequestPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Aggregator configuration request payload.
+ */
+var AggregatorConfigRequestPayload = /** @class */ (function (_super) {
+    AggregatorConfigRequestPayload_extends(AggregatorConfigRequestPayload, _super);
+    function AggregatorConfigRequestPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return AggregatorConfigRequestPayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/service/AggregationRequestPdu.ts
+var AggregationRequestPdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var AggregationRequestPdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var AggregationRequestPdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+/**
+ * Aggregation request PDU
+ */
+var AggregationRequestPdu_AggregationRequestPdu = /** @class */ (function (_super) {
+    AggregationRequestPdu_extends(AggregationRequestPdu, _super);
+    function AggregationRequestPdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationRequestPdu.CREATE = function (header, payload, algorithm, key) {
+        return AggregationRequestPdu_awaiter(this, void 0, void 0, function () {
+            var _a;
+            return AggregationRequestPdu_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = AggregationRequestPdu.bind;
+                        return [4 /*yield*/, Pdu_Pdu.create(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
+                    case 1: return [2 /*return*/, new (_a.apply(AggregationRequestPdu, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    AggregationRequestPdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                var aggregationRequestPayload = new AggregationRequestPayload_AggregationRequestPayload(tlvTag);
+                this.payloads.push(aggregationRequestPayload);
+                return aggregationRequestPayload;
+            case AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                return this.aggregatorConfigRequest = new AggregatorConfigRequestPayload(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    AggregationRequestPdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one aggregator config request payload is allowed in PDU.');
+        }
+    };
+    return AggregationRequestPdu;
+}(Pdu_Pdu));
+
+
+// CONCATENATED MODULE: ./src/service/AggregationResponsePayload.ts
+var AggregationResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+/**
+ * Aggregation response payload
+ */
+var AggregationResponsePayload_AggregationResponsePayload = /** @class */ (function (_super) {
+    AggregationResponsePayload_extends(AggregationResponsePayload, _super);
+    function AggregationResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationResponsePayload.prototype.getSignatureTags = function () {
+        var tlvList = [];
+        for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
+            var tlvTag = _a[_i];
+            if (tlvTag.id > 0x800 && tlvTag.id < 0x900) {
+                tlvList.push(tlvTag);
+            }
+        }
+        return tlvList;
+    };
+    AggregationResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
+            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
+            case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
+            case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
+                return tlvTag;
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    AggregationResponsePayload.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config request payload is allowed in PDU.');
+        }
+    };
+    return AggregationResponsePayload;
+}(RequestResponsePayload_RequestResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/service/AggregationErrorPayload.ts
+var AggregationErrorPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Aggregation Error payload TLV element.
+ */
+var AggregationErrorPayload = /** @class */ (function (_super) {
+    AggregationErrorPayload_extends(AggregationErrorPayload, _super);
+    function AggregationErrorPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return AggregationErrorPayload;
+}(ErrorPayload));
+
+
+// CONCATENATED MODULE: ./src/service/AggregatorConfigResponsePayload.ts
+var AggregatorConfigResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Aggregator configuration response payload.
+ */
+var AggregatorConfigResponsePayload_AggregatorConfigResponsePayload = /** @class */ (function (_super) {
+    AggregatorConfigResponsePayload_extends(AggregatorConfigResponsePayload, _super);
+    function AggregatorConfigResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.parentUriList = [];
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregatorConfigResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType:
+                return this.maxLevel = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType:
+                return this.aggregationAlgorithm = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType:
+                return this.aggregationPeriod = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
+                return this.maxRequests = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.ParentUriTagType:
+                var uriTag = new StringTag_StringTag(tlvTag);
+                this.parentUriList.push(uriTag);
+                return uriTag;
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    AggregatorConfigResponsePayload.prototype.validate = function (tagCount) {
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType] > 1) {
+            throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');
+        }
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType] > 1) {
+            throw new TlvError('Only one aggregation algorithm tag is allowed in aggregator config response payload.');
+        }
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType] > 1) {
+            throw new TlvError('Only one aggregation period tag is allowed in aggregator config response payload.');
+        }
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
+            throw new TlvError('Only one max requests tag is allowed in aggregator config response payload.');
+        }
+    };
+    return AggregatorConfigResponsePayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/service/AggregationResponsePdu.ts
+var AggregationResponsePdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Aggregation response PDU
+ */
+var AggregationResponsePdu_AggregationResponsePdu = /** @class */ (function (_super) {
+    AggregationResponsePdu_extends(AggregationResponsePdu, _super);
+    function AggregationResponsePdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationResponsePdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                var aggregationResponsePayload = new AggregationResponsePayload_AggregationResponsePayload(tlvTag);
+                this.payloads.push(aggregationResponsePayload);
+                return aggregationResponsePayload;
+            case ERROR_PAYLOAD_CONSTANTS.TagType:
+                return this.errorPayload = new AggregationErrorPayload(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return this.aggregatorConfigResponse = new AggregatorConfigResponsePayload_AggregatorConfigResponsePayload(tlvTag);
+            // not implemented yet, so just return the tag
+            case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return tlvTag;
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    AggregationResponsePdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one aggregator config response payload is allowed in PDU.');
+        }
+    };
+    return AggregationResponsePdu;
+}(Pdu_Pdu));
+
+
+// CONCATENATED MODULE: ./src/service/SigningServiceProtocol.ts
+var SigningServiceProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var SigningServiceProtocol_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+/**
+ * HTTP signing service protocol
+ */
+var SigningServiceProtocol_SigningServiceProtocol = /** @class */ (function () {
+    function SigningServiceProtocol(signingUrl) {
+        this.signingUrl = signingUrl;
+    }
+    SigningServiceProtocol.prototype.sign = function (request) {
+        return SigningServiceProtocol_awaiter(this, void 0, void 0, function () {
+            var headers, response, _a;
+            return SigningServiceProtocol_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!(request instanceof KsiRequest_KsiRequest)) {
+                            throw new KsiServiceError("Invalid KSI request: " + request);
+                        }
+                        headers = new Headers();
+                        headers.append('Content-Type', 'application/ksi-request');
+                        headers.append('Content-Length', request.getRequestBytes().length.toString());
+                        return [4 /*yield*/, fetch(this.signingUrl, {
+                                method: 'POST',
+                                body: request.getRequestBytes(),
+                                headers: headers,
+                                signal: request.getAbortSignal()
+                            })];
+                    case 1:
+                        response = _b.sent();
+                        if (request.getAbortSignal().aborted) {
+                            return [2 /*return*/, null];
+                        }
+                        _a = Uint8Array.bind;
+                        return [4 /*yield*/, response.arrayBuffer()];
+                    case 2: return [2 /*return*/, new (_a.apply(Uint8Array, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    return SigningServiceProtocol;
+}());
+
+
+// CONCATENATED MODULE: ./src/service/SigningService.ts
+var SigningService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var SigningService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Signing service
+ */
+var SigningService_SigningService = /** @class */ (function () {
+    function SigningService(signingServiceProtocol, signingServiceCredentials) {
+        this.requests = {};
+        if (!(signingServiceProtocol instanceof SigningServiceProtocol_SigningServiceProtocol)) {
+            throw new KsiServiceError("Invalid signing service protocol: " + signingServiceProtocol);
+        }
+        if (!isIServiceCredentials(signingServiceCredentials)) {
+            throw new KsiServiceError("Invalid signing service credentials: " + signingServiceCredentials);
+        }
+        this.signingServiceProtocol = signingServiceProtocol;
+        this.signingServiceCredentials = signingServiceCredentials;
+    }
+    SigningService.processPayload = function (payload) {
+        if (!(payload instanceof AggregationResponsePayload_AggregationResponsePayload)) {
+            throw new KsiServiceError("Invalid AggregationResponsePayload: " + payload);
+        }
+        if (payload.getStatus().neq(0)) {
+            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
+        }
+        return KsiSignature_KsiSignature.CREATE(payload);
+    };
+    SigningService.prototype.sign = function (hash, level) {
+        if (level === void 0) { level = BigInteger_default()(0); }
+        return SigningService_awaiter(this, void 0, void 0, function () {
+            var header, requestId, requestPayload, requestPdu, ksiRequest, responseBytes, stream, responsePdu, errorPayload, currentAggregationPayload, _i, _a, responsePayload, aggregationPayload, payloadRequestId, request;
+            return SigningService_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!(hash instanceof DataHash_DataHash)) {
+                            throw new KsiServiceError("Invalid hash: " + hash);
+                        }
+                        if (!BigInteger_default.a.isInstance(level)) {
+                            throw new KsiServiceError("Invalid level: " + level + ", must be BigInteger");
+                        }
+                        header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
+                        requestId = pseudoRandomLong();
+                        requestPayload = AggregationRequestPayload_AggregationRequestPayload.CREATE(requestId, hash, level);
+                        return [4 /*yield*/, AggregationRequestPdu_AggregationRequestPdu.CREATE(header, requestPayload, this.signingServiceCredentials.getHmacAlgorithm(), this.signingServiceCredentials.getLoginKey())];
+                    case 1:
+                        requestPdu = _b.sent();
+                        ksiRequest = new KsiRequest_KsiRequest(requestPdu.encode());
+                        this.requests[requestId.toString()] = ksiRequest;
+                        return [4 /*yield*/, this.signingServiceProtocol.sign(ksiRequest)];
+                    case 2:
+                        responseBytes = _b.sent();
+                        if (ksiRequest.getAbortSignal().aborted) {
+                            return [2 /*return*/, SigningService.processPayload(ksiRequest.getResponsePdu())];
+                        }
+                        stream = new TlvInputStream_TlvInputStream(responseBytes);
+                        responsePdu = new AggregationResponsePdu_AggregationResponsePdu(stream.readTag());
+                        if (stream.getPosition() < stream.getLength()) {
+                            throw new KsiServiceError("Response contains more bytes than PDU length");
+                        }
+                        errorPayload = responsePdu.getErrorPayload();
+                        if (errorPayload !== null) {
+                            if (responsePdu.getPayloads().length > 0) {
+                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
+                            }
+                            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
+                        }
+                        currentAggregationPayload = null;
+                        for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
+                            responsePayload = _a[_i];
+                            aggregationPayload = responsePayload;
+                            payloadRequestId = aggregationPayload.getRequestId().toString();
+                            if (!this.requests.hasOwnProperty(payloadRequestId)) {
+                                throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent!');
+                            }
+                            request = this.requests[payloadRequestId];
+                            delete this.requests[payloadRequestId];
+                            if (payloadRequestId !== requestId.toString()) {
+                                request.abort(aggregationPayload);
+                                continue;
+                            }
+                            if (currentAggregationPayload !== null) {
+                                throw new KsiServiceError('Multiple aggregation responses in single PDU.');
+                            }
+                            currentAggregationPayload = aggregationPayload;
+                        }
+                        return [2 /*return*/, SigningService.processPayload(currentAggregationPayload)];
+                }
+            });
+        });
+    };
+    return SigningService;
+}());
+
+
+// CONCATENATED MODULE: ./src/service/KsiService.ts
+var KsiService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var KsiService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+/**
+ * KSI service.
+ */
+var KsiService_KsiService = /** @class */ (function () {
+    function KsiService(signingService, extendingService, publicationsFileService) {
+        if (signingService === void 0) { signingService = null; }
+        if (extendingService === void 0) { extendingService = null; }
+        if (signingService !== null && !(signingService instanceof SigningService_SigningService)) {
+            throw new KsiServiceError("Invalid signing service: " + signingService);
+        }
+        if (extendingService !== null && !(extendingService instanceof ExtendingService_ExtendingService)) {
+            throw new KsiServiceError("Invalid extending service: " + extendingService);
+        }
+        if (publicationsFileService !== null && !(publicationsFileService instanceof PublicationsFileService_PublicationsFileService)) {
+            throw new KsiServiceError("Invalid publications file service: " + publicationsFileService);
+        }
+        this.signingService = signingService;
+        this.extendingService = extendingService;
+        this.publicationsFileService = publicationsFileService;
+    }
+    KsiService.prototype.sign = function (hash, level) {
+        if (level === void 0) { level = BigInteger_default()(0); }
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            return KsiService_generator(this, function (_a) {
+                if (this.signingService === null) {
+                    throw new KsiServiceError('Signing protocol not defined. Cannot use signing.');
+                }
+                return [2 /*return*/, this.signingService.sign(hash, level)];
+            });
+        });
+    };
+    KsiService.prototype.extend = function (aggregationTime, publicationTime) {
+        if (publicationTime === void 0) { publicationTime = null; }
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            return KsiService_generator(this, function (_a) {
+                if (this.extendingService === null) {
+                    throw new KsiServiceError('Extending service not defined. Cannot use extending.');
+                }
+                return [2 /*return*/, this.extendingService.extend(aggregationTime, publicationTime)];
+            });
+        });
+    };
+    KsiService.prototype.getPublicationsFile = function () {
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            return KsiService_generator(this, function (_a) {
+                if (this.publicationsFileService === null) {
+                    throw new KsiServiceError('Publications file service not defined. Cannot get publications file.');
+                }
+                return [2 /*return*/, this.publicationsFileService.getPublicationsFile()];
+            });
+        });
+    };
+    return KsiService;
+}());
+
+
 // CONCATENATED MODULE: ./src/signature/verification/VerificationContext.ts
+var VerificationContext_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var VerificationContext_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 /**
  * Verification context for KSI signature
  */
@@ -52705,17 +54694,6 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
 
 
 
-
-
-var VerificationContext_KsiService = /** @class */ (function () {
-    function KsiService() {
-        return;
-    }
-    KsiService.prototype.extend = function (aggregationTime, publicationTime) {
-        return new CalendarHashChain_CalendarHashChain(new TlvTag_TlvTag(0, false, false, new Uint8Array(0)));
-    };
-    return KsiService;
-}());
 
 var VerificationContext_VerificationContext = /** @class */ (function () {
     function VerificationContext(signature) {
@@ -52735,19 +54713,27 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
      * Get extended latest calendar hash chain.
      */
     VerificationContext.prototype.getExtendedLatestCalendarHashChain = function () {
-        return this.getExtendedCalendarHashChain(null);
+        return VerificationContext_awaiter(this, void 0, void 0, function () {
+            return VerificationContext_generator(this, function (_a) {
+                return [2 /*return*/, this.getExtendedCalendarHashChain(null)];
+            });
+        });
     };
     /**
      * Get extended calendar hash chain from given publication time.
      */
     VerificationContext.prototype.getExtendedCalendarHashChain = function (publicationTime) {
-        if (!(this.ksiService instanceof VerificationContext_KsiService)) {
-            throw new KsiVerificationError('Invalid KSI service in context.');
-        }
-        if (!(this.getSignature() instanceof KsiSignature_KsiSignature)) {
-            throw new KsiVerificationError('Invalid KSI signature in context.');
-        }
-        return this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime);
+        return VerificationContext_awaiter(this, void 0, void 0, function () {
+            return VerificationContext_generator(this, function (_a) {
+                if (!(this.ksiService instanceof KsiService_KsiService)) {
+                    throw new KsiVerificationError('Invalid KSI service in context.');
+                }
+                if (!(this.getSignature() instanceof KsiSignature_KsiSignature)) {
+                    throw new KsiVerificationError('Invalid KSI signature in context.');
+                }
+                return [2 /*return*/, this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime)];
+            });
+        });
     };
     /**
      * Get document hash.
@@ -52756,10 +54742,16 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
         return this.documentHash;
     };
     VerificationContext.prototype.setDocumentHash = function (documentHash) {
-        if (documentHash === null || !(documentHash instanceof DataHash_DataHash)) {
+        if (documentHash !== null && !(documentHash instanceof DataHash_DataHash)) {
             throw new KsiVerificationError("Invalid document hash: " + documentHash);
         }
         this.documentHash = documentHash;
+    };
+    VerificationContext.prototype.setKsiService = function (ksiService) {
+        if (ksiService !== null && !(ksiService instanceof KsiService_KsiService)) {
+            throw new KsiVerificationError("Invalid ksi service: " + ksiService);
+        }
+        this.ksiService = ksiService;
     };
     /**
      * Get document hash node level value in the aggregation tree
@@ -52771,7 +54763,7 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
         return this.publicationsFile;
     };
     VerificationContext.prototype.setPublicationsFile = function (publicationsFile) {
-        if (publicationsFile === null || !(publicationsFile instanceof PublicationsFile_PublicationsFile)) {
+        if (publicationsFile !== null && !(publicationsFile instanceof PublicationsFile_PublicationsFile)) {
             throw new KsiVerificationError("Invalid publications file: " + publicationsFile);
         }
         this.publicationsFile = publicationsFile;
@@ -52780,7 +54772,7 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
         return this.publicationData;
     };
     VerificationContext.prototype.setUserPublication = function (publicationData) {
-        if (publicationData === null || !(publicationData instanceof PublicationData_PublicationData)) {
+        if (publicationData !== null && !(publicationData instanceof PublicationData_PublicationData)) {
             throw new KsiVerificationError("Invalid publications file: " + publicationData);
         }
         this.publicationData = publicationData;
@@ -55613,30 +57605,35 @@ var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCal
         return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
             var signature, userPublication, publicationData, publicationsFile, publicationRecord, extendedCalendarHashChain, deprecatedLink;
             return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                userPublication = context.getUserPublication();
-                if (userPublication !== null) {
-                    publicationData = userPublication;
+                switch (_a.label) {
+                    case 0:
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        userPublication = context.getUserPublication();
+                        if (userPublication !== null) {
+                            publicationData = userPublication;
+                        }
+                        else {
+                            publicationsFile = context.getPublicationsFile();
+                            if (publicationsFile === null) {
+                                throw new KsiVerificationError('Invalid publications file in context: null.');
+                            }
+                            publicationRecord = publicationsFile
+                                .getNearestPublicationRecord(signature.getAggregationTime());
+                            if (publicationRecord === null) {
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                            }
+                            publicationData = publicationRecord.getPublicationData();
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationData.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
+                        if (deprecatedLink !== null) {
+                            console.log("Calendar hash chain contains deprecated aggregation algorithm at publication time.\n                             Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + ";\n                             Publication time: " + publicationData.getPublicationTime());
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                        }
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
-                else {
-                    publicationsFile = context.getPublicationsFile();
-                    if (publicationsFile === null) {
-                        throw new KsiVerificationError('Invalid publications file in context: null.');
-                    }
-                    publicationRecord = publicationsFile
-                        .getNearestPublicationRecord(signature.getAggregationTime());
-                    if (publicationRecord === null) {
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-                    }
-                    publicationData = publicationRecord.getPublicationData();
-                }
-                extendedCalendarHashChain = context.getExtendedCalendarHashChain(publicationData.getPublicationTime());
-                deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
-                if (deprecatedLink !== null) {
-                    console.log("Calendar hash chain contains deprecated aggregation algorithm at publication time.\n                             Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + ";\n                             Publication time: " + publicationData.getPublicationTime());
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -55783,19 +57780,24 @@ var PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSigna
         return PublicationsFileExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
             var signature, publicationsFile, publicationRecord, extendedCalendarHashChain;
             return PublicationsFileExtendedSignatureInputHashRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                publicationsFile = context.getPublicationsFile();
-                if (publicationsFile === null) {
-                    throw new KsiVerificationError('Invalid publications file in context: null.');
+                switch (_a.label) {
+                    case 0:
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        publicationsFile = context.getPublicationsFile();
+                        if (publicationsFile === null) {
+                            throw new KsiVerificationError('Invalid publications file in context: null.');
+                        }
+                        publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
+                        if (publicationRecord == null) {
+                            throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        return [2 /*return*/, !extendedCalendarHashChain.getInputHash().equals(signature.getLastAggregationHashChainRootHash())
+                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
-                publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
-                if (publicationRecord == null) {
-                    throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
-                }
-                extendedCalendarHashChain = context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
-                return [2 /*return*/, !extendedCalendarHashChain.getInputHash().equals(signature.getLastAggregationHashChainRootHash())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -55879,9 +57881,11 @@ var PublicationsFilePublicationHashMatchesExtenderResponseRule_PublicationsFileP
                         if (publicationRecord == null) {
                             return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                         }
-                        extendedCalendarHashChain = context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
                         return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
-                    case 1: return [2 /*return*/, !(_a.sent()).equals(publicationRecord.getPublicationHash())
+                    case 2: return [2 /*return*/, !(_a.sent()).equals(publicationRecord.getPublicationHash())
                             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
                             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
@@ -55957,22 +57961,27 @@ var PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFileP
         return PublicationsFilePublicationTimeMatchesExtenderResponseRule_awaiter(this, void 0, void 0, function () {
             var publicationsFile, signature, publicationRecord, extendedCalendarHashChain;
             return PublicationsFilePublicationTimeMatchesExtenderResponseRule_generator(this, function (_a) {
-                publicationsFile = context.getPublicationsFile();
-                if (publicationsFile === null) {
-                    throw new KsiVerificationError('Invalid publications file in context: null.');
+                switch (_a.label) {
+                    case 0:
+                        publicationsFile = context.getPublicationsFile();
+                        if (publicationsFile === null) {
+                            throw new KsiVerificationError('Invalid publications file in context: null.');
+                        }
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
+                        if (publicationRecord == null) {
+                            throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        if (publicationRecord.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
+                        }
+                        return [2 /*return*/, signature.getAggregationTime().neq(extendedCalendarHashChain.calculateRegistrationTime())
+                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
-                if (publicationRecord == null) {
-                    throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
-                }
-                extendedCalendarHashChain = context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
-                if (publicationRecord.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
-                }
-                return [2 /*return*/, signature.getAggregationTime().neq(extendedCalendarHashChain.calculateRegistrationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -56263,15 +58272,20 @@ var UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicatio
         return UserProvidedPublicationExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
             var signature, userPublication, extendedCalendarHashChain;
             return UserProvidedPublicationExtendedSignatureInputHashRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                userPublication = context.getUserPublication();
-                if (userPublication === null) {
-                    throw new KsiVerificationError('Invalid user publication in context: null.');
+                switch (_a.label) {
+                    case 0:
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        userPublication = context.getUserPublication();
+                        if (userPublication === null) {
+                            throw new KsiVerificationError('Invalid user publication in context: null.');
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        return [2 /*return*/, !extendedCalendarHashChain.getInputHash().equals(signature.getLastAggregationHashChainRootHash())
+                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
-                extendedCalendarHashChain = context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
-                return [2 /*return*/, !extendedCalendarHashChain.getInputHash().equals(signature.getLastAggregationHashChainRootHash())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -56350,9 +58364,11 @@ var UserProvidedPublicationHashMatchesExtendedResponseRule_UserProvidedPublicati
                         if (userPublication === null) {
                             throw new KsiVerificationError('Invalid user publication in context: null.');
                         }
-                        extendedCalendarHashChain = context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
                         return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
-                    case 1: return [2 /*return*/, (_a.sent()).equals(userPublication.getPublicationHash())
+                    case 2: return [2 /*return*/, (_a.sent()).equals(userPublication.getPublicationHash())
                             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
                             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
@@ -56428,18 +58444,23 @@ var UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicati
         return UserProvidedPublicationTimeMatchesExtendedResponseRule_awaiter(this, void 0, void 0, function () {
             var signature, userPublication, extendedCalendarHashChain;
             return UserProvidedPublicationTimeMatchesExtendedResponseRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                userPublication = context.getUserPublication();
-                if (userPublication === null) {
-                    throw new KsiVerificationError('Invalid user publication in context: null.');
+                switch (_a.label) {
+                    case 0:
+                        signature = VerificationRule_VerificationRule.getSignature(context);
+                        userPublication = context.getUserPublication();
+                        if (userPublication === null) {
+                            throw new KsiVerificationError('Invalid user publication in context: null.');
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
+                        }
+                        return [2 /*return*/, signature.getAggregationTime().equals(extendedCalendarHashChain.calculateRegistrationTime())
+                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
-                extendedCalendarHashChain = context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
-                if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
-                }
-                return [2 /*return*/, signature.getAggregationTime().equals(extendedCalendarHashChain.calculateRegistrationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -56990,1804 +59011,6 @@ var KeyBasedVerificationPolicy_KeyBasedVerificationPolicy = /** @class */ (funct
 }(VerificationPolicy_VerificationPolicy));
 
 
-// CONCATENATED MODULE: ./src/publication/PublicationsFileFactory.ts
-
-
-
-/**
- * Publications file factory for publications file creation from byte array
- */
-var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function () {
-    function PublicationsFileFactory() {
-    }
-    PublicationsFileFactory.prototype.create = function (publicationFileBytes) {
-        if (JSON.stringify(publicationFileBytes.slice(0, PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length - 1)) ===
-            JSON.stringify(PublicationsFile_PublicationsFile.FileBeginningMagicBytes)) {
-            throw new PublicationsFileError('Publications file header is incorrect. Invalid publications file magic bytes.');
-        }
-        // TODO: Verification
-        return new PublicationsFile_PublicationsFile(RawTag_RawTag.CREATE(0x0, false, false, publicationFileBytes.slice(PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length)));
-    };
-    return PublicationsFileFactory;
-}());
-
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/random/RandomUtil.js
-
-const pseudoRandomLong = () => {
-    return BigInteger_default.a.randBetween(0, 9223372036854775807);
-};
-
-// CONCATENATED MODULE: ./src/service/KsiServiceError.ts
-var KsiServiceError_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-/**
- * KSI Service related error
- */
-var KsiServiceError = /** @class */ (function (_super) {
-    KsiServiceError_extends(KsiServiceError, _super);
-    function KsiServiceError(message) {
-        var _this = _super.call(this, message) || this;
-        _this.name = 'KsiServiceError';
-        Object.setPrototypeOf(_this, KsiServiceError.prototype);
-        return _this;
-    }
-    return KsiServiceError;
-}(Error));
-
-
-// CONCATENATED MODULE: ./src/service/PduPayload.ts
-var PduPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Base class for PDU payloads
- */
-var PduPayload = /** @class */ (function (_super) {
-    PduPayload_extends(PduPayload, _super);
-    function PduPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return PduPayload;
-}(CompositeTag_CompositeTag));
-
-
-// CONCATENATED MODULE: ./src/service/KsiRequest.ts
-
-
-/**
- * KSI request for PDU exchaning with KSI servers.
- */
-var KsiRequest_KsiRequest = /** @class */ (function () {
-    function KsiRequest(requestBytes) {
-        this.abortController = new AbortController();
-        if (!(requestBytes instanceof Uint8Array)) {
-            throw new KsiServiceError("Invalid request bytes: " + requestBytes);
-        }
-        this.requestBytes = requestBytes;
-    }
-    KsiRequest.prototype.abort = function (responsePdu) {
-        if (!(responsePdu instanceof PduPayload)) {
-            throw new KsiServiceError("Invalid response bytes: " + responsePdu);
-        }
-        this.responsePdu = responsePdu;
-        this.abortController.abort();
-    };
-    KsiRequest.prototype.getResponsePdu = function () {
-        return this.responsePdu;
-    };
-    KsiRequest.prototype.getRequestBytes = function () {
-        return this.requestBytes;
-    };
-    KsiRequest.prototype.getAbortSignal = function () {
-        return this.abortController.signal;
-    };
-    return KsiRequest;
-}());
-
-
-// CONCATENATED MODULE: ./src/service/ExtendingServiceProtocol.ts
-var ExtendingServiceProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var ExtendingServiceProtocol_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-/**
- * HTTP extending service protocol
- */
-var ExtendingServiceProtocol_ExtendingServiceProtocol = /** @class */ (function () {
-    function ExtendingServiceProtocol(extendingUrl) {
-        this.extendingUrl = extendingUrl;
-    }
-    ExtendingServiceProtocol.prototype.extend = function (request) {
-        return ExtendingServiceProtocol_awaiter(this, void 0, void 0, function () {
-            var headers, response, _a;
-            return ExtendingServiceProtocol_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (!(request instanceof KsiRequest_KsiRequest)) {
-                            throw new KsiServiceError("Invalid KSI request: " + request);
-                        }
-                        headers = new Headers();
-                        headers.append('Content-Type', 'application/ksi-request');
-                        headers.append('Content-Length', request.getRequestBytes().length.toString());
-                        return [4 /*yield*/, fetch(this.extendingUrl, {
-                                method: 'POST',
-                                body: request.getRequestBytes(),
-                                headers: headers,
-                                signal: request.getAbortSignal()
-                            })];
-                    case 1:
-                        response = _b.sent();
-                        if (request.getAbortSignal().aborted) {
-                            return [2 /*return*/, null];
-                        }
-                        _a = Uint8Array.bind;
-                        return [4 /*yield*/, response.arrayBuffer()];
-                    case 2: return [2 /*return*/, new (_a.apply(Uint8Array, [void 0, _b.sent()]))()];
-                }
-            });
-        });
-    };
-    return ExtendingServiceProtocol;
-}());
-
-
-// CONCATENATED MODULE: ./src/service/ExtendRequestPayload.ts
-var ExtendRequestPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Aggregation request payload
- */
-var ExtendRequestPayload_ExtendRequestPayload = /** @class */ (function (_super) {
-    ExtendRequestPayload_extends(ExtendRequestPayload, _super);
-    function ExtendRequestPayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtendRequestPayload.CREATE = function (requestId, aggregationTime, publicationTime) {
-        if (publicationTime === void 0) { publicationTime = null; }
-        if (!BigInteger_default.a.isInstance(requestId)) {
-            throw new TlvError("Invalid requestId: " + requestId);
-        }
-        if (!BigInteger_default.a.isInstance(aggregationTime)) {
-            throw new TlvError("Invalid aggregation time: " + aggregationTime);
-        }
-        if (publicationTime !== null && !BigInteger_default.a.isInstance(publicationTime)) {
-            throw new TlvError("Invalid publication time: " + publicationTime);
-        }
-        var childTlv = [
-            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
-            IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType, false, false, aggregationTime)
-        ];
-        if (publicationTime !== null) {
-            childTlv.push(IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType, false, false, publicationTime));
-        }
-        return new ExtendRequestPayload(CompositeTag_CompositeTag.createCompositeTagTlv(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
-    };
-    ExtendRequestPayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
-                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
-            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType:
-                return this.aggregationTime = new IntegerTag_IntegerTag(tlvTag);
-            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType:
-                return this.publicationTime = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    ExtendRequestPayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
-            throw new TlvError('Exactly one request id must exist in extend request payload.');
-        }
-        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType] !== 1) {
-            throw new TlvError('Exactly one aggregation time must exist in extend request payload.');
-        }
-        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType] > 1) {
-            throw new TlvError('Only one publication time is allowed in extend request payload.');
-        }
-    };
-    return ExtendRequestPayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/WebHMAC.js
-
-class WebHMAC_WebHMAC {
-    /**
-     * @param {HashAlgorithm} algorithm
-     * @param {Uint8Array} key
-     * @param {Uint8Array} data
-     * @returns {Promise.<Uint8Array, Error>}
-     */
-    static digest(algorithm, key, data) {
-        if (!(algorithm instanceof HashAlgorithm_HashAlgorithm)) {
-            return Promise.reject(new Error(`Invalid hash algorithm, must be HashAlgorithm but is ${typeof data}`));
-        }
-        if (!(key instanceof Uint8Array)) {
-            return Promise.reject(new Error(`Invalid key, must be Uint8Array but is ${typeof key}`));
-        }
-        if (!(data instanceof Uint8Array)) {
-            return Promise.reject(new Error(`Invalid data, must be Uint8Array but is ${typeof data}`));
-        }
-        return window.crypto.subtle.importKey('raw', key, {
-            name: 'HMAC',
-            hash: { name: algorithm.name },
-        }, false, ['sign']).then(key => window.crypto.subtle.sign('HMAC', key, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer)));
-    }
-}
-
-// CONCATENATED MODULE: ./src/service/ResponsePayload.ts
-var ResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * PDU payload base class for responses
- */
-var ResponsePayload_ResponsePayload = /** @class */ (function (_super) {
-    ResponsePayload_extends(ResponsePayload, _super);
-    function ResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.errorMessage = null;
-        return _this;
-    }
-    ResponsePayload.prototype.getStatus = function () {
-        return this.status.getValue();
-    };
-    ResponsePayload.prototype.getErrorMessage = function () {
-        return this.errorMessage !== null ? this.errorMessage.getValue() : null;
-    };
-    ResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.StatusTagType:
-                return this.status = new IntegerTag_IntegerTag(tlvTag);
-            case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
-                return this.errorMessage = new StringTag_StringTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    ResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.StatusTagType] !== 1) {
-            throw new TlvError('Exactly one status code must exist in response payload.');
-        }
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType] > 1) {
-            throw new TlvError('Only one error message is allowed in response payload.');
-        }
-    };
-    return ResponsePayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/service/ErrorPayload.ts
-var ErrorPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * KSI service error response payload.
- */
-var ErrorPayload = /** @class */ (function (_super) {
-    ErrorPayload_extends(ErrorPayload, _super);
-    function ErrorPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return ErrorPayload;
-}(ResponsePayload_ResponsePayload));
-
-
-// CONCATENATED MODULE: ./src/service/PduHeader.ts
-var PduHeader_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-/**
- * PDU header class
- */
-var PduHeader_PduHeader = /** @class */ (function (_super) {
-    PduHeader_extends(PduHeader, _super);
-    function PduHeader(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    PduHeader.CREATE_FROM_LOGIN_ID = function (loginId) {
-        if ((typeof loginId) !== 'string') {
-            throw new TlvError("Invalid loginId: " + loginId);
-        }
-        return new PduHeader(CompositeTag_CompositeTag.createCompositeTagTlv(PDU_HEADER_CONSTANTS.TagType, false, false, [
-            StringTag_StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
-        ]));
-    };
-    PduHeader.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_HEADER_CONSTANTS.LoginIdTagType:
-                return this.loginId = new StringTag_StringTag(tlvTag);
-            case PDU_HEADER_CONSTANTS.InstanceIdTagType:
-                return this.instanceId = new IntegerTag_IntegerTag(tlvTag);
-            case PDU_HEADER_CONSTANTS.MessageIdTagType:
-                return this.messageId = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    PduHeader.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
-            throw new TlvError('Exactly one login id must exist in PDU header.');
-        }
-        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
-            throw new TlvError('Only one instance id is allowed in PDU header.');
-        }
-        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
-            throw new TlvError('Only one message id is allowed in PDU header.');
-        }
-    };
-    return PduHeader;
-}(CompositeTag_CompositeTag));
-
-
-// CONCATENATED MODULE: ./src/service/Pdu.ts
-var Pdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Pdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var Pdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-
-
-/**
- * PDU base classs
- */
-var Pdu_Pdu = /** @class */ (function (_super) {
-    Pdu_extends(Pdu, _super);
-    function Pdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.payloads = [];
-        _this.errorPayload = null;
-        return _this;
-    }
-    Pdu.create = function (tagType, header, payload, algorithm, key) {
-        return Pdu_awaiter(this, void 0, void 0, function () {
-            var pduBytes, _a, _b;
-            return Pdu_generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        pduBytes = CompositeTag_CompositeTag.createCompositeTagTlv(tagType, false, false, [
-                            header,
-                            payload,
-                            ImprintTag_ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash_DataHash.create(algorithm, new Uint8Array(algorithm.length)))
-                        ]).encode();
-                        _b = (_a = pduBytes).set;
-                        return [4 /*yield*/, WebHMAC_WebHMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length))];
-                    case 1:
-                        _b.apply(_a, [_c.sent(), pduBytes.length - algorithm.length]);
-                        return [2 /*return*/, new TlvInputStream_TlvInputStream(pduBytes).readTag()];
-                }
-            });
-        });
-    };
-    Pdu.prototype.getErrorPayload = function () {
-        return this.errorPayload;
-    };
-    Pdu.prototype.getPayloads = function () {
-        return this.payloads;
-    };
-    Pdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_HEADER_CONSTANTS.TagType:
-                return this.header = new PduHeader_PduHeader(tlvTag);
-            case PDU_CONSTANTS.MacTagType:
-                return this.hmac = new ImprintTag_ImprintTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    Pdu.prototype.validate = function (tagCount) {
-        if (ErrorPayload != null) {
-            return;
-        }
-        if (this.payloads.length === 0) {
-            throw new TlvError('Payloads are missing in PDU.');
-        }
-        if (tagCount[PDU_HEADER_CONSTANTS.TagType] !== 1) {
-            throw new TlvError('Exactly one header must exist in PDU.');
-        }
-        if (this.value[0] !== this.header) {
-            throw new TlvError('Header must be the first element in PDU.');
-        }
-        if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
-            throw new TlvError('Exactly one MAC must exist in PDU');
-        }
-        if (this.value[this.value.length - 1] !== this.hmac) {
-            throw new TlvError('MAC must be the last element in PDU');
-        }
-    };
-    return Pdu;
-}(CompositeTag_CompositeTag));
-
-
-// CONCATENATED MODULE: ./src/service/ExtendRequestPdu.ts
-var ExtendRequestPdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var ExtendRequestPdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var ExtendRequestPdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-var ExtenderConfigRequestPayload = /** @class */ (function (_super) {
-    ExtendRequestPdu_extends(ExtenderConfigRequestPayload, _super);
-    function ExtenderConfigRequestPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return ExtenderConfigRequestPayload;
-}(PduPayload));
-/**
- * Extend request PDU
- */
-var ExtendRequestPdu_ExtendRequestPdu = /** @class */ (function (_super) {
-    ExtendRequestPdu_extends(ExtendRequestPdu, _super);
-    function ExtendRequestPdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtendRequestPdu.CREATE = function (header, payload, algorithm, key) {
-        return ExtendRequestPdu_awaiter(this, void 0, void 0, function () {
-            var _a;
-            return ExtendRequestPdu_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = ExtendRequestPdu.bind;
-                        return [4 /*yield*/, Pdu_Pdu.create(EXTEND_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
-                    case 1: return [2 /*return*/, new (_a.apply(ExtendRequestPdu, [void 0, _b.sent()]))()];
-                }
-            });
-        });
-    };
-    ExtendRequestPdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType:
-                var extendRequestPayload = new ExtendRequestPayload_ExtendRequestPayload(tlvTag);
-                this.payloads.push(extendRequestPayload);
-                return extendRequestPayload;
-            case EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
-                return this.extenderConfigRequest = new ExtenderConfigRequestPayload(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    ExtendRequestPdu.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one extender config request payload is allowed in PDU.');
-        }
-    };
-    return ExtendRequestPdu;
-}(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/service/RequestResponsePayload.ts
-var RequestResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-/**
- * PDU payload base class for requested responses
- */
-var RequestResponsePayload_RequestResponsePayload = /** @class */ (function (_super) {
-    RequestResponsePayload_extends(RequestResponsePayload, _super);
-    function RequestResponsePayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    RequestResponsePayload.prototype.getRequestId = function () {
-        return this.requestId.getValue();
-    };
-    RequestResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
-                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    RequestResponsePayload.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
-            throw new TlvError('Exactly one request id must exist in response payload.');
-        }
-    };
-    return RequestResponsePayload;
-}(ResponsePayload_ResponsePayload));
-
-
-// CONCATENATED MODULE: ./src/service/ExtendResponsePayload.ts
-var ExtendResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-/**
- * Extend response payload
- */
-var ExtendResponsePayload_ExtendResponsePayload = /** @class */ (function (_super) {
-    ExtendResponsePayload_extends(ExtendResponsePayload, _super);
-    function ExtendResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtendResponsePayload.prototype.getCalendarHashChain = function () {
-        return this.getCalendarHashChain();
-    };
-    ExtendResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
-                return this.calendarLastTime = new IntegerTag_IntegerTag(tlvTag);
-            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
-                return this.calendarHashChain = new CalendarHashChain_CalendarHashChain(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    ExtendResponsePayload.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
-            throw new TlvError('Only one calendar last time is allowed in extend response payload.');
-        }
-        if (this.getStatus().eq(0) && tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] !== 1) {
-            throw new TlvError('Exactly one calendar hash chain must exist in extend response payload.');
-        }
-    };
-    return ExtendResponsePayload;
-}(RequestResponsePayload_RequestResponsePayload));
-
-
-// CONCATENATED MODULE: ./src/service/ExtendErrorPayload.ts
-var ExtendErrorPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Extends Error payload TLV element.
- */
-var ExtendErrorPayload = /** @class */ (function (_super) {
-    ExtendErrorPayload_extends(ExtendErrorPayload, _super);
-    function ExtendErrorPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return ExtendErrorPayload;
-}(ErrorPayload));
-
-
-// CONCATENATED MODULE: ./src/service/ExtenderConfigResponsePayload.ts
-var ExtenderConfigResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Aggregator configuration response payload.
- */
-var ExtenderConfigResponsePayload_ExtenderConfigResponsePayload = /** @class */ (function (_super) {
-    ExtenderConfigResponsePayload_extends(ExtenderConfigResponsePayload, _super);
-    function ExtenderConfigResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.parentUriList = [];
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtenderConfigResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
-                return this.maxRequests = new IntegerTag_IntegerTag(tlvTag);
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.ParentUriTagType:
-                var uriTag = new StringTag_StringTag(tlvTag);
-                this.parentUriList.push(uriTag);
-                return uriTag;
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType:
-                return this.calendarFirstTime = new IntegerTag_IntegerTag(tlvTag);
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
-                return this.calendarLastTime = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    ExtenderConfigResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
-            throw new TlvError('Only one max requests tag is allowed in extender config response payload.');
-        }
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType] > 1) {
-            throw new TlvError('Only one calendar first time tag is allowed in extender config response payload.');
-        }
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
-            throw new TlvError('Only one calendar last time tag is allowed in extender config response payload.');
-        }
-    };
-    return ExtenderConfigResponsePayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/service/ExtendResponsePdu.ts
-var ExtendResponsePdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Extend response PDU
- */
-var ExtendResponsePdu_ExtendResponsePdu = /** @class */ (function (_super) {
-    ExtendResponsePdu_extends(ExtendResponsePdu, _super);
-    function ExtendResponsePdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtendResponsePdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                var extendResponsePayload = new ExtendResponsePayload_ExtendResponsePayload(tlvTag);
-                this.payloads.push(extendResponsePayload);
-                return extendResponsePayload;
-            case ERROR_PAYLOAD_CONSTANTS.TagType:
-                return this.errorPayload = new ExtendErrorPayload(tlvTag);
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return this.extenderConfigResponse = new ExtenderConfigResponsePayload_ExtenderConfigResponsePayload(tlvTag);
-            // not implemented yet, so just return the tag
-            case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return tlvTag;
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    ExtendResponsePdu.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one extender config response payload is allowed in PDU.');
-        }
-    };
-    return ExtendResponsePdu;
-}(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/service/IServiceCredentials.ts
-function isIServiceCredentials(object) {
-    return 'getLoginId' in object
-        && 'getLoginKey' in object
-        && 'getHmacAlgorithm' in object;
-}
-
-// CONCATENATED MODULE: ./src/service/ExtendingService.ts
-var ExtendingService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var ExtendingService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Extending service
- */
-var ExtendingService_ExtendingService = /** @class */ (function () {
-    function ExtendingService(extendingServiceProtocol, extendingServiceCredentials) {
-        this.requests = {};
-        if (!(extendingServiceProtocol instanceof ExtendingServiceProtocol_ExtendingServiceProtocol)) {
-            throw new KsiServiceError("Invalid extending service protocol: " + extendingServiceProtocol);
-        }
-        if (!isIServiceCredentials(extendingServiceCredentials)) {
-            throw new KsiServiceError("Invalid extending service credentials: " + extendingServiceCredentials);
-        }
-        this.extendingServiceProtocol = extendingServiceProtocol;
-        this.extendingServiceCredentials = extendingServiceCredentials;
-    }
-    ExtendingService.processPayload = function (payload) {
-        if (!(payload instanceof ExtendResponsePayload_ExtendResponsePayload)) {
-            throw new KsiServiceError("Invalid ExtendResponsePayload: " + payload);
-        }
-        if (payload.getStatus().neq(0)) {
-            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
-        }
-        return payload.getCalendarHashChain();
-    };
-    ExtendingService.prototype.extend = function (aggregationTime, publicationTime) {
-        if (publicationTime === void 0) { publicationTime = null; }
-        return ExtendingService_awaiter(this, void 0, void 0, function () {
-            var header, requestId, requestPayload, requestPdu, ksiRequest, responseBytes, stream, responsePdu, errorPayload, currentExtendPayload, _i, _a, responsePayload, extendPayload, payloadRequestId, request;
-            return ExtendingService_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.extendingServiceCredentials.getLoginId());
-                        requestId = pseudoRandomLong();
-                        requestPayload = ExtendRequestPayload_ExtendRequestPayload.CREATE(requestId, aggregationTime, publicationTime);
-                        return [4 /*yield*/, ExtendRequestPdu_ExtendRequestPdu.CREATE(header, requestPayload, this.extendingServiceCredentials.getHmacAlgorithm(), this.extendingServiceCredentials.getLoginKey())];
-                    case 1:
-                        requestPdu = _b.sent();
-                        ksiRequest = new KsiRequest_KsiRequest(requestPdu.encode());
-                        this.requests[requestId.toString()] = ksiRequest;
-                        return [4 /*yield*/, this.extendingServiceProtocol.extend(ksiRequest)];
-                    case 2:
-                        responseBytes = _b.sent();
-                        if (ksiRequest.getAbortSignal().aborted) {
-                            return [2 /*return*/, ExtendingService.processPayload(ksiRequest.getResponsePdu())];
-                        }
-                        stream = new TlvInputStream_TlvInputStream(responseBytes);
-                        responsePdu = new ExtendResponsePdu_ExtendResponsePdu(stream.readTag());
-                        if (stream.getPosition() < stream.getLength()) {
-                            throw new KsiServiceError("Response contains more bytes than PDU length");
-                        }
-                        errorPayload = responsePdu.getErrorPayload();
-                        if (errorPayload !== null) {
-                            if (responsePdu.getPayloads().length > 0) {
-                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
-                            }
-                            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
-                        }
-                        currentExtendPayload = null;
-                        for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
-                            responsePayload = _a[_i];
-                            extendPayload = responsePayload;
-                            payloadRequestId = extendPayload.getRequestId().toString();
-                            if (!this.requests.hasOwnProperty(payloadRequestId)) {
-                                throw new KsiServiceError('Extend response request ID does not match any request id which is sent!');
-                            }
-                            request = this.requests[payloadRequestId];
-                            delete this.requests[payloadRequestId];
-                            if (payloadRequestId !== requestId.toString()) {
-                                request.abort(extendPayload);
-                                continue;
-                            }
-                            if (currentExtendPayload !== null) {
-                                throw new KsiServiceError('Multiple extend payload responses in single PDU.');
-                            }
-                            currentExtendPayload = extendPayload;
-                        }
-                        return [2 /*return*/, ExtendingService.processPayload(currentExtendPayload)];
-                }
-            });
-        });
-    };
-    return ExtendingService;
-}());
-
-
-// CONCATENATED MODULE: ./src/service/PublicationsFileServiceProtocol.ts
-var PublicationsFileServiceProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var PublicationsFileServiceProtocol_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-/**
- * HTTP publications file service protocol
- */
-var PublicationsFileServiceProtocol = /** @class */ (function () {
-    function PublicationsFileServiceProtocol(publicationsFileUrl) {
-        this.publicationsFileUrl = publicationsFileUrl;
-    }
-    PublicationsFileServiceProtocol.prototype.getPublicationsFile = function () {
-        return PublicationsFileServiceProtocol_awaiter(this, void 0, void 0, function () {
-            var response, _a;
-            return PublicationsFileServiceProtocol_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, fetch(this.publicationsFileUrl, {
-                            method: 'GET'
-                        })];
-                    case 1:
-                        response = _b.sent();
-                        _a = Uint8Array.bind;
-                        return [4 /*yield*/, response.arrayBuffer()];
-                    case 2: return [2 /*return*/, new (_a.apply(Uint8Array, [void 0, _b.sent()]))()];
-                }
-            });
-        });
-    };
-    return PublicationsFileServiceProtocol;
-}());
-
-
-// CONCATENATED MODULE: ./src/service/AggregationRequestPayload.ts
-var AggregationRequestPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-
-/**
- * Aggregation request payload
- */
-var AggregationRequestPayload_AggregationRequestPayload = /** @class */ (function (_super) {
-    AggregationRequestPayload_extends(AggregationRequestPayload, _super);
-    function AggregationRequestPayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationRequestPayload.CREATE = function (requestId, hash, level) {
-        if (level === void 0) { level = BigInteger_default()(0); }
-        if (!BigInteger_default.a.isInstance(requestId)) {
-            throw new TlvError("Invalid requestId: " + requestId);
-        }
-        if (!(hash instanceof DataHash_DataHash)) {
-            throw new TlvError("Invalid requestId: " + hash);
-        }
-        if (!BigInteger_default.a.isInstance(level)) {
-            throw new TlvError("Invalid level: " + level);
-        }
-        var childTlv = [
-            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
-            ImprintTag_ImprintTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType, false, false, hash)
-        ];
-        if (level.neq(0)) {
-            childTlv.push(IntegerTag_IntegerTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType, false, false, level));
-        }
-        return new AggregationRequestPayload(CompositeTag_CompositeTag.createCompositeTagTlv(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
-    };
-    AggregationRequestPayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
-                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType:
-                return this.requestHash = new ImprintTag_ImprintTag(tlvTag);
-            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType:
-                return this.requestLevel = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    AggregationRequestPayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
-            throw new TlvError('Exactly one request id must exist in aggregation request payload.');
-        }
-        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType] !== 1) {
-            throw new TlvError('Exactly one request hash must exist in aggregation request payload.');
-        }
-        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType] > 1) {
-            throw new TlvError('Only one request level is allowed in aggregation request payload.');
-        }
-    };
-    return AggregationRequestPayload;
-}(CompositeTag_CompositeTag));
-
-
-// CONCATENATED MODULE: ./src/service/AggregatorConfigRequestPayload.ts
-var AggregatorConfigRequestPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Aggregator configuration request payload.
- */
-var AggregatorConfigRequestPayload = /** @class */ (function (_super) {
-    AggregatorConfigRequestPayload_extends(AggregatorConfigRequestPayload, _super);
-    function AggregatorConfigRequestPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return AggregatorConfigRequestPayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/service/AggregationRequestPdu.ts
-var AggregationRequestPdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var AggregationRequestPdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var AggregationRequestPdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-/**
- * Aggregation request PDU
- */
-var AggregationRequestPdu_AggregationRequestPdu = /** @class */ (function (_super) {
-    AggregationRequestPdu_extends(AggregationRequestPdu, _super);
-    function AggregationRequestPdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationRequestPdu.CREATE = function (header, payload, algorithm, key) {
-        return AggregationRequestPdu_awaiter(this, void 0, void 0, function () {
-            var _a;
-            return AggregationRequestPdu_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = AggregationRequestPdu.bind;
-                        return [4 /*yield*/, Pdu_Pdu.create(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
-                    case 1: return [2 /*return*/, new (_a.apply(AggregationRequestPdu, [void 0, _b.sent()]))()];
-                }
-            });
-        });
-    };
-    AggregationRequestPdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType:
-                var aggregationRequestPayload = new AggregationRequestPayload_AggregationRequestPayload(tlvTag);
-                this.payloads.push(aggregationRequestPayload);
-                return aggregationRequestPayload;
-            case AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
-                return this.aggregatorConfigRequest = new AggregatorConfigRequestPayload(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    AggregationRequestPdu.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one aggregator config request payload is allowed in PDU.');
-        }
-    };
-    return AggregationRequestPdu;
-}(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/service/AggregationResponsePayload.ts
-var AggregationResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-/**
- * Aggregation response payload
- */
-var AggregationResponsePayload_AggregationResponsePayload = /** @class */ (function (_super) {
-    AggregationResponsePayload_extends(AggregationResponsePayload, _super);
-    function AggregationResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationResponsePayload.prototype.getSignatureTags = function () {
-        var tlvList = [];
-        for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
-            var tlvTag = _a[_i];
-            if (tlvTag.id > 0x800 && tlvTag.id < 0x900) {
-                tlvList.push(tlvTag);
-            }
-        }
-        return tlvList;
-    };
-    AggregationResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
-            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
-            case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
-            case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
-                return tlvTag;
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    AggregationResponsePayload.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one extender config request payload is allowed in PDU.');
-        }
-    };
-    return AggregationResponsePayload;
-}(RequestResponsePayload_RequestResponsePayload));
-
-
-// CONCATENATED MODULE: ./src/service/AggregationErrorPayload.ts
-var AggregationErrorPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Aggregation Error payload TLV element.
- */
-var AggregationErrorPayload = /** @class */ (function (_super) {
-    AggregationErrorPayload_extends(AggregationErrorPayload, _super);
-    function AggregationErrorPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return AggregationErrorPayload;
-}(ErrorPayload));
-
-
-// CONCATENATED MODULE: ./src/service/AggregatorConfigResponsePayload.ts
-var AggregatorConfigResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Aggregator configuration response payload.
- */
-var AggregatorConfigResponsePayload_AggregatorConfigResponsePayload = /** @class */ (function (_super) {
-    AggregatorConfigResponsePayload_extends(AggregatorConfigResponsePayload, _super);
-    function AggregatorConfigResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.parentUriList = [];
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregatorConfigResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType:
-                return this.maxLevel = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType:
-                return this.aggregationAlgorithm = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType:
-                return this.aggregationPeriod = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
-                return this.maxRequests = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.ParentUriTagType:
-                var uriTag = new StringTag_StringTag(tlvTag);
-                this.parentUriList.push(uriTag);
-                return uriTag;
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    AggregatorConfigResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType] > 1) {
-            throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');
-        }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType] > 1) {
-            throw new TlvError('Only one aggregation algorithm tag is allowed in aggregator config response payload.');
-        }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType] > 1) {
-            throw new TlvError('Only one aggregation period tag is allowed in aggregator config response payload.');
-        }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
-            throw new TlvError('Only one max requests tag is allowed in aggregator config response payload.');
-        }
-    };
-    return AggregatorConfigResponsePayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/service/AggregationResponsePdu.ts
-var AggregationResponsePdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Aggregation response PDU
- */
-var AggregationResponsePdu_AggregationResponsePdu = /** @class */ (function (_super) {
-    AggregationResponsePdu_extends(AggregationResponsePdu, _super);
-    function AggregationResponsePdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationResponsePdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                var aggregationResponsePayload = new AggregationResponsePayload_AggregationResponsePayload(tlvTag);
-                this.payloads.push(aggregationResponsePayload);
-                return aggregationResponsePayload;
-            case ERROR_PAYLOAD_CONSTANTS.TagType:
-                return this.errorPayload = new AggregationErrorPayload(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return this.aggregatorConfigResponse = new AggregatorConfigResponsePayload_AggregatorConfigResponsePayload(tlvTag);
-            // not implemented yet, so just return the tag
-            case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return tlvTag;
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    AggregationResponsePdu.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one aggregator config response payload is allowed in PDU.');
-        }
-    };
-    return AggregationResponsePdu;
-}(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/service/SigningService.ts
-var SigningService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var SigningService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Signing service
- */
-var SigningService_SigningService = /** @class */ (function () {
-    function SigningService(signingServiceProtocol, signingServiceCredentials) {
-        this.requests = {};
-        if (!(signingServiceProtocol instanceof SigningService)) {
-            throw new KsiServiceError("Invalid signing service protocol: " + signingServiceProtocol);
-        }
-        if (!isIServiceCredentials(signingServiceCredentials)) {
-            throw new KsiServiceError("Invalid signing service credentials: " + signingServiceCredentials);
-        }
-        this.signingServiceProtocol = signingServiceProtocol;
-        this.signingServiceCredentials = signingServiceCredentials;
-    }
-    SigningService.processPayload = function (payload) {
-        if (!(payload instanceof AggregationResponsePayload_AggregationResponsePayload)) {
-            throw new KsiServiceError("Invalid AggregationResponsePayload: " + payload);
-        }
-        if (payload.getStatus().neq(0)) {
-            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
-        }
-        return KsiSignature_KsiSignature.CREATE(payload);
-    };
-    SigningService.prototype.sign = function (hash, level) {
-        if (level === void 0) { level = BigInteger_default()(0); }
-        return SigningService_awaiter(this, void 0, void 0, function () {
-            var header, requestId, requestPayload, requestPdu, ksiRequest, responseBytes, stream, responsePdu, errorPayload, currentAggregationPayload, _i, _a, responsePayload, aggregationPayload, payloadRequestId, request;
-            return SigningService_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (!(hash instanceof DataHash_DataHash)) {
-                            throw new KsiServiceError("Invalid hash: " + hash);
-                        }
-                        if (!BigInteger_default.a.isInstance(level)) {
-                            throw new KsiServiceError("Invalid level: " + level + ", must be BigInteger");
-                        }
-                        header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
-                        requestId = pseudoRandomLong();
-                        requestPayload = AggregationRequestPayload_AggregationRequestPayload.CREATE(requestId, hash, level);
-                        return [4 /*yield*/, AggregationRequestPdu_AggregationRequestPdu.CREATE(header, requestPayload, this.signingServiceCredentials.getHmacAlgorithm(), this.signingServiceCredentials.getLoginKey())];
-                    case 1:
-                        requestPdu = _b.sent();
-                        ksiRequest = new KsiRequest_KsiRequest(requestPdu.encode());
-                        this.requests[requestId.toString()] = ksiRequest;
-                        return [4 /*yield*/, this.signingServiceProtocol.sign(ksiRequest)];
-                    case 2:
-                        responseBytes = _b.sent();
-                        if (ksiRequest.getAbortSignal().aborted) {
-                            return [2 /*return*/, SigningService.processPayload(ksiRequest.getResponsePdu())];
-                        }
-                        stream = new TlvInputStream_TlvInputStream(responseBytes);
-                        responsePdu = new AggregationResponsePdu_AggregationResponsePdu(stream.readTag());
-                        if (stream.getPosition() < stream.getLength()) {
-                            throw new KsiServiceError("Response contains more bytes than PDU length");
-                        }
-                        errorPayload = responsePdu.getErrorPayload();
-                        if (errorPayload !== null) {
-                            if (responsePdu.getPayloads().length > 0) {
-                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
-                            }
-                            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
-                        }
-                        currentAggregationPayload = null;
-                        for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
-                            responsePayload = _a[_i];
-                            aggregationPayload = responsePayload;
-                            payloadRequestId = aggregationPayload.getRequestId().toString();
-                            if (!this.requests.hasOwnProperty(payloadRequestId)) {
-                                throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent!');
-                            }
-                            request = this.requests[payloadRequestId];
-                            delete this.requests[payloadRequestId];
-                            if (payloadRequestId !== requestId.toString()) {
-                                request.abort(aggregationPayload);
-                                continue;
-                            }
-                            if (currentAggregationPayload !== null) {
-                                throw new KsiServiceError('Multiple aggregation responses in single PDU.');
-                            }
-                            currentAggregationPayload = aggregationPayload;
-                        }
-                        return [2 /*return*/, SigningService.processPayload(currentAggregationPayload)];
-                }
-            });
-        });
-    };
-    return SigningService;
-}());
-
-
-// CONCATENATED MODULE: ./src/service/KsiService.ts
-var KsiService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var KsiService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-/**
- * KSI service.
- */
-var KsiService_KsiService = /** @class */ (function () {
-    function KsiService(signingServiceProtocol, signingServiceCredentials, extendingServiceProtocol, extendingServiceCredentials, publicationsFileServiceProtocol, publicationsFileFactory) {
-        if (!(publicationsFileServiceProtocol instanceof PublicationsFileServiceProtocol)) {
-            throw new KsiServiceError("Invalid publications file service protocol: " + publicationsFileServiceProtocol);
-        }
-        if (!(publicationsFileFactory instanceof PublicationsFileFactory_PublicationsFileFactory)) {
-            throw new KsiServiceError("Invalid publications file factory: " + publicationsFileFactory);
-        }
-        this.signingService = new SigningService_SigningService(signingServiceProtocol, signingServiceCredentials);
-        this.extendingService = new ExtendingService_ExtendingService(extendingServiceProtocol, extendingServiceCredentials);
-        this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
-        this.publicationsFileFactory = publicationsFileFactory;
-    }
-    KsiService.prototype.sign = function (hash, level) {
-        if (level === void 0) { level = BigInteger_default()(0); }
-        return KsiService_awaiter(this, void 0, void 0, function () {
-            return KsiService_generator(this, function (_a) {
-                return [2 /*return*/, this.signingService.sign(hash, level)];
-            });
-        });
-    };
-    KsiService.prototype.extend = function (aggregationTime, publicationTime) {
-        if (publicationTime === void 0) { publicationTime = null; }
-        return KsiService_awaiter(this, void 0, void 0, function () {
-            return KsiService_generator(this, function (_a) {
-                return [2 /*return*/, this.extendingService.extend(aggregationTime, publicationTime)];
-            });
-        });
-    };
-    KsiService.prototype.getPublicationsFile = function () {
-        return KsiService_awaiter(this, void 0, void 0, function () {
-            var _a, _b;
-            return KsiService_generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        _b = (_a = this.publicationsFileFactory).create;
-                        return [4 /*yield*/, this.publicationsFileServiceProtocol.getPublicationsFile()];
-                    case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
-                }
-            });
-        });
-    };
-    return KsiService;
-}());
-
-
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/main.mjs
 // Crypto package
 
@@ -58811,85 +59034,6 @@ var KsiService_KsiService = /** @class */ (function () {
 
 
 // Models
-
-
-// CONCATENATED MODULE: ./src/service/SigningServiceProtocol.ts
-var SigningServiceProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var SigningServiceProtocol_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-/**
- * HTTP signing service protocol
- */
-var SigningServiceProtocol_SigningServiceProtocol = /** @class */ (function () {
-    function SigningServiceProtocol(signingUrl) {
-        this.signingUrl = signingUrl;
-    }
-    SigningServiceProtocol.prototype.sign = function (request) {
-        return SigningServiceProtocol_awaiter(this, void 0, void 0, function () {
-            var headers, response, _a;
-            return SigningServiceProtocol_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (!(request instanceof KsiRequest_KsiRequest)) {
-                            throw new KsiServiceError("Invalid KSI request: " + request);
-                        }
-                        headers = new Headers();
-                        headers.append('Content-Type', 'application/ksi-request');
-                        headers.append('Content-Length', request.getRequestBytes().length.toString());
-                        return [4 /*yield*/, fetch(this.signingUrl, {
-                                method: 'POST',
-                                body: request.getRequestBytes(),
-                                headers: headers,
-                                signal: request.getAbortSignal()
-                            })];
-                    case 1:
-                        response = _b.sent();
-                        if (request.getAbortSignal().aborted) {
-                            return [2 /*return*/, null];
-                        }
-                        _a = Uint8Array.bind;
-                        return [4 /*yield*/, response.arrayBuffer()];
-                    case 2: return [2 /*return*/, new (_a.apply(Uint8Array, [void 0, _b.sent()]))()];
-                }
-            });
-        });
-    };
-    return SigningServiceProtocol;
-}());
 
 
 // CONCATENATED MODULE: ./src/service/ServiceCredentials.ts
@@ -58933,17 +59077,25 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 /* concated harmony reexport PublicationBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationBasedVerificationPolicy", function() { return PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy; });
 /* concated harmony reexport VerificationContext */__webpack_require__.d(__webpack_exports__, "VerificationContext", function() { return VerificationContext_VerificationContext; });
 /* concated harmony reexport KeyBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "KeyBasedVerificationPolicy", function() { return KeyBasedVerificationPolicy_KeyBasedVerificationPolicy; });
+/* concated harmony reexport PublicationsFileVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationsFileVerificationPolicy", function() { return PublicationsFileVerificationPolicy_PublicationsFileVerificationPolicy; });
 /* concated harmony reexport KsiService */__webpack_require__.d(__webpack_exports__, "KsiService", function() { return KsiService_KsiService; });
 /* concated harmony reexport DataHash */__webpack_require__.d(__webpack_exports__, "DataHash", function() { return DataHash_DataHash; });
 /* concated harmony reexport HashAlgorithm */__webpack_require__.d(__webpack_exports__, "HashAlgorithm", function() { return HashAlgorithm_HashAlgorithm; });
 /* concated harmony reexport SigningServiceProtocol */__webpack_require__.d(__webpack_exports__, "SigningServiceProtocol", function() { return SigningServiceProtocol_SigningServiceProtocol; });
 /* concated harmony reexport ExtendingServiceProtocol */__webpack_require__.d(__webpack_exports__, "ExtendingServiceProtocol", function() { return ExtendingServiceProtocol_ExtendingServiceProtocol; });
 /* concated harmony reexport PublicationsFileServiceProtocol */__webpack_require__.d(__webpack_exports__, "PublicationsFileServiceProtocol", function() { return PublicationsFileServiceProtocol; });
+/* concated harmony reexport SigningService */__webpack_require__.d(__webpack_exports__, "SigningService", function() { return SigningService_SigningService; });
+/* concated harmony reexport ExtendingService */__webpack_require__.d(__webpack_exports__, "ExtendingService", function() { return ExtendingService_ExtendingService; });
+/* concated harmony reexport PublicationsFileService */__webpack_require__.d(__webpack_exports__, "PublicationsFileService", function() { return PublicationsFileService_PublicationsFileService; });
 /* concated harmony reexport ServiceCredentials */__webpack_require__.d(__webpack_exports__, "ServiceCredentials", function() { return ServiceCredentials_ServiceCredentials; });
 /* concated harmony reexport PublicationsFileFactory */__webpack_require__.d(__webpack_exports__, "PublicationsFileFactory", function() { return PublicationsFileFactory_PublicationsFileFactory; });
 /**
  * KSI Javascript API externally visible classes
  */
+
+
+
+
 
 
 

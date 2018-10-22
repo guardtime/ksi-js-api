@@ -18,7 +18,8 @@ export class ExtendedSignatureCalendarHashChainRightLinksMatchRule extends Verif
             throw new KsiVerificationError('Invalid calendar hash chain: null');
         }
 
-        const extendedCalendarHashChain: CalendarHashChain = context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
+        const extendedCalendarHashChain: CalendarHashChain =
+            await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
 
         return calendarHashChain.areRightLinksEqual(extendedCalendarHashChain)
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.OK)

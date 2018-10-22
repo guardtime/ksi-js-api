@@ -1,8 +1,6 @@
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash} from 'gt-js-common';
-import {AGGREGATION_REQUEST_PAYLOAD_CONSTANTS, EXTEND_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS} from '../Constants';
+import {EXTEND_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
-import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';

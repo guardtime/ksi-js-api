@@ -1,3 +1,4 @@
+import {BigInteger} from 'big-integer';
 import {PDU_PAYLOAD_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
@@ -5,7 +6,6 @@ import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PduPayload} from './PduPayload';
-import {BigInteger} from 'big-integer';
 
 /**
  * PDU payload base class for responses

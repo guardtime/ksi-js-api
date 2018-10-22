@@ -18,8 +18,8 @@ export class ExtendedSignatureCalendarChainAggregationTimeRule extends Verificat
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
 
         const extendedCalendarHashChain: CalendarHashChain = calendarHashChain == null
-            ? context.getExtendedLatestCalendarHashChain()
-            : context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
+            ? await context.getExtendedLatestCalendarHashChain()
+            : await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
 
         if (extendedCalendarHashChain === null) {
             throw new KsiVerificationError('Received invalid extended calendar hash chain from context extension function: null.');

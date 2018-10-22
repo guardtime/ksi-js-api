@@ -5,8 +5,8 @@ import {CalendarHashChain} from '../signature/CalendarHashChain';
 import {KsiSignature} from '../signature/KsiSignature';
 import {ExtendingService} from './ExtendingService';
 import {KsiServiceError} from './KsiServiceError';
-import {SigningService} from './SigningService';
 import {PublicationsFileService} from './PublicationsFileService';
+import {SigningService} from './SigningService';
 
 /**
  * KSI service.

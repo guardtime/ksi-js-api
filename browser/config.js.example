@@ -1,4 +1,4 @@
-var CONFIG = {
+const CONFIG = {
     AGGREGATION_URL: 'http://URL:0000',
     EXTENDER_URL: 'http://URL:0000',
     LOGIN_ID: 'loginId',

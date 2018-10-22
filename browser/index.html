@@ -32,12 +32,27 @@
         const stream = new KSI.TlvInputStream(data);
         const tlvTag = stream.readTag();
         const signature = new KSI.KsiSignature(tlvTag);
-        service.extend(signature.getAggregationTime());
+        console.log(signature);
+
+        service.getPublicationsFile().then((publicationsFile) => {
+            console.log(publicationsFile);
+
+            const policy = new KSI.PublicationsFileVerificationPolicy();
+            const context = new KSI.VerificationContext(signature);
+            context.setPublicationsFile(publicationsFile);
+            context.setExtendingAllowed(true);
+            context.setKsiService(service);
+            policy.verify(context)
+                .then((result) => {
+                    console.log(result);
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
+        });
     });
 
-    service.getPublicationsFile().then((publicationsFile) => {
-        console.log(publicationsFile);
-    });
+
 </script>
 </body>
 </html>

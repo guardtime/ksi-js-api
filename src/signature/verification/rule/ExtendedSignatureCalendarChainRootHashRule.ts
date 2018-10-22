@@ -21,7 +21,8 @@ export class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule
             throw new KsiVerificationError('Invalid calendar hash chain: null');
         }
 
-        const extendedCalendarHashChain: CalendarHashChain = context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
+        const extendedCalendarHashChain: CalendarHashChain =
+            await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
 
         return !(await calendarHashChain.calculateOutputHash()).equals(await extendedCalendarHashChain.calculateOutputHash())
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_01)

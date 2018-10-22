@@ -18,7 +18,8 @@ export class UserProvidedPublicationExtendedSignatureInputHashRule extends Verif
             throw new KsiVerificationError('Invalid user publication in context: null.');
         }
 
-        const extendedCalendarHashChain: CalendarHashChain = context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
+        const extendedCalendarHashChain: CalendarHashChain =
+            await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
 
         return !extendedCalendarHashChain.getInputHash().equals(signature.getLastAggregationHashChainRootHash())
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)

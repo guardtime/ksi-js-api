@@ -1,19 +1,14 @@
 import {
     AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS,
-    AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS,
-    AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS,
     ERROR_PAYLOAD_CONSTANTS, EXTEND_RESPONSE_PAYLOAD_CONSTANTS, EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS
 } from '../Constants';
 import {ITlvCount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
-import {AggregationErrorPayload} from './AggregationErrorPayload';
-import {AggregationResponsePayload} from './AggregationResponsePayload';
-import {AggregatorConfigResponsePayload} from './AggregatorConfigResponsePayload';
-import {Pdu} from './Pdu';
-import {ExtendResponsePayload} from './ExtendResponsePayload';
-import {ExtendErrorPayload} from './ExtendErrorPayload';
 import {ExtenderConfigResponsePayload} from './ExtenderConfigResponsePayload';
+import {ExtendErrorPayload} from './ExtendErrorPayload';
+import {ExtendResponsePayload} from './ExtendResponsePayload';
+import {Pdu} from './Pdu';
 
 /**
  * Extend response PDU

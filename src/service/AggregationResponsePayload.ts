@@ -4,11 +4,10 @@ import {
     CALENDAR_HASH_CHAIN_CONSTANTS, EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS,
     KSI_SIGNATURE_CONSTANTS
 } from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
-import {TlvTag} from '../parser/TlvTag';
-import {ResponsePayload} from './ResponsePayload';
-import {RequestResponsePayload} from './RequestResponsePayload';
+import {ITlvCount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
+import {TlvTag} from '../parser/TlvTag';
+import {RequestResponsePayload} from './RequestResponsePayload';
 
 /**
  * Aggregation response payload
@@ -19,7 +18,6 @@ export class AggregationResponsePayload extends RequestResponsePayload {
         super(tlvTag);
 
         this.decodeValue(this.parseChild.bind(this));
-
 
         Object.freeze(this);
     }

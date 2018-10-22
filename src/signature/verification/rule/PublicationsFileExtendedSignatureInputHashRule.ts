@@ -25,7 +25,8 @@ export class PublicationsFileExtendedSignatureInputHashRule extends Verification
                                             ${signature.getAggregationTime()}.`);
         }
 
-        const extendedCalendarHashChain: CalendarHashChain = context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
+        const extendedCalendarHashChain: CalendarHashChain =
+            await context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
 
         return !extendedCalendarHashChain.getInputHash().equals(signature.getLastAggregationHashChainRootHash())
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)

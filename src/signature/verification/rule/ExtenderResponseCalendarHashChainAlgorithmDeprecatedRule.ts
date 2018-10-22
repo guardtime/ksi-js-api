@@ -37,7 +37,8 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
             publicationData = publicationRecord.getPublicationData();
         }
 
-        const extendedCalendarHashChain: CalendarHashChain = context.getExtendedCalendarHashChain(publicationData.getPublicationTime());
+        const extendedCalendarHashChain: CalendarHashChain =
+            await context.getExtendedCalendarHashChain(publicationData.getPublicationTime());
         const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
         if (deprecatedLink !== null) {
             console.log(`Calendar hash chain contains deprecated aggregation algorithm at publication time.
