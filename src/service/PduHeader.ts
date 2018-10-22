@@ -27,7 +27,7 @@ export class PduHeader extends CompositeTag {
             throw new TlvError(`Invalid loginId: ${loginId}`);
         }
 
-        return new PduHeader(CompositeTag.createCompositeTagTlv(PDU_HEADER_CONSTANTS.TagType, false, false, [
+        return new PduHeader(CompositeTag.createFromList(PDU_HEADER_CONSTANTS.TagType, false, false, [
             StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
         ]));
     }

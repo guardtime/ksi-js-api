@@ -37,7 +37,7 @@
         service.getPublicationsFile().then((publicationsFile) => {
             console.log(publicationsFile);
 
-            const policy = new KSI.PublicationsFileVerificationPolicy();
+            const policy = new KSI.KeyBasedVerificationPolicy();
             const context = new KSI.VerificationContext(signature);
             context.setPublicationsFile(publicationsFile);
             context.setExtendingAllowed(true);

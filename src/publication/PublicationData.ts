@@ -24,7 +24,7 @@ export class PublicationData extends CompositeTag {
     }
 
     public static CREATE(publicationTime: BigInteger, publicationHash: DataHash): PublicationData {
-        return new PublicationData(CompositeTag.createCompositeTagTlv(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
+        return new PublicationData(CompositeTag.createFromList(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
             IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
             ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash)
         ]));

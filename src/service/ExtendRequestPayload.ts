@@ -47,7 +47,7 @@ export class ExtendRequestPayload extends PduPayload {
         }
 
         return new ExtendRequestPayload(
-            CompositeTag.createCompositeTagTlv(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+            CompositeTag.createFromList(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {

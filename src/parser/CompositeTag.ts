@@ -22,14 +22,18 @@ export abstract class CompositeTag extends TlvTag {
         this.tlvCount = {};
     }
 
-    protected static createCompositeTagTlv(id: number, nonCriticalFlag: boolean, forwardFlag: boolean,
-                                           value: TlvTag[], tlv16BitFlag: boolean = false): TlvTag {
+    protected static createFromList(id: number, nonCriticalFlag: boolean, forwardFlag: boolean,
+                                    value: TlvTag[], tlv16BitFlag: boolean = false): TlvTag {
         const stream: TlvOutputStream = new TlvOutputStream();
         for (const tlvTag of value) {
             stream.writeTag(tlvTag);
         }
 
         return new TlvTag(id, nonCriticalFlag, forwardFlag, stream.getData(), tlv16BitFlag);
+    }
+
+    protected static createFromCompositeTag(id: number, tlvTag: CompositeTag): TlvTag {
+        return new TlvTag(id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
     }
 
     protected static parseTlvTag(tlvTag: TlvTag): TlvTag {
