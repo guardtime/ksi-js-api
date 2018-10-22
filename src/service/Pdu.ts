@@ -5,6 +5,7 @@ import {ImprintTag} from '../parser/ImprintTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvInputStream} from '../parser/TlvInputStream';
 import {TlvTag} from '../parser/TlvTag';
+import {ErrorPayload} from './ErrorPayload';
 import {PduHeader} from './PduHeader';
 import {PduPayload} from './PduPayload';
 
@@ -13,16 +14,16 @@ import {PduPayload} from './PduPayload';
  */
 export abstract class Pdu extends CompositeTag {
     protected payloads: PduPayload[] = [];
+    protected errorPayload: ErrorPayload | null = null;
     private header: PduHeader;
     private hmac: ImprintTag;
 
-    constructor(tlvTag: TlvTag) {
+    protected constructor(tlvTag: TlvTag) {
         super(tlvTag);
     }
 
-    // TODO: Change TLVTag to PduPayload
-    public static async CREATE_PDU(tagType: number, header: PduHeader, payload: TlvTag, algorithm: HashAlgorithm,
-                                   key: Uint8Array): Promise<TlvTag> {
+    protected static async create(tagType: number, header: PduHeader, payload: PduPayload, algorithm: HashAlgorithm,
+                                  key: Uint8Array): Promise<TlvTag> {
 
         const pduBytes: Uint8Array = CompositeTag.createCompositeTagTlv(tagType, false, false, [
             header,
@@ -34,6 +35,10 @@ export abstract class Pdu extends CompositeTag {
         return new TlvInputStream(pduBytes).readTag();
     }
 
+    public getErrorPayload(): ErrorPayload | null {
+        return this.errorPayload;
+    }
+
     public getPayloads(): PduPayload[] {
         return this.payloads;
     }
@@ -41,10 +46,8 @@ export abstract class Pdu extends CompositeTag {
     protected parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case PDU_HEADER_CONSTANTS.TagType:
-                // _headerIndex = Count;
                 return this.header = new PduHeader(tlvTag);
             case PDU_CONSTANTS.MacTagType:
-                // _macIndex = Count;
                 return this.hmac = new ImprintTag(tlvTag);
             default:
                 return CompositeTag.parseTlvTag(tlvTag);
@@ -52,16 +55,24 @@ export abstract class Pdu extends CompositeTag {
     }
 
     protected validate(tagCount: ITlvCount): void {
-        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
-            throw new TlvError('Exactly one login id must exist in PDU header.');
+        if (ErrorPayload != null) {
+            return;
         }
 
-        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
-            throw new TlvError('Only one instance id is allowed in PDU header.');
+        if (this.payloads.length === 0) {
+            throw new TlvError('Payloads are missing in PDU.');
         }
-
-        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
-            throw new TlvError('Only one message id is allowed in PDU header.');
+        if (tagCount[PDU_HEADER_CONSTANTS.TagType] !== 1) {
+            throw new TlvError('Exactly one header must exist in PDU.');
+        }
+        if (this.value[0] !== this.header) {
+            throw new TlvError('Header must be the first element in PDU.');
+        }
+        if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
+            throw new TlvError('Exactly one MAC must exist in PDU');
+        }
+        if (this.value[this.value.length - 1] !== this.hmac) {
+            throw new TlvError('MAC must be the last element in PDU');
         }
     }
 }

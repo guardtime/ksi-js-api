@@ -6,7 +6,7 @@ import {TlvTag} from '../parser/TlvTag';
  */
 export abstract class PduPayload extends CompositeTag {
 
-    constructor(tlvTag: TlvTag) {
+    protected constructor(tlvTag: TlvTag) {
         super(tlvTag);
     }
 

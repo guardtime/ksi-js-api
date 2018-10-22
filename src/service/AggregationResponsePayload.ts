@@ -1,13 +1,14 @@
 import {
     AGGREGATION_HASH_CHAIN_CONSTANTS,
     CALENDAR_AUTHENTICATION_RECORD_CONSTANTS,
-    CALENDAR_HASH_CHAIN_CONSTANTS,
+    CALENDAR_HASH_CHAIN_CONSTANTS, EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS,
     KSI_SIGNATURE_CONSTANTS
 } from '../Constants';
-import {CompositeTag} from '../parser/CompositeTag';
+import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {TlvTag} from '../parser/TlvTag';
 import {ResponsePayload} from './ResponsePayload';
 import {RequestResponsePayload} from './RequestResponsePayload';
+import {TlvError} from '../parser/TlvError';
 
 /**
  * Aggregation response payload
@@ -18,6 +19,7 @@ export class AggregationResponsePayload extends RequestResponsePayload {
         super(tlvTag);
 
         this.decodeValue(this.parseChild.bind(this));
+
 
         Object.freeze(this);
     }
@@ -42,6 +44,14 @@ export class AggregationResponsePayload extends RequestResponsePayload {
                 return tlvTag;
             default:
                 return super.parseChild(tlvTag);
+        }
+    }
+
+    protected validate(tagCount: ITlvCount): void {
+        super.validate(tagCount);
+
+        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config request payload is allowed in PDU.');
         }
     }
 }

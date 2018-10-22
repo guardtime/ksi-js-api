@@ -5,6 +5,7 @@
     "no-relative-imports": false,
     "no-suspicious-comment": false,
     "no-console": false,
-    "no-non-null-assertion": false
+    "no-non-null-assertion": false,
+    "no-any": false
   }
 }

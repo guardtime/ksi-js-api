@@ -1,3 +1,4 @@
 .idea/
 node_modules/
 tools/proxy/httpd/01-ksi-proxy.conf
+browser/config.js

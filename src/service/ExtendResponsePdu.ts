@@ -2,7 +2,7 @@ import {
     AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS,
     AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS,
     AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS,
-    ERROR_PAYLOAD_CONSTANTS
+    ERROR_PAYLOAD_CONSTANTS, EXTEND_RESPONSE_PAYLOAD_CONSTANTS, EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS
 } from '../Constants';
 import {ITlvCount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
@@ -11,12 +11,15 @@ import {AggregationErrorPayload} from './AggregationErrorPayload';
 import {AggregationResponsePayload} from './AggregationResponsePayload';
 import {AggregatorConfigResponsePayload} from './AggregatorConfigResponsePayload';
 import {Pdu} from './Pdu';
+import {ExtendResponsePayload} from './ExtendResponsePayload';
+import {ExtendErrorPayload} from './ExtendErrorPayload';
+import {ExtenderConfigResponsePayload} from './ExtenderConfigResponsePayload';
 
 /**
- * Aggregation response PDU
+ * Extend response PDU
  */
-export class AggregationResponsePdu extends Pdu {
-    private aggregatorConfigResponse: AggregatorConfigResponsePayload;
+export class ExtendResponsePdu extends Pdu {
+    private extenderConfigResponse: ExtenderConfigResponsePayload;
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
@@ -29,15 +32,15 @@ export class AggregationResponsePdu extends Pdu {
 
     protected parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
-            case AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                const aggregationResponsePayload: AggregationResponsePayload = new AggregationResponsePayload(tlvTag);
-                this.payloads.push(aggregationResponsePayload);
+            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                const extendResponsePayload: ExtendResponsePayload = new ExtendResponsePayload(tlvTag);
+                this.payloads.push(extendResponsePayload);
 
-                return aggregationResponsePayload;
+                return extendResponsePayload;
             case ERROR_PAYLOAD_CONSTANTS.TagType:
-                return this.errorPayload = new AggregationErrorPayload(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return this.aggregatorConfigResponse = new AggregatorConfigResponsePayload(tlvTag);
+                return this.errorPayload = new ExtendErrorPayload(tlvTag);
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return this.extenderConfigResponse = new ExtenderConfigResponsePayload(tlvTag);
             // not implemented yet, so just return the tag
             case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
                 return tlvTag;
@@ -49,8 +52,8 @@ export class AggregationResponsePdu extends Pdu {
     protected validate(tagCount: ITlvCount): void {
         super.validate(tagCount);
 
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one aggregator config response payload is allowed in PDU.');
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config response payload is allowed in PDU.');
         }
     }
 }

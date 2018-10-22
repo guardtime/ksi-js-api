@@ -5,35 +5,39 @@
     <title>Title</title>
 </head>
 <body>
-    <script src="/dist/main.js"></script>
-    <script>
-        fetch('/ksi-publications.bin').then((response) => {
-            return response.arrayBuffer();
-        }).then((data) => {
-            const publicationFileFactory = new KSI.PublicationsFileFactory();
-            const publicationsFile = publicationFileFactory.create(new Uint8Array(data));
-            console.log(publicationsFile);
+<script src="config.js"></script>
+<script src="/dist/main.js"></script>
+<script>
+    const service = new KSI.KsiService(
+        new KSI.SigningService(
+            new KSI.SigningServiceProtocol(CONFIG.AGGREGATION_URL),
+            new KSI.ServiceCredentials(CONFIG.LOGIN_ID, CONFIG.LOGIN_KEY)
+        ),
+        new KSI.ExtendingService(
+            new KSI.ExtendingServiceProtocol(CONFIG.EXTENDER_URL),
+            new KSI.ServiceCredentials(CONFIG.LOGIN_ID, CONFIG.LOGIN_KEY)
+        ),
+        new KSI.PublicationsFileService(
+            new KSI.PublicationsFileServiceProtocol(CONFIG.PUBLICATIONS_FILE_URL),
+            new KSI.PublicationsFileFactory()
+        ));
 
-            fetch('/ok-sig-2014-04-30.1.ksig').then((response) => {
-                return response.arrayBuffer();
-            }).then((data) => {
-                const stream = new KSI.TlvInputStream(data);
-                const tlvTag = stream.readTag();
-                const signature = new KSI.KsiSignature(tlvTag);
-                const policy = new KSI.KeyBasedVerificationPolicy();
-                const context = new KSI.VerificationContext(signature);
-                context.setPublicationsFile(publicationsFile);
-                window.policy = policy;
-                window.signature = signature;
-                policy.verify(context)
-                    .then((result) => {
-                        console.log(result);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    })
-            });
-        });
-    </script>
+    service.sign(KSI.DataHash.create(KSI.HashAlgorithm.SHA2_256, new Uint8Array(32))).then((signature) => {
+        console.log(signature);
+    });
+
+    fetch('/ok-sig-2014-04-30.1.ksig').then((response) => {
+        return response.arrayBuffer();
+    }).then((data) => {
+        const stream = new KSI.TlvInputStream(data);
+        const tlvTag = stream.readTag();
+        const signature = new KSI.KsiSignature(tlvTag);
+        service.extend(signature.getAggregationTime());
+    });
+
+    service.getPublicationsFile().then((publicationsFile) => {
+        console.log(publicationsFile);
+    });
+</script>
 </body>
 </html>

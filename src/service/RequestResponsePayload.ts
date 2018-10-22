@@ -6,6 +6,7 @@ import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PduPayload} from './PduPayload';
 import {ResponsePayload} from './ResponsePayload';
+import {BigInteger} from 'big-integer';
 
 /**
  * PDU payload base class for requested responses
@@ -13,8 +14,12 @@ import {ResponsePayload} from './ResponsePayload';
 export abstract class RequestResponsePayload extends ResponsePayload {
     private requestId: IntegerTag;
 
-    constructor(tlvTag: TlvTag) {
+    protected constructor(tlvTag: TlvTag) {
         super(tlvTag);
+    }
+
+    public getRequestId(): BigInteger {
+        return this.requestId.getValue();
     }
 
     protected parseChild(tlvTag: TlvTag): TlvTag {

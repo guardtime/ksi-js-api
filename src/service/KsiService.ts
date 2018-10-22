@@ -1,68 +1,62 @@
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash, pseudoRandomLong} from 'gt-js-common';
-import {TlvInputStream} from '../parser/TlvInputStream';
-import {PublicationsFileFactory} from '../publication/PublicationsFileFactory';
+import {DataHash} from 'gt-js-common';
+import {IPublicationsFile} from '../publication/IPublicationsFile';
+import {CalendarHashChain} from '../signature/CalendarHashChain';
 import {KsiSignature} from '../signature/KsiSignature';
-import {AggregationRequestPayload} from './AggregationRequestPayload';
-import {AggregationRequestPdu} from './AggregationRequestPdu';
-import {AggregationResponsePdu} from './AggregationResponsePdu';
-import {IServiceCredentials} from './IServiceCredentials';
+import {ExtendingService} from './ExtendingService';
 import {KsiServiceError} from './KsiServiceError';
-import {PduHeader} from './PduHeader';
-import {SigningServiceProtocol} from './SigningServiceProtocol';
-import {AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS, AGGREGATION_RESPONSE_PDU_CONSTANTS} from '../Constants';
-import {PduPayload} from './PduPayload';
-import {AggregationResponsePayload} from './AggregationResponsePayload';
+import {SigningService} from './SigningService';
+import {PublicationsFileService} from './PublicationsFileService';
 
 /**
  * KSI service.
  */
 export class KsiService {
+    private readonly signingService: SigningService | null;
+    private readonly extendingService: ExtendingService | null;
+    private readonly publicationsFileService: PublicationsFileService | null;
 
-    private signingServiceProtocol: SigningServiceProtocol;
-    private signingServiceCredentials: IServiceCredentials;
-    // private extendingServiceProtocol: ExtendingServiceProtocol;
-    private extendingServiceCredentials: IServiceCredentials;
-    // private publicationsFileServiceProtocol: PublicationsFileServiceProtocol;
-    private publicationsFileFactory: PublicationsFileFactory;
+    constructor(signingService: SigningService | null = null, extendingService: ExtendingService | null = null,
+                publicationsFileService: PublicationsFileService | null) {
+        if (signingService !== null && !(signingService instanceof SigningService)) {
+            throw new KsiServiceError(`Invalid signing service: ${signingService}`);
+        }
 
-    constructor(signingServiceProtocol: SigningServiceProtocol, signingServiceCredentials: IServiceCredentials) {
-        // extendingServiceProtocol: ExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials,
-        // publicationsFileServiceProtocol: PublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory) {
-        this.signingServiceProtocol = signingServiceProtocol;
-        this.signingServiceCredentials = signingServiceCredentials;
-        // this.extendingServiceProtocol = extendingServiceProtocol;
-        // this.extendingServiceCredentials = extendingServiceCredentials;
-        // this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
-        // this.publicationsFileFactory = publicationsFileFactory;
+        if (extendingService !== null && !(extendingService instanceof ExtendingService)) {
+            throw new KsiServiceError(`Invalid extending service: ${extendingService}`);
+        }
+
+        if (publicationsFileService !== null && !(publicationsFileService instanceof PublicationsFileService)) {
+            throw new KsiServiceError(`Invalid publications file service: ${publicationsFileService}`);
+        }
+
+        this.signingService = signingService;
+        this.extendingService = extendingService;
+        this.publicationsFileService = publicationsFileService;
     }
 
     public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
-        if (!(hash instanceof DataHash)) {
-            throw new KsiServiceError(`Invalid hash: ${hash}`);
+        if (this.signingService === null) {
+            throw new KsiServiceError('Signing protocol not defined. Cannot use signing.');
         }
 
-        if (!bigInteger.isInstance(level)) {
-            throw new KsiServiceError(`Invalid level: ${level}, must be BigInteger`);
+        return this.signingService.sign(hash, level);
+    }
+
+    public async extend(aggregationTime: BigInteger, publicationTime: BigInteger | null = null): Promise<CalendarHashChain> {
+        if (this.extendingService === null) {
+            throw new KsiServiceError('Extending service not defined. Cannot use extending.');
         }
 
-        const header: PduHeader = PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
-        const requestId: BigInteger = pseudoRandomLong();
-        const requestPayload: AggregationRequestPayload = AggregationRequestPayload.CREATE(requestId, hash, level);
+        return this.extendingService.extend(aggregationTime, publicationTime);
+    }
 
-        const requestPdu: AggregationRequestPdu = await AggregationRequestPdu.CREATE(header, requestPayload,
-                                                                                     this.signingServiceCredentials.getHmacAlgorithm(),
-                                                                                     this.signingServiceCredentials.getLoginKey());
-        const responseBytes: Uint8Array = await this.signingServiceProtocol.sign(requestPdu.encode());
-        const stream: TlvInputStream = new TlvInputStream(responseBytes);
-        const responsePdu: AggregationResponsePdu = new AggregationResponsePdu(stream.readTag());
-        for (const responsePayload of responsePdu.getPayloads()) {
-            if (responsePayload.id === AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType) {
-                return KsiSignature.CREATE(<AggregationResponsePayload>responsePayload);
-            }
+    public async getPublicationsFile(): Promise<IPublicationsFile> {
+        if (this.publicationsFileService === null) {
+            throw new KsiServiceError('Publications file service not defined. Cannot get publications file.');
         }
 
-        throw new KsiServiceError('No valid payload found');
+        return this.publicationsFileService.getPublicationsFile();
     }
 
 }

@@ -240,11 +240,43 @@ export const AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: nu
     TagType: 0x4
 });
 
+export const EXTEND_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: number; AggregationTimeTagType: number; PublicationTimeTagType: number }> = Object.freeze({
+    TagType: 0x2,
+
+    AggregationTimeTagType: 0x2,
+    PublicationTimeTagType: 0x3
+});
+
+export const EXTEND_REQUEST_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x320
+});
+
+export const EXTEND_RESPONSE_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x321
+});
+
+export const EXTEND_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number; CalendarLastTimeTagType: number }> = Object.freeze({
+    TagType: 0x2,
+
+    CalendarLastTimeTagType: 0x12
+});
+
+export const EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
+    TagType: 0x4
+});
+
+export const EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number; MaxRequestsTagType: number; ParentUriTagType: number; CalendarFirstTimeTagType: number; CalendarLastTimeTagType: number }> = Object.freeze({
+    TagType: 0x4,
+
+    MaxRequestsTagType: 0x4,
+    ParentUriTagType: 0x10,
+    CalendarFirstTimeTagType: 0x11,
+    CalendarLastTimeTagType: 0x12
+});
+
 export const PDU_CONSTANTS: Readonly<{ MacTagType: number }> = Object.freeze({
     MacTagType: 0x1F
 });
-
-
 
 export enum LinkDirection {
     Left = 0x7,

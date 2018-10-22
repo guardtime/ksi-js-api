@@ -2,16 +2,16 @@ import {KsiRequest} from './KsiRequest';
 import {KsiServiceError} from './KsiServiceError';
 
 /**
- * HTTP signing service protocol
+ * HTTP extending service protocol
  */
-export class SigningServiceProtocol {
-    private readonly signingUrl: string;
+export class ExtendingServiceProtocol {
+    private readonly extendingUrl: string;
 
-    constructor(signingUrl: string) {
-        this.signingUrl = signingUrl;
+    constructor(extendingUrl: string) {
+        this.extendingUrl = extendingUrl;
     }
 
-    public async sign(request: KsiRequest): Promise<Uint8Array | null> {
+    public async extend(request: KsiRequest): Promise<Uint8Array | null> {
         if (!(request instanceof KsiRequest)) {
             throw new KsiServiceError(`Invalid KSI request: ${request}`);
         }
@@ -20,7 +20,7 @@ export class SigningServiceProtocol {
         headers.append('Content-Type', 'application/ksi-request');
         headers.append('Content-Length', request.getRequestBytes().length.toString());
 
-        const response: Response = await fetch(this.signingUrl, {
+        const response: Response = await fetch(this.extendingUrl, {
             method: 'POST',
             body: request.getRequestBytes(),
             headers: headers,

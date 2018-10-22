@@ -5,16 +5,25 @@ import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PduPayload} from './PduPayload';
+import {BigInteger} from 'big-integer';
 
 /**
  * PDU payload base class for responses
  */
 export abstract class ResponsePayload extends PduPayload {
     private status: IntegerTag;
-    private errorMessage: StringTag;
+    private errorMessage: StringTag | null = null;
 
-    constructor(tlvTag: TlvTag) {
+    protected constructor(tlvTag: TlvTag) {
         super(tlvTag);
+    }
+
+    public getStatus(): BigInteger {
+        return this.status.getValue();
+    }
+
+    public getErrorMessage(): string | null {
+        return this.errorMessage !== null ? this.errorMessage.getValue() : null;
     }
 
     protected parseChild(tlvTag: TlvTag): TlvTag {

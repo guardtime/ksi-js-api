@@ -1,3 +1,4 @@
+import {TlvError} from './TlvError';
 import {TlvTag} from './TlvTag';
 
 /**
@@ -15,10 +16,18 @@ export class TlvOutputStream {
     }
 
     public writeTag(tlvTag: TlvTag): void {
+        if (!(tlvTag instanceof TlvTag)) {
+            throw new TlvError(`Invalid tlvTag: ${tlvTag}`);
+        }
+
         this.write(tlvTag.encode());
     }
 
     public write(data: Uint8Array): void {
+        if (!(data instanceof Uint8Array)) {
+            throw new TlvError(`Invalid data: ${data}`);
+        }
+
         const combinedData: Uint8Array = new Uint8Array(this.data.length + data.length);
         combinedData.set(this.data);
         combinedData.set(data, this.data.length);
