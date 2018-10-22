@@ -50,7 +50,7 @@ export class KsiSignature extends CompositeTag {
     }
 
     public getAggregationTime(): bigInteger.BigInteger {
-        return bigInteger(0);
+        return this.aggregationHashChains[0].getAggregationTime();
     }
 
     public getAggregationHashChains(): AggregationHashChain[] {

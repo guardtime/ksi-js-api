@@ -24,7 +24,7 @@ export class ExtendResponsePayload extends RequestResponsePayload {
     }
 
     public getCalendarHashChain(): CalendarHashChain {
-        return this.getCalendarHashChain();
+        return this.calendarHashChain;
     }
 
     protected parseChild(tlvTag: TlvTag): TlvTag {

@@ -40,8 +40,8 @@ export class SigningService {
         }
 
         if (payload.getStatus().neq(0))         {
-            throw new KsiServiceError(`Server responded with error message.
-                                       Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`);
+            // tslint:disable-next-line:max-line-length
+            throw new KsiServiceError(`Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`);
         }
 
         return KsiSignature.CREATE(payload);
@@ -82,8 +82,8 @@ export class SigningService {
                 throw new KsiServiceError(`PDU contains unexpected response payloads!\nPDU:\n${responsePdu}`);
             }
 
-            throw new KsiServiceError(`Server responded with error message.
-                                       Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`);
+            // tslint:disable-next-line:max-line-length
+            throw new KsiServiceError(`Server responded with error message. Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`);
         }
 
         let currentAggregationPayload: AggregationResponsePayload | null = null;

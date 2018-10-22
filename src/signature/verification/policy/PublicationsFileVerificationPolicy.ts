@@ -2,7 +2,9 @@ import {CalendarHashChainAlgorithmDeprecatedRule} from '../rule/CalendarHashChai
 import {ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule} from '../rule/ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule';
 import {ExtendingPermittedVerificationRule} from '../rule/ExtendingPermittedVerificationRule';
 import {PublicationsFileExtendedSignatureInputHashRule} from '../rule/PublicationsFileExtendedSignatureInputHashRule';
+// tslint:disable-next-line:max-line-length
 import {PublicationsFilePublicationHashMatchesExtenderResponseRule} from '../rule/PublicationsFilePublicationHashMatchesExtenderResponseRule';
+// tslint:disable-next-line:max-line-length
 import {PublicationsFilePublicationTimeMatchesExtenderResponseRule} from '../rule/PublicationsFilePublicationTimeMatchesExtenderResponseRule';
 import {PublicationsFileSignaturePublicationMatchRule} from '../rule/PublicationsFileSignaturePublicationMatchRule';
 import {SignaturePublicationRecordExistenceRule} from '../rule/SignaturePublicationRecordExistenceRule';

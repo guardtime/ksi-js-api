@@ -1,5 +1,5 @@
 import {BigInteger} from 'big-integer';
-import {pseudoRandomLong} from 'gt-js-common';
+import {HexCoder, pseudoRandomLong} from 'gt-js-common';
 import {TlvInputStream} from '../parser/TlvInputStream';
 import {CalendarHashChain} from '../signature/CalendarHashChain';
 import {ErrorPayload} from './ErrorPayload';
@@ -40,8 +40,8 @@ export class ExtendingService {
         }
 
         if (payload.getStatus().neq(0)) {
-            throw new KsiServiceError(`Server responded with error message.
-                                       Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`);
+            // tslint:disable-next-line:max-line-length
+            throw new KsiServiceError(`Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`);
         }
 
         return payload.getCalendarHashChain();
@@ -74,8 +74,8 @@ export class ExtendingService {
                 throw new KsiServiceError(`PDU contains unexpected response payloads!\nPDU:\n${responsePdu}`);
             }
 
-            throw new KsiServiceError(`Server responded with error message.
-                                       Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`);
+            // tslint:disable-next-line:max-line-length
+            throw new KsiServiceError(`Server responded with error message. Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`);
         }
 
         let currentExtendPayload: ExtendResponsePayload | null = null;

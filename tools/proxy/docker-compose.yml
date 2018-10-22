@@ -1,7 +1,0 @@
-version: '3'
-services:
-  proxy:
-    build: ./httpd
-    ports:
-      - "8080:8080"
-      - "8081:8081"

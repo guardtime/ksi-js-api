@@ -15,8 +15,8 @@ export class InputHashAlgorithmDeprecatedRule extends VerificationRule {
         const inputHash: DataHash = signature.getInputHash();
 
         if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
-            console.log(`Input hash algorithm was deprecated at aggregation time.
-                         Algorithm: ${inputHash.hashAlgorithm.name}; Aggregation time: ${signature.getAggregationTime()}`);
+            // tslint:disable-next-line:max-line-length
+            console.log(`Input hash algorithm was deprecated at aggregation time. Algorithm: ${inputHash.hashAlgorithm.name}; Aggregation time: ${signature.getAggregationTime()}`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13);
         }

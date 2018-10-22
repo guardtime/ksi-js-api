@@ -27,8 +27,8 @@ export class Rfc3161RecordChainIndexRule extends VerificationRule {
         const rfc3161ChainIndexJson: string = JSON.stringify(rfc3161ChainIndex);
         const aggregationChainIndexJson: string = JSON.stringify(aggregationChainIndex);
         if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
-            console.log(`Aggregation hash chain index and RFC3161 chain index mismatch.
-                         Aggregation chain index ${rfc3161ChainIndexJson} and RFC3161 chain index is ${aggregationChainIndexJson}`);
+            // tslint:disable-next-line:max-line-length
+            console.log(`Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index ${rfc3161ChainIndexJson} and RFC3161 chain index is ${aggregationChainIndexJson}`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12);
         }

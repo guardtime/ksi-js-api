@@ -22,9 +22,8 @@ export class AggregationHashChainConsistencyRule extends VerificationRule {
             }
 
             if (!chain.getInputHash().equals(chainHashResult.hash)) {
-                console.log(`Aggregation hash chains not consistent.
-                             Aggregation hash chain input hash ${chain.getInputHash()} does not match previous
-                             aggregation hash chain output hash ${chainHashResult.hash}.`);
+                // tslint:disable-next-line:max-line-length
+                console.log(`Aggregation hash chains not consistent. Aggregation hash chain input hash ${chain.getInputHash()} does not match previous aggregation hash chain output hash ${chainHashResult.hash}.`);
 
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01);
             }

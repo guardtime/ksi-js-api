@@ -24,9 +24,8 @@ export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends Verification
         const aggregationTime: bigInteger.BigInteger = aggregationHashChain.getAggregationTime();
 
         if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
-            console.log(`RFC3161 output hash algorithm was deprecated at aggregation time.
-                         Algorithm: ${hashAlgorithm};
-                         Aggregation time: ${aggregationTime}`);
+            // tslint:disable-next-line:max-line-length
+            console.log(`RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: ${hashAlgorithm}; Aggregation time: ${aggregationTime}`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17);
         }

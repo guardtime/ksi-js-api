@@ -20,8 +20,8 @@ export class AggregationHashChainShapeRule extends VerificationRule {
             const lastIndexValue: BigInteger = chainIndex[chainIndex.length - 1];
 
             if (!lastIndexValue.eq(calculatedValue)) {
-                console.log(`The shape of the aggregation hash chain does not match with the chain index.
-                              Calculated location pointer: ${calculatedValue}; Value in chain: ${lastIndexValue}`);
+                // tslint:disable-next-line:max-line-length
+                console.log(`The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: ${calculatedValue}; Value in chain: ${lastIndexValue}`);
 
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10);
             }

@@ -22,9 +22,8 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
             if (parentChainIndex !== null && !(parentChainIndex.length !== chainIndex.length
                 || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
 
-                console.log(`Chain index is not the successor to the parent aggregation hash chain index.
-                            Chain index: ${chainIndex};
-                            Parent chain index: ${parentChainIndex}`);
+                // tslint:disable-next-line:max-line-length
+                console.log(`Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}`);
 
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12);
             }
