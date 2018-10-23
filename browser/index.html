@@ -26,7 +26,7 @@
         console.log(signature);
     });
 
-    fetch('/ok-sig-2014-04-30.1.ksig').then((response) => {
+    fetch('/sig.ksig').then((response) => {
         return response.arrayBuffer();
     }).then((data) => {
         const stream = new KSI.TlvInputStream(data);

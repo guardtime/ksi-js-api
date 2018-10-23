@@ -7,6 +7,7 @@ import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
 import {VerificationRule} from '../VerificationRule';
+import {AGGREGATION_HASH_CHAIN_CONSTANTS} from '../../../Constants';
 
 /**
  * Rule verifies if all metadata tags in aggregation hash chains are valid.
@@ -58,7 +59,8 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
                         }
 
                         const valueBytesString: string = JSON.stringify(paddingTag.getValueBytes());
-                        if (valueBytesString !== JSON.stringify([0x0, 0x0]) && valueBytesString !== JSON.stringify([0x0])) {
+                        if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
+                            && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
                             throw new Error('Unknown padding value.');
                         }
 

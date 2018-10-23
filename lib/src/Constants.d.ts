@@ -48,6 +48,8 @@ declare type AggregationHashChainConstants = Readonly<{
         MachineIdTagType: number;
         SequenceNumberTagType: number;
         RequestTimeTagType: number;
+        PaddingKnownValueEven: Uint8Array;
+        PaddingKnownValueOdd: Uint8Array;
     }>;
 }>;
 declare type SignatureDataConstants = Readonly<{

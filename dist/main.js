@@ -49893,7 +49893,9 @@ var AGGREGATION_HASH_CHAIN_CONSTANTS = Object.freeze({
         ClientIdTagType: 0x1,
         MachineIdTagType: 0x2,
         SequenceNumberTagType: 0x3,
-        RequestTimeTagType: 0x4
+        RequestTimeTagType: 0x4,
+        PaddingKnownValueEven: new Uint8Array([0x1, 0x1]),
+        PaddingKnownValueOdd: new Uint8Array([0x1, 0x1])
     }),
     TagType: 0x801,
     AggregationTimeTagType: 0x2,
@@ -55406,6 +55408,7 @@ var AggregationHashChainMetadataRule_generator = (undefined && undefined.__gener
 
 
 
+
 /**
  * Rule verifies if all metadata tags in aggregation hash chains are valid.
  */
@@ -55456,7 +55459,8 @@ var AggregationHashChainMetadataRule_AggregationHashChainMetadataRule = /** @cla
                                     throw new Error('Non-critical and forward flags must be set.');
                                 }
                                 valueBytesString = JSON.stringify(paddingTag.getValueBytes());
-                                if (valueBytesString !== JSON.stringify([0x0, 0x0]) && valueBytesString !== JSON.stringify([0x0])) {
+                                if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
+                                    && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
                                     throw new Error('Unknown padding value.');
                                 }
                                 stream = new TlvOutputStream_TlvOutputStream();

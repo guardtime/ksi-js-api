@@ -25,6 +25,8 @@ type AggregationHashChainConstants = Readonly<{
         MachineIdTagType: number;
         SequenceNumberTagType: number;
         RequestTimeTagType: number;
+        PaddingKnownValueEven: Uint8Array;
+        PaddingKnownValueOdd: Uint8Array;
     }>;
 }>;
 
@@ -132,7 +134,10 @@ export const AGGREGATION_HASH_CHAIN_CONSTANTS: AggregationHashChainConstants = O
         ClientIdTagType: 0x1,
         MachineIdTagType: 0x2,
         SequenceNumberTagType: 0x3,
-        RequestTimeTagType: 0x4
+        RequestTimeTagType: 0x4,
+
+        PaddingKnownValueEven: new Uint8Array([0x1, 0x1]),
+        PaddingKnownValueOdd: new Uint8Array([0x1, 0x1])
     }),
 
     TagType: 0x801,
