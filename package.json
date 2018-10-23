@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "main": "./dist/main.js",
+  "types": "./lib/src/main.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "webpack",
+    "build": "rimraf lib && webpack",
     "browser:dev": "webpack-dev-server"
   },
   "jest": {
@@ -51,6 +52,7 @@
     "typescript": "^3.0.3",
     "ts-loader": "^5.1.1",
     "tslint": "5.11.0",
-    "tslint-microsoft-contrib": "^5.2.1"
+    "tslint-microsoft-contrib": "^5.2.1",
+    "rimraf": "^2.6.2"
   }
 }

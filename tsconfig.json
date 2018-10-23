@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./lib",
     "noImplicitAny": true,
     "strictNullChecks": true,
     "moduleResolution": "node",
@@ -9,6 +9,7 @@
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "declaration": true,
     "lib": [
       "es6",
       "es2015",
