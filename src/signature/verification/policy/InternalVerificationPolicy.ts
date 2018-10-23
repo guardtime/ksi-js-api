@@ -33,27 +33,28 @@ import {VerificationPolicy} from './VerificationPolicy';
  */
 export class InternalVerificationPolicy extends VerificationPolicy {
     constructor() {
-        super(InternalVerificationPolicy.verifyInput()
-            .onSuccess(InternalVerificationPolicy.verifyRfc3161()
-                .onSuccess(InternalVerificationPolicy.verifyAggregationChain()
-                    .onSuccess(
-                        // Verify calendar hash chain if exists
-                        new CalendarHashChainExistenceRule() // Gen-02
-                            .onSuccess(
-                                InternalVerificationPolicy.verifyCalendarChain()
-                                    .onSuccess(
-                                        // Verify calendar auth record if exists
-                                        new CalendarAuthenticationRecordExistenceRule() // Gen-02
-                                            .onSuccess(new CalendarAuthenticationRecordPublicationTimeRule() // Int-06
-                                                .onSuccess(new CalendarAuthenticationRecordAggregationHashRule()))
-                                            // No calendar auth record. Verify publication record.
-                                            .onNa(new SignaturePublicationRecordExistenceRule() // Gen-02
-                                                .onSuccess(new SignaturePublicationRecordPublicationTimeRule() // Int-07
-                                                    .onSuccess(new SignaturePublicationRecordPublicationHashRule())) // Int-09
-                                                // No publication record
-                                                .onNa(new SuccessResultRule())))))
-                    // No calendar hash chain
-                    .onNa(new SuccessResultRule()))));
+        super(
+            InternalVerificationPolicy.verifyInput()
+                .onSuccess(InternalVerificationPolicy.verifyRfc3161()
+                    .onSuccess(InternalVerificationPolicy.verifyAggregationChain()
+                        .onSuccess(
+                            // Verify calendar hash chain if exists
+                            new CalendarHashChainExistenceRule() // Gen-02
+                                .onSuccess(
+                                    InternalVerificationPolicy.verifyCalendarChain()
+                                        .onSuccess(
+                                            // Verify calendar auth record if exists
+                                            new CalendarAuthenticationRecordExistenceRule() // Gen-02
+                                                .onSuccess(new CalendarAuthenticationRecordPublicationTimeRule() // Int-06
+                                                    .onSuccess(new CalendarAuthenticationRecordAggregationHashRule()))
+                                                // No calendar auth record. Verify publication record.
+                                                .onNa(new SignaturePublicationRecordExistenceRule() // Gen-02
+                                                    .onSuccess(new SignaturePublicationRecordPublicationTimeRule() // Int-07
+                                                        .onSuccess(new SignaturePublicationRecordPublicationHashRule())) // Int-09
+                                                    // No publication record
+                                                    .onNa(new SuccessResultRule())))))
+                        // No calendar hash chain
+                        .onNa(new SuccessResultRule()))));
     }
 
     private static verifyInput(): VerificationRule {
@@ -61,7 +62,8 @@ export class InternalVerificationPolicy extends VerificationPolicy {
             new InputHashAlgorithmVerificationRule() // Gen-04
                 .onSuccess(new DocumentHashVerificationRule() // Gen-01
                     .onSuccess(new DocumentHashLevelVerificationRule() // Gen-03
-                        .onSuccess(new InputHashAlgorithmDeprecatedRule())))); // Int-13)
+                        .onSuccess(new InputHashAlgorithmDeprecatedRule()))),
+            'Verify Input'); // Int-13)
     }
 
     private static verifyRfc3161(): VerificationRule {
@@ -70,22 +72,27 @@ export class InternalVerificationPolicy extends VerificationPolicy {
                 .onSuccess(new Rfc3161RecordOutputHashAlgorithmDeprecatedRule() // Int-17
                     .onSuccess(new Rfc3161RecordChainIndexRule() // Int-12
                         .onSuccess(new Rfc3161RecordOutputHashVerificationRule() // Int-01
-                            .onSuccess(new Rfc3161RecordAggregationTimeRule()))))); // Int-02
+                            .onSuccess(new Rfc3161RecordAggregationTimeRule())))),
+            'Verify Rfc3161'); // Int-02
     }
 
     private static verifyAggregationChain(): VerificationRule {
-        return new VerificationPolicy(new AggregationHashChainIndexSuccessorRule() // Int-12
-            .onSuccess(new AggregationHashChainMetadataRule() // Int-11
-                .onSuccess(new AggregationHashChainAlgorithmDeprecatedRule() // Int-15
-                    .onSuccess(new AggregationHashChainConsistencyRule() // Int-01
-                        .onSuccess(new AggregationHashChainTimeConsistencyRule() // Int-02
-                            .onSuccess(new AggregationHashChainShapeRule())))))); // Int-10
+        return new VerificationPolicy(
+            new AggregationHashChainIndexSuccessorRule() // Int-12
+                .onSuccess(new AggregationHashChainMetadataRule() // Int-11
+                    .onSuccess(new AggregationHashChainAlgorithmDeprecatedRule() // Int-15
+                        .onSuccess(new AggregationHashChainConsistencyRule() // Int-01
+                            .onSuccess(new AggregationHashChainTimeConsistencyRule() // Int-02
+                                .onSuccess(new AggregationHashChainShapeRule()))))),
+            'Verify aggregation hash chain'); // Int-10
     }
 
     private static verifyCalendarChain(): VerificationRule {
-        return new VerificationPolicy(new CalendarHashChainInputHashVerificationRule() // Int-03
-            .onSuccess(new CalendarHashChainAggregationTimeRule() // Int-04
-                .onSuccess(new CalendarHashChainRegistrationTimeRule() // Int-05
-                    .onSuccess(new CalendarHashChainAlgorithmObsoleteRule())))); // Int-16 // Int-10
+        return new VerificationPolicy(
+            new CalendarHashChainInputHashVerificationRule() // Int-03
+                .onSuccess(new CalendarHashChainAggregationTimeRule() // Int-04
+                    .onSuccess(new CalendarHashChainRegistrationTimeRule() // Int-05
+                        .onSuccess(new CalendarHashChainAlgorithmObsoleteRule()))),
+            'Verify calendar hash chain'); // Int-16 // Int-10
     }
 }

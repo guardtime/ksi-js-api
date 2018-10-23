@@ -7,6 +7,7 @@ export {PublicationBasedVerificationPolicy} from './signature/verification/polic
 export {VerificationContext} from './signature/verification/VerificationContext';
 export {KeyBasedVerificationPolicy} from './signature/verification/policy/KeyBasedVerificationPolicy';
 export {PublicationsFileVerificationPolicy} from './signature/verification/policy/PublicationsFileVerificationPolicy';
+export {DefaultVerificationPolicy} from './signature/verification/policy/DefaultVerificationPolicy';
 export {KsiService} from './service/KsiService';
 export {DataHash, HashAlgorithm} from 'gt-js-common';
 export {SigningServiceProtocol} from './service/SigningServiceProtocol';

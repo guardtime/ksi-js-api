@@ -11,8 +11,8 @@ export class VerificationPolicy extends VerificationRule {
     private readonly firstRule: VerificationRule | null;
     private verificationResults: VerificationResult[] = [];
 
-    constructor(rule: VerificationRule | null = null) {
-        super();
+    constructor(rule: VerificationRule | null = null, ruleName: string | null = null) {
+        super(ruleName);
 
         if (rule !== null) {
             VerificationRule.verifyRule(rule);

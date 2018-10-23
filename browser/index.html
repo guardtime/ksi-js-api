@@ -37,10 +37,10 @@
         service.getPublicationsFile().then((publicationsFile) => {
             console.log(publicationsFile);
 
-            const policy = new KSI.KeyBasedVerificationPolicy();
+            const policy = new KSI.DefaultVerificationPolicy();
             const context = new KSI.VerificationContext(signature);
             context.setPublicationsFile(publicationsFile);
-            context.setExtendingAllowed(true);
+            context.setExtendingAllowed(false);
             context.setKsiService(service);
             policy.verify(context)
                 .then((result) => {

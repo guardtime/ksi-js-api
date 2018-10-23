@@ -3,6 +3,7 @@
  */
 import {LinkDirection} from '../../Constants';
 import {ImprintTag} from '../../parser/ImprintTag';
+import {KsiError} from '../../service/KsiError';
 import {CalendarHashChain} from '../CalendarHashChain';
 import {KsiSignature} from '../KsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
@@ -10,10 +11,20 @@ import {VerificationContext} from './VerificationContext';
 import {VerificationResult, VerificationResultCode} from './VerificationResult';
 
 export abstract class VerificationRule {
-
+    private readonly ruleName: string = this.constructor.name;
     private onSuccessRule: VerificationRule | null = null;
     private onFailureRule: VerificationRule | null = null;
     private onNaRule: VerificationRule | null = null;
+
+    protected constructor(ruleName: string | null = null) {
+        if (ruleName !== null) {
+            if (typeof ruleName !== 'string') {
+                throw new KsiError(`Invalid rule name: ${ruleName}`);
+            }
+
+            this.ruleName = ruleName;
+        }
+    }
 
     protected static verifyContext(context: VerificationContext): void {
         if (!(context instanceof VerificationContext)) {
@@ -64,7 +75,7 @@ export abstract class VerificationRule {
     }
 
     public getRuleName(): string {
-        return this.constructor.name;
+        return this.ruleName;
     }
 
     public onSuccess(rule: VerificationRule): VerificationRule {
