@@ -10,6 +10,7 @@ export {TlvError} from './parser/TlvError';
 export {TlvInputStream} from './parser/TlvInputStream';
 export {TlvOutputStream} from './parser/TlvOutputStream';
 
+export {default as BigInteger} from 'big-integer';
 export {DataHash, HashAlgorithm, DataHasher} from 'gt-js-common';
 
 export {KsiSignature} from './signature/KsiSignature';

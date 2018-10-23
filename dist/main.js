@@ -59231,6 +59231,7 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 /* concated harmony reexport TlvError */__webpack_require__.d(__webpack_exports__, "TlvError", function() { return TlvError; });
 /* concated harmony reexport TlvInputStream */__webpack_require__.d(__webpack_exports__, "TlvInputStream", function() { return TlvInputStream_TlvInputStream; });
 /* concated harmony reexport TlvOutputStream */__webpack_require__.d(__webpack_exports__, "TlvOutputStream", function() { return TlvOutputStream_TlvOutputStream; });
+/* concated harmony reexport BigInteger */__webpack_require__.d(__webpack_exports__, "BigInteger", function() { return BigInteger_default.a; });
 /* concated harmony reexport DataHash */__webpack_require__.d(__webpack_exports__, "DataHash", function() { return DataHash_DataHash; });
 /* concated harmony reexport HashAlgorithm */__webpack_require__.d(__webpack_exports__, "HashAlgorithm", function() { return HashAlgorithm_HashAlgorithm; });
 /* concated harmony reexport DataHasher */__webpack_require__.d(__webpack_exports__, "DataHasher", function() { return DataHasher_DataHasher; });
@@ -59252,6 +59253,7 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 /**
  * KSI Javascript API externally visible classes
  */
+
 
 
 
