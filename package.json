@@ -6,7 +6,7 @@
   "types": "./lib/src/main.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "rimraf lib && webpack",
+    "build": "rimraf lib && tsc -t ES6 -d && webpack",
     "browser:dev": "webpack-dev-server"
   },
   "jest": {
