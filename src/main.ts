@@ -1,8 +1,16 @@
 /**
  * KSI Javascript API externally visible classes
  */
-export {KsiSignature} from './signature/KsiSignature';
+export {CompositeTag} from './parser/CompositeTag';
+export {ImprintTag} from './parser/ImprintTag';
+export {IntegerTag} from './parser/IntegerTag';
+export {RawTag} from './parser/RawTag';
+export {StringTag} from './parser/StringTag';
+export {TlvError} from './parser/TlvError';
 export {TlvInputStream} from './parser/TlvInputStream';
+export {TlvOutputStream} from './parser/TlvOutputStream';
+
+export {KsiSignature} from './signature/KsiSignature';
 export {PublicationBasedVerificationPolicy} from './signature/verification/policy/PublicationBasedVerificationPolicy';
 export {VerificationContext} from './signature/verification/VerificationContext';
 export {KeyBasedVerificationPolicy} from './signature/verification/policy/KeyBasedVerificationPolicy';

@@ -49780,60 +49780,56 @@ forge.task.createCondition = function() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 
-// EXTERNAL MODULE: ./node_modules/big-integer/BigInteger.js
-var BigInteger = __webpack_require__(1);
-var BigInteger_default = /*#__PURE__*/__webpack_require__.n(BigInteger);
-
-// EXTERNAL MODULE: ./node_modules/base64-js/index.js
-var base64_js = __webpack_require__(18);
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/strings/ASCIIConverter.js
-class ASCIIConverter {
-    /**
-     * Convert string to bytes
-     * @param asciiString string
-     * @returns {Uint8Array} byte array
-     */
-    static ToBytes(asciiString) {
-        if (typeof asciiString !== 'string') {
-            throw new Error('Invalid string');
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/strings/StringUtils.js
+/**
+ * Add tab prefix to each line of string
+ * @param value string
+ * @returns string prefixed string
+ */
+const tabPrefix = (value) => {
+    if (typeof (value) !== 'string') {
+        throw new Error('Value not string');
+    }
+    let result = '';
+    const lines = value.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        result += '    ';
+        result += lines[i];
+        if (i !== (lines.length - 1)) {
+            result += '\n';
         }
-        const bytes = [];
-        for (let i = 0; i < asciiString.length; i++) {
-            bytes.push(asciiString.charCodeAt(i));
-        }
-        return new Uint8Array(bytes);
     }
-    /**
-     * Convert bytes to string
-     * @param {Uint8Array} bytes
-     * @returns string
-     */
-    static ToString(bytes) {
-        if (!(bytes instanceof Uint8Array)) {
-            throw new Error('Invalid byte array');
-        }
-        return String.fromCharCode.apply(null, bytes.subarray(0, bytes.length));
-    }
-}
+    return result;
+};
 
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base64Coder.js
+// CONCATENATED MODULE: ./src/parser/TlvError.ts
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+ * TLV parsing error
+ */
+var TlvError = /** @class */ (function (_super) {
+    __extends(TlvError, _super);
+    function TlvError(message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = 'TlvError';
+        Object.setPrototypeOf(_this, TlvError.prototype);
+        return _this;
+    }
+    return TlvError;
+}(Error));
 
-
-class Base64Coder_Base64Coder {
-    static decode(value) {
-        return Object(base64_js["toByteArray"])(value);
-    }
-    static encode(bytes) {
-        return Object(base64_js["fromByteArray"])(bytes);
-    }
-    static decodeToByteString(value) {
-        return ASCIIConverter.ToString(Base64Coder_Base64Coder.decode(value));
-    }
-    static encodeByteString(byteString) {
-        return Base64Coder_Base64Coder.encode(ASCIIConverter.ToBytes(byteString));
-    }
-}
 
 // CONCATENATED MODULE: ./src/Constants.ts
 /**
@@ -50013,57 +50009,6 @@ var LinkDirection;
     LinkDirection[LinkDirection["Left"] = 7] = "Left";
     LinkDirection[LinkDirection["Right"] = 8] = "Right";
 })(LinkDirection || (LinkDirection = {}));
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/strings/StringUtils.js
-/**
- * Add tab prefix to each line of string
- * @param value string
- * @returns string prefixed string
- */
-const tabPrefix = (value) => {
-    if (typeof (value) !== 'string') {
-        throw new Error('Value not string');
-    }
-    let result = '';
-    const lines = value.split('\n');
-    for (let i = 0; i < lines.length; i++) {
-        result += '    ';
-        result += lines[i];
-        if (i !== (lines.length - 1)) {
-            result += '\n';
-        }
-    }
-    return result;
-};
-
-// CONCATENATED MODULE: ./src/parser/TlvError.ts
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-/**
- * TLV parsing error
- */
-var TlvError = /** @class */ (function (_super) {
-    __extends(TlvError, _super);
-    function TlvError(message) {
-        var _this = _super.call(this, message) || this;
-        _this.name = 'TlvError';
-        Object.setPrototypeOf(_this, TlvError.prototype);
-        return _this;
-    }
-    return TlvError;
-}(Error));
-
 
 // CONCATENATED MODULE: ./src/parser/TlvTag.ts
 
@@ -50299,66 +50244,35 @@ var CompositeTag_CompositeTag = /** @class */ (function (_super) {
 }(TlvTag_TlvTag));
 
 
-// EXTERNAL MODULE: ./node_modules/node-forge/lib/index.js
-var lib = __webpack_require__(13);
-
-// CONCATENATED MODULE: ./src/parser/StringTag.ts
-var StringTag_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/strings/ASCIIConverter.js
+class ASCIIConverter {
+    /**
+     * Convert string to bytes
+     * @param asciiString string
+     * @returns {Uint8Array} byte array
+     */
+    static ToBytes(asciiString) {
+        if (typeof asciiString !== 'string') {
+            throw new Error('Invalid string');
+        }
+        const bytes = [];
+        for (let i = 0; i < asciiString.length; i++) {
+            bytes.push(asciiString.charCodeAt(i));
+        }
+        return new Uint8Array(bytes);
     }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-/**
- * String TLV object
- */
-var StringTag_StringTag = /** @class */ (function (_super) {
-    StringTag_extends(StringTag, _super);
-    function StringTag(tlvTag) {
-        var _this = this;
-        var valueBytes = tlvTag.getValueBytes();
-        if (valueBytes.length < 2) {
-            throw new TlvError("Invalid null terminated string length: " + valueBytes.length);
+    /**
+     * Convert bytes to string
+     * @param {Uint8Array} bytes
+     * @returns string
+     */
+    static ToString(bytes) {
+        if (!(bytes instanceof Uint8Array)) {
+            throw new Error('Invalid byte array');
         }
-        if (valueBytes[valueBytes.length - 1] !== 0) {
-            throw new TlvError('String must be null terminated');
-        }
-        _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag) || this;
-        _this.value = lib["util"].text.utf8.decode(valueBytes.slice(0, -1));
-        Object.freeze(_this);
-        return _this;
+        return String.fromCharCode.apply(null, bytes.subarray(0, bytes.length));
     }
-    StringTag.CREATE = function (id, nonCriticalFlag, forwardFlag, value) {
-        return new StringTag(new TlvTag_TlvTag(id, nonCriticalFlag, forwardFlag, lib["util"].text.utf8.encode(value + "\0")));
-    };
-    StringTag.prototype.getValue = function () {
-        return this.value;
-    };
-    StringTag.prototype.toString = function () {
-        var result = "TLV[0x" + this.id.toString(16);
-        if (this.nonCriticalFlag) {
-            result += ',N';
-        }
-        if (this.forwardFlag) {
-            result += ',F';
-        }
-        result += ']:';
-        result += "\"" + this.value + "\"";
-        return result;
-    };
-    return StringTag;
-}(TlvTag_TlvTag));
-
+}
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/HexCoder.js
 
@@ -50767,6 +50681,10 @@ var ImprintTag_ImprintTag = /** @class */ (function (_super) {
 }(TlvTag_TlvTag));
 
 
+// EXTERNAL MODULE: ./node_modules/big-integer/BigInteger.js
+var BigInteger = __webpack_require__(1);
+var BigInteger_default = /*#__PURE__*/__webpack_require__.n(BigInteger);
+
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/UnsignedLongCoder.js
 
 class UnsignedLongCoder_UnsignedLongCoder {
@@ -50860,6 +50778,133 @@ var IntegerTag_IntegerTag = /** @class */ (function (_super) {
     return IntegerTag;
 }(TlvTag_TlvTag));
 
+
+// CONCATENATED MODULE: ./src/parser/RawTag.ts
+var RawTag_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+/**
+ * Byte array TLV object
+ */
+var RawTag_RawTag = /** @class */ (function (_super) {
+    RawTag_extends(RawTag, _super);
+    function RawTag(tlvTag) {
+        var _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag) || this;
+        _this.getValue = function () { return tlvTag.getValueBytes(); };
+        Object.freeze(_this);
+        return _this;
+    }
+    RawTag.CREATE = function (id, nonCriticalFlag, forwardFlag, value) {
+        return new RawTag(new TlvTag_TlvTag(id, nonCriticalFlag, forwardFlag, value));
+    };
+    RawTag.prototype.toString = function () {
+        var result = "TLV[0x" + this.id.toString(16);
+        if (this.nonCriticalFlag) {
+            result += ',N';
+        }
+        if (this.forwardFlag) {
+            result += ',F';
+        }
+        result += "]:" + HexCoder_HexCoder.encode(this.getValue());
+        return result;
+    };
+    return RawTag;
+}(TlvTag_TlvTag));
+
+
+// EXTERNAL MODULE: ./node_modules/node-forge/lib/index.js
+var lib = __webpack_require__(13);
+
+// CONCATENATED MODULE: ./src/parser/StringTag.ts
+var StringTag_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+/**
+ * String TLV object
+ */
+var StringTag_StringTag = /** @class */ (function (_super) {
+    StringTag_extends(StringTag, _super);
+    function StringTag(tlvTag) {
+        var _this = this;
+        var valueBytes = tlvTag.getValueBytes();
+        if (valueBytes.length < 2) {
+            throw new TlvError("Invalid null terminated string length: " + valueBytes.length);
+        }
+        if (valueBytes[valueBytes.length - 1] !== 0) {
+            throw new TlvError('String must be null terminated');
+        }
+        _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag) || this;
+        _this.value = lib["util"].text.utf8.decode(valueBytes.slice(0, -1));
+        Object.freeze(_this);
+        return _this;
+    }
+    StringTag.CREATE = function (id, nonCriticalFlag, forwardFlag, value) {
+        return new StringTag(new TlvTag_TlvTag(id, nonCriticalFlag, forwardFlag, lib["util"].text.utf8.encode(value + "\0")));
+    };
+    StringTag.prototype.getValue = function () {
+        return this.value;
+    };
+    StringTag.prototype.toString = function () {
+        var result = "TLV[0x" + this.id.toString(16);
+        if (this.nonCriticalFlag) {
+            result += ',N';
+        }
+        if (this.forwardFlag) {
+            result += ',F';
+        }
+        result += ']:';
+        result += "\"" + this.value + "\"";
+        return result;
+    };
+    return StringTag;
+}(TlvTag_TlvTag));
+
+
+// EXTERNAL MODULE: ./node_modules/base64-js/index.js
+var base64_js = __webpack_require__(18);
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base64Coder.js
+
+
+class Base64Coder_Base64Coder {
+    static decode(value) {
+        return Object(base64_js["toByteArray"])(value);
+    }
+    static encode(bytes) {
+        return Object(base64_js["fromByteArray"])(bytes);
+    }
+    static decodeToByteString(value) {
+        return ASCIIConverter.ToString(Base64Coder_Base64Coder.decode(value));
+    }
+    static encodeByteString(byteString) {
+        return Base64Coder_Base64Coder.encode(ASCIIConverter.ToBytes(byteString));
+    }
+}
 
 // CONCATENATED MODULE: ./src/publication/PublicationData.ts
 var PublicationData_extends = (undefined && undefined.__extends) || (function () {
@@ -51288,51 +51333,6 @@ class DataHasher_DataHasher {
         return this;
     }
 }
-
-// CONCATENATED MODULE: ./src/parser/RawTag.ts
-var RawTag_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-/**
- * Byte array TLV object
- */
-var RawTag_RawTag = /** @class */ (function (_super) {
-    RawTag_extends(RawTag, _super);
-    function RawTag(tlvTag) {
-        var _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag) || this;
-        _this.getValue = function () { return tlvTag.getValueBytes(); };
-        Object.freeze(_this);
-        return _this;
-    }
-    RawTag.CREATE = function (id, nonCriticalFlag, forwardFlag, value) {
-        return new RawTag(new TlvTag_TlvTag(id, nonCriticalFlag, forwardFlag, value));
-    };
-    RawTag.prototype.toString = function () {
-        var result = "TLV[0x" + this.id.toString(16);
-        if (this.nonCriticalFlag) {
-            result += ',N';
-        }
-        if (this.forwardFlag) {
-            result += ',F';
-        }
-        result += "]:" + HexCoder_HexCoder.encode(this.getValue());
-        return result;
-    };
-    return RawTag;
-}(TlvTag_TlvTag));
-
 
 // CONCATENATED MODULE: ./src/signature/AggregationHashChain.ts
 var AggregationHashChain_extends = (undefined && undefined.__extends) || (function () {
@@ -59223,8 +59223,15 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 
 
 // CONCATENATED MODULE: ./src/main.ts
-/* concated harmony reexport KsiSignature */__webpack_require__.d(__webpack_exports__, "KsiSignature", function() { return KsiSignature_KsiSignature; });
+/* concated harmony reexport CompositeTag */__webpack_require__.d(__webpack_exports__, "CompositeTag", function() { return CompositeTag_CompositeTag; });
+/* concated harmony reexport ImprintTag */__webpack_require__.d(__webpack_exports__, "ImprintTag", function() { return ImprintTag_ImprintTag; });
+/* concated harmony reexport IntegerTag */__webpack_require__.d(__webpack_exports__, "IntegerTag", function() { return IntegerTag_IntegerTag; });
+/* concated harmony reexport RawTag */__webpack_require__.d(__webpack_exports__, "RawTag", function() { return RawTag_RawTag; });
+/* concated harmony reexport StringTag */__webpack_require__.d(__webpack_exports__, "StringTag", function() { return StringTag_StringTag; });
+/* concated harmony reexport TlvError */__webpack_require__.d(__webpack_exports__, "TlvError", function() { return TlvError; });
 /* concated harmony reexport TlvInputStream */__webpack_require__.d(__webpack_exports__, "TlvInputStream", function() { return TlvInputStream_TlvInputStream; });
+/* concated harmony reexport TlvOutputStream */__webpack_require__.d(__webpack_exports__, "TlvOutputStream", function() { return TlvOutputStream_TlvOutputStream; });
+/* concated harmony reexport KsiSignature */__webpack_require__.d(__webpack_exports__, "KsiSignature", function() { return KsiSignature_KsiSignature; });
 /* concated harmony reexport PublicationBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationBasedVerificationPolicy", function() { return PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy; });
 /* concated harmony reexport VerificationContext */__webpack_require__.d(__webpack_exports__, "VerificationContext", function() { return VerificationContext_VerificationContext; });
 /* concated harmony reexport KeyBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "KeyBasedVerificationPolicy", function() { return KeyBasedVerificationPolicy_KeyBasedVerificationPolicy; });
@@ -59244,6 +59251,13 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 /**
  * KSI Javascript API externally visible classes
  */
+
+
+
+
+
+
+
 
 
 
