@@ -50242,7 +50242,7 @@ var CompositeTag_CompositeTag = /** @class */ (function (_super) {
         _this.tlvCount = {};
         return _this;
     }
-    CompositeTag.createFromList = function (id, nonCriticalFlag, forwardFlag, value, tlv16BitFlag) {
+    CompositeTag.CREATE_FROM_LIST = function (id, nonCriticalFlag, forwardFlag, value, tlv16BitFlag) {
         if (tlv16BitFlag === void 0) { tlv16BitFlag = false; }
         var stream = new TlvOutputStream_TlvOutputStream();
         for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
@@ -50893,7 +50893,7 @@ var PublicationData_PublicationData = /** @class */ (function (_super) {
         return _this;
     }
     PublicationData.CREATE = function (publicationTime, publicationHash) {
-        return new PublicationData(CompositeTag_CompositeTag.createFromList(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
+        return new PublicationData(CompositeTag_CompositeTag.CREATE_FROM_LIST(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
             IntegerTag_IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
             ImprintTag_ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash)
         ]));
@@ -52333,7 +52333,7 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
         if (!(payload instanceof AggregationResponsePayload_AggregationResponsePayload)) {
             throw new KsiError("Invalid payload: " + payload);
         }
-        return new KsiSignature(CompositeTag_CompositeTag.createFromList(KSI_SIGNATURE_CONSTANTS.TagType, false, false, payload.getSignatureTags()));
+        return new KsiSignature(CompositeTag_CompositeTag.CREATE_FROM_LIST(KSI_SIGNATURE_CONSTANTS.TagType, false, false, payload.getSignatureTags()));
     };
     KsiSignature.CREATE_FROM_BASE64 = function (value) {
         if ((typeof value) !== 'string') {
@@ -53175,7 +53175,7 @@ var ExtendRequestPayload_ExtendRequestPayload = /** @class */ (function (_super)
         if (publicationTime !== null) {
             childTlv.push(IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType, false, false, publicationTime));
         }
-        return new ExtendRequestPayload(CompositeTag_CompositeTag.createFromList(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+        return new ExtendRequestPayload(CompositeTag_CompositeTag.CREATE_FROM_LIST(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
     };
     ExtendRequestPayload.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
@@ -53292,7 +53292,7 @@ var PduHeader_PduHeader = /** @class */ (function (_super) {
         if ((typeof loginId) !== 'string') {
             throw new TlvError("Invalid loginId: " + loginId);
         }
-        return new PduHeader(CompositeTag_CompositeTag.createFromList(PDU_HEADER_CONSTANTS.TagType, false, false, [
+        return new PduHeader(CompositeTag_CompositeTag.CREATE_FROM_LIST(PDU_HEADER_CONSTANTS.TagType, false, false, [
             StringTag_StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
         ]));
     };
@@ -53397,7 +53397,7 @@ var Pdu_Pdu = /** @class */ (function (_super) {
             return Pdu_generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        pduBytes = CompositeTag_CompositeTag.createFromList(tagType, false, false, [
+                        pduBytes = CompositeTag_CompositeTag.CREATE_FROM_LIST(tagType, false, false, [
                             header,
                             payload,
                             ImprintTag_ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash_DataHash.create(algorithm, new Uint8Array(algorithm.length)))
@@ -54114,7 +54114,7 @@ var AggregationRequestPayload_AggregationRequestPayload = /** @class */ (functio
         if (level.neq(0)) {
             childTlv.push(IntegerTag_IntegerTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType, false, false, level));
         }
-        return new AggregationRequestPayload(CompositeTag_CompositeTag.createFromList(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+        return new AggregationRequestPayload(CompositeTag_CompositeTag.CREATE_FROM_LIST(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
     };
     AggregationRequestPayload.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {

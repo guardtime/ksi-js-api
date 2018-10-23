@@ -25,7 +25,7 @@ export abstract class Pdu extends CompositeTag {
     protected static async create(tagType: number, header: PduHeader, payload: PduPayload, algorithm: HashAlgorithm,
                                   key: Uint8Array): Promise<TlvTag> {
 
-        const pduBytes: Uint8Array = CompositeTag.createFromList(tagType, false, false, [
+        const pduBytes: Uint8Array = CompositeTag.CREATE_FROM_LIST(tagType, false, false, [
             header,
             payload,
             ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash.create(algorithm, new Uint8Array(algorithm.length)))

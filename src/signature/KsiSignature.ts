@@ -43,7 +43,7 @@ export class KsiSignature extends CompositeTag {
             throw new KsiError(`Invalid payload: ${payload}`);
         }
 
-        return new KsiSignature(CompositeTag.createFromList(KSI_SIGNATURE_CONSTANTS.TagType, false, false,
+        return new KsiSignature(CompositeTag.CREATE_FROM_LIST(KSI_SIGNATURE_CONSTANTS.TagType, false, false,
                                                             payload.getSignatureTags()));
     }
 

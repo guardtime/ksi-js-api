@@ -33,7 +33,7 @@
       "/node_modules/(?!(gt-js-common/lib))"
     ]
   },
-  "dependencies": {
+  "peerDependencies": {
     "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#typescript",
     "big-integer": "^1.6.36",
     "node-forge": "^0.7.6",
@@ -53,6 +53,11 @@
     "ts-loader": "^5.1.1",
     "tslint": "5.11.0",
     "tslint-microsoft-contrib": "^5.2.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+
+    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#typescript",
+    "big-integer": "^1.6.36",
+    "node-forge": "^0.7.6",
+    "@types/node-forge": "^0.7.6"
   }
 }

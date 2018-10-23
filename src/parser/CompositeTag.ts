@@ -22,8 +22,8 @@ export abstract class CompositeTag extends TlvTag {
         this.tlvCount = {};
     }
 
-    protected static createFromList(id: number, nonCriticalFlag: boolean, forwardFlag: boolean,
-                                    value: TlvTag[], tlv16BitFlag: boolean = false): TlvTag {
+    public static CREATE_FROM_LIST(id: number, nonCriticalFlag: boolean, forwardFlag: boolean,
+                                   value: TlvTag[], tlv16BitFlag: boolean = false): TlvTag {
         const stream: TlvOutputStream = new TlvOutputStream();
         for (const tlvTag of value) {
             stream.writeTag(tlvTag);

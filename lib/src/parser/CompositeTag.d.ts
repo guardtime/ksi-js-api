@@ -9,7 +9,7 @@ export declare abstract class CompositeTag extends TlvTag {
     value: TlvTag[];
     private readonly tlvCount;
     protected constructor(tlvTag: TlvTag);
-    protected static createFromList(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: TlvTag[], tlv16BitFlag?: boolean): TlvTag;
+    static CREATE_FROM_LIST(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: TlvTag[], tlv16BitFlag?: boolean): TlvTag;
     protected static createFromCompositeTag(id: number, tlvTag: CompositeTag): TlvTag;
     protected static parseTlvTag(tlvTag: TlvTag): TlvTag;
     toString(): string;

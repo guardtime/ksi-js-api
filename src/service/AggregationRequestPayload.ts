@@ -47,7 +47,7 @@ export class AggregationRequestPayload extends CompositeTag {
         }
 
         return new AggregationRequestPayload(
-            CompositeTag.createFromList(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+            CompositeTag.CREATE_FROM_LIST(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {
