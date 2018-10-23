@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 60);
+/******/ 	return __webpack_require__(__webpack_require__.s = 59);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1428,7 +1428,7 @@ module.exports = {
 })();
 
 // Node.js check
-if (typeof module !== "undefined" && module.hasOwnProperty("exports")) {
+if (true && module.hasOwnProperty("exports")) {
     module.exports = bigInt;
 }
 
@@ -1454,7 +1454,7 @@ if (true) {
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-var baseN = __webpack_require__(51);
+var baseN = __webpack_require__(50);
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -4427,7 +4427,7 @@ util.estimateCores = function(options, callback) {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(24).setImmediate, __webpack_require__(10).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(25).setImmediate, __webpack_require__(10).Buffer))
 
 /***/ }),
 /* 3 */
@@ -4450,8 +4450,8 @@ util.estimateCores = function(options, callback) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(6);
-__webpack_require__(30);
 __webpack_require__(31);
+__webpack_require__(32);
 __webpack_require__(2);
 
 (function() {
@@ -6079,8 +6079,8 @@ forge.md.algorithms = forge.md.algorithms || {};
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(18);
-__webpack_require__(25);
+__webpack_require__(19);
+__webpack_require__(26);
 __webpack_require__(2);
 
 /* AES API */
@@ -24203,7 +24203,7 @@ hmac.create = function() {
 /***/ })
 /******/ ]);
 });
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(24).setImmediate, __webpack_require__(10).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(25).setImmediate, __webpack_require__(10).Buffer))
 
 /***/ }),
 /* 10 */
@@ -24220,9 +24220,9 @@ hmac.create = function() {
 
 
 
-var base64 = __webpack_require__(48)
-var ieee754 = __webpack_require__(49)
-var isArray = __webpack_require__(50)
+var base64 = __webpack_require__(18)
+var ieee754 = __webpack_require__(48)
+var isArray = __webpack_require__(49)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -26000,7 +26000,7 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20)))
 
 /***/ }),
 /* 11 */
@@ -26492,31 +26492,31 @@ function _update(s, w, bytes) {
  */
 module.exports = __webpack_require__(0);
 __webpack_require__(6);
-__webpack_require__(52);
+__webpack_require__(51);
 __webpack_require__(4);
-__webpack_require__(18);
-__webpack_require__(38);
+__webpack_require__(19);
+__webpack_require__(39);
 __webpack_require__(15);
-__webpack_require__(54);
+__webpack_require__(53);
 __webpack_require__(11);
+__webpack_require__(54);
+__webpack_require__(41);
 __webpack_require__(55);
-__webpack_require__(40);
-__webpack_require__(56);
-__webpack_require__(37);
-__webpack_require__(21);
+__webpack_require__(38);
+__webpack_require__(22);
 __webpack_require__(8);
-__webpack_require__(33);
-__webpack_require__(35);
-__webpack_require__(57);
-__webpack_require__(27);
 __webpack_require__(34);
-__webpack_require__(31);
-__webpack_require__(23);
-__webpack_require__(3);
+__webpack_require__(36);
+__webpack_require__(56);
+__webpack_require__(28);
+__webpack_require__(35);
 __webpack_require__(32);
+__webpack_require__(24);
+__webpack_require__(3);
+__webpack_require__(33);
+__webpack_require__(57);
 __webpack_require__(58);
-__webpack_require__(59);
-__webpack_require__(26);
+__webpack_require__(27);
 __webpack_require__(2);
 
 
@@ -26745,8 +26745,8 @@ process.umask = function() { return 0; };
  * Copyright (c) 2012-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(18);
-__webpack_require__(25);
+__webpack_require__(19);
+__webpack_require__(26);
 __webpack_require__(2);
 
 /* DES API */
@@ -27282,8 +27282,8 @@ var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(17);
 __webpack_require__(7);
-__webpack_require__(33);
 __webpack_require__(34);
+__webpack_require__(35);
 __webpack_require__(3);
 __webpack_require__(2);
 
@@ -30287,6 +30287,164 @@ BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
 /* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+exports.byteLength = byteLength
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
+}
+
+// Support decoding URL-safe base64 strings, as Node.js does.
+// See: https://en.wikipedia.org/wiki/Base64#URL_applications
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
+
+function getLens (b64) {
+  var len = b64.length
+
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // Trim off extra bytes after placeholder bytes are found
+  // See: https://github.com/beatgammit/base64-js/issues/42
+  var validLen = b64.indexOf('=')
+  if (validLen === -1) validLen = len
+
+  var placeHoldersLen = validLen === len
+    ? 0
+    : 4 - (validLen % 4)
+
+  return [validLen, placeHoldersLen]
+}
+
+// base64 is 4/3 + up to two characters of the original data
+function byteLength (b64) {
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function _byteLength (b64, validLen, placeHoldersLen) {
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function toByteArray (b64) {
+  var tmp
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+
+  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
+
+  var curByte = 0
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  var len = placeHoldersLen > 0
+    ? validLen - 4
+    : validLen
+
+  for (var i = 0; i < len; i += 4) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 18) |
+      (revLookup[b64.charCodeAt(i + 1)] << 12) |
+      (revLookup[b64.charCodeAt(i + 2)] << 6) |
+      revLookup[b64.charCodeAt(i + 3)]
+    arr[curByte++] = (tmp >> 16) & 0xFF
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 2) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 2) |
+      (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 1) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 10) |
+      (revLookup[b64.charCodeAt(i + 1)] << 4) |
+      (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] +
+    lookup[num >> 12 & 0x3F] +
+    lookup[num >> 6 & 0x3F] +
+    lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp =
+      ((uint8[i] << 16) & 0xFF0000) +
+      ((uint8[i + 1] << 8) & 0xFF00) +
+      (uint8[i + 2] & 0xFF)
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(
+      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
+    ))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 2] +
+      lookup[(tmp << 4) & 0x3F] +
+      '=='
+    )
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 10] +
+      lookup[(tmp >> 4) & 0x3F] +
+      lookup[(tmp << 2) & 0x3F] +
+      '='
+    )
+  }
+
+  return parts.join('')
+}
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /**
  * Cipher base API.
  *
@@ -30520,7 +30678,7 @@ BlockCipher.prototype.finish = function(pad) {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports) {
 
 var g;
@@ -30546,7 +30704,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -30841,7 +30999,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -30862,7 +31020,7 @@ var pkcs5 = forge.pkcs5 = forge.pkcs5 || {};
 
 var crypto;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript) {
-  crypto = __webpack_require__(29);
+  crypto = __webpack_require__(30);
 }
 
 /**
@@ -31059,7 +31217,7 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -31176,10 +31334,10 @@ __webpack_require__(6);
 __webpack_require__(4);
 __webpack_require__(15);
 __webpack_require__(5);
-__webpack_require__(53);
+__webpack_require__(52);
 __webpack_require__(7);
 __webpack_require__(8);
-__webpack_require__(23);
+__webpack_require__(24);
 __webpack_require__(16);
 __webpack_require__(2);
 
@@ -34336,7 +34494,7 @@ pki.verifyCertificateChain = function(caStore, chain, verify) {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -34583,7 +34741,7 @@ pss.create = function(options) {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var scope = (typeof global !== "undefined" && global) ||
@@ -34650,10 +34808,10 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20)))
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -35646,7 +35804,7 @@ function from64To32(num) {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -35884,9 +36042,9 @@ function from64To32(num) {
 var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(11);
-__webpack_require__(20);
+__webpack_require__(21);
 __webpack_require__(8);
-__webpack_require__(27);
+__webpack_require__(28);
 __webpack_require__(3);
 __webpack_require__(12);
 __webpack_require__(2);
@@ -39921,7 +40079,7 @@ forge.tls.createConnection = tls.createConnection;
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -39935,14 +40093,14 @@ forge.tls.createConnection = tls.createConnection;
 var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(7);
-__webpack_require__(28);
+__webpack_require__(29);
 __webpack_require__(8);
-__webpack_require__(21);
-__webpack_require__(35);
-__webpack_require__(23);
+__webpack_require__(22);
+__webpack_require__(36);
+__webpack_require__(24);
 __webpack_require__(16);
 __webpack_require__(2);
-__webpack_require__(22);
+__webpack_require__(23);
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
@@ -40029,7 +40187,7 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40057,10 +40215,10 @@ __webpack_require__(4);
 __webpack_require__(15);
 __webpack_require__(5);
 __webpack_require__(7);
-__webpack_require__(21);
+__webpack_require__(22);
 __webpack_require__(8);
 __webpack_require__(3);
-__webpack_require__(32);
+__webpack_require__(33);
 __webpack_require__(16);
 __webpack_require__(2);
 
@@ -41058,13 +41216,13 @@ function createPbkdf2Params(salt, countBytes, dkLen, prfAlgorithm) {
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -41397,7 +41555,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -41417,7 +41575,7 @@ __webpack_require__(2);
 var _crypto = null;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript &&
   !process.versions['node-webkit']) {
-  _crypto = __webpack_require__(29);
+  _crypto = __webpack_require__(30);
 }
 
 /* PRNG API */
@@ -41824,7 +41982,7 @@ prng.create = function(plugin) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14)))
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42240,7 +42398,7 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42522,7 +42680,7 @@ function rsa_mgf1(seed, maskLength, hash) {
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42825,7 +42983,7 @@ function getMillerRabinTests(bits) {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42927,13 +43085,13 @@ var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(11);
 __webpack_require__(7);
-__webpack_require__(36);
-__webpack_require__(28);
+__webpack_require__(37);
+__webpack_require__(29);
 __webpack_require__(3);
 __webpack_require__(16);
 __webpack_require__(12);
 __webpack_require__(2);
-__webpack_require__(22);
+__webpack_require__(23);
 
 // shortcut for asn.1 & PKI API
 var asn1 = forge.asn1;
@@ -43905,7 +44063,7 @@ p12.generateKey = forge.pbe.generatePkcs12Key;
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44320,7 +44478,7 @@ p7v.recipientInfoValidator = {
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44383,7 +44541,7 @@ mgf1.create = function(md) {
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44467,7 +44625,7 @@ forge.debug.clear = function(cat, name) {
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45034,7 +45192,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45157,7 +45315,7 @@ forge.log.prepareFull = function(message) {
   if(!('full' in message)) {
     // copy args and insert message at the front
     var args = [message.message];
-    args = args.concat([] || message['arguments']);
+    args = args.concat([] || false);
     // format the message
     message.full = forge.util.format.apply(this, args);
   }
@@ -45357,7 +45515,6 @@ forge.log.consoleLogger = sConsoleLogger;
 
 
 /***/ }),
-/* 41 */,
 /* 42 */,
 /* 43 */,
 /* 44 */,
@@ -45580,168 +45737,10 @@ module.exports = function(module) {
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(19), __webpack_require__(14)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20), __webpack_require__(14)))
 
 /***/ }),
 /* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.byteLength = byteLength
-exports.toByteArray = toByteArray
-exports.fromByteArray = fromByteArray
-
-var lookup = []
-var revLookup = []
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
-
-var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-for (var i = 0, len = code.length; i < len; ++i) {
-  lookup[i] = code[i]
-  revLookup[code.charCodeAt(i)] = i
-}
-
-// Support decoding URL-safe base64 strings, as Node.js does.
-// See: https://en.wikipedia.org/wiki/Base64#URL_applications
-revLookup['-'.charCodeAt(0)] = 62
-revLookup['_'.charCodeAt(0)] = 63
-
-function getLens (b64) {
-  var len = b64.length
-
-  if (len % 4 > 0) {
-    throw new Error('Invalid string. Length must be a multiple of 4')
-  }
-
-  // Trim off extra bytes after placeholder bytes are found
-  // See: https://github.com/beatgammit/base64-js/issues/42
-  var validLen = b64.indexOf('=')
-  if (validLen === -1) validLen = len
-
-  var placeHoldersLen = validLen === len
-    ? 0
-    : 4 - (validLen % 4)
-
-  return [validLen, placeHoldersLen]
-}
-
-// base64 is 4/3 + up to two characters of the original data
-function byteLength (b64) {
-  var lens = getLens(b64)
-  var validLen = lens[0]
-  var placeHoldersLen = lens[1]
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
-}
-
-function _byteLength (b64, validLen, placeHoldersLen) {
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
-}
-
-function toByteArray (b64) {
-  var tmp
-  var lens = getLens(b64)
-  var validLen = lens[0]
-  var placeHoldersLen = lens[1]
-
-  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
-
-  var curByte = 0
-
-  // if there are placeholders, only get up to the last complete 4 chars
-  var len = placeHoldersLen > 0
-    ? validLen - 4
-    : validLen
-
-  for (var i = 0; i < len; i += 4) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 18) |
-      (revLookup[b64.charCodeAt(i + 1)] << 12) |
-      (revLookup[b64.charCodeAt(i + 2)] << 6) |
-      revLookup[b64.charCodeAt(i + 3)]
-    arr[curByte++] = (tmp >> 16) & 0xFF
-    arr[curByte++] = (tmp >> 8) & 0xFF
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  if (placeHoldersLen === 2) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 2) |
-      (revLookup[b64.charCodeAt(i + 1)] >> 4)
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  if (placeHoldersLen === 1) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 10) |
-      (revLookup[b64.charCodeAt(i + 1)] << 4) |
-      (revLookup[b64.charCodeAt(i + 2)] >> 2)
-    arr[curByte++] = (tmp >> 8) & 0xFF
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  return arr
-}
-
-function tripletToBase64 (num) {
-  return lookup[num >> 18 & 0x3F] +
-    lookup[num >> 12 & 0x3F] +
-    lookup[num >> 6 & 0x3F] +
-    lookup[num & 0x3F]
-}
-
-function encodeChunk (uint8, start, end) {
-  var tmp
-  var output = []
-  for (var i = start; i < end; i += 3) {
-    tmp =
-      ((uint8[i] << 16) & 0xFF0000) +
-      ((uint8[i + 1] << 8) & 0xFF00) +
-      (uint8[i + 2] & 0xFF)
-    output.push(tripletToBase64(tmp))
-  }
-  return output.join('')
-}
-
-function fromByteArray (uint8) {
-  var tmp
-  var len = uint8.length
-  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
-  var parts = []
-  var maxChunkLength = 16383 // must be multiple of 3
-
-  // go through the array every three bytes, we'll deal with trailing stuff later
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(
-      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
-    ))
-  }
-
-  // pad the end with zeros, but make sure to not forget the extra bytes
-  if (extraBytes === 1) {
-    tmp = uint8[len - 1]
-    parts.push(
-      lookup[tmp >> 2] +
-      lookup[(tmp << 4) & 0x3F] +
-      '=='
-    )
-  } else if (extraBytes === 2) {
-    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
-    parts.push(
-      lookup[tmp >> 10] +
-      lookup[(tmp >> 4) & 0x3F] +
-      lookup[(tmp << 2) & 0x3F] +
-      '='
-    )
-  }
-
-  return parts.join('')
-}
-
-
-/***/ }),
-/* 49 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -45831,7 +45830,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -45842,7 +45841,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -46035,7 +46034,7 @@ function _encodeWithByteBuffer(input, alphabet) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46048,7 +46047,7 @@ function _encodeWithByteBuffer(input, alphabet) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(6);
-__webpack_require__(26);
+__webpack_require__(27);
 
 var tls = module.exports = forge.tls;
 
@@ -46325,7 +46324,7 @@ function compareMacs(key, mac1, mac2) {
 
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46336,14 +46335,14 @@ function compareMacs(key, mac1, mac2) {
  * Copyright 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 var forge = __webpack_require__(0);
-__webpack_require__(37);
+__webpack_require__(38);
 
 module.exports = forge.mgf = forge.mgf || {};
 forge.mgf.mgf1 = forge.mgf1;
 
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -46359,7 +46358,7 @@ forge.mgf.mgf1 = forge.mgf1;
 var forge = __webpack_require__(0);
 __webpack_require__(17);
 __webpack_require__(3);
-__webpack_require__(39);
+__webpack_require__(40);
 __webpack_require__(2);
 
 if(typeof BigInteger === 'undefined') {
@@ -47346,7 +47345,7 @@ function M(o, a, b) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47520,7 +47519,7 @@ function _createKDF(kdf, md, counterStart, digestLength) {
 
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47532,14 +47531,14 @@ function _createKDF(kdf, md, counterStart, digestLength) {
  */
 module.exports = __webpack_require__(5);
 
-__webpack_require__(20);
+__webpack_require__(21);
 __webpack_require__(12);
-__webpack_require__(30);
-__webpack_require__(39);
+__webpack_require__(31);
+__webpack_require__(40);
 
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47566,10 +47565,10 @@ __webpack_require__(4);
 __webpack_require__(15);
 __webpack_require__(7);
 __webpack_require__(8);
-__webpack_require__(36);
+__webpack_require__(37);
 __webpack_require__(3);
 __webpack_require__(2);
-__webpack_require__(22);
+__webpack_require__(23);
 
 // shortcut for ASN.1 API
 var asn1 = forge.asn1;
@@ -48802,7 +48801,7 @@ function _decryptContent(msg) {
 
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -48818,7 +48817,7 @@ function _decryptContent(msg) {
 var forge = __webpack_require__(0);
 __webpack_require__(6);
 __webpack_require__(11);
-__webpack_require__(20);
+__webpack_require__(21);
 __webpack_require__(12);
 __webpack_require__(2);
 
@@ -49044,7 +49043,7 @@ function _sha1() {
 
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -49057,8 +49056,8 @@ function _sha1() {
  * Copyright (c) 2009-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(38);
-__webpack_require__(40);
+__webpack_require__(39);
+__webpack_require__(41);
 __webpack_require__(2);
 
 // logging category
@@ -49775,7 +49774,7 @@ forge.task.createCondition = function() {
 
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -49784,6 +49783,57 @@ __webpack_require__.r(__webpack_exports__);
 // EXTERNAL MODULE: ./node_modules/big-integer/BigInteger.js
 var BigInteger = __webpack_require__(1);
 var BigInteger_default = /*#__PURE__*/__webpack_require__.n(BigInteger);
+
+// EXTERNAL MODULE: ./node_modules/base64-js/index.js
+var base64_js = __webpack_require__(18);
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/strings/ASCIIConverter.js
+class ASCIIConverter {
+    /**
+     * Convert string to bytes
+     * @param asciiString string
+     * @returns {Uint8Array} byte array
+     */
+    static ToBytes(asciiString) {
+        if (typeof asciiString !== 'string') {
+            throw new Error('Invalid string');
+        }
+        const bytes = [];
+        for (let i = 0; i < asciiString.length; i++) {
+            bytes.push(asciiString.charCodeAt(i));
+        }
+        return new Uint8Array(bytes);
+    }
+    /**
+     * Convert bytes to string
+     * @param {Uint8Array} bytes
+     * @returns string
+     */
+    static ToString(bytes) {
+        if (!(bytes instanceof Uint8Array)) {
+            throw new Error('Invalid byte array');
+        }
+        return String.fromCharCode.apply(null, bytes.subarray(0, bytes.length));
+    }
+}
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base64Coder.js
+
+
+class Base64Coder_Base64Coder {
+    static decode(value) {
+        return Object(base64_js["toByteArray"])(value);
+    }
+    static encode(bytes) {
+        return Object(base64_js["fromByteArray"])(bytes);
+    }
+    static decodeToByteString(value) {
+        return ASCIIConverter.ToString(Base64Coder_Base64Coder.decode(value));
+    }
+    static encodeByteString(byteString) {
+        return Base64Coder_Base64Coder.encode(ASCIIConverter.ToBytes(byteString));
+    }
+}
 
 // CONCATENATED MODULE: ./src/Constants.ts
 /**
@@ -50192,7 +50242,7 @@ var CompositeTag_CompositeTag = /** @class */ (function (_super) {
         _this.tlvCount = {};
         return _this;
     }
-    CompositeTag.createCompositeTagTlv = function (id, nonCriticalFlag, forwardFlag, value, tlv16BitFlag) {
+    CompositeTag.createFromList = function (id, nonCriticalFlag, forwardFlag, value, tlv16BitFlag) {
         if (tlv16BitFlag === void 0) { tlv16BitFlag = false; }
         var stream = new TlvOutputStream_TlvOutputStream();
         for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
@@ -50200,6 +50250,9 @@ var CompositeTag_CompositeTag = /** @class */ (function (_super) {
             stream.writeTag(tlvTag);
         }
         return new TlvTag_TlvTag(id, nonCriticalFlag, forwardFlag, stream.getData(), tlv16BitFlag);
+    };
+    CompositeTag.createFromCompositeTag = function (id, tlvTag) {
+        return new TlvTag_TlvTag(id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
     };
     CompositeTag.parseTlvTag = function (tlvTag) {
         if (!tlvTag.nonCriticalFlag) {
@@ -50306,36 +50359,6 @@ var StringTag_StringTag = /** @class */ (function (_super) {
     return StringTag;
 }(TlvTag_TlvTag));
 
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/strings/ASCIIConverter.js
-class ASCIIConverter {
-    /**
-     * Convert string to bytes
-     * @param asciiString string
-     * @returns {Uint8Array} byte array
-     */
-    static ToBytes(asciiString) {
-        if (typeof asciiString !== 'string') {
-            throw new Error('Invalid string');
-        }
-        const bytes = [];
-        for (let i = 0; i < asciiString.length; i++) {
-            bytes.push(asciiString.charCodeAt(i));
-        }
-        return new Uint8Array(bytes);
-    }
-    /**
-     * Convert bytes to string
-     * @param {Uint8Array} bytes
-     * @returns string
-     */
-    static ToString(bytes) {
-        if (!(bytes instanceof Uint8Array)) {
-            throw new Error('Invalid byte array');
-        }
-        return String.fromCharCode.apply(null, bytes.subarray(0, bytes.length));
-    }
-}
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/HexCoder.js
 
@@ -50870,7 +50893,7 @@ var PublicationData_PublicationData = /** @class */ (function (_super) {
         return _this;
     }
     PublicationData.CREATE = function (publicationTime, publicationHash) {
-        return new PublicationData(CompositeTag_CompositeTag.createCompositeTagTlv(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
+        return new PublicationData(CompositeTag_CompositeTag.createFromList(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
             IntegerTag_IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
             ImprintTag_ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash)
         ]));
@@ -50968,6 +50991,226 @@ var PublicationRecord_PublicationRecord = /** @class */ (function (_super) {
     };
     return PublicationRecord;
 }(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/service/PduPayload.ts
+var PduPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Base class for PDU payloads
+ */
+var PduPayload = /** @class */ (function (_super) {
+    PduPayload_extends(PduPayload, _super);
+    function PduPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return PduPayload;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/service/ResponsePayload.ts
+var ResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * PDU payload base class for responses
+ */
+var ResponsePayload_ResponsePayload = /** @class */ (function (_super) {
+    ResponsePayload_extends(ResponsePayload, _super);
+    function ResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.errorMessage = null;
+        return _this;
+    }
+    ResponsePayload.prototype.getStatus = function () {
+        return this.status.getValue();
+    };
+    ResponsePayload.prototype.getErrorMessage = function () {
+        return this.errorMessage !== null ? this.errorMessage.getValue() : null;
+    };
+    ResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.StatusTagType:
+                return this.status = new IntegerTag_IntegerTag(tlvTag);
+            case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
+                return this.errorMessage = new StringTag_StringTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    ResponsePayload.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.StatusTagType] !== 1) {
+            throw new TlvError('Exactly one status code must exist in response payload.');
+        }
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType] > 1) {
+            throw new TlvError('Only one error message is allowed in response payload.');
+        }
+    };
+    return ResponsePayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/service/RequestResponsePayload.ts
+var RequestResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+/**
+ * PDU payload base class for requested responses
+ */
+var RequestResponsePayload_RequestResponsePayload = /** @class */ (function (_super) {
+    RequestResponsePayload_extends(RequestResponsePayload, _super);
+    function RequestResponsePayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    RequestResponsePayload.prototype.getRequestId = function () {
+        return this.requestId.getValue();
+    };
+    RequestResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    RequestResponsePayload.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+            throw new TlvError('Exactly one request id must exist in response payload.');
+        }
+    };
+    return RequestResponsePayload;
+}(ResponsePayload_ResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/service/AggregationResponsePayload.ts
+var AggregationResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+/**
+ * Aggregation response payload
+ */
+var AggregationResponsePayload_AggregationResponsePayload = /** @class */ (function (_super) {
+    AggregationResponsePayload_extends(AggregationResponsePayload, _super);
+    function AggregationResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationResponsePayload.prototype.getSignatureTags = function () {
+        var tlvList = [];
+        for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
+            var tlvTag = _a[_i];
+            if (tlvTag.id > 0x800 && tlvTag.id < 0x900) {
+                tlvList.push(tlvTag);
+            }
+        }
+        return tlvList;
+    };
+    AggregationResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
+            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
+            case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
+            case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
+                return tlvTag;
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    AggregationResponsePayload.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config request payload is allowed in PDU.');
+        }
+    };
+    return AggregationResponsePayload;
+}(RequestResponsePayload_RequestResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/service/KsiError.ts
+var KsiError_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+ * KSI related error
+ */
+var KsiError = /** @class */ (function (_super) {
+    KsiError_extends(KsiError, _super);
+    function KsiError(message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = 'KsiError';
+        Object.setPrototypeOf(_this, KsiError.prototype);
+        return _this;
+    }
+    return KsiError;
+}(Error));
 
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/WebHasher.js
@@ -52063,6 +52306,12 @@ var KsiSignature_generator = (undefined && undefined.__generator) || function (t
 
 
 
+
+
+
+
+
+
 /**
  * KSI Signature TLV object
  */
@@ -52081,7 +52330,16 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
         return _this;
     }
     KsiSignature.CREATE = function (payload) {
-        return new KsiSignature(CompositeTag_CompositeTag.createCompositeTagTlv(KSI_SIGNATURE_CONSTANTS.TagType, false, false, payload.getSignatureTags()));
+        if (!(payload instanceof AggregationResponsePayload_AggregationResponsePayload)) {
+            throw new KsiError("Invalid payload: " + payload);
+        }
+        return new KsiSignature(CompositeTag_CompositeTag.createFromList(KSI_SIGNATURE_CONSTANTS.TagType, false, false, payload.getSignatureTags()));
+    };
+    KsiSignature.CREATE_FROM_BASE64 = function (value) {
+        if ((typeof value) !== 'string') {
+            throw new KsiError("Invalid value: " + value);
+        }
+        return new KsiSignature(new TlvInputStream_TlvInputStream(Base64Coder_Base64Coder.decode(value)).readTag());
     };
     KsiSignature.prototype.getPublicationRecord = function () {
         return this.publicationRecord;
@@ -52090,7 +52348,7 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
         return this.calendarHashChain;
     };
     KsiSignature.prototype.getAggregationTime = function () {
-        return BigInteger_default()(0);
+        return this.aggregationHashChains[0].getAggregationTime();
     };
     KsiSignature.prototype.getAggregationHashChains = function () {
         return this.aggregationHashChains.slice();
@@ -52130,6 +52388,30 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
     };
     KsiSignature.prototype.getCalendarAuthenticationRecord = function () {
         return this.calendarAuthenticationRecord;
+    };
+    KsiSignature.prototype.extend = function (calendarHashChain, publicationRecord) {
+        if (publicationRecord === void 0) { publicationRecord = null; }
+        if (!(calendarHashChain instanceof CalendarHashChain_CalendarHashChain)) {
+            throw new KsiError("Invalid calendar hash chain: " + calendarHashChain);
+        }
+        if (!(publicationRecord instanceof PublicationRecord_PublicationRecord)) {
+            throw new KsiError("Invalid publication record: " + publicationRecord);
+        }
+        var stream = new TlvOutputStream_TlvOutputStream();
+        for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
+            var childTag = _a[_i];
+            switch (childTag.id) {
+                case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
+                case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
+                case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
+                    break;
+                default:
+                    stream.writeTag(childTag);
+            }
+        }
+        stream.writeTag(calendarHashChain);
+        stream.writeTag(CompositeTag_CompositeTag.createFromCompositeTag(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType, publicationRecord));
+        return new KsiSignature(new TlvTag_TlvTag(KSI_SIGNATURE_CONSTANTS.TagType, false, false, stream.getData()));
     };
     KsiSignature.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
@@ -52730,33 +53012,6 @@ var KsiServiceError = /** @class */ (function (_super) {
 }(Error));
 
 
-// CONCATENATED MODULE: ./src/service/PduPayload.ts
-var PduPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Base class for PDU payloads
- */
-var PduPayload = /** @class */ (function (_super) {
-    PduPayload_extends(PduPayload, _super);
-    function PduPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return PduPayload;
-}(CompositeTag_CompositeTag));
-
-
 // CONCATENATED MODULE: ./src/service/KsiRequest.ts
 
 
@@ -52920,7 +53175,7 @@ var ExtendRequestPayload_ExtendRequestPayload = /** @class */ (function (_super)
         if (publicationTime !== null) {
             childTlv.push(IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType, false, false, publicationTime));
         }
-        return new ExtendRequestPayload(CompositeTag_CompositeTag.createCompositeTagTlv(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+        return new ExtendRequestPayload(CompositeTag_CompositeTag.createFromList(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
     };
     ExtendRequestPayload.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
@@ -52974,64 +53229,6 @@ class WebHMAC_WebHMAC {
         }, false, ['sign']).then(key => window.crypto.subtle.sign('HMAC', key, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer)));
     }
 }
-
-// CONCATENATED MODULE: ./src/service/ResponsePayload.ts
-var ResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * PDU payload base class for responses
- */
-var ResponsePayload_ResponsePayload = /** @class */ (function (_super) {
-    ResponsePayload_extends(ResponsePayload, _super);
-    function ResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.errorMessage = null;
-        return _this;
-    }
-    ResponsePayload.prototype.getStatus = function () {
-        return this.status.getValue();
-    };
-    ResponsePayload.prototype.getErrorMessage = function () {
-        return this.errorMessage !== null ? this.errorMessage.getValue() : null;
-    };
-    ResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.StatusTagType:
-                return this.status = new IntegerTag_IntegerTag(tlvTag);
-            case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
-                return this.errorMessage = new StringTag_StringTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    ResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.StatusTagType] !== 1) {
-            throw new TlvError('Exactly one status code must exist in response payload.');
-        }
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType] > 1) {
-            throw new TlvError('Only one error message is allowed in response payload.');
-        }
-    };
-    return ResponsePayload;
-}(PduPayload));
-
 
 // CONCATENATED MODULE: ./src/service/ErrorPayload.ts
 var ErrorPayload_extends = (undefined && undefined.__extends) || (function () {
@@ -53095,7 +53292,7 @@ var PduHeader_PduHeader = /** @class */ (function (_super) {
         if ((typeof loginId) !== 'string') {
             throw new TlvError("Invalid loginId: " + loginId);
         }
-        return new PduHeader(CompositeTag_CompositeTag.createCompositeTagTlv(PDU_HEADER_CONSTANTS.TagType, false, false, [
+        return new PduHeader(CompositeTag_CompositeTag.createFromList(PDU_HEADER_CONSTANTS.TagType, false, false, [
             StringTag_StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
         ]));
     };
@@ -53200,7 +53397,7 @@ var Pdu_Pdu = /** @class */ (function (_super) {
             return Pdu_generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        pduBytes = CompositeTag_CompositeTag.createCompositeTagTlv(tagType, false, false, [
+                        pduBytes = CompositeTag_CompositeTag.createFromList(tagType, false, false, [
                             header,
                             payload,
                             ImprintTag_ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash_DataHash.create(algorithm, new Uint8Array(algorithm.length)))
@@ -53362,53 +53559,6 @@ var ExtendRequestPdu_ExtendRequestPdu = /** @class */ (function (_super) {
 }(Pdu_Pdu));
 
 
-// CONCATENATED MODULE: ./src/service/RequestResponsePayload.ts
-var RequestResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-/**
- * PDU payload base class for requested responses
- */
-var RequestResponsePayload_RequestResponsePayload = /** @class */ (function (_super) {
-    RequestResponsePayload_extends(RequestResponsePayload, _super);
-    function RequestResponsePayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    RequestResponsePayload.prototype.getRequestId = function () {
-        return this.requestId.getValue();
-    };
-    RequestResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
-                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    RequestResponsePayload.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
-            throw new TlvError('Exactly one request id must exist in response payload.');
-        }
-    };
-    return RequestResponsePayload;
-}(ResponsePayload_ResponsePayload));
-
-
 // CONCATENATED MODULE: ./src/service/ExtendResponsePayload.ts
 var ExtendResponsePayload_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -53441,7 +53591,7 @@ var ExtendResponsePayload_ExtendResponsePayload = /** @class */ (function (_supe
         return _this;
     }
     ExtendResponsePayload.prototype.getCalendarHashChain = function () {
-        return this.getCalendarHashChain();
+        return this.calendarHashChain;
     };
     ExtendResponsePayload.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
@@ -53690,7 +53840,8 @@ var ExtendingService_ExtendingService = /** @class */ (function () {
             throw new KsiServiceError("Invalid ExtendResponsePayload: " + payload);
         }
         if (payload.getStatus().neq(0)) {
-            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
+            // tslint:disable-next-line:max-line-length
+            throw new KsiServiceError("Server responded with error message. Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
         }
         return payload.getCalendarHashChain();
     };
@@ -53725,7 +53876,8 @@ var ExtendingService_ExtendingService = /** @class */ (function () {
                             if (responsePdu.getPayloads().length > 0) {
                                 throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
                             }
-                            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
+                            // tslint:disable-next-line:max-line-length
+                            throw new KsiServiceError("Server responded with error message. Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
                         }
                         currentExtendPayload = null;
                         for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
@@ -53962,7 +54114,7 @@ var AggregationRequestPayload_AggregationRequestPayload = /** @class */ (functio
         if (level.neq(0)) {
             childTlv.push(IntegerTag_IntegerTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType, false, false, level));
         }
-        return new AggregationRequestPayload(CompositeTag_CompositeTag.createCompositeTagTlv(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+        return new AggregationRequestPayload(CompositeTag_CompositeTag.createFromList(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
     };
     AggregationRequestPayload.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
@@ -54117,65 +54269,6 @@ var AggregationRequestPdu_AggregationRequestPdu = /** @class */ (function (_supe
     };
     return AggregationRequestPdu;
 }(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/service/AggregationResponsePayload.ts
-var AggregationResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-/**
- * Aggregation response payload
- */
-var AggregationResponsePayload_AggregationResponsePayload = /** @class */ (function (_super) {
-    AggregationResponsePayload_extends(AggregationResponsePayload, _super);
-    function AggregationResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationResponsePayload.prototype.getSignatureTags = function () {
-        var tlvList = [];
-        for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
-            var tlvTag = _a[_i];
-            if (tlvTag.id > 0x800 && tlvTag.id < 0x900) {
-                tlvList.push(tlvTag);
-            }
-        }
-        return tlvList;
-    };
-    AggregationResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
-            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
-            case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
-            case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
-                return tlvTag;
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    AggregationResponsePayload.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one extender config request payload is allowed in PDU.');
-        }
-    };
-    return AggregationResponsePayload;
-}(RequestResponsePayload_RequestResponsePayload));
 
 
 // CONCATENATED MODULE: ./src/service/AggregationErrorPayload.ts
@@ -54481,7 +54574,8 @@ var SigningService_SigningService = /** @class */ (function () {
             throw new KsiServiceError("Invalid AggregationResponsePayload: " + payload);
         }
         if (payload.getStatus().neq(0)) {
-            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
+            // tslint:disable-next-line:max-line-length
+            throw new KsiServiceError("Server responded with error message. Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
         }
         return KsiSignature_KsiSignature.CREATE(payload);
     };
@@ -54522,7 +54616,8 @@ var SigningService_SigningService = /** @class */ (function () {
                             if (responsePdu.getPayloads().length > 0) {
                                 throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
                             }
-                            throw new KsiServiceError("Server responded with error message.\n                                       Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
+                            // tslint:disable-next-line:max-line-length
+                            throw new KsiServiceError("Server responded with error message. Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
                         }
                         currentAggregationPayload = null;
                         for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
@@ -54797,11 +54892,20 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
 
 
 
+
 var VerificationRule_VerificationRule = /** @class */ (function () {
-    function VerificationRule() {
+    function VerificationRule(ruleName) {
+        if (ruleName === void 0) { ruleName = null; }
+        this.ruleName = this.constructor.name;
         this.onSuccessRule = null;
         this.onFailureRule = null;
         this.onNaRule = null;
+        if (ruleName !== null) {
+            if (typeof ruleName !== 'string') {
+                throw new KsiError("Invalid rule name: " + ruleName);
+            }
+            this.ruleName = ruleName;
+        }
     }
     VerificationRule.verifyContext = function (context) {
         if (!(context instanceof VerificationContext_VerificationContext)) {
@@ -54843,7 +54947,7 @@ var VerificationRule_VerificationRule = /** @class */ (function () {
         }
     };
     VerificationRule.prototype.getRuleName = function () {
-        return this.constructor.name;
+        return this.ruleName;
     };
     VerificationRule.prototype.onSuccess = function (rule) {
         VerificationRule.verifyRule(rule);
@@ -55019,7 +55123,8 @@ var AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDep
                 for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
                     chain = aggregationHashChains_1[_i];
                     if (chain.getAggregationAlgorithm().isDeprecated(chain.getAggregationTime().valueOf())) {
-                        console.log("Aggregation hash chain aggregation algorithm was deprecated at aggregation time.\n                             Algorithm: " + chain.getAggregationAlgorithm().name + ";\n                             Aggregation time: " + chain.getAggregationTime());
+                        // tslint:disable-next-line:max-line-length
+                        console.log("Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: " + chain.getAggregationAlgorithm().name + "; Aggregation time: " + chain.getAggregationTime());
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15)];
                     }
                 }
@@ -55111,7 +55216,8 @@ var AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule = /*
                             chainHashResult = { level: BigInteger_default()(0), hash: chain.getInputHash() };
                         }
                         if (!chain.getInputHash().equals(chainHashResult.hash)) {
-                            console.log("Aggregation hash chains not consistent.\n                             Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous\n                             aggregation hash chain output hash " + chainHashResult.hash + ".");
+                            // tslint:disable-next-line:max-line-length
+                            console.log("Aggregation hash chains not consistent. Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous aggregation hash chain output hash " + chainHashResult.hash + ".");
                             return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)];
                         }
                         return [4 /*yield*/, chain.getOutputHash(chainHashResult)];
@@ -55203,7 +55309,8 @@ var AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRul
                     chainIndex = chain.getChainIndex();
                     if (parentChainIndex !== null && !(parentChainIndex.length !== chainIndex.length
                         || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
-                        console.log("Chain index is not the successor to the parent aggregation hash chain index.\n                            Chain index: " + chainIndex + ";\n                            Parent chain index: " + parentChainIndex);
+                        // tslint:disable-next-line:max-line-length
+                        console.log("Chain index is not the successor to the parent aggregation hash chain index. Chain index: " + chainIndex + "; Parent chain index: " + parentChainIndex);
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                     }
                     parentChainIndex = chainIndex;
@@ -55420,7 +55527,8 @@ var AggregationHashChainShapeRule_AggregationHashChainShapeRule = /** @class */ 
                     calculatedValue = chain.calculateLocationPointer();
                     lastIndexValue = chainIndex[chainIndex.length - 1];
                     if (!lastIndexValue.eq(calculatedValue)) {
-                        console.log("The shape of the aggregation hash chain does not match with the chain index.\n                              Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue);
+                        // tslint:disable-next-line:max-line-length
+                        console.log("The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue);
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10)];
                     }
                 }
@@ -55506,7 +55614,8 @@ var AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyR
                         time = chain.getAggregationTime();
                     }
                     if (!chain.getAggregationTime().equals(time)) {
-                        console.log("Previous aggregation hash chain aggregation time " + time + " does not match\n                             current aggregation time " + chain.getAggregationTime() + ".");
+                        // tslint:disable-next-line:max-line-length
+                        console.log("Previous aggregation hash chain aggregation time " + time + " does not match current aggregation time " + chain.getAggregationTime() + ".");
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
                     }
                 }
@@ -56406,7 +56515,8 @@ var InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule = /** @cla
                 signature = VerificationRule_VerificationRule.getSignature(context);
                 inputHash = signature.getInputHash();
                 if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
-                    console.log("Input hash algorithm was deprecated at aggregation time.\n                         Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime());
+                    // tslint:disable-next-line:max-line-length
+                    console.log("Input hash algorithm was deprecated at aggregation time. Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime());
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -56661,7 +56771,8 @@ var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (fun
                 rfc3161ChainIndexJson = JSON.stringify(rfc3161ChainIndex);
                 aggregationChainIndexJson = JSON.stringify(aggregationChainIndex);
                 if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
-                    console.log("Aggregation hash chain index and RFC3161 chain index mismatch.\n                         Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson);
+                    // tslint:disable-next-line:max-line-length
+                    console.log("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson);
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -56744,12 +56855,14 @@ var Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecate
                 }
                 if (rfc3161Record.getTstInfoAlgorithm() != null
                     && rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
-                    console.log("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time.\n                             Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + ";\n                             Aggregation time: " + rfc3161Record.getAggregationTime());
+                    // tslint:disable-next-line:max-line-length
+                    console.log("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime());
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
                 }
                 if (rfc3161Record.getSignedAttributesAlgorithm() != null
                     && rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
-                    console.log("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time.\n                             Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + ";\n                             Aggregation time: " + rfc3161Record.getAggregationTime());
+                    // tslint:disable-next-line:max-line-length
+                    console.log("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime());
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -56833,7 +56946,8 @@ var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgori
                 hashAlgorithm = aggregationHashChain.getInputHash().hashAlgorithm;
                 aggregationTime = aggregationHashChain.getAggregationTime();
                 if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
-                    console.log("RFC3161 output hash algorithm was deprecated at aggregation time.\n                         Algorithm: " + hashAlgorithm + ";\n                         Aggregation time: " + aggregationTime);
+                    // tslint:disable-next-line:max-line-length
+                    console.log("RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: " + hashAlgorithm + "; Aggregation time: " + aggregationTime);
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -57307,9 +57421,10 @@ var VerificationPolicy_generator = (undefined && undefined.__generator) || funct
  */
 var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
     VerificationPolicy_extends(VerificationPolicy, _super);
-    function VerificationPolicy(rule) {
+    function VerificationPolicy(rule, ruleName) {
         if (rule === void 0) { rule = null; }
-        var _this = _super.call(this) || this;
+        if (ruleName === void 0) { ruleName = null; }
+        var _this = _super.call(this, ruleName) || this;
         _this.verificationResults = [];
         if (rule !== null) {
             VerificationRule_VerificationRule.verifyRule(rule);
@@ -57430,14 +57545,14 @@ var InternalVerificationPolicy_InternalVerificationPolicy = /** @class */ (funct
         return new VerificationPolicy_VerificationPolicy(new InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule() // Gen-04
             .onSuccess(new DocumentHashVerificationRule_DocumentHashVerificationRule() // Gen-01
             .onSuccess(new DocumentHashLevelVerificationRule_DocumentHashLevelVerificationRule() // Gen-03
-            .onSuccess(new InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule())))); // Int-13)
+            .onSuccess(new InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule()))), 'Verify Input'); // Int-13)
     };
     InternalVerificationPolicy.verifyRfc3161 = function () {
         return new VerificationPolicy_VerificationPolicy(new Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecatedRule() // Int-14
             .onSuccess(new Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgorithmDeprecatedRule() // Int-17
             .onSuccess(new Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule() // Int-12
             .onSuccess(new Rfc3161RecordOutputHashVerificationRule_Rfc3161RecordOutputHashVerificationRule() // Int-01
-            .onSuccess(new Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule()))))); // Int-02
+            .onSuccess(new Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule())))), 'Verify Rfc3161'); // Int-02
     };
     InternalVerificationPolicy.verifyAggregationChain = function () {
         return new VerificationPolicy_VerificationPolicy(new AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRule() // Int-12
@@ -57445,13 +57560,13 @@ var InternalVerificationPolicy_InternalVerificationPolicy = /** @class */ (funct
             .onSuccess(new AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDeprecatedRule() // Int-15
             .onSuccess(new AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule() // Int-01
             .onSuccess(new AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyRule() // Int-02
-            .onSuccess(new AggregationHashChainShapeRule_AggregationHashChainShapeRule())))))); // Int-10
+            .onSuccess(new AggregationHashChainShapeRule_AggregationHashChainShapeRule()))))), 'Verify aggregation hash chain'); // Int-10
     };
     InternalVerificationPolicy.verifyCalendarChain = function () {
         return new VerificationPolicy_VerificationPolicy(new CalendarHashChainInputHashVerificationRule_CalendarHashChainInputHashVerificationRule() // Int-03
             .onSuccess(new CalendarHashChainAggregationTimeRule_CalendarHashChainAggregationTimeRule() // Int-04
             .onSuccess(new CalendarHashChainRegistrationTimeRule_CalendarHashChainRegistrationTimeRule() // Int-05
-            .onSuccess(new CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRule())))); // Int-16 // Int-10
+            .onSuccess(new CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRule()))), 'Verify calendar hash chain'); // Int-16 // Int-10
     };
     return InternalVerificationPolicy;
 }(VerificationPolicy_VerificationPolicy));
@@ -57778,9 +57893,9 @@ var PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSigna
     }
     PublicationsFileExtendedSignatureInputHashRule.prototype.verify = function (context) {
         return PublicationsFileExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, publicationsFile, publicationRecord, extendedCalendarHashChain;
-            return PublicationsFileExtendedSignatureInputHashRule_generator(this, function (_a) {
-                switch (_a.label) {
+            var signature, publicationsFile, publicationRecord, extendedCalendarHashChain, _a, _b;
+            return PublicationsFileExtendedSignatureInputHashRule_generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         signature = VerificationRule_VerificationRule.getSignature(context);
                         publicationsFile = context.getPublicationsFile();
@@ -57793,10 +57908,12 @@ var PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSigna
                         }
                         return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
                     case 1:
-                        extendedCalendarHashChain = _a.sent();
-                        return [2 /*return*/, !extendedCalendarHashChain.getInputHash().equals(signature.getLastAggregationHashChainRootHash())
-                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
-                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        extendedCalendarHashChain = _c.sent();
+                        _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
+                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
+                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -58098,7 +58215,9 @@ var PublicationsFileVerificationPolicy_extends = (undefined && undefined.__exten
 
 
 
+// tslint:disable-next-line:max-line-length
 
+// tslint:disable-next-line:max-line-length
 
 
 
@@ -58270,9 +58389,9 @@ var UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicatio
     }
     UserProvidedPublicationExtendedSignatureInputHashRule.prototype.verify = function (context) {
         return UserProvidedPublicationExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, extendedCalendarHashChain;
-            return UserProvidedPublicationExtendedSignatureInputHashRule_generator(this, function (_a) {
-                switch (_a.label) {
+            var signature, userPublication, extendedCalendarHashChain, _a, _b;
+            return UserProvidedPublicationExtendedSignatureInputHashRule_generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         signature = VerificationRule_VerificationRule.getSignature(context);
                         userPublication = context.getUserPublication();
@@ -58281,10 +58400,12 @@ var UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicatio
                         }
                         return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
                     case 1:
-                        extendedCalendarHashChain = _a.sent();
-                        return [2 /*return*/, !extendedCalendarHashChain.getInputHash().equals(signature.getLastAggregationHashChainRootHash())
-                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
-                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        extendedCalendarHashChain = _c.sent();
+                        _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
+                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
+                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -58721,8 +58842,6 @@ class SyncDataHasher_SyncDataHasher {
 
 
 
-
-
 class X509_X509 {
     /**
      * Verifies that the data is signed with the provided signature and that the signature matches
@@ -58749,7 +58868,6 @@ class X509_X509 {
         return cert.publicKey.verify(ASCIIConverter.ToString(hashOfData), ASCIIConverter.ToString(signature));
     }
 }
-
 /**
  * Hashes the signed data for the verification process.
  * Support only some hashing algorithms.
@@ -58774,7 +58892,6 @@ function hashData(certificate, signedData) {
     hasher.update(signedData);
     return hasher.digest();
 }
-
 /**
  * Converts bytes to the Forge certificate object
  *
@@ -58783,7 +58900,6 @@ function hashData(certificate, signedData) {
  */
 function convertToForgeCert(certificateBytes) {
     const certAsn1Format = forge_gt["asn1"].fromDer(ASCIIConverter.ToString(certificateBytes));
-
     return forge_gt["pki"].certificateFromAsn1(certAsn1Format);
 }
 
@@ -58993,21 +59109,56 @@ var KeyBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (
 
 
 
-
 /**
  * Policy for verifying KSI signature with PKI.
  */
 var KeyBasedVerificationPolicy_KeyBasedVerificationPolicy = /** @class */ (function (_super) {
     KeyBasedVerificationPolicy_extends(KeyBasedVerificationPolicy, _super);
-    function KeyBasedVerificationPolicy() {
-        return _super.call(this, new InternalVerificationPolicy_InternalVerificationPolicy()
-            .onSuccess(new CalendarHashChainExistenceRule_CalendarHashChainExistenceRule() // Gen-02
+    function KeyBasedVerificationPolicy(skipInternalVerification) {
+        if (skipInternalVerification === void 0) { skipInternalVerification = false; }
+        var _this = this;
+        var verificationRule = new CalendarHashChainExistenceRule_CalendarHashChainExistenceRule() // Gen-02
             .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule() // Gen-02
             .onSuccess(new CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExistenceRule() // Gen-02
             .onSuccess(new CertificateExistenceRule_CertificateExistenceRule() // Key-01
-            .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthenticationRecordSignatureVerificationRule())))))) || this;
+            .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthenticationRecordSignatureVerificationRule())))); // Key-02, Key-03
+        if (!skipInternalVerification) {
+            verificationRule = verificationRule.onSuccess(verificationRule);
+        }
+        _this = _super.call(this, verificationRule) || this;
+        return _this;
     }
     return KeyBasedVerificationPolicy;
+}(VerificationPolicy_VerificationPolicy));
+
+
+// CONCATENATED MODULE: ./src/signature/verification/policy/DefaultVerificationPolicy.ts
+var DefaultVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+/**
+ * Default verification policy
+ */
+var DefaultVerificationPolicy_DefaultVerificationPolicy = /** @class */ (function (_super) {
+    DefaultVerificationPolicy_extends(DefaultVerificationPolicy, _super);
+    function DefaultVerificationPolicy() {
+        return _super.call(this, new PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy()
+            .onNa(new KeyBasedVerificationPolicy_KeyBasedVerificationPolicy(true))) || this;
+    }
+    return DefaultVerificationPolicy;
 }(VerificationPolicy_VerificationPolicy));
 
 
@@ -59078,6 +59229,7 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 /* concated harmony reexport VerificationContext */__webpack_require__.d(__webpack_exports__, "VerificationContext", function() { return VerificationContext_VerificationContext; });
 /* concated harmony reexport KeyBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "KeyBasedVerificationPolicy", function() { return KeyBasedVerificationPolicy_KeyBasedVerificationPolicy; });
 /* concated harmony reexport PublicationsFileVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationsFileVerificationPolicy", function() { return PublicationsFileVerificationPolicy_PublicationsFileVerificationPolicy; });
+/* concated harmony reexport DefaultVerificationPolicy */__webpack_require__.d(__webpack_exports__, "DefaultVerificationPolicy", function() { return DefaultVerificationPolicy_DefaultVerificationPolicy; });
 /* concated harmony reexport KsiService */__webpack_require__.d(__webpack_exports__, "KsiService", function() { return KsiService_KsiService; });
 /* concated harmony reexport DataHash */__webpack_require__.d(__webpack_exports__, "DataHash", function() { return DataHash_DataHash; });
 /* concated harmony reexport HashAlgorithm */__webpack_require__.d(__webpack_exports__, "HashAlgorithm", function() { return HashAlgorithm_HashAlgorithm; });
@@ -59092,6 +59244,7 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 /**
  * KSI Javascript API externally visible classes
  */
+
 
 
 
