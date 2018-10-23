@@ -1,4 +1,3 @@
-import {InternalVerificationPolicy} from './InternalVerificationPolicy';
 import {KeyBasedVerificationPolicy} from './KeyBasedVerificationPolicy';
 import {PublicationBasedVerificationPolicy} from './PublicationBasedVerificationPolicy';
 import {VerificationPolicy} from './VerificationPolicy';
