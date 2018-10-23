@@ -10,6 +10,8 @@ export {TlvError} from './parser/TlvError';
 export {TlvInputStream} from './parser/TlvInputStream';
 export {TlvOutputStream} from './parser/TlvOutputStream';
 
+export {DataHash, HashAlgorithm, DataHasher} from 'gt-js-common';
+
 export {KsiSignature} from './signature/KsiSignature';
 export {PublicationBasedVerificationPolicy} from './signature/verification/policy/PublicationBasedVerificationPolicy';
 export {VerificationContext} from './signature/verification/VerificationContext';
@@ -17,7 +19,6 @@ export {KeyBasedVerificationPolicy} from './signature/verification/policy/KeyBas
 export {PublicationsFileVerificationPolicy} from './signature/verification/policy/PublicationsFileVerificationPolicy';
 export {DefaultVerificationPolicy} from './signature/verification/policy/DefaultVerificationPolicy';
 export {KsiService} from './service/KsiService';
-export {DataHash, HashAlgorithm} from 'gt-js-common';
 export {SigningServiceProtocol} from './service/SigningServiceProtocol';
 export {ExtendingServiceProtocol} from './service/ExtendingServiceProtocol';
 export {PublicationsFileServiceProtocol} from './service/PublicationsFileServiceProtocol';

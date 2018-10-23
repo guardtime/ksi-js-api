@@ -50885,6 +50885,107 @@ var StringTag_StringTag = /** @class */ (function (_super) {
 }(TlvTag_TlvTag));
 
 
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/WebHasher.js
+
+
+class WebHasher_WebHasher {
+    /**
+     * Uses web crypto for hashing operation.
+     *
+     * @param {HashAlgorithm} algorithm
+     * @param {Uint8Array} data
+     * @returns {Promise.<Uint8Array, Error>}
+     */
+    static digest(algorithm, data) {
+        if (!(algorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            return Promise.reject(new HashingError(`Invalid hash algorithm, must be HashAlgorithm but is ${typeof data}`));
+        }
+        if (!(data instanceof Uint8Array)) {
+            return Promise.reject(new HashingError(`Invalid data, must be Uint8Array but is ${typeof data}`));
+        }
+        return window.crypto.subtle.digest({ name: algorithm.name }, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer));
+    }
+}
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/DataHasher.js
+
+
+
+
+/**
+ * Does hashing with asynchronous way
+ */
+class DataHasher_DataHasher {
+    /**
+     * Create DataHasher instance the hash algorithm
+     * @param {HashAlgorithm} hashAlgorithm
+     */
+    constructor(hashAlgorithm) {
+        if (!(hashAlgorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            throw new HashingError('Invalid HashAlgorithm');
+        }
+        this.hashAlgorithm = hashAlgorithm;
+        // Since crypto API is working different for web and node store data here
+        this.data = new Uint8Array(0);
+    }
+    /**
+     * Add data for hashing
+     * @param {Uint8Array} data byte array
+     * @returns {DataHasher}
+     */
+    update(data) {
+        if (!(data instanceof Uint8Array)) {
+            throw new HashingError('Invalid array for hashing');
+        }
+        const previousData = this.data;
+        this.data = new Uint8Array(previousData.length + data.length);
+        this.data.set(previousData);
+        this.data.set(data, previousData.length);
+        return this;
+    }
+    /**
+     * Create hashing Promise for getting result DataHash
+     * @returns Promise.<DataHash, Error>
+     */
+    digest() {
+        return WebHasher_WebHasher.digest(this.hashAlgorithm, this.data)
+            .then(hashBytes => DataHash_DataHash.create(this.hashAlgorithm, hashBytes));
+    }
+    /**
+     * Resets the hash calculation.
+     * @returns {DataHasher} The same data hasher object object for chaining calls.
+     */
+    reset() {
+        this.data = new Uint8Array(0);
+        return this;
+    }
+}
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/main.mjs
+// Crypto package
+
+
+
+// Coders
+
+
+
+
+// CRC32
+
+// String utils
+
+
+// Math
+
+// Hash package
+
+
+
+
+// Models
+
+
 // EXTERNAL MODULE: ./node_modules/base64-js/index.js
 var base64_js = __webpack_require__(18);
 
@@ -51257,82 +51358,6 @@ var KsiError = /** @class */ (function (_super) {
     return KsiError;
 }(Error));
 
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/WebHasher.js
-
-
-class WebHasher_WebHasher {
-    /**
-     * Uses web crypto for hashing operation.
-     *
-     * @param {HashAlgorithm} algorithm
-     * @param {Uint8Array} data
-     * @returns {Promise.<Uint8Array, Error>}
-     */
-    static digest(algorithm, data) {
-        if (!(algorithm instanceof HashAlgorithm_HashAlgorithm)) {
-            return Promise.reject(new HashingError(`Invalid hash algorithm, must be HashAlgorithm but is ${typeof data}`));
-        }
-        if (!(data instanceof Uint8Array)) {
-            return Promise.reject(new HashingError(`Invalid data, must be Uint8Array but is ${typeof data}`));
-        }
-        return window.crypto.subtle.digest({ name: algorithm.name }, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer));
-    }
-}
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/DataHasher.js
-
-
-
-
-/**
- * Does hashing with asynchronous way
- */
-class DataHasher_DataHasher {
-    /**
-     * Create DataHasher instance the hash algorithm
-     * @param {HashAlgorithm} hashAlgorithm
-     */
-    constructor(hashAlgorithm) {
-        if (!(hashAlgorithm instanceof HashAlgorithm_HashAlgorithm)) {
-            throw new HashingError('Invalid HashAlgorithm');
-        }
-        this.hashAlgorithm = hashAlgorithm;
-        // Since crypto API is working different for web and node store data here
-        this.data = new Uint8Array(0);
-    }
-    /**
-     * Add data for hashing
-     * @param {Uint8Array} data byte array
-     * @returns {DataHasher}
-     */
-    update(data) {
-        if (!(data instanceof Uint8Array)) {
-            throw new HashingError('Invalid array for hashing');
-        }
-        const previousData = this.data;
-        this.data = new Uint8Array(previousData.length + data.length);
-        this.data.set(previousData);
-        this.data.set(data, previousData.length);
-        return this;
-    }
-    /**
-     * Create hashing Promise for getting result DataHash
-     * @returns Promise.<DataHash, Error>
-     */
-    digest() {
-        return WebHasher_WebHasher.digest(this.hashAlgorithm, this.data)
-            .then(hashBytes => DataHash_DataHash.create(this.hashAlgorithm, hashBytes));
-    }
-    /**
-     * Resets the hash calculation.
-     * @returns {DataHasher} The same data hasher object object for chaining calls.
-     */
-    reset() {
-        this.data = new Uint8Array(0);
-        return this;
-    }
-}
 
 // CONCATENATED MODULE: ./src/signature/AggregationHashChain.ts
 var AggregationHashChain_extends = (undefined && undefined.__extends) || (function () {
@@ -59162,31 +59187,6 @@ var DefaultVerificationPolicy_DefaultVerificationPolicy = /** @class */ (functio
 }(VerificationPolicy_VerificationPolicy));
 
 
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/main.mjs
-// Crypto package
-
-
-
-// Coders
-
-
-
-
-// CRC32
-
-// String utils
-
-
-// Math
-
-// Hash package
-
-
-
-
-// Models
-
-
 // CONCATENATED MODULE: ./src/service/ServiceCredentials.ts
 
 
@@ -59231,6 +59231,9 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 /* concated harmony reexport TlvError */__webpack_require__.d(__webpack_exports__, "TlvError", function() { return TlvError; });
 /* concated harmony reexport TlvInputStream */__webpack_require__.d(__webpack_exports__, "TlvInputStream", function() { return TlvInputStream_TlvInputStream; });
 /* concated harmony reexport TlvOutputStream */__webpack_require__.d(__webpack_exports__, "TlvOutputStream", function() { return TlvOutputStream_TlvOutputStream; });
+/* concated harmony reexport DataHash */__webpack_require__.d(__webpack_exports__, "DataHash", function() { return DataHash_DataHash; });
+/* concated harmony reexport HashAlgorithm */__webpack_require__.d(__webpack_exports__, "HashAlgorithm", function() { return HashAlgorithm_HashAlgorithm; });
+/* concated harmony reexport DataHasher */__webpack_require__.d(__webpack_exports__, "DataHasher", function() { return DataHasher_DataHasher; });
 /* concated harmony reexport KsiSignature */__webpack_require__.d(__webpack_exports__, "KsiSignature", function() { return KsiSignature_KsiSignature; });
 /* concated harmony reexport PublicationBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationBasedVerificationPolicy", function() { return PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy; });
 /* concated harmony reexport VerificationContext */__webpack_require__.d(__webpack_exports__, "VerificationContext", function() { return VerificationContext_VerificationContext; });
@@ -59238,8 +59241,6 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 /* concated harmony reexport PublicationsFileVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationsFileVerificationPolicy", function() { return PublicationsFileVerificationPolicy_PublicationsFileVerificationPolicy; });
 /* concated harmony reexport DefaultVerificationPolicy */__webpack_require__.d(__webpack_exports__, "DefaultVerificationPolicy", function() { return DefaultVerificationPolicy_DefaultVerificationPolicy; });
 /* concated harmony reexport KsiService */__webpack_require__.d(__webpack_exports__, "KsiService", function() { return KsiService_KsiService; });
-/* concated harmony reexport DataHash */__webpack_require__.d(__webpack_exports__, "DataHash", function() { return DataHash_DataHash; });
-/* concated harmony reexport HashAlgorithm */__webpack_require__.d(__webpack_exports__, "HashAlgorithm", function() { return HashAlgorithm_HashAlgorithm; });
 /* concated harmony reexport SigningServiceProtocol */__webpack_require__.d(__webpack_exports__, "SigningServiceProtocol", function() { return SigningServiceProtocol_SigningServiceProtocol; });
 /* concated harmony reexport ExtendingServiceProtocol */__webpack_require__.d(__webpack_exports__, "ExtendingServiceProtocol", function() { return ExtendingServiceProtocol_ExtendingServiceProtocol; });
 /* concated harmony reexport PublicationsFileServiceProtocol */__webpack_require__.d(__webpack_exports__, "PublicationsFileServiceProtocol", function() { return PublicationsFileServiceProtocol; });
