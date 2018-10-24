@@ -72,7 +72,7 @@ export class KsiHttpProtocol {
         return new Promise((resolve: (value?: (PromiseLike<Uint8Array> | Uint8Array)) => void,
                             reject: (reason?: any) => void): void => {
 
-            const request: ClientRequest = httpRequest(
+            const request: ClientRequest = this.makeRequest(
                 {
                     protocol: this.url.protocol,
                     hostname: this.url.hostname,
