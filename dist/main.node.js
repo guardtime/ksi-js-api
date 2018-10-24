@@ -4449,8 +4449,8 @@ util.estimateCores = function(options, callback) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(7);
+__webpack_require__(28);
 __webpack_require__(29);
-__webpack_require__(30);
 __webpack_require__(2);
 
 (function() {
@@ -6085,7 +6085,7 @@ module.exports = require("events");
  */
 var forge = __webpack_require__(0);
 __webpack_require__(18);
-__webpack_require__(25);
+__webpack_require__(24);
 __webpack_require__(2);
 
 /* AES API */
@@ -24708,28 +24708,28 @@ __webpack_require__(7);
 __webpack_require__(48);
 __webpack_require__(4);
 __webpack_require__(18);
-__webpack_require__(37);
+__webpack_require__(36);
 __webpack_require__(15);
 __webpack_require__(50);
 __webpack_require__(12);
 __webpack_require__(51);
-__webpack_require__(39);
+__webpack_require__(38);
 __webpack_require__(52);
-__webpack_require__(36);
+__webpack_require__(35);
 __webpack_require__(20);
 __webpack_require__(9);
-__webpack_require__(32);
-__webpack_require__(34);
-__webpack_require__(53);
-__webpack_require__(27);
+__webpack_require__(31);
 __webpack_require__(33);
-__webpack_require__(30);
+__webpack_require__(53);
+__webpack_require__(26);
+__webpack_require__(32);
+__webpack_require__(29);
 __webpack_require__(22);
 __webpack_require__(3);
-__webpack_require__(31);
+__webpack_require__(30);
 __webpack_require__(54);
 __webpack_require__(55);
-__webpack_require__(26);
+__webpack_require__(25);
 __webpack_require__(2);
 
 
@@ -24769,7 +24769,7 @@ __webpack_require__(2);
  */
 var forge = __webpack_require__(0);
 __webpack_require__(18);
-__webpack_require__(25);
+__webpack_require__(24);
 __webpack_require__(2);
 
 /* DES API */
@@ -25305,8 +25305,8 @@ var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(17);
 __webpack_require__(8);
+__webpack_require__(31);
 __webpack_require__(32);
-__webpack_require__(33);
 __webpack_require__(3);
 __webpack_require__(2);
 
@@ -32738,12 +32738,6 @@ function fromByteArray (uint8) {
 
 /***/ }),
 /* 24 */
-/***/ (function(module, exports) {
-
-module.exports = require("http");
-
-/***/ }),
-/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -33736,7 +33730,7 @@ function from64To32(num) {
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -33976,7 +33970,7 @@ __webpack_require__(4);
 __webpack_require__(12);
 __webpack_require__(19);
 __webpack_require__(9);
-__webpack_require__(27);
+__webpack_require__(26);
 __webpack_require__(3);
 __webpack_require__(13);
 __webpack_require__(2);
@@ -38011,7 +38005,7 @@ forge.tls.createConnection = tls.createConnection;
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -38025,10 +38019,10 @@ forge.tls.createConnection = tls.createConnection;
 var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(8);
-__webpack_require__(28);
+__webpack_require__(27);
 __webpack_require__(9);
 __webpack_require__(20);
-__webpack_require__(34);
+__webpack_require__(33);
 __webpack_require__(22);
 __webpack_require__(16);
 __webpack_require__(2);
@@ -38119,7 +38113,7 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -38150,7 +38144,7 @@ __webpack_require__(8);
 __webpack_require__(20);
 __webpack_require__(9);
 __webpack_require__(3);
-__webpack_require__(31);
+__webpack_require__(30);
 __webpack_require__(16);
 __webpack_require__(2);
 
@@ -39148,7 +39142,7 @@ function createPbkdf2Params(salt, countBytes, dkLen, prfAlgorithm) {
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -39481,7 +39475,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -39907,7 +39901,7 @@ prng.create = function(plugin) {
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40323,7 +40317,7 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40605,7 +40599,7 @@ function rsa_mgf1(seed, maskLength, hash) {
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40908,7 +40902,7 @@ function getMillerRabinTests(bits) {
 
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -41010,8 +41004,8 @@ var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(12);
 __webpack_require__(8);
-__webpack_require__(35);
-__webpack_require__(28);
+__webpack_require__(34);
+__webpack_require__(27);
 __webpack_require__(3);
 __webpack_require__(16);
 __webpack_require__(13);
@@ -41988,7 +41982,7 @@ p12.generateKey = forge.pbe.generatePkcs12Key;
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42403,7 +42397,7 @@ p7v.recipientInfoValidator = {
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42466,7 +42460,7 @@ mgf1.create = function(md) {
 
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42550,7 +42544,7 @@ forge.debug.clear = function(cat, name) {
 
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43117,7 +43111,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43440,6 +43434,12 @@ forge.log.consoleLogger = sConsoleLogger;
 
 
 /***/ }),
+/* 39 */
+/***/ (function(module, exports) {
+
+module.exports = require("http");
+
+/***/ }),
 /* 40 */
 /***/ (function(module, exports) {
 
@@ -43689,7 +43689,7 @@ function _encodeWithByteBuffer(input, alphabet) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(7);
-__webpack_require__(26);
+__webpack_require__(25);
 
 var tls = module.exports = forge.tls;
 
@@ -43977,7 +43977,7 @@ function compareMacs(key, mac1, mac2) {
  * Copyright 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 var forge = __webpack_require__(0);
-__webpack_require__(36);
+__webpack_require__(35);
 
 module.exports = forge.mgf = forge.mgf || {};
 forge.mgf.mgf1 = forge.mgf1;
@@ -44000,7 +44000,7 @@ forge.mgf.mgf1 = forge.mgf1;
 var forge = __webpack_require__(0);
 __webpack_require__(17);
 __webpack_require__(3);
-__webpack_require__(38);
+__webpack_require__(37);
 __webpack_require__(2);
 
 if(typeof BigInteger === 'undefined') {
@@ -45174,8 +45174,8 @@ module.exports = __webpack_require__(5);
 
 __webpack_require__(19);
 __webpack_require__(13);
-__webpack_require__(29);
-__webpack_require__(38);
+__webpack_require__(28);
+__webpack_require__(37);
 
 
 /***/ }),
@@ -45206,7 +45206,7 @@ __webpack_require__(4);
 __webpack_require__(15);
 __webpack_require__(8);
 __webpack_require__(9);
-__webpack_require__(35);
+__webpack_require__(34);
 __webpack_require__(3);
 __webpack_require__(2);
 __webpack_require__(21);
@@ -46697,8 +46697,8 @@ function _sha1() {
  * Copyright (c) 2009-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(37);
-__webpack_require__(39);
+__webpack_require__(36);
+__webpack_require__(38);
 __webpack_require__(2);
 
 // logging category
@@ -56677,7 +56677,7 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 var external_events_ = __webpack_require__(6);
 
 // EXTERNAL MODULE: external "http"
-var external_http_ = __webpack_require__(24);
+var external_http_ = __webpack_require__(39);
 
 // EXTERNAL MODULE: external "https"
 var external_https_ = __webpack_require__(40);
@@ -56853,7 +56853,7 @@ var KsiHttpProtocol_KsiHttpProtocol = /** @class */ (function () {
     KsiHttpProtocol.prototype.download = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            var request = Object(external_http_["request"])({
+            var request = _this.makeRequest({
                 protocol: _this.url.protocol,
                 hostname: _this.url.hostname,
                 port: _this.url.port,
