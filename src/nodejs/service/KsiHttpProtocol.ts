@@ -1,5 +1,6 @@
 import {EventEmitter} from 'events';
-import {ClientRequest, IncomingMessage, request as httpRequest} from 'http';
+import {ClientRequest, IncomingMessage, request as httpRequest, RequestOptions} from 'http';
+import {request as httpsRequest} from 'https';
 import {URL} from 'url';
 import {KsiError} from '../../common/service/KsiError';
 import {KsiServiceError} from '../../common/service/KsiServiceError';
@@ -30,7 +31,7 @@ export class KsiHttpProtocol {
                 throw new KsiError('Invalid event emitter');
             }
 
-            const request: ClientRequest = httpRequest(
+            const request: ClientRequest = this.makeRequest(
                 {
                     protocol: this.url.protocol,
                     hostname: this.url.hostname,
@@ -95,6 +96,16 @@ export class KsiHttpProtocol {
 
             request.end();
         });
+    }
+
+    private makeRequest(options: RequestOptions, callback: (response: IncomingMessage) => void): ClientRequest {
+        if (this.url.protocol === 'https:') {
+            return httpsRequest(options, callback);
+        } else if (this.url.protocol === 'http:') {// tslint:disable-line: no-http-string
+            return httpRequest(options, callback);
+        }
+
+        throw new KsiServiceError(`Network protocol not supported: ${this.url.protocol}`);
     }
 
 }

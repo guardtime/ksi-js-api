@@ -8,4 +8,5 @@ export declare class KsiHttpProtocol {
     constructor(url: string);
     requestKsi(requestBytes: Uint8Array, eventEmitter: EventEmitter): Promise<Uint8Array | null>;
     download(): Promise<Uint8Array>;
+    private makeRequest;
 }

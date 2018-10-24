@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 55);
+/******/ 	return __webpack_require__(__webpack_require__.s = 56);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1440,7 +1440,7 @@ if (true) {
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(45)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(46)(module)))
 
 /***/ }),
 /* 2 */
@@ -1454,7 +1454,7 @@ if (true) {
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-var baseN = __webpack_require__(46);
+var baseN = __webpack_require__(47);
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -24705,30 +24705,30 @@ function _update(s, w, bytes) {
  */
 module.exports = __webpack_require__(0);
 __webpack_require__(7);
-__webpack_require__(47);
+__webpack_require__(48);
 __webpack_require__(4);
 __webpack_require__(18);
 __webpack_require__(37);
 __webpack_require__(15);
-__webpack_require__(49);
-__webpack_require__(12);
 __webpack_require__(50);
-__webpack_require__(39);
+__webpack_require__(12);
 __webpack_require__(51);
+__webpack_require__(39);
+__webpack_require__(52);
 __webpack_require__(36);
 __webpack_require__(20);
 __webpack_require__(9);
 __webpack_require__(32);
 __webpack_require__(34);
-__webpack_require__(52);
+__webpack_require__(53);
 __webpack_require__(27);
 __webpack_require__(33);
 __webpack_require__(30);
 __webpack_require__(22);
 __webpack_require__(3);
 __webpack_require__(31);
-__webpack_require__(53);
 __webpack_require__(54);
+__webpack_require__(55);
 __webpack_require__(26);
 __webpack_require__(2);
 
@@ -29172,7 +29172,7 @@ __webpack_require__(7);
 __webpack_require__(4);
 __webpack_require__(15);
 __webpack_require__(5);
-__webpack_require__(48);
+__webpack_require__(49);
 __webpack_require__(8);
 __webpack_require__(9);
 __webpack_require__(22);
@@ -43443,14 +43443,20 @@ forge.log.consoleLogger = sConsoleLogger;
 /* 40 */
 /***/ (function(module, exports) {
 
+module.exports = require("https");
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports) {
+
 module.exports = require("url");
 
 /***/ }),
-/* 41 */,
 /* 42 */,
 /* 43 */,
 /* 44 */,
-/* 45 */
+/* 45 */,
+/* 46 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -43478,7 +43484,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports) {
 
 /**
@@ -43670,7 +43676,7 @@ function _encodeWithByteBuffer(input, alphabet) {
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43960,7 +43966,7 @@ function compareMacs(key, mac1, mac2) {
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43978,7 +43984,7 @@ forge.mgf.mgf1 = forge.mgf1;
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44980,7 +44986,7 @@ function M(o, a, b) {
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45154,7 +45160,7 @@ function _createKDF(kdf, md, counterStart, digestLength) {
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45173,7 +45179,7 @@ __webpack_require__(38);
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46436,7 +46442,7 @@ function _decryptContent(msg) {
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46678,7 +46684,7 @@ function _sha1() {
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47409,7 +47415,7 @@ forge.task.createCondition = function() {
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -56673,8 +56679,11 @@ var external_events_ = __webpack_require__(6);
 // EXTERNAL MODULE: external "http"
 var external_http_ = __webpack_require__(24);
 
+// EXTERNAL MODULE: external "https"
+var external_https_ = __webpack_require__(40);
+
 // EXTERNAL MODULE: external "url"
-var external_url_ = __webpack_require__(40);
+var external_url_ = __webpack_require__(41);
 
 // CONCATENATED MODULE: ./src/common/service/KsiRequestBase.ts
 var KsiRequestBase_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -56791,6 +56800,7 @@ var KsiRequest_KsiRequest = /** @class */ (function (_super) {
 
 
 
+
 /**
  * Http protocol for requests
  */
@@ -56810,7 +56820,7 @@ var KsiHttpProtocol_KsiHttpProtocol = /** @class */ (function () {
             if (!(eventEmitter instanceof external_events_["EventEmitter"])) {
                 throw new KsiError('Invalid event emitter');
             }
-            var request = Object(external_http_["request"])({
+            var request = _this.makeRequest({
                 protocol: _this.url.protocol,
                 hostname: _this.url.hostname,
                 port: _this.url.port,
@@ -56862,6 +56872,15 @@ var KsiHttpProtocol_KsiHttpProtocol = /** @class */ (function () {
             });
             request.end();
         });
+    };
+    KsiHttpProtocol.prototype.makeRequest = function (options, callback) {
+        if (this.url.protocol === 'https:') {
+            return Object(external_https_["request"])(options, callback);
+        }
+        else if (this.url.protocol === 'http:') { // tslint:disable-line: no-http-string
+            return Object(external_http_["request"])(options, callback);
+        }
+        throw new KsiServiceError("Network protocol not supported: " + this.url.protocol);
     };
     return KsiHttpProtocol;
 }());
