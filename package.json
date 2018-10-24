@@ -35,9 +35,12 @@
   },
   "peerDependencies": {
     "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#typescript",
-    "big-integer": "^1.6.36",
-    "node-forge": "^0.7.6",
-    "@types/node-forge": "^0.7.6"
+    "big-integer": "^1.6.36"
+  },
+  "dependencies": {
+    "abortcontroller-polyfill": "^1.1.9",
+    "wretch": "^1.4.2",
+    "node-forge": "^0.7.6"
   },
   "devDependencies": {
     "jest": "^23.6.0",
@@ -57,7 +60,6 @@
 
     "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#typescript",
     "big-integer": "^1.6.36",
-    "node-forge": "^0.7.6",
     "@types/node-forge": "^0.7.6"
   }
 }

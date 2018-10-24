@@ -1,6 +1,6 @@
 import bigInteger from 'big-integer';
-import {IntegerTag} from '../../src/parser/IntegerTag';
-import {TlvTag} from '../../src/parser/TlvTag';
+import {IntegerTag} from '../../src/common/parser/IntegerTag';
+import {TlvTag} from '../../src/common/parser/TlvTag';
 
 /**
  * IntegerTag tests

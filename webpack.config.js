@@ -1,8 +1,10 @@
 const path = require('path');
 
-module.exports = {
+const outputPath = path.resolve(__dirname, 'dist');
+
+const web = {
     mode: "production",
-    entry: './src/main.ts',
+    entry: './src/web/main.ts',
     module: {
         rules: [
             {
@@ -17,7 +19,7 @@ module.exports = {
     },
     output: {
         filename: 'main.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: outputPath,
         libraryTarget: 'umd',
         globalObject: 'this',
         library: 'KSI'
@@ -26,7 +28,38 @@ module.exports = {
         minimize: false
     },
     devServer: {
-        contentBase: './browser/',
+        contentBase: './web/',
         publicPath: '/dist/',
-    },
+    }
 };
+
+const nodejs = {
+    mode: "production",
+    entry: './src/nodejs/main.ts',
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
+            }
+        ]
+    },
+    resolve: {
+        extensions: [ '.ts', '.js', '.json' ]
+    },
+    output: {
+        filename: 'main.node.js',
+        path: outputPath,
+        libraryTarget: 'umd',
+        globalObject: 'this',
+        library: 'KSI'
+    },
+    optimization: {
+        minimize: false
+    },
+    target: 'node',
+
+};
+
+module.exports = [web, nodejs];
