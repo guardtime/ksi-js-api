@@ -1,12 +1,12 @@
 import { IPublicationsFile } from '../publication/IPublicationsFile';
 import { PublicationsFileFactory } from '../publication/PublicationsFileFactory';
-import { PublicationsFileServiceProtocol } from '../../nodejs/service/PublicationsFileServiceProtocol';
+import { IPublicationsFileServiceProtocol } from './IPublicationsFileServiceProtocol';
 /**
  * Publications file service
  */
 export declare class PublicationsFileService {
     private publicationsFileServiceProtocol;
     private publicationsFileFactory;
-    constructor(publicationsFileServiceProtocol: PublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory);
+    constructor(publicationsFileServiceProtocol: IPublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory);
     getPublicationsFile(): Promise<IPublicationsFile>;
 }

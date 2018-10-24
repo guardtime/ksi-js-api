@@ -51504,274 +51504,10 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
 }());
 
 
-// EXTERNAL MODULE: external "http"
-var external_http_ = __webpack_require__(24);
-
-// EXTERNAL MODULE: external "url"
-var external_url_ = __webpack_require__(40);
-
-// EXTERNAL MODULE: external "events"
-var external_events_ = __webpack_require__(6);
-
-// CONCATENATED MODULE: ./src/common/service/KsiRequestBase.ts
-var KsiRequestBase_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var KsiRequestBase_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-/**
- * KSI request base class for PDU exchanging with KSI servers.
- */
-var KsiRequestBase_KsiRequestBase = /** @class */ (function () {
-    function KsiRequestBase(response) {
-        if (!(response instanceof Promise)) {
-            throw new KsiError('Invalid response');
-        }
-        this.response = response;
-    }
-    KsiRequestBase.prototype.getResponse = function () {
-        return KsiRequestBase_awaiter(this, void 0, void 0, function () {
-            return KsiRequestBase_generator(this, function (_a) {
-                return [2 /*return*/, this.response];
-            });
-        });
-    };
-    return KsiRequestBase;
-}());
-
-
-// CONCATENATED MODULE: ./src/nodejs/service/KsiRequest.ts
-var KsiRequest_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-/**
- * KSI request for PDU exchanging with KSI servers.
- */
-var KsiRequest_KsiRequest = /** @class */ (function (_super) {
-    KsiRequest_extends(KsiRequest, _super);
-    function KsiRequest(response, eventEmitter) {
-        var _this = _super.call(this, response) || this;
-        _this.aborted = false;
-        if (!(eventEmitter instanceof external_events_["EventEmitter"])) {
-            throw new KsiError('Invalid event emitter');
-        }
-        _this.eventEmitter = eventEmitter;
-        return _this;
-    }
-    KsiRequest.prototype.abort = function (responsePdu) {
-        if (!(responsePdu instanceof PduPayload)) {
-            throw new KsiError("Invalid response bytes: " + responsePdu);
-        }
-        this.responsePayload = responsePdu;
-        this.eventEmitter.emit(KsiRequest.ABORT_EVENT);
-    };
-    KsiRequest.prototype.getAbortResponse = function () {
-        return this.responsePayload;
-    };
-    KsiRequest.prototype.isAborted = function () {
-        return this.aborted;
-    };
-    KsiRequest.ABORT_EVENT = 'ABORT';
-    return KsiRequest;
-}(KsiRequestBase_KsiRequestBase));
-
-
-// CONCATENATED MODULE: ./src/nodejs/service/KsiHttpProtocol.ts
-
-
-
-
-
-
-/**
- * Http protocol for requests
- */
-var KsiHttpProtocol_KsiHttpProtocol = /** @class */ (function () {
-    function KsiHttpProtocol(url) {
-        if (typeof url !== 'string') {
-            throw new KsiError('Invalid url');
-        }
-        this.url = new external_url_["URL"](url);
-    }
-    KsiHttpProtocol.prototype.requestKsi = function (requestBytes, eventEmitter) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            if (!(requestBytes instanceof Uint8Array)) {
-                throw new KsiServiceError("Invalid KSI request bytes: " + requestBytes);
-            }
-            if (!(eventEmitter instanceof external_events_["EventEmitter"])) {
-                throw new KsiError('Invalid event emitter');
-            }
-            var request = Object(external_http_["request"])({
-                protocol: _this.url.protocol,
-                hostname: _this.url.hostname,
-                port: _this.url.port,
-                path: _this.url.pathname,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/ksi-request',
-                    'Content-Length': requestBytes.length.toString()
-                }
-            }, function (response) {
-                var data = new Buffer(0);
-                response.on('data', function (chunk) {
-                    data = Buffer.concat([data, chunk]);
-                });
-                response.on('end', function () {
-                    resolve(new Uint8Array(data));
-                });
-            });
-            request.on('error', function (event) {
-                reject(event);
-            });
-            eventEmitter.once(KsiRequest_KsiRequest.ABORT_EVENT, function () {
-                request.abort();
-                resolve(null);
-            });
-            request.write(new Buffer(requestBytes));
-            request.end();
-        });
-    };
-    KsiHttpProtocol.prototype.download = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            var request = Object(external_http_["request"])({
-                protocol: _this.url.protocol,
-                hostname: _this.url.hostname,
-                port: _this.url.port,
-                path: _this.url.pathname
-            }, function (response) {
-                var data = new Buffer(0);
-                response.on('data', function (chunk) {
-                    data = Buffer.concat([data, chunk]);
-                });
-                response.on('end', function () {
-                    resolve(new Uint8Array(data));
-                });
-            });
-            request.on('error', function (event) {
-                reject(event);
-            });
-            request.end();
-        });
-    };
-    return KsiHttpProtocol;
-}());
-
-
-// CONCATENATED MODULE: ./src/nodejs/service/PublicationsFileServiceProtocol.ts
-var PublicationsFileServiceProtocol_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var PublicationsFileServiceProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var PublicationsFileServiceProtocol_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-/**
- * HTTP signing service protocol
- */
-var PublicationsFileServiceProtocol = /** @class */ (function (_super) {
-    PublicationsFileServiceProtocol_extends(PublicationsFileServiceProtocol, _super);
-    function PublicationsFileServiceProtocol(url) {
-        return _super.call(this, url) || this;
-    }
-    PublicationsFileServiceProtocol.prototype.getPublicationsFile = function () {
-        return PublicationsFileServiceProtocol_awaiter(this, void 0, void 0, function () {
-            return PublicationsFileServiceProtocol_generator(this, function (_a) {
-                return [2 /*return*/, this.download()];
-            });
-        });
-    };
-    return PublicationsFileServiceProtocol;
-}(KsiHttpProtocol_KsiHttpProtocol));
-
+// CONCATENATED MODULE: ./src/common/service/IPublicationsFileServiceProtocol.ts
+function isPublicationsFileServiceProtocol(object) {
+    return 'getPublicationsFile' in object && typeof object.getPublicationsFile === 'function';
+}
 
 // CONCATENATED MODULE: ./src/common/service/PublicationsFileService.ts
 var PublicationsFileService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -51817,7 +51553,7 @@ var PublicationsFileService_generator = (undefined && undefined.__generator) || 
  */
 var PublicationsFileService_PublicationsFileService = /** @class */ (function () {
     function PublicationsFileService(publicationsFileServiceProtocol, publicationsFileFactory) {
-        if (!(publicationsFileServiceProtocol instanceof PublicationsFileServiceProtocol)) {
+        if (!(isPublicationsFileServiceProtocol(publicationsFileServiceProtocol))) {
             throw new KsiServiceError("Invalid publications file service protocol: " + publicationsFileServiceProtocol);
         }
         if (!(publicationsFileFactory instanceof PublicationsFileFactory_PublicationsFileFactory)) {
@@ -56904,6 +56640,233 @@ var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
 }());
 
 
+// CONCATENATED MODULE: ./src/common/main.ts
+/**
+ * KSI Javascript API externally visible classes
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// EXTERNAL MODULE: external "events"
+var external_events_ = __webpack_require__(6);
+
+// EXTERNAL MODULE: external "http"
+var external_http_ = __webpack_require__(24);
+
+// EXTERNAL MODULE: external "url"
+var external_url_ = __webpack_require__(40);
+
+// CONCATENATED MODULE: ./src/common/service/KsiRequestBase.ts
+var KsiRequestBase_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var KsiRequestBase_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+/**
+ * KSI request base class for PDU exchanging with KSI servers.
+ */
+var KsiRequestBase_KsiRequestBase = /** @class */ (function () {
+    function KsiRequestBase(response) {
+        if (!(response instanceof Promise)) {
+            throw new KsiError('Invalid response');
+        }
+        this.response = response;
+    }
+    KsiRequestBase.prototype.getResponse = function () {
+        return KsiRequestBase_awaiter(this, void 0, void 0, function () {
+            return KsiRequestBase_generator(this, function (_a) {
+                return [2 /*return*/, this.response];
+            });
+        });
+    };
+    return KsiRequestBase;
+}());
+
+
+// CONCATENATED MODULE: ./src/nodejs/service/KsiRequest.ts
+var KsiRequest_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+/**
+ * KSI request for PDU exchanging with KSI servers.
+ */
+var KsiRequest_KsiRequest = /** @class */ (function (_super) {
+    KsiRequest_extends(KsiRequest, _super);
+    function KsiRequest(response, eventEmitter) {
+        var _this = _super.call(this, response) || this;
+        _this.aborted = false;
+        if (!(eventEmitter instanceof external_events_["EventEmitter"])) {
+            throw new KsiError('Invalid event emitter');
+        }
+        _this.eventEmitter = eventEmitter;
+        return _this;
+    }
+    KsiRequest.prototype.abort = function (responsePdu) {
+        if (!(responsePdu instanceof PduPayload)) {
+            throw new KsiError("Invalid response bytes: " + responsePdu);
+        }
+        this.responsePayload = responsePdu;
+        this.eventEmitter.emit(KsiRequest.ABORT_EVENT);
+    };
+    KsiRequest.prototype.getAbortResponse = function () {
+        return this.responsePayload;
+    };
+    KsiRequest.prototype.isAborted = function () {
+        return this.aborted;
+    };
+    KsiRequest.ABORT_EVENT = 'ABORT';
+    return KsiRequest;
+}(KsiRequestBase_KsiRequestBase));
+
+
+// CONCATENATED MODULE: ./src/nodejs/service/KsiHttpProtocol.ts
+
+
+
+
+
+
+/**
+ * Http protocol for requests
+ */
+var KsiHttpProtocol_KsiHttpProtocol = /** @class */ (function () {
+    function KsiHttpProtocol(url) {
+        if (typeof url !== 'string') {
+            throw new KsiError('Invalid url');
+        }
+        this.url = new external_url_["URL"](url);
+    }
+    KsiHttpProtocol.prototype.requestKsi = function (requestBytes, eventEmitter) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            if (!(requestBytes instanceof Uint8Array)) {
+                throw new KsiServiceError("Invalid KSI request bytes: " + requestBytes);
+            }
+            if (!(eventEmitter instanceof external_events_["EventEmitter"])) {
+                throw new KsiError('Invalid event emitter');
+            }
+            var request = Object(external_http_["request"])({
+                protocol: _this.url.protocol,
+                hostname: _this.url.hostname,
+                port: _this.url.port,
+                path: _this.url.pathname,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/ksi-request',
+                    'Content-Length': requestBytes.length.toString()
+                }
+            }, function (response) {
+                var data = new Buffer(0);
+                response.on('data', function (chunk) {
+                    data = Buffer.concat([data, chunk]);
+                });
+                response.on('end', function () {
+                    resolve(new Uint8Array(data));
+                });
+            });
+            request.on('error', function (event) {
+                reject(event);
+            });
+            eventEmitter.once(KsiRequest_KsiRequest.ABORT_EVENT, function () {
+                request.abort();
+                resolve(null);
+            });
+            request.write(new Buffer(requestBytes));
+            request.end();
+        });
+    };
+    KsiHttpProtocol.prototype.download = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var request = Object(external_http_["request"])({
+                protocol: _this.url.protocol,
+                hostname: _this.url.hostname,
+                port: _this.url.port,
+                path: _this.url.pathname
+            }, function (response) {
+                var data = new Buffer(0);
+                response.on('data', function (chunk) {
+                    data = Buffer.concat([data, chunk]);
+                });
+                response.on('end', function () {
+                    resolve(new Uint8Array(data));
+                });
+            });
+            request.on('error', function (event) {
+                reject(event);
+            });
+            request.end();
+        });
+    };
+    return KsiHttpProtocol;
+}());
+
+
 // CONCATENATED MODULE: ./src/nodejs/service/SigningServiceProtocol.ts
 var SigningServiceProtocol_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -56970,6 +56933,75 @@ var ExtendingServiceProtocol_ExtendingServiceProtocol = /** @class */ (function 
 }(KsiHttpProtocol_KsiHttpProtocol));
 
 
+// CONCATENATED MODULE: ./src/nodejs/service/PublicationsFileServiceProtocol.ts
+var PublicationsFileServiceProtocol_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var PublicationsFileServiceProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var PublicationsFileServiceProtocol_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+/**
+ * HTTP signing service protocol
+ */
+var PublicationsFileServiceProtocol = /** @class */ (function (_super) {
+    PublicationsFileServiceProtocol_extends(PublicationsFileServiceProtocol, _super);
+    function PublicationsFileServiceProtocol(url) {
+        return _super.call(this, url) || this;
+    }
+    PublicationsFileServiceProtocol.prototype.getPublicationsFile = function () {
+        return PublicationsFileServiceProtocol_awaiter(this, void 0, void 0, function () {
+            return PublicationsFileServiceProtocol_generator(this, function (_a) {
+                return [2 /*return*/, this.download()];
+            });
+        });
+    };
+    return PublicationsFileServiceProtocol;
+}(KsiHttpProtocol_KsiHttpProtocol));
+
+
 // CONCATENATED MODULE: ./src/nodejs/main.ts
 /* concated harmony reexport CompositeTag */__webpack_require__.d(__webpack_exports__, "CompositeTag", function() { return CompositeTag_CompositeTag; });
 /* concated harmony reexport ImprintTag */__webpack_require__.d(__webpack_exports__, "ImprintTag", function() { return ImprintTag_ImprintTag; });
@@ -57001,27 +57033,6 @@ var ExtendingServiceProtocol_ExtendingServiceProtocol = /** @class */ (function 
 /**
  * KSI Javascript API externally visible classes
  */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
