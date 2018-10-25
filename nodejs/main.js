@@ -1,5 +1,4 @@
 const fs = require('fs');
-
 const CONFIG = require('./config.js');
 const KSI = require('../dist/main.node');
 

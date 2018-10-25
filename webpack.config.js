@@ -51,7 +51,7 @@ const nodejs = {
     output: {
         filename: 'main.node.js',
         path: outputPath,
-        libraryTarget: 'umd',
+        libraryTarget: 'commonjs2',
         globalObject: 'this',
         library: 'KSI'
     },

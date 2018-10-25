@@ -4,7 +4,7 @@
   "private": true,
   "main": "./dist/main.node.js",
   "browser": "./dist/main.js",
-  "types": "./lib/src/main.d.ts",
+  "types": "./lib/src/nodejs/main.d.ts",
   "scripts": {
     "test": "jest",
     "build": "rimraf lib && tsc -t ES6 -d && webpack",
