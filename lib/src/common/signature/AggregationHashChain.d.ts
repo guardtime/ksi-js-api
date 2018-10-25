@@ -4,16 +4,21 @@ import { LinkDirection } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';
 import { RawTag } from '../parser/RawTag';
 import { TlvTag } from '../parser/TlvTag';
+import { IKsiIdentity } from './IKsiIdentity';
 /**
  * Aggregation Hash Chain Link Metadata TLV Object
  */
-export declare class AggregationHashChainLinkMetaData extends CompositeTag {
+export declare class AggregationHashChainLinkMetaData extends CompositeTag implements IKsiIdentity {
     private padding;
     private clientId;
     private machineId;
     private sequenceNumber;
     private requestTime;
     constructor(tlvTag: TlvTag);
+    getClientId(): string;
+    getMachineId(): string | null;
+    getSequenceNumber(): BigInteger | null;
+    getRequestTime(): BigInteger | null;
     getPaddingTag(): RawTag | null;
     private parseChild;
     private validate;
@@ -35,6 +40,7 @@ export declare class AggregationHashChainLink extends CompositeTag {
     getMetadata(): AggregationHashChainLinkMetaData | null;
     getDirection(): LinkDirection;
     getSiblingData(): Uint8Array;
+    getIdentity(): IKsiIdentity | null;
     private parseChild;
     private validate;
 }
@@ -60,6 +66,7 @@ export declare class AggregationHashChain extends CompositeTag {
     getChainIndex(): BigInteger[];
     getAggregationTime(): BigInteger;
     getAggregationAlgorithm(): HashAlgorithm;
+    getIdentity(): (IKsiIdentity | null)[];
     getOutputHash(result: AggregationHashResult): Promise<AggregationHashResult>;
     getInputHash(): DataHash;
     /**

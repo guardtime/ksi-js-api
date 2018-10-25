@@ -9,16 +9,18 @@ import {RawTag} from '../parser/RawTag';
 import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
+import {IKsiIdentity} from './IKsiIdentity';
+import {LegacyIdentity} from './LegacyIdentity';
 
 /**
  * Aggregation Hash Chain Link Metadata TLV Object
  */
-export class AggregationHashChainLinkMetaData extends CompositeTag {
+export class AggregationHashChainLinkMetaData extends CompositeTag implements IKsiIdentity {
     private padding: RawTag | null = null;
     private clientId: StringTag;
-    private machineId: StringTag;
-    private sequenceNumber: IntegerTag;
-    private requestTime: IntegerTag;
+    private machineId: StringTag | null = null;
+    private sequenceNumber: IntegerTag | null = null;
+    private requestTime: IntegerTag | null = null;
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
@@ -27,6 +29,22 @@ export class AggregationHashChainLinkMetaData extends CompositeTag {
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
+    }
+
+    public getClientId(): string {
+        return this.clientId.getValue();
+    }
+
+    public getMachineId(): string | null {
+        return this.machineId === null ? null : this.machineId.getValue();
+    }
+
+    public getSequenceNumber(): BigInteger | null {
+        return this.sequenceNumber === null ? null : this.sequenceNumber.getValue();
+    }
+
+    public getRequestTime(): BigInteger | null {
+        return this.requestTime === null ? null : this.requestTime.getValue();
     }
 
     public getPaddingTag(): RawTag | null {
@@ -154,6 +172,14 @@ export class AggregationHashChainLink extends CompositeTag {
         return this.metadata!.getValueBytes();
     }
 
+    public getIdentity(): IKsiIdentity | null {
+        if (this.legacyId !== null) {
+            return new LegacyIdentity(this.legacyIdString);
+        }
+
+        return this.metadata;
+    }
+
     private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType:
@@ -232,6 +258,15 @@ export class AggregationHashChain extends CompositeTag {
 
     public getAggregationAlgorithm(): HashAlgorithm {
         return this.aggregationAlgorithm;
+    }
+
+    public getIdentity(): (IKsiIdentity | null)[] {
+        const identity: (IKsiIdentity | null)[] = [];
+        for (let i: number = this.chainLinks.length - 1; i >= 0; i -= 1) {
+            identity.push(this.chainLinks[i].getIdentity());
+        }
+
+        return identity;
     }
 
     public async getOutputHash(result: AggregationHashResult): Promise<AggregationHashResult> {

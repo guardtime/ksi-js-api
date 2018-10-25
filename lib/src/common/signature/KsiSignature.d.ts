@@ -8,6 +8,7 @@ import { AggregationHashChain } from './AggregationHashChain';
 import { CalendarAuthenticationRecord } from './CalendarAuthenticationRecord';
 import { CalendarHashChain } from './CalendarHashChain';
 import { Rfc3161Record } from './Rfc3161Record';
+import { IKsiIdentity } from './IKsiIdentity';
 /**
  * KSI Signature TLV object
  */
@@ -31,6 +32,8 @@ export declare class KsiSignature extends CompositeTag {
     getInputHash(): DataHash;
     getRfc3161Record(): Rfc3161Record | null;
     getCalendarAuthenticationRecord(): CalendarAuthenticationRecord | null;
+    getIdentity(): (IKsiIdentity | null)[];
+    isExtended(): boolean;
     extend(calendarHashChain: CalendarHashChain, publicationRecord?: PublicationRecord | null): KsiSignature;
     private parseChild;
     private validate;

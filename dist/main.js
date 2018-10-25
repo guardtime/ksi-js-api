@@ -51361,6 +51361,34 @@ var KsiError = /** @class */ (function (_super) {
 }(Error));
 
 
+// CONCATENATED MODULE: ./src/common/signature/LegacyIdentity.ts
+
+/**
+ *
+ */
+var LegacyIdentity_LegacyIdentity = /** @class */ (function () {
+    function LegacyIdentity(clientId) {
+        if (typeof clientId !== 'string') {
+            throw new KsiError('Invalid clientId');
+        }
+        this.clientId = clientId;
+    }
+    LegacyIdentity.prototype.getClientId = function () {
+        return this.clientId;
+    };
+    LegacyIdentity.prototype.getMachineId = function () {
+        return null;
+    };
+    LegacyIdentity.prototype.getSequenceNumber = function () {
+        return null;
+    };
+    LegacyIdentity.prototype.getRequestTime = function () {
+        return null;
+    };
+    return LegacyIdentity;
+}());
+
+
 // CONCATENATED MODULE: ./src/common/signature/AggregationHashChain.ts
 var AggregationHashChain_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -51420,6 +51448,7 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
+
 /**
  * Aggregation Hash Chain Link Metadata TLV Object
  */
@@ -51428,11 +51457,26 @@ var AggregationHashChain_AggregationHashChainLinkMetaData = /** @class */ (funct
     function AggregationHashChainLinkMetaData(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
         _this.padding = null;
+        _this.machineId = null;
+        _this.sequenceNumber = null;
+        _this.requestTime = null;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }
+    AggregationHashChainLinkMetaData.prototype.getClientId = function () {
+        return this.clientId.getValue();
+    };
+    AggregationHashChainLinkMetaData.prototype.getMachineId = function () {
+        return this.machineId === null ? null : this.machineId.getValue();
+    };
+    AggregationHashChainLinkMetaData.prototype.getSequenceNumber = function () {
+        return this.sequenceNumber === null ? null : this.sequenceNumber.getValue();
+    };
+    AggregationHashChainLinkMetaData.prototype.getRequestTime = function () {
+        return this.requestTime === null ? null : this.requestTime.getValue();
+    };
     AggregationHashChainLinkMetaData.prototype.getPaddingTag = function () {
         return this.padding;
     };
@@ -51534,6 +51578,12 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
         }
         return this.metadata.getValueBytes();
     };
+    AggregationHashChainLink.prototype.getIdentity = function () {
+        if (this.legacyId !== null) {
+            return new LegacyIdentity_LegacyIdentity(this.legacyIdString);
+        }
+        return this.metadata;
+    };
     AggregationHashChainLink.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType:
@@ -51600,6 +51650,13 @@ var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super)
     };
     AggregationHashChain.prototype.getAggregationAlgorithm = function () {
         return this.aggregationAlgorithm;
+    };
+    AggregationHashChain.prototype.getIdentity = function () {
+        var identity = [];
+        for (var i = this.chainLinks.length - 1; i >= 0; i -= 1) {
+            identity.push(this.chainLinks[i].getIdentity());
+        }
+        return identity;
     };
     AggregationHashChain.prototype.getOutputHash = function (result) {
         return __awaiter(this, void 0, void 0, function () {
@@ -52353,6 +52410,9 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
         _this.rfc3161Record = null;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
+        _this.aggregationHashChains.sort(function (x, y) {
+            return y.getChainIndex().length - x.getChainIndex().length;
+        });
         Object.freeze(_this);
         return _this;
     }
@@ -52415,6 +52475,16 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
     };
     KsiSignature.prototype.getCalendarAuthenticationRecord = function () {
         return this.calendarAuthenticationRecord;
+    };
+    KsiSignature.prototype.getIdentity = function () {
+        var identity = [];
+        for (var i = this.aggregationHashChains.length - 1; i >= 0; i -= 1) {
+            identity.push.apply(identity, this.aggregationHashChains[i].getIdentity());
+        }
+        return identity;
+    };
+    KsiSignature.prototype.isExtended = function () {
+        return this.publicationRecord != null;
     };
     KsiSignature.prototype.extend = function (calendarHashChain, publicationRecord) {
         if (publicationRecord === void 0) { publicationRecord = null; }

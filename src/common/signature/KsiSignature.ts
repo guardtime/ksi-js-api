@@ -18,6 +18,7 @@ import {AggregationHashChain, AggregationHashResult} from './AggregationHashChai
 import {CalendarAuthenticationRecord} from './CalendarAuthenticationRecord';
 import {CalendarHashChain} from './CalendarHashChain';
 import {Rfc3161Record} from './Rfc3161Record';
+import {IKsiIdentity} from './IKsiIdentity';
 
 /**
  * KSI Signature TLV object
@@ -34,6 +35,10 @@ export class KsiSignature extends CompositeTag {
 
         this.decodeValue(this.parseChild.bind(this));
         this.validateValue(this.validate.bind(this));
+
+        this.aggregationHashChains.sort((x: AggregationHashChain, y: AggregationHashChain) => {
+            return y.getChainIndex().length - x.getChainIndex().length;
+        });
 
         Object.freeze(this);
     }
@@ -93,6 +98,19 @@ export class KsiSignature extends CompositeTag {
 
     public getCalendarAuthenticationRecord(): CalendarAuthenticationRecord | null {
         return this.calendarAuthenticationRecord;
+    }
+
+    public getIdentity(): (IKsiIdentity | null)[] {
+        const identity: (IKsiIdentity | null)[] = [];
+        for (let i: number = this.aggregationHashChains.length - 1; i >= 0; i -= 1) {
+            identity.push(...this.aggregationHashChains[i].getIdentity());
+        }
+
+        return identity;
+    }
+
+    public isExtended(): boolean {
+        return this.publicationRecord != null;
     }
 
     public extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord | null = null): KsiSignature {
