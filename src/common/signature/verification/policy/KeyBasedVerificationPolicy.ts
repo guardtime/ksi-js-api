@@ -4,6 +4,7 @@ import {CalendarHashChainAlgorithmDeprecatedRule} from '../rule/CalendarHashChai
 import {CalendarHashChainExistenceRule} from '../rule/CalendarHashChainExistenceRule';
 import {CertificateExistenceRule} from '../rule/CertificateExistenceRule';
 import {VerificationRule} from '../VerificationRule';
+import {InternalVerificationPolicy} from './InternalVerificationPolicy';
 import {VerificationPolicy} from './VerificationPolicy';
 
 /**
@@ -19,7 +20,7 @@ export class KeyBasedVerificationPolicy extends VerificationPolicy {
                         .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule())))); // Key-02, Key-03
 
         if (!skipInternalVerification) {
-            verificationRule = verificationRule.onSuccess(verificationRule);
+            verificationRule = new InternalVerificationPolicy().onSuccess(verificationRule);
         }
 
         super(verificationRule);

@@ -56632,6 +56632,7 @@ var KeyBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (
 
 
 
+
 /**
  * Policy for verifying KSI signature with PKI.
  */
@@ -56646,7 +56647,7 @@ var KeyBasedVerificationPolicy_KeyBasedVerificationPolicy = /** @class */ (funct
             .onSuccess(new CertificateExistenceRule_CertificateExistenceRule() // Key-01
             .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthenticationRecordSignatureVerificationRule())))); // Key-02, Key-03
         if (!skipInternalVerification) {
-            verificationRule = verificationRule.onSuccess(verificationRule);
+            verificationRule = new InternalVerificationPolicy_InternalVerificationPolicy().onSuccess(verificationRule);
         }
         _this = _super.call(this, verificationRule) || this;
         return _this;
