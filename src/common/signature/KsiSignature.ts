@@ -100,8 +100,8 @@ export class KsiSignature extends CompositeTag {
         return this.calendarAuthenticationRecord;
     }
 
-    public getIdentity(): (IKsiIdentity | null)[] {
-        const identity: (IKsiIdentity | null)[] = [];
+    public getIdentity(): IKsiIdentity[] {
+        const identity: IKsiIdentity[] = [];
         for (let i: number = this.aggregationHashChains.length - 1; i >= 0; i -= 1) {
             identity.push(...this.aggregationHashChains[i].getIdentity());
         }

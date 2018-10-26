@@ -260,10 +260,13 @@ export class AggregationHashChain extends CompositeTag {
         return this.aggregationAlgorithm;
     }
 
-    public getIdentity(): (IKsiIdentity | null)[] {
-        const identity: (IKsiIdentity | null)[] = [];
+    public getIdentity(): IKsiIdentity[] {
+        const identity: IKsiIdentity[] = [];
         for (let i: number = this.chainLinks.length - 1; i >= 0; i -= 1) {
-            identity.push(this.chainLinks[i].getIdentity());
+            const linkIdentity: IKsiIdentity | null = this.chainLinks[i].getIdentity();
+            if (linkIdentity !== null) {
+                identity.push(linkIdentity);
+            }
         }
 
         return identity;
