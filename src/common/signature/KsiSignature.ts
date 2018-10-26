@@ -17,8 +17,8 @@ import {KsiError} from '../service/KsiError';
 import {AggregationHashChain, AggregationHashResult} from './AggregationHashChain';
 import {CalendarAuthenticationRecord} from './CalendarAuthenticationRecord';
 import {CalendarHashChain} from './CalendarHashChain';
-import {Rfc3161Record} from './Rfc3161Record';
 import {IKsiIdentity} from './IKsiIdentity';
+import {Rfc3161Record} from './Rfc3161Record';
 
 /**
  * KSI Signature TLV object

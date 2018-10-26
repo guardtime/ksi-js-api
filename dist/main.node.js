@@ -48761,6 +48761,16 @@ var PublicationRecord_PublicationRecord = /** @class */ (function (_super) {
     PublicationRecord.prototype.getPublicationData = function () {
         return this.publicationData;
     };
+    PublicationRecord.prototype.getPublicationReferences = function () {
+        return this.publicationReferences.map(function (reference) {
+            return reference.getValue();
+        });
+    };
+    PublicationRecord.prototype.getPublicationRepositories = function () {
+        return this.repositoryUri.map(function (repository) {
+            return repository.getValue();
+        });
+    };
     PublicationRecord.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case PUBLICATION_DATA_CONSTANTS.TagType:

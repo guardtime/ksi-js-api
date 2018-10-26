@@ -37,6 +37,18 @@ export class PublicationRecord extends CompositeTag {
         return this.publicationData;
     }
 
+    public getPublicationReferences(): string[] {
+        return this.publicationReferences.map((reference: StringTag) => {
+            return reference.getValue();
+        });
+    }
+
+    public getPublicationRepositories(): string[] {
+        return this.repositoryUri.map((repository: StringTag) => {
+            return repository.getValue();
+        });
+    }
+
     private parseChild(tlvTag: TlvTag): TlvTag {
         switch (tlvTag.id) {
             case PUBLICATION_DATA_CONSTANTS.TagType:
