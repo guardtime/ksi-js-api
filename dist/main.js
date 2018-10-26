@@ -51664,7 +51664,10 @@ var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super)
     AggregationHashChain.prototype.getIdentity = function () {
         var identity = [];
         for (var i = this.chainLinks.length - 1; i >= 0; i -= 1) {
-            identity.push(this.chainLinks[i].getIdentity());
+            var linkIdentity = this.chainLinks[i].getIdentity();
+            if (linkIdentity !== null) {
+                identity.push(linkIdentity);
+            }
         }
         return identity;
     };

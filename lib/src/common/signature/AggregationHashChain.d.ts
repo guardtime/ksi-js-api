@@ -66,7 +66,7 @@ export declare class AggregationHashChain extends CompositeTag {
     getChainIndex(): BigInteger[];
     getAggregationTime(): BigInteger;
     getAggregationAlgorithm(): HashAlgorithm;
-    getIdentity(): (IKsiIdentity | null)[];
+    getIdentity(): IKsiIdentity[];
     getOutputHash(result: AggregationHashResult): Promise<AggregationHashResult>;
     getInputHash(): DataHash;
     /**

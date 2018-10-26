@@ -32,7 +32,7 @@ export declare class KsiSignature extends CompositeTag {
     getInputHash(): DataHash;
     getRfc3161Record(): Rfc3161Record | null;
     getCalendarAuthenticationRecord(): CalendarAuthenticationRecord | null;
-    getIdentity(): (IKsiIdentity | null)[];
+    getIdentity(): IKsiIdentity[];
     isExtended(): boolean;
     extend(calendarHashChain: CalendarHashChain, publicationRecord?: PublicationRecord | null): KsiSignature;
     private parseChild;
