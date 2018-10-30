@@ -1,5 +1,5 @@
 import {DataHash} from 'gt-js-common';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -11,7 +11,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class InputHashAlgorithmDeprecatedRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
         const inputHash: DataHash = signature.getInputHash();
 
         if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {

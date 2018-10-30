@@ -1,6 +1,6 @@
 import {PublicationRecord} from '../../../publication/PublicationRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -17,7 +17,7 @@ export class PublicationsFileSignaturePublicationMatchRule extends VerificationR
             throw new KsiVerificationError('Invalid publications file in context: null.');
         }
 
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
         const publicationRecord: PublicationRecord | null = signature.getPublicationRecord();
         if (publicationRecord == null) {
             throw new KsiVerificationError(`Publication record is missing from KSI signature.`);

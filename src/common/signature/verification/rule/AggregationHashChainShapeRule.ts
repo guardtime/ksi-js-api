@@ -1,6 +1,6 @@
 import {BigInteger} from 'big-integer';
 import {AggregationHashChain} from '../../AggregationHashChain';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -11,7 +11,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class AggregationHashChainShapeRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
 
         for (const chain of aggregationHashChains) {

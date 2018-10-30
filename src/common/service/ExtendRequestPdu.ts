@@ -1,23 +1,12 @@
 import {HashAlgorithm} from 'gt-js-common';
-import {
-    EXTEND_REQUEST_PAYLOAD_CONSTANTS,
-    EXTEND_REQUEST_PDU_CONSTANTS,
-    EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS
-} from '../Constants';
+import {EXTEND_REQUEST_PAYLOAD_CONSTANTS, EXTEND_REQUEST_PDU_CONSTANTS, EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS} from '../Constants';
 import {ITlvCount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
+import {ExtenderConfigRequestPayload} from './ExtenderConfigRequestPayload';
 import {ExtendRequestPayload} from './ExtendRequestPayload';
 import {Pdu} from './Pdu';
 import {PduHeader} from './PduHeader';
-import {PduPayload} from './PduPayload';
-
-class ExtenderConfigRequestPayload extends PduPayload {
-    constructor(tlvTag: TlvTag) {
-        super(tlvTag);
-    }
-
-}
 
 /**
  * Extend request PDU

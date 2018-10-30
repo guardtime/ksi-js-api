@@ -3,7 +3,7 @@ import {PublicationData} from '../../../publication/PublicationData';
 import {PublicationRecord} from '../../../publication/PublicationRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarHashChain} from '../../CalendarHashChain';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -15,7 +15,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
         const userPublication: PublicationData | null = context.getUserPublication();
 
         let publicationData: PublicationData;

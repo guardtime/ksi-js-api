@@ -1,5 +1,5 @@
+import {isTlvTag, ITlvTag} from './ITlvTag';
 import {TlvError} from './TlvError';
-import {TlvTag} from './TlvTag';
 
 /**
  * Specialized output stream for encoding TLV data from TLVTag classes
@@ -15,8 +15,8 @@ export class TlvOutputStream {
         return new Uint8Array(this.data);
     }
 
-    public writeTag(tlvTag: TlvTag): void {
-        if (!(tlvTag instanceof TlvTag)) {
+    public writeTag(tlvTag: ITlvTag): void {
+        if (!(isTlvTag(tlvTag))) {
             throw new TlvError(`Invalid tlvTag: ${tlvTag}`);
         }
 

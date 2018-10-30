@@ -1,5 +1,5 @@
 import {CalendarHashChain} from '../../CalendarHashChain';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -13,7 +13,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
 
         // TODO: Should return ok as result?

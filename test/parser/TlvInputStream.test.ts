@@ -10,6 +10,8 @@ describe('TlvInputStream', () => {
     it('Read valid TLV ', () => {
         const stream: TlvInputStream = new TlvInputStream(HexCoder.decode('010101'));
         const tlvTag: TlvTag = stream.readTag();
+        expect(stream.getPosition()).toEqual(3);
+        expect(stream.getLength()).toEqual(3);
         expect(tlvTag.id).toEqual(0x1);
         expect(tlvTag.nonCriticalFlag).toBeFalsy();
         expect(tlvTag.forwardFlag).toBeFalsy();

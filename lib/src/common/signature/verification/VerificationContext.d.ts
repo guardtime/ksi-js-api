@@ -7,7 +7,7 @@ import { PublicationData } from '../../publication/PublicationData';
 import { PublicationsFile } from '../../publication/PublicationsFile';
 import { KsiService } from '../../service/KsiService';
 import { CalendarHashChain } from '../CalendarHashChain';
-import { KsiSignature } from '../KsiSignature';
+import { IKsiSignature } from '../IKsiSignature';
 export declare class VerificationContext {
     private ksiService;
     private readonly ksiSignature;
@@ -15,8 +15,8 @@ export declare class VerificationContext {
     private publicationsFile;
     private publicationData;
     private extendingAllowed;
-    constructor(signature: KsiSignature);
-    getSignature(): KsiSignature;
+    constructor(signature: IKsiSignature);
+    getSignature(): IKsiSignature;
     /**
      * Get extended latest calendar hash chain.
      */

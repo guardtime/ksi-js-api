@@ -1,6 +1,7 @@
 import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash, pseudoRandomLong} from 'gt-js-common';
 import {TlvInputStream} from '../parser/TlvInputStream';
+import {IKsiSignature} from '../signature/IKsiSignature';
 import {KsiSignature} from '../signature/KsiSignature';
 import {AggregationRequestPayload} from './AggregationRequestPayload';
 import {AggregationRequestPdu} from './AggregationRequestPdu';
@@ -34,7 +35,7 @@ export class SigningService {
         this.signingServiceCredentials = signingServiceCredentials;
     }
 
-    private static processPayload(payload: AggregationResponsePayload | null): KsiSignature {
+    private static processPayload(payload: AggregationResponsePayload | null): IKsiSignature {
         if (!(payload instanceof AggregationResponsePayload)) {
             throw new KsiServiceError(`Invalid AggregationResponsePayload: ${payload}`);
         }
@@ -47,7 +48,7 @@ export class SigningService {
         return KsiSignature.CREATE(payload);
     }
 
-    public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
+    public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<IKsiSignature> {
         if (!(hash instanceof DataHash)) {
             throw new KsiServiceError(`Invalid hash: ${hash}`);
         }

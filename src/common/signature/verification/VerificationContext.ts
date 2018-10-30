@@ -7,26 +7,26 @@ import {PublicationData} from '../../publication/PublicationData';
 import {PublicationsFile} from '../../publication/PublicationsFile';
 import {KsiService} from '../../service/KsiService';
 import {CalendarHashChain} from '../CalendarHashChain';
-import {KsiSignature} from '../KsiSignature';
+import {IKsiSignature, isKsiSignature} from '../IKsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
 
 export class VerificationContext {
     private ksiService: KsiService | null;
-    private readonly ksiSignature: KsiSignature;
+    private readonly ksiSignature: IKsiSignature;
     private documentHash: DataHash | null = null;
     private publicationsFile: PublicationsFile | null = null;
     private publicationData: PublicationData | null = null;
     private extendingAllowed: boolean = false;
 
-    constructor(signature: KsiSignature) {
-        if (!(signature instanceof KsiSignature)) {
+    constructor(signature: IKsiSignature) {
+        if (!isKsiSignature(signature)) {
             throw new Error(`Invalid signature: ${signature}`);
         }
 
         this.ksiSignature = signature;
     }
 
-    public getSignature(): KsiSignature {
+    public getSignature(): IKsiSignature {
         return this.ksiSignature;
     }
 
@@ -45,10 +45,6 @@ export class VerificationContext {
             throw new KsiVerificationError('Invalid KSI service in context.');
         }
 
-        if (!(this.getSignature() instanceof KsiSignature)) {
-            throw new KsiVerificationError('Invalid KSI signature in context.');
-        }
-
         return this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime);
     }
 
@@ -63,6 +59,7 @@ export class VerificationContext {
         if (documentHash !== null && !(documentHash instanceof DataHash)) {
             throw new KsiVerificationError(`Invalid document hash: ${documentHash}`);
         }
+
         this.documentHash = documentHash;
     }
 

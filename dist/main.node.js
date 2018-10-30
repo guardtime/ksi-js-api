@@ -1419,7 +1419,7 @@ module.exports = {
 })();
 
 // Node.js check
-if (true && module.hasOwnProperty("exports")) {
+if ( true && module.hasOwnProperty("exports")) {
     module.exports = bigInt;
 }
 
@@ -47759,6 +47759,17 @@ var TlvInputStream_TlvInputStream = /** @class */ (function () {
 }());
 
 
+// CONCATENATED MODULE: ./src/common/parser/ITlvTag.ts
+function isTlvTag(object) {
+    return object instanceof Object
+        && typeof object.id === 'number'
+        && typeof object.tlv16BitFlag === 'boolean'
+        && typeof object.nonCriticalFlag === 'boolean'
+        && typeof object.forwardFlag === 'boolean'
+        && typeof object.getValueBytes === 'function'
+        && typeof object.encode === 'function';
+}
+
 // CONCATENATED MODULE: ./src/common/parser/TlvOutputStream.ts
 
 
@@ -47773,7 +47784,7 @@ var TlvOutputStream_TlvOutputStream = /** @class */ (function () {
         return new Uint8Array(this.data);
     };
     TlvOutputStream.prototype.writeTag = function (tlvTag) {
-        if (!(tlvTag instanceof TlvTag_TlvTag)) {
+        if (!(isTlvTag(tlvTag))) {
             throw new TlvError("Invalid tlvTag: " + tlvTag);
         }
         this.write(tlvTag.encode());
@@ -50411,6 +50422,22 @@ var VerificationResult = /** @class */ (function () {
 }());
 
 
+// CONCATENATED MODULE: ./src/common/signature/IKsiSignature.ts
+function isKsiSignature(object) {
+    return object instanceof Object
+        && typeof object.getAggregationHashChains === 'function'
+        && typeof object.getPublicationRecord === 'function'
+        && typeof object.getCalendarAuthenticationRecord === 'function'
+        && typeof object.getCalendarHashChain === 'function'
+        && typeof object.getAggregationTime === 'function'
+        && typeof object.getRfc3161Record === 'function'
+        && typeof object.getLastAggregationHashChainRootHash === 'function'
+        && typeof object.getInputHash === 'function'
+        && typeof object.getIdentity === 'function'
+        && typeof object.isExtended === 'function'
+        && typeof object.extend === 'function';
+}
+
 // CONCATENATED MODULE: ./src/common/signature/verification/KsiVerificationError.ts
 var KsiVerificationError_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -50817,6 +50844,33 @@ var ExtendRequestPayload_ExtendRequestPayload = /** @class */ (function (_super)
 }(PduPayload));
 
 
+// CONCATENATED MODULE: ./src/common/service/ExtenderConfigRequestPayload.ts
+var ExtenderConfigRequestPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Extender configuration request payload.
+ */
+var ExtenderConfigRequestPayload = /** @class */ (function (_super) {
+    ExtenderConfigRequestPayload_extends(ExtenderConfigRequestPayload, _super);
+    function ExtenderConfigRequestPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return ExtenderConfigRequestPayload;
+}(PduPayload));
+
+
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/NodeHMAC.js
 
 
@@ -51126,13 +51180,6 @@ var ExtendRequestPdu_generator = (undefined && undefined.__generator) || functio
 
 
 
-var ExtenderConfigRequestPayload = /** @class */ (function (_super) {
-    ExtendRequestPdu_extends(ExtenderConfigRequestPayload, _super);
-    function ExtenderConfigRequestPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return ExtenderConfigRequestPayload;
-}(PduPayload));
 /**
  * Extend request PDU
  */
@@ -52317,7 +52364,7 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
         this.publicationsFile = null;
         this.publicationData = null;
         this.extendingAllowed = false;
-        if (!(signature instanceof KsiSignature_KsiSignature)) {
+        if (!isKsiSignature(signature)) {
             throw new Error("Invalid signature: " + signature);
         }
         this.ksiSignature = signature;
@@ -52343,9 +52390,6 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
             return VerificationContext_generator(this, function (_a) {
                 if (!(this.ksiService instanceof KsiService_KsiService)) {
                     throw new KsiVerificationError('Invalid KSI service in context.');
-                }
-                if (!(this.getSignature() instanceof KsiSignature_KsiSignature)) {
-                    throw new KsiVerificationError('Invalid KSI signature in context.');
                 }
                 return [2 /*return*/, this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime)];
             });
@@ -52435,7 +52479,7 @@ var VerificationRule_VerificationRule = /** @class */ (function () {
     };
     VerificationRule.getSignature = function (context) {
         VerificationRule.verifyContext(context);
-        if (!(context.getSignature() instanceof KsiSignature_KsiSignature)) {
+        if (!isKsiSignature(context.getSignature())) {
             throw new KsiVerificationError('Invalid KSI signature in context: null.');
         }
         return context.getSignature();

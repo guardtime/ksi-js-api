@@ -1,5 +1,5 @@
 import bigInteger from 'big-integer';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -12,7 +12,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class DocumentHashLevelVerificationRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
         const levelCorrection: bigInteger.BigInteger = signature.getRfc3161Record() !== null
             ? bigInteger(0)
             : signature.getAggregationHashChains()[0].getChainLinks()[0].getLevelCorrection();

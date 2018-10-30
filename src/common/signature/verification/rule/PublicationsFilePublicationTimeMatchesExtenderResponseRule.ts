@@ -1,7 +1,7 @@
 import {PublicationRecord} from '../../../publication/PublicationRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarHashChain} from '../../CalendarHashChain';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -18,7 +18,7 @@ export class PublicationsFilePublicationTimeMatchesExtenderResponseRule extends 
             throw new KsiVerificationError('Invalid publications file in context: null.');
         }
 
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
         const publicationRecord: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
 
         if (publicationRecord == null) {

@@ -1,7 +1,7 @@
-import bigInteger from 'big-integer';
+import {BigInteger} from 'big-integer';
 import {HashAlgorithm} from 'gt-js-common';
 import {AggregationHashChain} from '../../AggregationHashChain';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -13,7 +13,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
 
         if (signature.getRfc3161Record() === null) {
             return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
@@ -21,7 +21,7 @@ export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends Verification
 
         const aggregationHashChain: AggregationHashChain = signature.getAggregationHashChains()[0];
         const hashAlgorithm: HashAlgorithm = aggregationHashChain.getInputHash().hashAlgorithm;
-        const aggregationTime: bigInteger.BigInteger = aggregationHashChain.getAggregationTime();
+        const aggregationTime: BigInteger = aggregationHashChain.getAggregationTime();
 
         if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
             // tslint:disable-next-line:max-line-length

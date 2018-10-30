@@ -2,7 +2,7 @@ import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash} from 'gt-js-common';
 import {IPublicationsFile} from '../publication/IPublicationsFile';
 import {CalendarHashChain} from '../signature/CalendarHashChain';
-import {KsiSignature} from '../signature/KsiSignature';
+import {IKsiSignature} from '../signature/IKsiSignature';
 import {ExtendingService} from './ExtendingService';
 import {KsiServiceError} from './KsiServiceError';
 import {PublicationsFileService} from './PublicationsFileService';
@@ -35,7 +35,7 @@ export class KsiService {
         this.publicationsFileService = publicationsFileService;
     }
 
-    public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
+    public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<IKsiSignature> {
         if (this.signingService === null) {
             throw new KsiServiceError('Signing protocol not defined. Cannot use signing.');
         }

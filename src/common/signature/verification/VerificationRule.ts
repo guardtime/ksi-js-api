@@ -5,6 +5,7 @@ import {LinkDirection} from '../../Constants';
 import {ImprintTag} from '../../parser/ImprintTag';
 import {KsiError} from '../../service/KsiError';
 import {CalendarHashChain} from '../CalendarHashChain';
+import {IKsiSignature, isKsiSignature} from '../IKsiSignature';
 import {KsiSignature} from '../KsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
 import {VerificationContext} from './VerificationContext';
@@ -32,9 +33,10 @@ export abstract class VerificationRule {
         }
     }
 
-    protected static getSignature(context: VerificationContext): KsiSignature {
+    protected static getSignature(context: VerificationContext): IKsiSignature {
         VerificationRule.verifyContext(context);
-        if (!(context.getSignature() instanceof KsiSignature)) {
+
+        if (!isKsiSignature(context.getSignature())) {
             throw new KsiVerificationError('Invalid KSI signature in context: null.');
         }
 

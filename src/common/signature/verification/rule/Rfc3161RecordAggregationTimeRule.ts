@@ -1,5 +1,5 @@
 import {AggregationHashChain} from '../../AggregationHashChain';
-import {KsiSignature} from '../../KsiSignature';
+import {IKsiSignature} from '../../IKsiSignature';
 import {Rfc3161Record} from '../../Rfc3161Record';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -12,7 +12,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class Rfc3161RecordAggregationTimeRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = VerificationRule.getSignature(context);
+        const signature: IKsiSignature = VerificationRule.getSignature(context);
         const rfc3161Record: Rfc3161Record | null = signature.getRfc3161Record();
 
         if (rfc3161Record === null) {

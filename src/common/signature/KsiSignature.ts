@@ -1,10 +1,11 @@
-import bigInteger from 'big-integer';
+import bigInteger, {BigInteger} from 'big-integer';
 import {Base64Coder, DataHash} from 'gt-js-common';
 import {
     AGGREGATION_HASH_CHAIN_CONSTANTS,
     CALENDAR_AUTHENTICATION_RECORD_CONSTANTS,
     CALENDAR_HASH_CHAIN_CONSTANTS,
-    KSI_SIGNATURE_CONSTANTS, RFC_3161_RECORD_CONSTANTS
+    KSI_SIGNATURE_CONSTANTS,
+    RFC_3161_RECORD_CONSTANTS
 } from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
@@ -18,12 +19,13 @@ import {AggregationHashChain, AggregationHashResult} from './AggregationHashChai
 import {CalendarAuthenticationRecord} from './CalendarAuthenticationRecord';
 import {CalendarHashChain} from './CalendarHashChain';
 import {IKsiIdentity} from './IKsiIdentity';
+import {IKsiSignature} from './IKsiSignature';
 import {Rfc3161Record} from './Rfc3161Record';
 
 /**
  * KSI Signature TLV object
  */
-export class KsiSignature extends CompositeTag {
+export class KsiSignature extends CompositeTag implements IKsiSignature {
     private aggregationHashChains: AggregationHashChain[] = [];
     private publicationRecord: PublicationRecord | null = null;
     private calendarAuthenticationRecord: CalendarAuthenticationRecord | null = null;
@@ -43,7 +45,7 @@ export class KsiSignature extends CompositeTag {
         Object.freeze(this);
     }
 
-    public static CREATE(payload: AggregationResponsePayload): KsiSignature {
+    public static CREATE(payload: AggregationResponsePayload): IKsiSignature {
         if (!(payload instanceof AggregationResponsePayload)) {
             throw new KsiError(`Invalid payload: ${payload}`);
         }
@@ -52,7 +54,7 @@ export class KsiSignature extends CompositeTag {
                                                               payload.getSignatureTags()));
     }
 
-    public static CREATE_FROM_BASE64(value: string): KsiSignature {
+    public static CREATE_FROM_BASE64(value: string): IKsiSignature {
         if ((typeof value) !== 'string') {
             throw new KsiError(`Invalid value: ${value}`);
         }
@@ -68,7 +70,7 @@ export class KsiSignature extends CompositeTag {
         return this.calendarHashChain;
     }
 
-    public getAggregationTime(): bigInteger.BigInteger {
+    public getAggregationTime(): BigInteger {
         return this.aggregationHashChains[0].getAggregationTime();
     }
 
@@ -113,7 +115,7 @@ export class KsiSignature extends CompositeTag {
         return this.publicationRecord != null;
     }
 
-    public extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord | null = null): KsiSignature {
+    public extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord | null = null): IKsiSignature {
         if (!(calendarHashChain instanceof CalendarHashChain)) {
             throw new KsiError(`Invalid calendar hash chain: ${calendarHashChain}`);
         }
