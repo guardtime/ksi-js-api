@@ -1,6 +1,6 @@
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarAuthenticationRecord} from '../../CalendarAuthenticationRecord';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {SignatureData} from '../../SignatureData';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
@@ -13,7 +13,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class CertificateExistenceRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const calendarAuthenticationRecord: CalendarAuthenticationRecord | null = signature.getCalendarAuthenticationRecord();
 
         if (calendarAuthenticationRecord == null) {

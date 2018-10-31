@@ -2,7 +2,6 @@ import {RawTag} from '../../src/common/parser/RawTag';
 import {TlvError} from '../../src/common/parser/TlvError';
 import {TlvOutputStream} from '../../src/common/parser/TlvOutputStream';
 import {TlvTag} from '../../src/common/parser/TlvTag';
-import {ITlvTag} from '../../src/common/parser/ITlvTag';
 
 /**
  * TlvOutputStream tests
@@ -58,24 +57,6 @@ describe('TlvOutputStream', () => {
         const tlvTag: RawTag = RawTag.CREATE(0x1, false, false, new Uint8Array(0x10000));
         expect(() => {
             stream.writeTag(tlvTag);
-        }).toThrow(TlvError);
-    });
-
-    it('Fail to write invalid TlvTag', () => {
-        const stream: TlvOutputStream = new TlvOutputStream();
-        expect(() => {
-            // @ts-ignore
-            const tag: ITlvTag = {};
-            stream.writeTag(tag);
-        }).toThrow(TlvError);
-    });
-
-    it('Fail to write invalid byte array', () => {
-        const stream: TlvOutputStream = new TlvOutputStream();
-        expect(() => {
-            // @ts-ignore
-            const tag: Uint8Array = {};
-            stream.write(tag);
         }).toThrow(TlvError);
     });
 

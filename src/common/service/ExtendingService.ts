@@ -7,9 +7,8 @@ import {ExtendRequestPayload} from './ExtendRequestPayload';
 import {ExtendRequestPdu} from './ExtendRequestPdu';
 import {ExtendResponsePayload} from './ExtendResponsePayload';
 import {ExtendResponsePdu} from './ExtendResponsePdu';
-import {IExtendingServiceProtocol, isExtendingServiceProtocol} from './IExtendingServiceProtocol';
-import {IServiceCredentials, isIServiceCredentials} from './IServiceCredentials';
-import {KsiError} from './KsiError';
+import {IExtendingServiceProtocol} from './IExtendingServiceProtocol';
+import {IServiceCredentials} from './IServiceCredentials';
 import {KsiRequestBase} from './KsiRequestBase';
 import {KsiServiceError} from './KsiServiceError';
 import {PduHeader} from './PduHeader';
@@ -23,23 +22,11 @@ export class ExtendingService {
     private extendingServiceCredentials: IServiceCredentials;
 
     constructor(extendingServiceProtocol: IExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials) {
-        if (!(isExtendingServiceProtocol(extendingServiceProtocol))) {
-            throw new KsiError(`Invalid extending service protocol: ${extendingServiceProtocol}`);
-        }
-
-        if (!isIServiceCredentials(extendingServiceCredentials)) {
-            throw new KsiError(`Invalid extending service credentials: ${extendingServiceCredentials}`);
-        }
-
         this.extendingServiceProtocol = extendingServiceProtocol;
         this.extendingServiceCredentials = extendingServiceCredentials;
     }
 
-    private static processPayload(payload: ExtendResponsePayload | null): CalendarHashChain {
-        if (!(payload instanceof ExtendResponsePayload)) {
-            throw new KsiError(`Invalid ExtendResponsePayload: ${payload}`);
-        }
-
+    private static processPayload(payload: ExtendResponsePayload): CalendarHashChain {
         if (payload.getStatus().neq(0)) {
             // tslint:disable-next-line:max-line-length
             throw new KsiServiceError(`Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`);
@@ -99,6 +86,10 @@ export class ExtendingService {
             }
 
             currentExtendPayload = extendPayload;
+        }
+
+        if (currentExtendPayload === null) {
+            throw new KsiServiceError('No matching extending payloads in PDU!');
         }
 
         return ExtendingService.processPayload(currentExtendPayload);

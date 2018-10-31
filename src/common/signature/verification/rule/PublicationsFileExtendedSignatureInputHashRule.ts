@@ -1,7 +1,7 @@
 import {PublicationRecord} from '../../../publication/PublicationRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarHashChain} from '../../CalendarHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -13,7 +13,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class PublicationsFileExtendedSignatureInputHashRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
         if (publicationsFile === null) {
             throw new KsiVerificationError('Invalid publications file in context: null.');

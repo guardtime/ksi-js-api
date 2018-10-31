@@ -1,4 +1,3 @@
-import {KsiError} from './KsiError';
 import {PduPayload} from './PduPayload';
 
 /**
@@ -8,10 +7,6 @@ export abstract class KsiRequestBase {
     private readonly response: Promise<Uint8Array | null>;
 
     protected constructor(response: Promise<Uint8Array | null>) {
-        if (!(response instanceof Promise)) {
-            throw new KsiError('Invalid response');
-        }
-
         this.response = response;
     }
 

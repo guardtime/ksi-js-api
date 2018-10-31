@@ -8,8 +8,6 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class UserProvidedPublicationExistenceRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        VerificationRule.verifyContext(context);
-
         return context.getUserPublication() === null
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

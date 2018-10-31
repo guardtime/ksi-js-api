@@ -1,5 +1,5 @@
 import {CalendarHashChain} from '../../CalendarHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -11,7 +11,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class ExtendedSignatureCalendarHashChainRightLinksMatchRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
 
         if (calendarHashChain === null) {

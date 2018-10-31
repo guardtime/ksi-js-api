@@ -5,8 +5,6 @@
     "no-relative-imports": false,
     "no-suspicious-comment": false,
     "no-console": false,
-    "no-non-null-assertion": false,
-    "no-any": false,
     "import-name": true,
     "variable-name": [true, "allow-leading-underscore"]
   }

@@ -8,20 +8,19 @@ import { AggregationHashChain } from './AggregationHashChain';
 import { CalendarAuthenticationRecord } from './CalendarAuthenticationRecord';
 import { CalendarHashChain } from './CalendarHashChain';
 import { IKsiIdentity } from './IKsiIdentity';
-import { IKsiSignature } from './IKsiSignature';
 import { Rfc3161Record } from './Rfc3161Record';
 /**
  * KSI Signature TLV object
  */
-export declare class KsiSignature extends CompositeTag implements IKsiSignature {
+export declare class KsiSignature extends CompositeTag {
     private aggregationHashChains;
     private publicationRecord;
     private calendarAuthenticationRecord;
     private calendarHashChain;
     private rfc3161Record;
     constructor(tlvTag: TlvTag);
-    static CREATE(payload: AggregationResponsePayload): IKsiSignature;
-    static CREATE_FROM_BASE64(value: string): IKsiSignature;
+    static CREATE(payload: AggregationResponsePayload): KsiSignature;
+    static CREATE_FROM_BASE64(value: string): KsiSignature;
     getPublicationRecord(): PublicationRecord | null;
     getCalendarHashChain(): CalendarHashChain | null;
     getAggregationTime(): BigInteger;
@@ -35,7 +34,7 @@ export declare class KsiSignature extends CompositeTag implements IKsiSignature 
     getCalendarAuthenticationRecord(): CalendarAuthenticationRecord | null;
     getIdentity(): IKsiIdentity[];
     isExtended(): boolean;
-    extend(calendarHashChain: CalendarHashChain, publicationRecord?: PublicationRecord | null): IKsiSignature;
+    extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord): KsiSignature;
     private parseChild;
     private validate;
 }

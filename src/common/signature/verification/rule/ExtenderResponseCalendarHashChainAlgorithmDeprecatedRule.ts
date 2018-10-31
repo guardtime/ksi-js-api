@@ -3,7 +3,7 @@ import {PublicationData} from '../../../publication/PublicationData';
 import {PublicationRecord} from '../../../publication/PublicationRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarHashChain} from '../../CalendarHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -15,7 +15,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const userPublication: PublicationData | null = context.getUserPublication();
 
         let publicationData: PublicationData;
@@ -41,7 +41,7 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
             await context.getExtendedCalendarHashChain(publicationData.getPublicationTime());
         const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
         if (deprecatedLink !== null) {
-            console.log(`Calendar hash chain contains deprecated aggregation algorithm at publication time.
+            console.warn(`Calendar hash chain contains deprecated aggregation algorithm at publication time.
                              Algorithm: ${deprecatedLink.getValue().hashAlgorithm.name};
                              Publication time: ${publicationData.getPublicationTime()}`);
 

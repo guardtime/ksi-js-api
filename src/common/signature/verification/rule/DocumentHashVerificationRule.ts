@@ -1,5 +1,5 @@
 import {DataHash} from 'gt-js-common';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -12,7 +12,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class DocumentHashVerificationRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const documentHash: DataHash | null = context.getDocumentHash();
 
         if (documentHash === null) {
@@ -21,7 +21,7 @@ export class DocumentHashVerificationRule extends VerificationRule {
 
         const inputHash: DataHash = signature.getInputHash();
         if (!documentHash.equals(inputHash)) {
-            console.log(`Invalid document hash. Expected ${documentHash}, found ${inputHash}`);
+            console.warn(`Invalid document hash. Expected ${documentHash}, found ${inputHash}`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01);
         }

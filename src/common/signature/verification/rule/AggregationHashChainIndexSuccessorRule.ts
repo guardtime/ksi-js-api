@@ -1,6 +1,6 @@
 import {BigInteger} from 'big-integer';
 import {AggregationHashChain} from '../../AggregationHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -11,7 +11,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
 
         let parentChainIndex: BigInteger[] | null = null;
@@ -23,7 +23,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
                 || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
 
                 // tslint:disable-next-line:max-line-length
-                console.log(`Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}`);
+                console.warn(`Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}`);
 
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12);
             }
@@ -32,7 +32,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
         }
 
         if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
-            console.log(`Highest aggregation hash chain index length is not 1. Chain index: ${chainIndex};`);
+            console.warn(`Highest aggregation hash chain index length is not 1. Chain index: ${chainIndex};`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12);
         }

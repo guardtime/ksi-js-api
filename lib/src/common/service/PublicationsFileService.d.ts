@@ -1,4 +1,4 @@
-import { IPublicationsFile } from '../publication/IPublicationsFile';
+import { PublicationsFile } from '../publication/PublicationsFile';
 import { PublicationsFileFactory } from '../publication/PublicationsFileFactory';
 import { IPublicationsFileServiceProtocol } from './IPublicationsFileServiceProtocol';
 /**
@@ -8,5 +8,5 @@ export declare class PublicationsFileService {
     private publicationsFileServiceProtocol;
     private publicationsFileFactory;
     constructor(publicationsFileServiceProtocol: IPublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory);
-    getPublicationsFile(): Promise<IPublicationsFile>;
+    getPublicationsFile(): Promise<PublicationsFile>;
 }

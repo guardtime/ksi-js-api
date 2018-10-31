@@ -10,7 +10,7 @@ export enum VerificationResultCode {
 export class VerificationResult {
 
     private readonly ruleName: string;
-    private childResults: VerificationResult[] = [];
+    private readonly childResults: VerificationResult[] = [];
     private readonly verificationError: VerificationError | null;
     private readonly resultCode: VerificationResultCode;
 
@@ -23,25 +23,12 @@ export class VerificationResult {
         this.verificationError = verificationError || null;
 
         if (Array.isArray(childResults)) {
-            childResults.forEach((result: VerificationResult) => {
-                if (!(result instanceof VerificationResult)) {
-                    throw new Error('Invalid verification result.');
-                }
-
-                this.childResults.push(result);
-            });
+            this.childResults.concat(childResults);
         }
     }
 
     public static CREATE_FROM_RESULTS(ruleName: string, childResults: VerificationResult[]): VerificationResult {
-        if (!Array.isArray(childResults) || childResults.length === 0) {
-            throw new Error('Invalid child results.');
-        }
-
         const lastResult: VerificationResult = childResults[childResults.length - 1];
-        if (!(lastResult instanceof VerificationResult)) {
-            throw new Error('Invalid verification result.');
-        }
 
         return new VerificationResult(ruleName, lastResult.resultCode, lastResult.verificationError, childResults);
     }

@@ -1,13 +1,13 @@
 /**
  * Verification context for KSI signature
  */
-import bigInteger, { BigInteger } from 'big-integer';
+import { BigInteger } from 'big-integer';
 import { DataHash } from 'gt-js-common';
 import { PublicationData } from '../../publication/PublicationData';
 import { PublicationsFile } from '../../publication/PublicationsFile';
 import { KsiService } from '../../service/KsiService';
 import { CalendarHashChain } from '../CalendarHashChain';
-import { IKsiSignature } from '../IKsiSignature';
+import { KsiSignature } from '../KsiSignature';
 export declare class VerificationContext {
     private ksiService;
     private readonly ksiSignature;
@@ -15,8 +15,8 @@ export declare class VerificationContext {
     private publicationsFile;
     private publicationData;
     private extendingAllowed;
-    constructor(signature: IKsiSignature);
-    getSignature(): IKsiSignature;
+    constructor(signature: KsiSignature);
+    getSignature(): KsiSignature;
     /**
      * Get extended latest calendar hash chain.
      */
@@ -24,7 +24,7 @@ export declare class VerificationContext {
     /**
      * Get extended calendar hash chain from given publication time.
      */
-    getExtendedCalendarHashChain(publicationTime: bigInteger.BigInteger | null): Promise<CalendarHashChain>;
+    getExtendedCalendarHashChain(publicationTime: BigInteger | null): Promise<CalendarHashChain>;
     /**
      * Get document hash.
      */

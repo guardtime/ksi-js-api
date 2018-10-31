@@ -1,6 +1,6 @@
 import bigInteger from 'big-integer';
 import {AggregationHashChain} from '../../AggregationHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -12,7 +12,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class AggregationHashChainTimeConsistencyRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
 
         let time: bigInteger.BigInteger | null = null;
@@ -23,7 +23,7 @@ export class AggregationHashChainTimeConsistencyRule extends VerificationRule {
 
             if (!chain.getAggregationTime().equals(time)) {
                 // tslint:disable-next-line:max-line-length
-                console.log(`Previous aggregation hash chain aggregation time ${time} does not match current aggregation time ${chain.getAggregationTime()}.`);
+                console.warn(`Previous aggregation hash chain aggregation time ${time} does not match current aggregation time ${chain.getAggregationTime()}.`);
 
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02);
             }

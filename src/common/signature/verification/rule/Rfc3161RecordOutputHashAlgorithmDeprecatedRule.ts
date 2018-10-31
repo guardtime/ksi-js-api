@@ -1,7 +1,7 @@
 import {BigInteger} from 'big-integer';
 import {HashAlgorithm} from 'gt-js-common';
 import {AggregationHashChain} from '../../AggregationHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -13,7 +13,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
 
         if (signature.getRfc3161Record() === null) {
             return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
@@ -25,7 +25,7 @@ export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends Verification
 
         if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
             // tslint:disable-next-line:max-line-length
-            console.log(`RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: ${hashAlgorithm}; Aggregation time: ${aggregationTime}`);
+            console.warn(`RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: ${hashAlgorithm}; Aggregation time: ${aggregationTime}`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17);
         }

@@ -2,12 +2,11 @@ import { BigInteger } from 'big-integer';
 import { CompositeTag } from '../parser/CompositeTag';
 import { TlvTag } from '../parser/TlvTag';
 import { CertificateRecord } from './CertificateRecord';
-import { IPublicationsFile } from './IPublicationsFile';
 import { PublicationRecord } from './PublicationRecord';
 /**
  * Publications File TLV object
  */
-export declare class PublicationsFile extends CompositeTag implements IPublicationsFile {
+export declare class PublicationsFile extends CompositeTag {
     static readonly FileBeginningMagicBytes: Uint8Array;
     private readonly certificateRecordList;
     private cmsSignature;

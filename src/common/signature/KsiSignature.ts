@@ -14,18 +14,16 @@ import {TlvOutputStream} from '../parser/TlvOutputStream';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationRecord} from '../publication/PublicationRecord';
 import {AggregationResponsePayload} from '../service/AggregationResponsePayload';
-import {KsiError} from '../service/KsiError';
 import {AggregationHashChain, AggregationHashResult} from './AggregationHashChain';
 import {CalendarAuthenticationRecord} from './CalendarAuthenticationRecord';
 import {CalendarHashChain} from './CalendarHashChain';
 import {IKsiIdentity} from './IKsiIdentity';
-import {IKsiSignature} from './IKsiSignature';
 import {Rfc3161Record} from './Rfc3161Record';
 
 /**
  * KSI Signature TLV object
  */
-export class KsiSignature extends CompositeTag implements IKsiSignature {
+export class KsiSignature extends CompositeTag {
     private aggregationHashChains: AggregationHashChain[] = [];
     private publicationRecord: PublicationRecord | null = null;
     private calendarAuthenticationRecord: CalendarAuthenticationRecord | null = null;
@@ -45,20 +43,12 @@ export class KsiSignature extends CompositeTag implements IKsiSignature {
         Object.freeze(this);
     }
 
-    public static CREATE(payload: AggregationResponsePayload): IKsiSignature {
-        if (!(payload instanceof AggregationResponsePayload)) {
-            throw new KsiError(`Invalid payload: ${payload}`);
-        }
-
+    public static CREATE(payload: AggregationResponsePayload): KsiSignature {
         return new KsiSignature(CompositeTag.CREATE_FROM_LIST(KSI_SIGNATURE_CONSTANTS.TagType, false, false,
                                                               payload.getSignatureTags()));
     }
 
-    public static CREATE_FROM_BASE64(value: string): IKsiSignature {
-        if ((typeof value) !== 'string') {
-            throw new KsiError(`Invalid value: ${value}`);
-        }
-
+    public static CREATE_FROM_BASE64(value: string): KsiSignature {
         return new KsiSignature(new TlvInputStream(Base64Coder.decode(value)).readTag());
     }
 
@@ -115,15 +105,7 @@ export class KsiSignature extends CompositeTag implements IKsiSignature {
         return this.publicationRecord != null;
     }
 
-    public extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord | null = null): IKsiSignature {
-        if (!(calendarHashChain instanceof CalendarHashChain)) {
-            throw new KsiError(`Invalid calendar hash chain: ${calendarHashChain}`);
-        }
-
-        if (!(publicationRecord instanceof PublicationRecord)) {
-            throw new KsiError(`Invalid publication record: ${publicationRecord}`);
-        }
-
+    public extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord): KsiSignature {
         const stream: TlvOutputStream = new TlvOutputStream();
 
         for (const childTag of this.value) {

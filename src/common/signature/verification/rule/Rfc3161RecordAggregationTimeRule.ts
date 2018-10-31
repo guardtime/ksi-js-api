@@ -1,5 +1,5 @@
 import {AggregationHashChain} from '../../AggregationHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {Rfc3161Record} from '../../Rfc3161Record';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -12,7 +12,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class Rfc3161RecordAggregationTimeRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const rfc3161Record: Rfc3161Record | null = signature.getRfc3161Record();
 
         if (rfc3161Record === null) {
@@ -21,7 +21,7 @@ export class Rfc3161RecordAggregationTimeRule extends VerificationRule {
 
         const aggregationHashChains: Readonly<AggregationHashChain[]> = signature.getAggregationHashChains();
         if (aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
-            console.log(`Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.`);
+            console.warn(`Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02);
         }

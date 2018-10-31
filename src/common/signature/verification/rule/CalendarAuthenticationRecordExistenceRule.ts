@@ -8,7 +8,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class CalendarAuthenticationRecordExistenceRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        return VerificationRule.getSignature(context).getCalendarAuthenticationRecord() === null
+        return context.getSignature().getCalendarAuthenticationRecord() === null
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }

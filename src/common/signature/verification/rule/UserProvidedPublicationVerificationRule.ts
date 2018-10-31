@@ -1,6 +1,6 @@
 import {PublicationData} from '../../../publication/PublicationData';
 import {PublicationRecord} from '../../../publication/PublicationRecord';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -12,7 +12,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class UserProvidedPublicationVerificationRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const userPublication: PublicationData | null = context.getUserPublication();
         if (userPublication === null) {
             throw new KsiVerificationError('Invalid user publication in context: null.');
@@ -24,7 +24,7 @@ export class UserProvidedPublicationVerificationRule extends VerificationRule {
         }
 
         if (userPublication.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
-            console.log(`User provided publication time does not equal to signature publication time.
+            console.warn(`User provided publication time does not equal to signature publication time.
                          User provided publication time: ${userPublication.getPublicationTime()};
                          Signature publication time: ${publicationRecord.getPublicationTime()}`);
 

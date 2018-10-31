@@ -9,6 +9,7 @@
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "noEmitOnError": true,
     "lib": [
       "es6",
       "es2015",

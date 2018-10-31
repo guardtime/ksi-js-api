@@ -8,4 +8,3 @@ export interface IKsiIdentity {
     getSequenceNumber(): BigInteger | null;
     getRequestTime(): BigInteger | null;
 }
-export declare function isKsiIdentity(object: any): object is IKsiIdentity;

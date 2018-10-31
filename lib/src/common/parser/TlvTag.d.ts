@@ -1,8 +1,7 @@
-import { ITlvTag } from './ITlvTag';
 /**
  * TLV objects base class
  */
-export declare class TlvTag implements ITlvTag {
+export declare class TlvTag {
     readonly id: number;
     readonly tlv16BitFlag: boolean;
     readonly nonCriticalFlag: boolean;

@@ -3,9 +3,7 @@
  */
 import {LinkDirection} from '../../Constants';
 import {ImprintTag} from '../../parser/ImprintTag';
-import {KsiError} from '../../service/KsiError';
 import {CalendarHashChain} from '../CalendarHashChain';
-import {IKsiSignature, isKsiSignature} from '../IKsiSignature';
 import {KsiSignature} from '../KsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
 import {VerificationContext} from './VerificationContext';
@@ -19,24 +17,12 @@ export abstract class VerificationRule {
 
     protected constructor(ruleName: string | null = null) {
         if (ruleName !== null) {
-            if (typeof ruleName !== 'string') {
-                throw new KsiError(`Invalid rule name: ${ruleName}`);
-            }
-
             this.ruleName = ruleName;
         }
     }
 
-    protected static verifyContext(context: VerificationContext): void {
-        if (!(context instanceof VerificationContext)) {
-            throw new KsiVerificationError('Invalid context');
-        }
-    }
-
-    protected static getSignature(context: VerificationContext): IKsiSignature {
-        VerificationRule.verifyContext(context);
-
-        if (!isKsiSignature(context.getSignature())) {
+    protected static getSignature(context: VerificationContext): KsiSignature {
+        if (!context.getSignature()) {
             throw new KsiVerificationError('Invalid KSI signature in context: null.');
         }
 
@@ -45,7 +31,7 @@ export abstract class VerificationRule {
 
     protected static getCalendarHashChain(signature: KsiSignature): CalendarHashChain {
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
-        if (!(calendarHashChain instanceof CalendarHashChain)) {
+        if (!calendarHashChain) {
             throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
         }
 
@@ -53,7 +39,7 @@ export abstract class VerificationRule {
     }
 
     protected static getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain: CalendarHashChain): ImprintTag | null {
-        if (!(calendarHashChain instanceof CalendarHashChain)) {
+        if (!calendarHashChain) {
             throw new KsiVerificationError('Invalid calendar hash chain.');
         }
 
@@ -70,32 +56,23 @@ export abstract class VerificationRule {
         return null;
     }
 
-    protected static verifyRule(rule: VerificationRule): void {
-        if (!(rule instanceof VerificationRule)) {
-            throw new Error(`Invalid rule: ${rule}`);
-        }
-    }
-
     public getRuleName(): string {
         return this.ruleName;
     }
 
     public onSuccess(rule: VerificationRule): VerificationRule {
-        VerificationRule.verifyRule(rule);
         this.onSuccessRule = rule;
 
         return this;
     }
 
     public onFailure(rule: VerificationRule): VerificationRule {
-        VerificationRule.verifyRule(rule);
         this.onFailureRule = rule;
 
         return this;
     }
 
     public onNa(rule: VerificationRule): VerificationRule {
-        VerificationRule.verifyRule(rule);
         this.onNaRule = rule;
 
         return this;

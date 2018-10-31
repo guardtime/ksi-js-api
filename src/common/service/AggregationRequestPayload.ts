@@ -25,18 +25,6 @@ export class AggregationRequestPayload extends CompositeTag {
     }
 
     public static CREATE(requestId: BigInteger, hash: DataHash, level: BigInteger = bigInteger(0)): AggregationRequestPayload {
-        if (!bigInteger.isInstance(requestId)) {
-            throw new TlvError(`Invalid requestId: ${requestId}`);
-        }
-
-        if (!(hash instanceof DataHash)) {
-            throw new TlvError(`Invalid requestId: ${hash}`);
-        }
-
-        if (!bigInteger.isInstance(level)) {
-            throw new TlvError(`Invalid level: ${level}`);
-        }
-
         const childTlv: TlvTag[] = [
             IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
             ImprintTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType, false, false, hash)

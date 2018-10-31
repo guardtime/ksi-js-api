@@ -1,11 +1,10 @@
 import {TLV_CONSTANTS} from '../Constants';
-import {ITlvTag} from './ITlvTag';
 import {TlvError} from './TlvError';
 
 /**
  * TLV objects base class
  */
-export class TlvTag implements ITlvTag {
+export class TlvTag {
     public readonly id: number;
     public readonly tlv16BitFlag: boolean;
     public readonly nonCriticalFlag: boolean;

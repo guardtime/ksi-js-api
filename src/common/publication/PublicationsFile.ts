@@ -5,7 +5,6 @@ import {RawTag} from '../parser/RawTag';
 import {TlvOutputStream} from '../parser/TlvOutputStream';
 import {TlvTag} from '../parser/TlvTag';
 import {CertificateRecord} from './CertificateRecord';
-import {IPublicationsFile} from './IPublicationsFile';
 import {PublicationRecord} from './PublicationRecord';
 import {PublicationsFileError} from './PublicationsFileError';
 import {PublicationsFileHeader} from './PublicationsFileHeader';
@@ -13,7 +12,7 @@ import {PublicationsFileHeader} from './PublicationsFileHeader';
 /**
  * Publications File TLV object
  */
-export class PublicationsFile extends CompositeTag implements IPublicationsFile {
+export class PublicationsFile extends CompositeTag {
     public static get FileBeginningMagicBytes(): Uint8Array {
         return new Uint8Array([0x4B, 0x53, 0x49, 0x50, 0x55, 0x42, 0x4B, 0x46]);
     }

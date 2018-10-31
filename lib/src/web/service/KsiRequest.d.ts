@@ -9,6 +9,5 @@ export declare class KsiRequest extends KsiRequestBase {
     constructor(response: Promise<Uint8Array | null>, abortController: AbortController);
     abort(payload: PduPayload): void;
     getAbortResponse(): PduPayload;
-    getAbortSignal(): AbortSignal;
     isAborted(): boolean;
 }

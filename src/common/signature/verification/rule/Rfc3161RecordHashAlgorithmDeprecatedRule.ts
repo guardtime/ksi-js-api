@@ -1,4 +1,4 @@
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {Rfc3161Record} from '../../Rfc3161Record';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
@@ -11,7 +11,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class Rfc3161RecordHashAlgorithmDeprecatedRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const rfc3161Record: Rfc3161Record | null = signature.getRfc3161Record();
 
         if (rfc3161Record === null) {
@@ -22,7 +22,7 @@ export class Rfc3161RecordHashAlgorithmDeprecatedRule extends VerificationRule {
             && rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
 
             // tslint:disable-next-line:max-line-length
-            console.log(`Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: ${rfc3161Record.getTstInfoAlgorithm().name}; Aggregation time: ${rfc3161Record.getAggregationTime()}`);
+            console.warn(`Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: ${rfc3161Record.getTstInfoAlgorithm().name}; Aggregation time: ${rfc3161Record.getAggregationTime()}`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14);
         }
@@ -31,7 +31,7 @@ export class Rfc3161RecordHashAlgorithmDeprecatedRule extends VerificationRule {
             && rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
 
             // tslint:disable-next-line:max-line-length
-            console.log(`Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: ${rfc3161Record.getSignedAttributesAlgorithm().name}; Aggregation time: ${rfc3161Record.getAggregationTime()}`);
+            console.warn(`Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: ${rfc3161Record.getSignedAttributesAlgorithm().name}; Aggregation time: ${rfc3161Record.getAggregationTime()}`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14);
         }

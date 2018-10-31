@@ -8,7 +8,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class SignaturePublicationRecordExistenceRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        return VerificationRule.getSignature(context).getPublicationRecord() === null
+        return context.getSignature().getPublicationRecord() === null
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }

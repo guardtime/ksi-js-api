@@ -13,13 +13,11 @@ export interface ITlvCount {
  */
 export abstract class CompositeTag extends TlvTag {
 
-    public value: TlvTag[];
-    private readonly tlvCount: ITlvCount;
+    public value: TlvTag[] = [];
+    private readonly tlvCount: ITlvCount = {};
 
     protected constructor(tlvTag: TlvTag) {
         super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
-        this.value = [];
-        this.tlvCount = {};
     }
 
     public static CREATE_FROM_LIST(id: number, nonCriticalFlag: boolean, forwardFlag: boolean,

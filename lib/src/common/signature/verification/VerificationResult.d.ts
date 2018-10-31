@@ -9,7 +9,7 @@ export declare enum VerificationResultCode {
 }
 export declare class VerificationResult {
     private readonly ruleName;
-    private childResults;
+    private readonly childResults;
     private readonly verificationError;
     private readonly resultCode;
     constructor(ruleName: string, resultCode: VerificationResultCode, verificationError?: VerificationError | null, childResults?: VerificationResult[] | null);

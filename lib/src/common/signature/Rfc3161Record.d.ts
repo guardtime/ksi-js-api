@@ -1,4 +1,4 @@
-import bigInteger from 'big-integer';
+import { BigInteger } from 'big-integer';
 import { DataHash, HashAlgorithm } from 'gt-js-common';
 import { CompositeTag } from '../parser/CompositeTag';
 import { TlvTag } from '../parser/TlvTag';
@@ -19,11 +19,11 @@ export declare class Rfc3161Record extends CompositeTag {
     getInputHash(): DataHash;
     getTstInfoAlgorithm(): HashAlgorithm;
     getSignedAttributesAlgorithm(): HashAlgorithm;
-    getAggregationTime(): bigInteger.BigInteger;
+    getAggregationTime(): BigInteger;
     /**
      * Get chain index values
      */
-    getChainIndex(): bigInteger.BigInteger[];
+    getChainIndex(): BigInteger[];
     getOutputHash(): Promise<DataHash>;
     private parseChild;
     private validate;

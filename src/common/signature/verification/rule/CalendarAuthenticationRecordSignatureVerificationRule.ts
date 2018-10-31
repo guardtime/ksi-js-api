@@ -2,7 +2,7 @@ import {HexCoder, X509} from 'gt-js-common';
 import {CertificateRecord} from '../../../publication/CertificateRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarAuthenticationRecord} from '../../CalendarAuthenticationRecord';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {SignatureData} from '../../SignatureData';
 import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
@@ -17,7 +17,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class CalendarAuthenticationRecordSignatureVerificationRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const calendarAuthenticationRecord: CalendarAuthenticationRecord | null = signature.getCalendarAuthenticationRecord();
 
         if (calendarAuthenticationRecord == null) {
@@ -44,7 +44,7 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
             }
         } catch (error) {
-            console.log(error);
+            console.warn(error);
         }
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03);

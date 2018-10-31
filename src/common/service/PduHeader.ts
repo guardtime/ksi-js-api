@@ -23,10 +23,6 @@ export class PduHeader extends CompositeTag {
     }
 
     public static CREATE_FROM_LOGIN_ID(loginId: string): PduHeader {
-        if ((typeof loginId) !== 'string') {
-            throw new TlvError(`Invalid loginId: ${loginId}`);
-        }
-
         return new PduHeader(CompositeTag.CREATE_FROM_LIST(PDU_HEADER_CONSTANTS.TagType, false, false, [
             StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
         ]));

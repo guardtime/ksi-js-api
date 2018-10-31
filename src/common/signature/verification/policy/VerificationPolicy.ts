@@ -1,5 +1,3 @@
-import {KsiSignature} from '../../KsiSignature';
-import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationResult} from '../VerificationResult';
 import {VerificationRule} from '../VerificationRule';
@@ -8,28 +6,16 @@ import {VerificationRule} from '../VerificationRule';
  * Verification policy for KSI signature
  */
 export class VerificationPolicy extends VerificationRule {
-    private readonly firstRule: VerificationRule | null;
+    private readonly firstRule: VerificationRule;
     private verificationResults: VerificationResult[] = [];
 
-    constructor(rule: VerificationRule | null = null, ruleName: string | null = null) {
+    constructor(rule: VerificationRule, ruleName: string | null = null) {
         super(ruleName);
-
-        if (rule !== null) {
-            VerificationRule.verifyRule(rule);
-        }
 
         this.firstRule = rule;
     }
 
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        if (!(context instanceof VerificationContext)) {
-            throw new Error('Context is invalid');
-        }
-
-        if (!(context.getSignature() instanceof KsiSignature)) {
-            throw new KsiVerificationError('Invalid KSI signature in context');
-        }
-
         let verificationRule: VerificationRule | null = this.firstRule;
 
         try {

@@ -1,6 +1,6 @@
 import {ImprintTag} from '../../../parser/ImprintTag';
 import {CalendarHashChain} from '../../CalendarHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -12,7 +12,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
 
         if (calendarHashChain === null) {
@@ -21,7 +21,7 @@ export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
 
         const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain);
         if (deprecatedLink !== null) {
-            console.log(`Calendar hash chain contains deprecated aggregation algorithm at publication time.
+            console.warn(`Calendar hash chain contains deprecated aggregation algorithm at publication time.
                              Algorithm: ${deprecatedLink.getValue().hashAlgorithm.name};
                              Publication time: ${calendarHashChain.getPublicationTime()}`);
 

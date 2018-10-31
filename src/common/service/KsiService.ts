@@ -1,8 +1,8 @@
 import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash} from 'gt-js-common';
-import {IPublicationsFile} from '../publication/IPublicationsFile';
+import {PublicationsFile} from '../publication/PublicationsFile';
 import {CalendarHashChain} from '../signature/CalendarHashChain';
-import {IKsiSignature} from '../signature/IKsiSignature';
+import {KsiSignature} from '../signature/KsiSignature';
 import {ExtendingService} from './ExtendingService';
 import {KsiServiceError} from './KsiServiceError';
 import {PublicationsFileService} from './PublicationsFileService';
@@ -18,25 +18,13 @@ export class KsiService {
 
     constructor(signingService: SigningService | null = null, extendingService: ExtendingService | null = null,
                 publicationsFileService: PublicationsFileService | null) {
-        if (signingService !== null && !(signingService instanceof SigningService)) {
-            throw new KsiServiceError(`Invalid signing service: ${signingService}`);
-        }
-
-        if (extendingService !== null && !(extendingService instanceof ExtendingService)) {
-            throw new KsiServiceError(`Invalid extending service: ${extendingService}`);
-        }
-
-        if (publicationsFileService !== null && !(publicationsFileService instanceof PublicationsFileService)) {
-            throw new KsiServiceError(`Invalid publications file service: ${publicationsFileService}`);
-        }
-
         this.signingService = signingService;
         this.extendingService = extendingService;
         this.publicationsFileService = publicationsFileService;
     }
 
-    public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<IKsiSignature> {
-        if (this.signingService === null) {
+    public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
+        if (!this.signingService) {
             throw new KsiServiceError('Signing protocol not defined. Cannot use signing.');
         }
 
@@ -44,15 +32,15 @@ export class KsiService {
     }
 
     public async extend(aggregationTime: BigInteger, publicationTime: BigInteger | null = null): Promise<CalendarHashChain> {
-        if (this.extendingService === null) {
+        if (!this.extendingService) {
             throw new KsiServiceError('Extending service not defined. Cannot use extending.');
         }
 
         return this.extendingService.extend(aggregationTime, publicationTime);
     }
 
-    public async getPublicationsFile(): Promise<IPublicationsFile> {
-        if (this.publicationsFileService === null) {
+    public async getPublicationsFile(): Promise<PublicationsFile> {
+        if (!this.publicationsFileService) {
             throw new KsiServiceError('Publications file service not defined. Cannot get publications file.');
         }
 

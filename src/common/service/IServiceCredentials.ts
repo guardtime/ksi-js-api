@@ -10,9 +10,3 @@ export interface IServiceCredentials {
 
     getHmacAlgorithm(): HashAlgorithm;
 }
-
-export function isIServiceCredentials(object: any): object is IServiceCredentials {
-    return 'getLoginId' in object
-        && 'getLoginKey' in object
-        && 'getHmacAlgorithm' in object;
-}

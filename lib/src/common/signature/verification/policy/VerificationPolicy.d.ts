@@ -7,6 +7,6 @@ import { VerificationRule } from '../VerificationRule';
 export declare class VerificationPolicy extends VerificationRule {
     private readonly firstRule;
     private verificationResults;
-    constructor(rule?: VerificationRule | null, ruleName?: string | null);
+    constructor(rule: VerificationRule, ruleName?: string | null);
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

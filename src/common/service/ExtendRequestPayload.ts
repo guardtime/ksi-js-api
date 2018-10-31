@@ -1,4 +1,4 @@
-import bigInteger, {BigInteger} from 'big-integer';
+import {BigInteger} from 'big-integer';
 import {EXTEND_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
@@ -25,18 +25,6 @@ export class ExtendRequestPayload extends PduPayload {
 
     public static CREATE(requestId: BigInteger, aggregationTime: BigInteger,
                          publicationTime: BigInteger | null = null): ExtendRequestPayload {
-        if (!bigInteger.isInstance(requestId)) {
-            throw new TlvError(`Invalid requestId: ${requestId}`);
-        }
-
-        if (!bigInteger.isInstance(aggregationTime)) {
-            throw new TlvError(`Invalid aggregation time: ${aggregationTime}`);
-        }
-
-        if (publicationTime !== null && !bigInteger.isInstance(publicationTime)) {
-            throw new TlvError(`Invalid publication time: ${publicationTime}`);
-        }
-
         const childTlv: TlvTag[] = [
             IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
             IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType, false, false, aggregationTime)

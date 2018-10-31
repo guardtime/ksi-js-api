@@ -7,4 +7,3 @@ export interface IServiceCredentials {
     getLoginKey(): Uint8Array;
     getHmacAlgorithm(): HashAlgorithm;
 }
-export declare function isIServiceCredentials(object: any): object is IServiceCredentials;

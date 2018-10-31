@@ -169,7 +169,7 @@ export class AggregationHashChainLink extends CompositeTag {
             return this.legacyId.getValue();
         }
 
-        return this.metadata!.getValueBytes();
+        return (<AggregationHashChainLinkMetaData>this.metadata).getValueBytes();
     }
 
     public getIdentity(): IKsiIdentity | null {

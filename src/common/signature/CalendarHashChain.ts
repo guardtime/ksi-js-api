@@ -90,7 +90,7 @@ export class CalendarHashChain extends CompositeTag {
         // iterate over the chain in reverse
         for (let i: number = this.chainLinks.length - 1; i >= 0; i -= 1) {
             if (r.lt(0)) {
-                console.log('Invalid calendar hash chain shape for publication time. Cannot calculate registration time.');
+                console.warn('Invalid calendar hash chain shape for publication time. Cannot calculate registration time.');
 
                 return bigInteger(0);
             }
@@ -104,7 +104,7 @@ export class CalendarHashChain extends CompositeTag {
         }
 
         if (r.neq(0)) {
-            console.log('Calendar hash chain shape inconsistent with publication time. Cannot calculate registration time.');
+            console.warn('Calendar hash chain shape inconsistent with publication time. Cannot calculate registration time.');
 
             return bigInteger(0);
         }

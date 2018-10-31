@@ -1,6 +1,6 @@
 import {LinkDirection} from '../../../Constants';
 import {CalendarHashChain} from '../../CalendarHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -12,7 +12,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class CalendarHashChainAlgorithmObsoleteRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
 
         if (calendarHashChain === null) {
@@ -25,7 +25,7 @@ export class CalendarHashChainAlgorithmObsoleteRule extends VerificationRule {
             }
 
             if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
-                console.log(`Calendar hash chain contains obsolete aggregation algorithm at publication time.
+                console.warn(`Calendar hash chain contains obsolete aggregation algorithm at publication time.
                              Algorithm: ${link.getValue().hashAlgorithm.name};
                              Publication time: ${calendarHashChain.getPublicationTime()}`);
 

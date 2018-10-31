@@ -3,7 +3,7 @@ import {AGGREGATION_HASH_CHAIN_CONSTANTS} from '../../../Constants';
 import {RawTag} from '../../../parser/RawTag';
 import {TlvOutputStream} from '../../../parser/TlvOutputStream';
 import {AggregationHashChain, AggregationHashChainLinkMetaData} from '../../AggregationHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -14,7 +14,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class AggregationHashChainMetadataRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
 
         for (const chain of aggregationHashChains) {
@@ -39,39 +39,43 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
 
                     const hashAlgorithm: HashAlgorithm | null = HashAlgorithm.getById(hashAlgorithmId);
                     if (hashAlgorithm !== null && hashAlgorithm.length === metadataBytes.length - 1) {
-                        console.log(`Metadata without padding may not be trusted. Metadata: ${metadata}`);
+                        console.warn(`Metadata without padding may not be trusted. Metadata: ${metadata}`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }
                 } else {
 
-                    try {
-                        if (metadata.value.indexOf(paddingTag) !== 0) {
-                            throw new Error('Padding is not the first element.');
-                        }
+                    if (metadata.value.indexOf(paddingTag) !== 0) {
+                        console.warn(`Metadata with padding may not be trusted. Padding is not the first element. Metadata: ${metadata}`);
 
-                        if (paddingTag.tlv16BitFlag) {
-                            throw new Error('Padding is not TLV8.');
-                        }
+                        return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
+                    }
 
-                        if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
-                            throw new Error('Non-critical and forward flags must be set.');
-                        }
+                    if (paddingTag.tlv16BitFlag) {
+                        console.warn(`Metadata with padding may not be trusted. Padding is not TLV8. Metadata: ${metadata}`);
 
-                        const valueBytesString: string = JSON.stringify(paddingTag.getValueBytes());
-                        if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
-                            && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
-                            throw new Error('Unknown padding value.');
-                        }
+                        return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
+                    }
 
-                        const stream: TlvOutputStream = new TlvOutputStream();
-                        stream.writeTag(metadata);
-                        if (stream.getData().length % 2 !== 0) {
-                            throw new Error('Invalid padding value.');
-                        }
+                    if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
+                        // tslint:disable-next-line:max-line-length
+                        console.warn(`Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: ${metadata}`);
 
-                    } catch (error) {
-                        console.log(`Metadata with padding may not be trusted. ${error.message} Metadata: ${metadata}`);
+                        return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
+                    }
+
+                    const valueBytesString: string = JSON.stringify(paddingTag.getValueBytes());
+                    if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
+                        && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
+                        console.warn(`Metadata with padding may not be trusted. Unknown padding value. Metadata: ${metadata}`);
+
+                        return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
+                    }
+
+                    const stream: TlvOutputStream = new TlvOutputStream();
+                    stream.writeTag(metadata);
+                    if (stream.getData().length % 2 !== 0) {
+                        console.warn(`Metadata with padding may not be trusted. Invalid padding value. Metadata: ${metadata}`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }

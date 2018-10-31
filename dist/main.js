@@ -117,1335 +117,6 @@ module.exports = {
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var bigInt = (function (undefined) {
-    "use strict";
-
-    var BASE = 1e7,
-        LOG_BASE = 7,
-        MAX_INT = 9007199254740992,
-        MAX_INT_ARR = smallToArray(MAX_INT),
-        LOG_MAX_INT = Math.log(MAX_INT);
-
-    function Integer(v, radix) {
-        if (typeof v === "undefined") return Integer[0];
-        if (typeof radix !== "undefined") return +radix === 10 ? parseValue(v) : parseBase(v, radix);
-        return parseValue(v);
-    }
-
-    function BigInteger(value, sign) {
-        this.value = value;
-        this.sign = sign;
-        this.isSmall = false;
-    }
-    BigInteger.prototype = Object.create(Integer.prototype);
-
-    function SmallInteger(value) {
-        this.value = value;
-        this.sign = value < 0;
-        this.isSmall = true;
-    }
-    SmallInteger.prototype = Object.create(Integer.prototype);
-
-    function isPrecise(n) {
-        return -MAX_INT < n && n < MAX_INT;
-    }
-
-    function smallToArray(n) { // For performance reasons doesn't reference BASE, need to change this function if BASE changes
-        if (n < 1e7)
-            return [n];
-        if (n < 1e14)
-            return [n % 1e7, Math.floor(n / 1e7)];
-        return [n % 1e7, Math.floor(n / 1e7) % 1e7, Math.floor(n / 1e14)];
-    }
-
-    function arrayToSmall(arr) { // If BASE changes this function may need to change
-        trim(arr);
-        var length = arr.length;
-        if (length < 4 && compareAbs(arr, MAX_INT_ARR) < 0) {
-            switch (length) {
-                case 0: return 0;
-                case 1: return arr[0];
-                case 2: return arr[0] + arr[1] * BASE;
-                default: return arr[0] + (arr[1] + arr[2] * BASE) * BASE;
-            }
-        }
-        return arr;
-    }
-
-    function trim(v) {
-        var i = v.length;
-        while (v[--i] === 0);
-        v.length = i + 1;
-    }
-
-    function createArray(length) { // function shamelessly stolen from Yaffle's library https://github.com/Yaffle/BigInteger
-        var x = new Array(length);
-        var i = -1;
-        while (++i < length) {
-            x[i] = 0;
-        }
-        return x;
-    }
-
-    function truncate(n) {
-        if (n > 0) return Math.floor(n);
-        return Math.ceil(n);
-    }
-
-    function add(a, b) { // assumes a and b are arrays with a.length >= b.length
-        var l_a = a.length,
-            l_b = b.length,
-            r = new Array(l_a),
-            carry = 0,
-            base = BASE,
-            sum, i;
-        for (i = 0; i < l_b; i++) {
-            sum = a[i] + b[i] + carry;
-            carry = sum >= base ? 1 : 0;
-            r[i] = sum - carry * base;
-        }
-        while (i < l_a) {
-            sum = a[i] + carry;
-            carry = sum === base ? 1 : 0;
-            r[i++] = sum - carry * base;
-        }
-        if (carry > 0) r.push(carry);
-        return r;
-    }
-
-    function addAny(a, b) {
-        if (a.length >= b.length) return add(a, b);
-        return add(b, a);
-    }
-
-    function addSmall(a, carry) { // assumes a is array, carry is number with 0 <= carry < MAX_INT
-        var l = a.length,
-            r = new Array(l),
-            base = BASE,
-            sum, i;
-        for (i = 0; i < l; i++) {
-            sum = a[i] - base + carry;
-            carry = Math.floor(sum / base);
-            r[i] = sum - carry * base;
-            carry += 1;
-        }
-        while (carry > 0) {
-            r[i++] = carry % base;
-            carry = Math.floor(carry / base);
-        }
-        return r;
-    }
-
-    BigInteger.prototype.add = function (v) {
-        var n = parseValue(v);
-        if (this.sign !== n.sign) {
-            return this.subtract(n.negate());
-        }
-        var a = this.value, b = n.value;
-        if (n.isSmall) {
-            return new BigInteger(addSmall(a, Math.abs(b)), this.sign);
-        }
-        return new BigInteger(addAny(a, b), this.sign);
-    };
-    BigInteger.prototype.plus = BigInteger.prototype.add;
-
-    SmallInteger.prototype.add = function (v) {
-        var n = parseValue(v);
-        var a = this.value;
-        if (a < 0 !== n.sign) {
-            return this.subtract(n.negate());
-        }
-        var b = n.value;
-        if (n.isSmall) {
-            if (isPrecise(a + b)) return new SmallInteger(a + b);
-            b = smallToArray(Math.abs(b));
-        }
-        return new BigInteger(addSmall(b, Math.abs(a)), a < 0);
-    };
-    SmallInteger.prototype.plus = SmallInteger.prototype.add;
-
-    function subtract(a, b) { // assumes a and b are arrays with a >= b
-        var a_l = a.length,
-            b_l = b.length,
-            r = new Array(a_l),
-            borrow = 0,
-            base = BASE,
-            i, difference;
-        for (i = 0; i < b_l; i++) {
-            difference = a[i] - borrow - b[i];
-            if (difference < 0) {
-                difference += base;
-                borrow = 1;
-            } else borrow = 0;
-            r[i] = difference;
-        }
-        for (i = b_l; i < a_l; i++) {
-            difference = a[i] - borrow;
-            if (difference < 0) difference += base;
-            else {
-                r[i++] = difference;
-                break;
-            }
-            r[i] = difference;
-        }
-        for (; i < a_l; i++) {
-            r[i] = a[i];
-        }
-        trim(r);
-        return r;
-    }
-
-    function subtractAny(a, b, sign) {
-        var value;
-        if (compareAbs(a, b) >= 0) {
-            value = subtract(a, b);
-        } else {
-            value = subtract(b, a);
-            sign = !sign;
-        }
-        value = arrayToSmall(value);
-        if (typeof value === "number") {
-            if (sign) value = -value;
-            return new SmallInteger(value);
-        }
-        return new BigInteger(value, sign);
-    }
-
-    function subtractSmall(a, b, sign) { // assumes a is array, b is number with 0 <= b < MAX_INT
-        var l = a.length,
-            r = new Array(l),
-            carry = -b,
-            base = BASE,
-            i, difference;
-        for (i = 0; i < l; i++) {
-            difference = a[i] + carry;
-            carry = Math.floor(difference / base);
-            difference %= base;
-            r[i] = difference < 0 ? difference + base : difference;
-        }
-        r = arrayToSmall(r);
-        if (typeof r === "number") {
-            if (sign) r = -r;
-            return new SmallInteger(r);
-        } return new BigInteger(r, sign);
-    }
-
-    BigInteger.prototype.subtract = function (v) {
-        var n = parseValue(v);
-        if (this.sign !== n.sign) {
-            return this.add(n.negate());
-        }
-        var a = this.value, b = n.value;
-        if (n.isSmall)
-            return subtractSmall(a, Math.abs(b), this.sign);
-        return subtractAny(a, b, this.sign);
-    };
-    BigInteger.prototype.minus = BigInteger.prototype.subtract;
-
-    SmallInteger.prototype.subtract = function (v) {
-        var n = parseValue(v);
-        var a = this.value;
-        if (a < 0 !== n.sign) {
-            return this.add(n.negate());
-        }
-        var b = n.value;
-        if (n.isSmall) {
-            return new SmallInteger(a - b);
-        }
-        return subtractSmall(b, Math.abs(a), a >= 0);
-    };
-    SmallInteger.prototype.minus = SmallInteger.prototype.subtract;
-
-    BigInteger.prototype.negate = function () {
-        return new BigInteger(this.value, !this.sign);
-    };
-    SmallInteger.prototype.negate = function () {
-        var sign = this.sign;
-        var small = new SmallInteger(-this.value);
-        small.sign = !sign;
-        return small;
-    };
-
-    BigInteger.prototype.abs = function () {
-        return new BigInteger(this.value, false);
-    };
-    SmallInteger.prototype.abs = function () {
-        return new SmallInteger(Math.abs(this.value));
-    };
-
-    function multiplyLong(a, b) {
-        var a_l = a.length,
-            b_l = b.length,
-            l = a_l + b_l,
-            r = createArray(l),
-            base = BASE,
-            product, carry, i, a_i, b_j;
-        for (i = 0; i < a_l; ++i) {
-            a_i = a[i];
-            for (var j = 0; j < b_l; ++j) {
-                b_j = b[j];
-                product = a_i * b_j + r[i + j];
-                carry = Math.floor(product / base);
-                r[i + j] = product - carry * base;
-                r[i + j + 1] += carry;
-            }
-        }
-        trim(r);
-        return r;
-    }
-
-    function multiplySmall(a, b) { // assumes a is array, b is number with |b| < BASE
-        var l = a.length,
-            r = new Array(l),
-            base = BASE,
-            carry = 0,
-            product, i;
-        for (i = 0; i < l; i++) {
-            product = a[i] * b + carry;
-            carry = Math.floor(product / base);
-            r[i] = product - carry * base;
-        }
-        while (carry > 0) {
-            r[i++] = carry % base;
-            carry = Math.floor(carry / base);
-        }
-        return r;
-    }
-
-    function shiftLeft(x, n) {
-        var r = [];
-        while (n-- > 0) r.push(0);
-        return r.concat(x);
-    }
-
-    function multiplyKaratsuba(x, y) {
-        var n = Math.max(x.length, y.length);
-
-        if (n <= 30) return multiplyLong(x, y);
-        n = Math.ceil(n / 2);
-
-        var b = x.slice(n),
-            a = x.slice(0, n),
-            d = y.slice(n),
-            c = y.slice(0, n);
-
-        var ac = multiplyKaratsuba(a, c),
-            bd = multiplyKaratsuba(b, d),
-            abcd = multiplyKaratsuba(addAny(a, b), addAny(c, d));
-
-        var product = addAny(addAny(ac, shiftLeft(subtract(subtract(abcd, ac), bd), n)), shiftLeft(bd, 2 * n));
-        trim(product);
-        return product;
-    }
-
-    // The following function is derived from a surface fit of a graph plotting the performance difference
-    // between long multiplication and karatsuba multiplication versus the lengths of the two arrays.
-    function useKaratsuba(l1, l2) {
-        return -0.012 * l1 - 0.012 * l2 + 0.000015 * l1 * l2 > 0;
-    }
-
-    BigInteger.prototype.multiply = function (v) {
-        var n = parseValue(v),
-            a = this.value, b = n.value,
-            sign = this.sign !== n.sign,
-            abs;
-        if (n.isSmall) {
-            if (b === 0) return Integer[0];
-            if (b === 1) return this;
-            if (b === -1) return this.negate();
-            abs = Math.abs(b);
-            if (abs < BASE) {
-                return new BigInteger(multiplySmall(a, abs), sign);
-            }
-            b = smallToArray(abs);
-        }
-        if (useKaratsuba(a.length, b.length)) // Karatsuba is only faster for certain array sizes
-            return new BigInteger(multiplyKaratsuba(a, b), sign);
-        return new BigInteger(multiplyLong(a, b), sign);
-    };
-
-    BigInteger.prototype.times = BigInteger.prototype.multiply;
-
-    function multiplySmallAndArray(a, b, sign) { // a >= 0
-        if (a < BASE) {
-            return new BigInteger(multiplySmall(b, a), sign);
-        }
-        return new BigInteger(multiplyLong(b, smallToArray(a)), sign);
-    }
-    SmallInteger.prototype._multiplyBySmall = function (a) {
-        if (isPrecise(a.value * this.value)) {
-            return new SmallInteger(a.value * this.value);
-        }
-        return multiplySmallAndArray(Math.abs(a.value), smallToArray(Math.abs(this.value)), this.sign !== a.sign);
-    };
-    BigInteger.prototype._multiplyBySmall = function (a) {
-        if (a.value === 0) return Integer[0];
-        if (a.value === 1) return this;
-        if (a.value === -1) return this.negate();
-        return multiplySmallAndArray(Math.abs(a.value), this.value, this.sign !== a.sign);
-    };
-    SmallInteger.prototype.multiply = function (v) {
-        return parseValue(v)._multiplyBySmall(this);
-    };
-    SmallInteger.prototype.times = SmallInteger.prototype.multiply;
-
-    function square(a) {
-        //console.assert(2 * BASE * BASE < MAX_INT);
-        var l = a.length,
-            r = createArray(l + l),
-            base = BASE,
-            product, carry, i, a_i, a_j;
-        for (i = 0; i < l; i++) {
-            a_i = a[i];
-            carry = 0 - a_i * a_i;
-            for (var j = i; j < l; j++) {
-                a_j = a[j];
-                product = 2 * (a_i * a_j) + r[i + j] + carry;
-                carry = Math.floor(product / base);
-                r[i + j] = product - carry * base;
-            }
-            r[i + l] = carry;
-        }
-        trim(r);
-        return r;
-    }
-
-    BigInteger.prototype.square = function () {
-        return new BigInteger(square(this.value), false);
-    };
-
-    SmallInteger.prototype.square = function () {
-        var value = this.value * this.value;
-        if (isPrecise(value)) return new SmallInteger(value);
-        return new BigInteger(square(smallToArray(Math.abs(this.value))), false);
-    };
-
-    function divMod1(a, b) { // Left over from previous version. Performs faster than divMod2 on smaller input sizes.
-        var a_l = a.length,
-            b_l = b.length,
-            base = BASE,
-            result = createArray(b.length),
-            divisorMostSignificantDigit = b[b_l - 1],
-            // normalization
-            lambda = Math.ceil(base / (2 * divisorMostSignificantDigit)),
-            remainder = multiplySmall(a, lambda),
-            divisor = multiplySmall(b, lambda),
-            quotientDigit, shift, carry, borrow, i, l, q;
-        if (remainder.length <= a_l) remainder.push(0);
-        divisor.push(0);
-        divisorMostSignificantDigit = divisor[b_l - 1];
-        for (shift = a_l - b_l; shift >= 0; shift--) {
-            quotientDigit = base - 1;
-            if (remainder[shift + b_l] !== divisorMostSignificantDigit) {
-                quotientDigit = Math.floor((remainder[shift + b_l] * base + remainder[shift + b_l - 1]) / divisorMostSignificantDigit);
-            }
-            // quotientDigit <= base - 1
-            carry = 0;
-            borrow = 0;
-            l = divisor.length;
-            for (i = 0; i < l; i++) {
-                carry += quotientDigit * divisor[i];
-                q = Math.floor(carry / base);
-                borrow += remainder[shift + i] - (carry - q * base);
-                carry = q;
-                if (borrow < 0) {
-                    remainder[shift + i] = borrow + base;
-                    borrow = -1;
-                } else {
-                    remainder[shift + i] = borrow;
-                    borrow = 0;
-                }
-            }
-            while (borrow !== 0) {
-                quotientDigit -= 1;
-                carry = 0;
-                for (i = 0; i < l; i++) {
-                    carry += remainder[shift + i] - base + divisor[i];
-                    if (carry < 0) {
-                        remainder[shift + i] = carry + base;
-                        carry = 0;
-                    } else {
-                        remainder[shift + i] = carry;
-                        carry = 1;
-                    }
-                }
-                borrow += carry;
-            }
-            result[shift] = quotientDigit;
-        }
-        // denormalization
-        remainder = divModSmall(remainder, lambda)[0];
-        return [arrayToSmall(result), arrayToSmall(remainder)];
-    }
-
-    function divMod2(a, b) { // Implementation idea shamelessly stolen from Silent Matt's library http://silentmatt.com/biginteger/
-        // Performs faster than divMod1 on larger input sizes.
-        var a_l = a.length,
-            b_l = b.length,
-            result = [],
-            part = [],
-            base = BASE,
-            guess, xlen, highx, highy, check;
-        while (a_l) {
-            part.unshift(a[--a_l]);
-            trim(part);
-            if (compareAbs(part, b) < 0) {
-                result.push(0);
-                continue;
-            }
-            xlen = part.length;
-            highx = part[xlen - 1] * base + part[xlen - 2];
-            highy = b[b_l - 1] * base + b[b_l - 2];
-            if (xlen > b_l) {
-                highx = (highx + 1) * base;
-            }
-            guess = Math.ceil(highx / highy);
-            do {
-                check = multiplySmall(b, guess);
-                if (compareAbs(check, part) <= 0) break;
-                guess--;
-            } while (guess);
-            result.push(guess);
-            part = subtract(part, check);
-        }
-        result.reverse();
-        return [arrayToSmall(result), arrayToSmall(part)];
-    }
-
-    function divModSmall(value, lambda) {
-        var length = value.length,
-            quotient = createArray(length),
-            base = BASE,
-            i, q, remainder, divisor;
-        remainder = 0;
-        for (i = length - 1; i >= 0; --i) {
-            divisor = remainder * base + value[i];
-            q = truncate(divisor / lambda);
-            remainder = divisor - q * lambda;
-            quotient[i] = q | 0;
-        }
-        return [quotient, remainder | 0];
-    }
-
-    function divModAny(self, v) {
-        var value, n = parseValue(v);
-        var a = self.value, b = n.value;
-        var quotient;
-        if (b === 0) throw new Error("Cannot divide by zero");
-        if (self.isSmall) {
-            if (n.isSmall) {
-                return [new SmallInteger(truncate(a / b)), new SmallInteger(a % b)];
-            }
-            return [Integer[0], self];
-        }
-        if (n.isSmall) {
-            if (b === 1) return [self, Integer[0]];
-            if (b == -1) return [self.negate(), Integer[0]];
-            var abs = Math.abs(b);
-            if (abs < BASE) {
-                value = divModSmall(a, abs);
-                quotient = arrayToSmall(value[0]);
-                var remainder = value[1];
-                if (self.sign) remainder = -remainder;
-                if (typeof quotient === "number") {
-                    if (self.sign !== n.sign) quotient = -quotient;
-                    return [new SmallInteger(quotient), new SmallInteger(remainder)];
-                }
-                return [new BigInteger(quotient, self.sign !== n.sign), new SmallInteger(remainder)];
-            }
-            b = smallToArray(abs);
-        }
-        var comparison = compareAbs(a, b);
-        if (comparison === -1) return [Integer[0], self];
-        if (comparison === 0) return [Integer[self.sign === n.sign ? 1 : -1], Integer[0]];
-
-        // divMod1 is faster on smaller input sizes
-        if (a.length + b.length <= 200)
-            value = divMod1(a, b);
-        else value = divMod2(a, b);
-
-        quotient = value[0];
-        var qSign = self.sign !== n.sign,
-            mod = value[1],
-            mSign = self.sign;
-        if (typeof quotient === "number") {
-            if (qSign) quotient = -quotient;
-            quotient = new SmallInteger(quotient);
-        } else quotient = new BigInteger(quotient, qSign);
-        if (typeof mod === "number") {
-            if (mSign) mod = -mod;
-            mod = new SmallInteger(mod);
-        } else mod = new BigInteger(mod, mSign);
-        return [quotient, mod];
-    }
-
-    BigInteger.prototype.divmod = function (v) {
-        var result = divModAny(this, v);
-        return {
-            quotient: result[0],
-            remainder: result[1]
-        };
-    };
-    SmallInteger.prototype.divmod = BigInteger.prototype.divmod;
-
-    BigInteger.prototype.divide = function (v) {
-        return divModAny(this, v)[0];
-    };
-    SmallInteger.prototype.over = SmallInteger.prototype.divide = BigInteger.prototype.over = BigInteger.prototype.divide;
-
-    BigInteger.prototype.mod = function (v) {
-        return divModAny(this, v)[1];
-    };
-    SmallInteger.prototype.remainder = SmallInteger.prototype.mod = BigInteger.prototype.remainder = BigInteger.prototype.mod;
-
-    BigInteger.prototype.pow = function (v) {
-        var n = parseValue(v),
-            a = this.value,
-            b = n.value,
-            value, x, y;
-        if (b === 0) return Integer[1];
-        if (a === 0) return Integer[0];
-        if (a === 1) return Integer[1];
-        if (a === -1) return n.isEven() ? Integer[1] : Integer[-1];
-        if (n.sign) {
-            return Integer[0];
-        }
-        if (!n.isSmall) throw new Error("The exponent " + n.toString() + " is too large.");
-        if (this.isSmall) {
-            if (isPrecise(value = Math.pow(a, b)))
-                return new SmallInteger(truncate(value));
-        }
-        x = this;
-        y = Integer[1];
-        while (true) {
-            if (b & 1 === 1) {
-                y = y.times(x);
-                --b;
-            }
-            if (b === 0) break;
-            b /= 2;
-            x = x.square();
-        }
-        return y;
-    };
-    SmallInteger.prototype.pow = BigInteger.prototype.pow;
-
-    BigInteger.prototype.modPow = function (exp, mod) {
-        exp = parseValue(exp);
-        mod = parseValue(mod);
-        if (mod.isZero()) throw new Error("Cannot take modPow with modulus 0");
-        var r = Integer[1],
-            base = this.mod(mod);
-        while (exp.isPositive()) {
-            if (base.isZero()) return Integer[0];
-            if (exp.isOdd()) r = r.multiply(base).mod(mod);
-            exp = exp.divide(2);
-            base = base.square().mod(mod);
-        }
-        return r;
-    };
-    SmallInteger.prototype.modPow = BigInteger.prototype.modPow;
-
-    function compareAbs(a, b) {
-        if (a.length !== b.length) {
-            return a.length > b.length ? 1 : -1;
-        }
-        for (var i = a.length - 1; i >= 0; i--) {
-            if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1;
-        }
-        return 0;
-    }
-
-    BigInteger.prototype.compareAbs = function (v) {
-        var n = parseValue(v),
-            a = this.value,
-            b = n.value;
-        if (n.isSmall) return 1;
-        return compareAbs(a, b);
-    };
-    SmallInteger.prototype.compareAbs = function (v) {
-        var n = parseValue(v),
-            a = Math.abs(this.value),
-            b = n.value;
-        if (n.isSmall) {
-            b = Math.abs(b);
-            return a === b ? 0 : a > b ? 1 : -1;
-        }
-        return -1;
-    };
-
-    BigInteger.prototype.compare = function (v) {
-        // See discussion about comparison with Infinity:
-        // https://github.com/peterolson/BigInteger.js/issues/61
-        if (v === Infinity) {
-            return -1;
-        }
-        if (v === -Infinity) {
-            return 1;
-        }
-
-        var n = parseValue(v),
-            a = this.value,
-            b = n.value;
-        if (this.sign !== n.sign) {
-            return n.sign ? 1 : -1;
-        }
-        if (n.isSmall) {
-            return this.sign ? -1 : 1;
-        }
-        return compareAbs(a, b) * (this.sign ? -1 : 1);
-    };
-    BigInteger.prototype.compareTo = BigInteger.prototype.compare;
-
-    SmallInteger.prototype.compare = function (v) {
-        if (v === Infinity) {
-            return -1;
-        }
-        if (v === -Infinity) {
-            return 1;
-        }
-
-        var n = parseValue(v),
-            a = this.value,
-            b = n.value;
-        if (n.isSmall) {
-            return a == b ? 0 : a > b ? 1 : -1;
-        }
-        if (a < 0 !== n.sign) {
-            return a < 0 ? -1 : 1;
-        }
-        return a < 0 ? 1 : -1;
-    };
-    SmallInteger.prototype.compareTo = SmallInteger.prototype.compare;
-
-    BigInteger.prototype.equals = function (v) {
-        return this.compare(v) === 0;
-    };
-    SmallInteger.prototype.eq = SmallInteger.prototype.equals = BigInteger.prototype.eq = BigInteger.prototype.equals;
-
-    BigInteger.prototype.notEquals = function (v) {
-        return this.compare(v) !== 0;
-    };
-    SmallInteger.prototype.neq = SmallInteger.prototype.notEquals = BigInteger.prototype.neq = BigInteger.prototype.notEquals;
-
-    BigInteger.prototype.greater = function (v) {
-        return this.compare(v) > 0;
-    };
-    SmallInteger.prototype.gt = SmallInteger.prototype.greater = BigInteger.prototype.gt = BigInteger.prototype.greater;
-
-    BigInteger.prototype.lesser = function (v) {
-        return this.compare(v) < 0;
-    };
-    SmallInteger.prototype.lt = SmallInteger.prototype.lesser = BigInteger.prototype.lt = BigInteger.prototype.lesser;
-
-    BigInteger.prototype.greaterOrEquals = function (v) {
-        return this.compare(v) >= 0;
-    };
-    SmallInteger.prototype.geq = SmallInteger.prototype.greaterOrEquals = BigInteger.prototype.geq = BigInteger.prototype.greaterOrEquals;
-
-    BigInteger.prototype.lesserOrEquals = function (v) {
-        return this.compare(v) <= 0;
-    };
-    SmallInteger.prototype.leq = SmallInteger.prototype.lesserOrEquals = BigInteger.prototype.leq = BigInteger.prototype.lesserOrEquals;
-
-    BigInteger.prototype.isEven = function () {
-        return (this.value[0] & 1) === 0;
-    };
-    SmallInteger.prototype.isEven = function () {
-        return (this.value & 1) === 0;
-    };
-
-    BigInteger.prototype.isOdd = function () {
-        return (this.value[0] & 1) === 1;
-    };
-    SmallInteger.prototype.isOdd = function () {
-        return (this.value & 1) === 1;
-    };
-
-    BigInteger.prototype.isPositive = function () {
-        return !this.sign;
-    };
-    SmallInteger.prototype.isPositive = function () {
-        return this.value > 0;
-    };
-
-    BigInteger.prototype.isNegative = function () {
-        return this.sign;
-    };
-    SmallInteger.prototype.isNegative = function () {
-        return this.value < 0;
-    };
-
-    BigInteger.prototype.isUnit = function () {
-        return false;
-    };
-    SmallInteger.prototype.isUnit = function () {
-        return Math.abs(this.value) === 1;
-    };
-
-    BigInteger.prototype.isZero = function () {
-        return false;
-    };
-    SmallInteger.prototype.isZero = function () {
-        return this.value === 0;
-    };
-    BigInteger.prototype.isDivisibleBy = function (v) {
-        var n = parseValue(v);
-        var value = n.value;
-        if (value === 0) return false;
-        if (value === 1) return true;
-        if (value === 2) return this.isEven();
-        return this.mod(n).equals(Integer[0]);
-    };
-    SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
-
-    function isBasicPrime(v) {
-        var n = v.abs();
-        if (n.isUnit()) return false;
-        if (n.equals(2) || n.equals(3) || n.equals(5)) return true;
-        if (n.isEven() || n.isDivisibleBy(3) || n.isDivisibleBy(5)) return false;
-        if (n.lesser(49)) return true;
-        // we don't know if it's prime: let the other functions figure it out
-    }
-    
-    function millerRabinTest(n, a) {
-        var nPrev = n.prev(),
-            b = nPrev,
-            r = 0,
-            d, t, i, x;
-        while (b.isEven()) b = b.divide(2), r++;
-        next : for (i = 0; i < a.length; i++) {
-            if (n.lesser(a[i])) continue;
-            x = bigInt(a[i]).modPow(b, n);
-            if (x.equals(Integer[1]) || x.equals(nPrev)) continue;
-            for (d = r - 1; d != 0; d--) {
-                x = x.square().mod(n);
-                if (x.isUnit()) return false;    
-                if (x.equals(nPrev)) continue next;
-            }
-            return false;
-        }
-        return true;
-    }
-    
-// Set "strict" to true to force GRH-supported lower bound of 2*log(N)^2
-    BigInteger.prototype.isPrime = function (strict) {
-        var isPrime = isBasicPrime(this);
-        if (isPrime !== undefined) return isPrime;
-        var n = this.abs();
-        var bits = n.bitLength();
-        if(bits <= 64)
-            return millerRabinTest(n, [2, 325, 9375, 28178, 450775, 9780504, 1795265022]);
-        var logN = Math.log(2) * bits;
-        var t = Math.ceil((strict === true) ? (2 * Math.pow(logN, 2)) : logN);
-        for (var a = [], i = 0; i < t; i++) {
-            a.push(bigInt(i + 2));
-        }
-        return millerRabinTest(n, a);
-    };
-    SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
-
-    BigInteger.prototype.isProbablePrime = function (iterations) {
-        var isPrime = isBasicPrime(this);
-        if (isPrime !== undefined) return isPrime;
-        var n = this.abs();
-        var t = iterations === undefined ? 5 : iterations;
-        for (var a = [], i = 0; i < t; i++) {
-            a.push(bigInt.randBetween(2, n.minus(2)));
-        }
-        return millerRabinTest(n, a);
-    };
-    SmallInteger.prototype.isProbablePrime = BigInteger.prototype.isProbablePrime;
-
-    BigInteger.prototype.modInv = function (n) {
-        var t = bigInt.zero, newT = bigInt.one, r = parseValue(n), newR = this.abs(), q, lastT, lastR;
-        while (!newR.equals(bigInt.zero)) {
-            q = r.divide(newR);
-            lastT = t;
-            lastR = r;
-            t = newT;
-            r = newR;
-            newT = lastT.subtract(q.multiply(newT));
-            newR = lastR.subtract(q.multiply(newR));
-        }
-        if (!r.equals(1)) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
-        if (t.compare(0) === -1) {
-            t = t.add(n);
-        }
-        if (this.isNegative()) {
-            return t.negate();
-        }
-        return t;
-    };
-
-    SmallInteger.prototype.modInv = BigInteger.prototype.modInv;
-
-    BigInteger.prototype.next = function () {
-        var value = this.value;
-        if (this.sign) {
-            return subtractSmall(value, 1, this.sign);
-        }
-        return new BigInteger(addSmall(value, 1), this.sign);
-    };
-    SmallInteger.prototype.next = function () {
-        var value = this.value;
-        if (value + 1 < MAX_INT) return new SmallInteger(value + 1);
-        return new BigInteger(MAX_INT_ARR, false);
-    };
-
-    BigInteger.prototype.prev = function () {
-        var value = this.value;
-        if (this.sign) {
-            return new BigInteger(addSmall(value, 1), true);
-        }
-        return subtractSmall(value, 1, this.sign);
-    };
-    SmallInteger.prototype.prev = function () {
-        var value = this.value;
-        if (value - 1 > -MAX_INT) return new SmallInteger(value - 1);
-        return new BigInteger(MAX_INT_ARR, true);
-    };
-
-    var powersOfTwo = [1];
-    while (2 * powersOfTwo[powersOfTwo.length - 1] <= BASE) powersOfTwo.push(2 * powersOfTwo[powersOfTwo.length - 1]);
-    var powers2Length = powersOfTwo.length, highestPower2 = powersOfTwo[powers2Length - 1];
-
-    function shift_isSmall(n) {
-        return ((typeof n === "number" || typeof n === "string") && +Math.abs(n) <= BASE) ||
-            (n instanceof BigInteger && n.value.length <= 1);
-    }
-
-    BigInteger.prototype.shiftLeft = function (n) {
-        if (!shift_isSmall(n)) {
-            throw new Error(String(n) + " is too large for shifting.");
-        }
-        n = +n;
-        if (n < 0) return this.shiftRight(-n);
-        var result = this;
-        if (result.isZero()) return result;
-        while (n >= powers2Length) {
-            result = result.multiply(highestPower2);
-            n -= powers2Length - 1;
-        }
-        return result.multiply(powersOfTwo[n]);
-    };
-    SmallInteger.prototype.shiftLeft = BigInteger.prototype.shiftLeft;
-
-    BigInteger.prototype.shiftRight = function (n) {
-        var remQuo;
-        if (!shift_isSmall(n)) {
-            throw new Error(String(n) + " is too large for shifting.");
-        }
-        n = +n;
-        if (n < 0) return this.shiftLeft(-n);
-        var result = this;
-        while (n >= powers2Length) {
-            if (result.isZero() || (result.isNegative() && result.isUnit())) return result;
-            remQuo = divModAny(result, highestPower2);
-            result = remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
-            n -= powers2Length - 1;
-        }
-        remQuo = divModAny(result, powersOfTwo[n]);
-        return remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
-    };
-    SmallInteger.prototype.shiftRight = BigInteger.prototype.shiftRight;
-
-    function bitwise(x, y, fn) {
-        y = parseValue(y);
-        var xSign = x.isNegative(), ySign = y.isNegative();
-        var xRem = xSign ? x.not() : x,
-            yRem = ySign ? y.not() : y;
-        var xDigit = 0, yDigit = 0;
-        var xDivMod = null, yDivMod = null;
-        var result = [];
-        while (!xRem.isZero() || !yRem.isZero()) {
-            xDivMod = divModAny(xRem, highestPower2);
-            xDigit = xDivMod[1].toJSNumber();
-            if (xSign) {
-                xDigit = highestPower2 - 1 - xDigit; // two's complement for negative numbers
-            }
-
-            yDivMod = divModAny(yRem, highestPower2);
-            yDigit = yDivMod[1].toJSNumber();
-            if (ySign) {
-                yDigit = highestPower2 - 1 - yDigit; // two's complement for negative numbers
-            }
-
-            xRem = xDivMod[0];
-            yRem = yDivMod[0];
-            result.push(fn(xDigit, yDigit));
-        }
-        var sum = fn(xSign ? 1 : 0, ySign ? 1 : 0) !== 0 ? bigInt(-1) : bigInt(0);
-        for (var i = result.length - 1; i >= 0; i -= 1) {
-            sum = sum.multiply(highestPower2).add(bigInt(result[i]));
-        }
-        return sum;
-    }
-
-    BigInteger.prototype.not = function () {
-        return this.negate().prev();
-    };
-    SmallInteger.prototype.not = BigInteger.prototype.not;
-
-    BigInteger.prototype.and = function (n) {
-        return bitwise(this, n, function (a, b) { return a & b; });
-    };
-    SmallInteger.prototype.and = BigInteger.prototype.and;
-
-    BigInteger.prototype.or = function (n) {
-        return bitwise(this, n, function (a, b) { return a | b; });
-    };
-    SmallInteger.prototype.or = BigInteger.prototype.or;
-
-    BigInteger.prototype.xor = function (n) {
-        return bitwise(this, n, function (a, b) { return a ^ b; });
-    };
-    SmallInteger.prototype.xor = BigInteger.prototype.xor;
-
-    var LOBMASK_I = 1 << 30, LOBMASK_BI = (BASE & -BASE) * (BASE & -BASE) | LOBMASK_I;
-    function roughLOB(n) { // get lowestOneBit (rough)
-        // SmallInteger: return Min(lowestOneBit(n), 1 << 30)
-        // BigInteger: return Min(lowestOneBit(n), 1 << 14) [BASE=1e7]
-        var v = n.value, x = typeof v === "number" ? v | LOBMASK_I : v[0] + v[1] * BASE | LOBMASK_BI;
-        return x & -x;
-    }
-
-    function integerLogarithm(value, base) {
-        if (base.compareTo(value) <= 0) {
-            var tmp = integerLogarithm(value, base.square(base));
-            var p = tmp.p;
-            var e = tmp.e;
-            var t = p.multiply(base);
-            return t.compareTo(value) <= 0 ? { p: t, e: e * 2 + 1 } : { p: p, e: e * 2 };
-        }
-        return { p: bigInt(1), e: 0 };
-    }
-
-    BigInteger.prototype.bitLength = function () {
-        var n = this;
-        if (n.compareTo(bigInt(0)) < 0) {
-            n = n.negate().subtract(bigInt(1));
-        }
-        if (n.compareTo(bigInt(0)) === 0) {
-            return bigInt(0);
-        }
-        return bigInt(integerLogarithm(n, bigInt(2)).e).add(bigInt(1));
-    }
-    SmallInteger.prototype.bitLength = BigInteger.prototype.bitLength;
-
-    function max(a, b) {
-        a = parseValue(a);
-        b = parseValue(b);
-        return a.greater(b) ? a : b;
-    }
-    function min(a, b) {
-        a = parseValue(a);
-        b = parseValue(b);
-        return a.lesser(b) ? a : b;
-    }
-    function gcd(a, b) {
-        a = parseValue(a).abs();
-        b = parseValue(b).abs();
-        if (a.equals(b)) return a;
-        if (a.isZero()) return b;
-        if (b.isZero()) return a;
-        var c = Integer[1], d, t;
-        while (a.isEven() && b.isEven()) {
-            d = Math.min(roughLOB(a), roughLOB(b));
-            a = a.divide(d);
-            b = b.divide(d);
-            c = c.multiply(d);
-        }
-        while (a.isEven()) {
-            a = a.divide(roughLOB(a));
-        }
-        do {
-            while (b.isEven()) {
-                b = b.divide(roughLOB(b));
-            }
-            if (a.greater(b)) {
-                t = b; b = a; a = t;
-            }
-            b = b.subtract(a);
-        } while (!b.isZero());
-        return c.isUnit() ? a : a.multiply(c);
-    }
-    function lcm(a, b) {
-        a = parseValue(a).abs();
-        b = parseValue(b).abs();
-        return a.divide(gcd(a, b)).multiply(b);
-    }
-    function randBetween(a, b) {
-        a = parseValue(a);
-        b = parseValue(b);
-        var low = min(a, b), high = max(a, b);
-        var range = high.subtract(low).add(1);
-        if (range.isSmall) return low.add(Math.floor(Math.random() * range));
-        var length = range.value.length - 1;
-        var result = [], restricted = true;
-        for (var i = length; i >= 0; i--) {
-            var top = restricted ? range.value[i] : BASE;
-            var digit = truncate(Math.random() * top);
-            result.unshift(digit);
-            if (digit < top) restricted = false;
-        }
-        result = arrayToSmall(result);
-        return low.add(typeof result === "number" ? new SmallInteger(result) : new BigInteger(result, false));
-    }
-    var parseBase = function (text, base) {
-        var length = text.length;
-        var i;
-        var absBase = Math.abs(base);
-        for (var i = 0; i < length; i++) {
-            var c = text[i].toLowerCase();
-            if (c === "-") continue;
-            if (/[a-z0-9]/.test(c)) {
-                if (/[0-9]/.test(c) && +c >= absBase) {
-                    if (c === "1" && absBase === 1) continue;
-                    throw new Error(c + " is not a valid digit in base " + base + ".");
-                } else if (c.charCodeAt(0) - 87 >= absBase) {
-                    throw new Error(c + " is not a valid digit in base " + base + ".");
-                }
-            }
-        }
-        if (2 <= base && base <= 36) {
-            if (length <= LOG_MAX_INT / Math.log(base)) {
-                var result = parseInt(text, base);
-                if (isNaN(result)) {
-                    throw new Error(c + " is not a valid digit in base " + base + ".");
-                }
-                return new SmallInteger(parseInt(text, base));
-            }
-        }
-        base = parseValue(base);
-        var digits = [];
-        var isNegative = text[0] === "-";
-        for (i = isNegative ? 1 : 0; i < text.length; i++) {
-            var c = text[i].toLowerCase(),
-                charCode = c.charCodeAt(0);
-            if (48 <= charCode && charCode <= 57) digits.push(parseValue(c));
-            else if (97 <= charCode && charCode <= 122) digits.push(parseValue(c.charCodeAt(0) - 87));
-            else if (c === "<") {
-                var start = i;
-                do { i++; } while (text[i] !== ">");
-                digits.push(parseValue(text.slice(start + 1, i)));
-            }
-            else throw new Error(c + " is not a valid character");
-        }
-        return parseBaseFromArray(digits, base, isNegative);
-    };
-
-    function parseBaseFromArray(digits, base, isNegative) {
-        var val = Integer[0], pow = Integer[1], i;
-        for (i = digits.length - 1; i >= 0; i--) {
-            val = val.add(digits[i].times(pow));
-            pow = pow.times(base);
-        }
-        return isNegative ? val.negate() : val;
-    }
-
-    function stringify(digit) {
-        if (digit <= 35) {
-            return "0123456789abcdefghijklmnopqrstuvwxyz".charAt(digit);
-        }
-        return "<" + digit + ">";
-    }
-
-    function toBase(n, base) {
-        base = bigInt(base);
-        if (base.isZero()) {
-            if (n.isZero()) return { value: [0], isNegative: false };
-            throw new Error("Cannot convert nonzero numbers to base 0.");
-        }
-        if (base.equals(-1)) {
-            if (n.isZero()) return { value: [0], isNegative: false };
-            if (n.isNegative())
-                return {
-                    value: [].concat.apply([], Array.apply(null, Array(-n))
-                        .map(Array.prototype.valueOf, [1, 0])
-                    ),
-                    isNegative: false
-                };
-
-            var arr = Array.apply(null, Array(+n - 1))
-                .map(Array.prototype.valueOf, [0, 1]);
-            arr.unshift([1]);
-            return {
-                value: [].concat.apply([], arr),
-                isNegative: false
-            };
-        }
-
-        var neg = false;
-        if (n.isNegative() && base.isPositive()) {
-            neg = true;
-            n = n.abs();
-        }
-        if (base.equals(1)) {
-            if (n.isZero()) return { value: [0], isNegative: false };
-
-            return {
-                value: Array.apply(null, Array(+n))
-                    .map(Number.prototype.valueOf, 1),
-                isNegative: neg
-            };
-        }
-        var out = [];
-        var left = n, divmod;
-        while (left.isNegative() || left.compareAbs(base) >= 0) {
-            divmod = left.divmod(base);
-            left = divmod.quotient;
-            var digit = divmod.remainder;
-            if (digit.isNegative()) {
-                digit = base.minus(digit).abs();
-                left = left.next();
-            }
-            out.push(digit.toJSNumber());
-        }
-        out.push(left.toJSNumber());
-        return { value: out.reverse(), isNegative: neg };
-    }
-
-    function toBaseString(n, base) {
-        var arr = toBase(n, base);
-        return (arr.isNegative ? "-" : "") + arr.value.map(stringify).join('');
-    }
-
-    BigInteger.prototype.toArray = function (radix) {
-        return toBase(this, radix);
-    };
-
-    SmallInteger.prototype.toArray = function (radix) {
-        return toBase(this, radix);
-    };
-
-    BigInteger.prototype.toString = function (radix) {
-        if (radix === undefined) radix = 10;
-        if (radix !== 10) return toBaseString(this, radix);
-        var v = this.value, l = v.length, str = String(v[--l]), zeros = "0000000", digit;
-        while (--l >= 0) {
-            digit = String(v[l]);
-            str += zeros.slice(digit.length) + digit;
-        }
-        var sign = this.sign ? "-" : "";
-        return sign + str;
-    };
-
-    SmallInteger.prototype.toString = function (radix) {
-        if (radix === undefined) radix = 10;
-        if (radix != 10) return toBaseString(this, radix);
-        return String(this.value);
-    };
-    BigInteger.prototype.toJSON = SmallInteger.prototype.toJSON = function () { return this.toString(); }
-
-    BigInteger.prototype.valueOf = function () {
-        return parseInt(this.toString(), 10);
-    };
-    BigInteger.prototype.toJSNumber = BigInteger.prototype.valueOf;
-
-    SmallInteger.prototype.valueOf = function () {
-        return this.value;
-    };
-    SmallInteger.prototype.toJSNumber = SmallInteger.prototype.valueOf;
-
-    function parseStringValue(v) {
-        if (isPrecise(+v)) {
-            var x = +v;
-            if (x === truncate(x))
-                return new SmallInteger(x);
-            throw new Error("Invalid integer: " + v);
-        }
-        var sign = v[0] === "-";
-        if (sign) v = v.slice(1);
-        var split = v.split(/e/i);
-        if (split.length > 2) throw new Error("Invalid integer: " + split.join("e"));
-        if (split.length === 2) {
-            var exp = split[1];
-            if (exp[0] === "+") exp = exp.slice(1);
-            exp = +exp;
-            if (exp !== truncate(exp) || !isPrecise(exp)) throw new Error("Invalid integer: " + exp + " is not a valid exponent.");
-            var text = split[0];
-            var decimalPlace = text.indexOf(".");
-            if (decimalPlace >= 0) {
-                exp -= text.length - decimalPlace - 1;
-                text = text.slice(0, decimalPlace) + text.slice(decimalPlace + 1);
-            }
-            if (exp < 0) throw new Error("Cannot include negative exponent part for integers");
-            text += (new Array(exp + 1)).join("0");
-            v = text;
-        }
-        var isValid = /^([0-9][0-9]*)$/.test(v);
-        if (!isValid) throw new Error("Invalid integer: " + v);
-        var r = [], max = v.length, l = LOG_BASE, min = max - l;
-        while (max > 0) {
-            r.push(+v.slice(min, max));
-            min -= l;
-            if (min < 0) min = 0;
-            max -= l;
-        }
-        trim(r);
-        return new BigInteger(r, sign);
-    }
-
-    function parseNumberValue(v) {
-        if (isPrecise(v)) {
-            if (v !== truncate(v)) throw new Error(v + " is not an integer.");
-            return new SmallInteger(v);
-        }
-        return parseStringValue(v.toString());
-    }
-
-    function parseValue(v) {
-        if (typeof v === "number") {
-            return parseNumberValue(v);
-        }
-        if (typeof v === "string") {
-            return parseStringValue(v);
-        }
-        return v;
-    }
-    // Pre-define numbers in range [-999,999]
-    for (var i = 0; i < 1000; i++) {
-        Integer[i] = new SmallInteger(i);
-        if (i > 0) Integer[-i] = new SmallInteger(-i);
-    }
-    // Backwards compatibility
-    Integer.one = Integer[1];
-    Integer.zero = Integer[0];
-    Integer.minusOne = Integer[-1];
-    Integer.max = max;
-    Integer.min = min;
-    Integer.gcd = gcd;
-    Integer.lcm = lcm;
-    Integer.isInstance = function (x) { return x instanceof BigInteger || x instanceof SmallInteger; };
-    Integer.randBetween = randBetween;
-
-    Integer.fromArray = function (digits, base, isNegative) {
-        return parseBaseFromArray(digits.map(parseValue), parseValue(base || 10), isNegative);
-    };
-
-    return Integer;
-})();
-
-// Node.js check
-if ( true && module.hasOwnProperty("exports")) {
-    module.exports = bigInt;
-}
-
-//amd check
-if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
-        return bigInt;
-    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-}
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(46)(module)))
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /* WEBPACK VAR INJECTION */(function(process, setImmediate, Buffer) {/**
  * Utility functions for web applications.
  *
@@ -4430,6 +3101,1335 @@ util.estimateCores = function(options, callback) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(25).setImmediate, __webpack_require__(10).Buffer))
 
 /***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var bigInt = (function (undefined) {
+    "use strict";
+
+    var BASE = 1e7,
+        LOG_BASE = 7,
+        MAX_INT = 9007199254740992,
+        MAX_INT_ARR = smallToArray(MAX_INT),
+        LOG_MAX_INT = Math.log(MAX_INT);
+
+    function Integer(v, radix) {
+        if (typeof v === "undefined") return Integer[0];
+        if (typeof radix !== "undefined") return +radix === 10 ? parseValue(v) : parseBase(v, radix);
+        return parseValue(v);
+    }
+
+    function BigInteger(value, sign) {
+        this.value = value;
+        this.sign = sign;
+        this.isSmall = false;
+    }
+    BigInteger.prototype = Object.create(Integer.prototype);
+
+    function SmallInteger(value) {
+        this.value = value;
+        this.sign = value < 0;
+        this.isSmall = true;
+    }
+    SmallInteger.prototype = Object.create(Integer.prototype);
+
+    function isPrecise(n) {
+        return -MAX_INT < n && n < MAX_INT;
+    }
+
+    function smallToArray(n) { // For performance reasons doesn't reference BASE, need to change this function if BASE changes
+        if (n < 1e7)
+            return [n];
+        if (n < 1e14)
+            return [n % 1e7, Math.floor(n / 1e7)];
+        return [n % 1e7, Math.floor(n / 1e7) % 1e7, Math.floor(n / 1e14)];
+    }
+
+    function arrayToSmall(arr) { // If BASE changes this function may need to change
+        trim(arr);
+        var length = arr.length;
+        if (length < 4 && compareAbs(arr, MAX_INT_ARR) < 0) {
+            switch (length) {
+                case 0: return 0;
+                case 1: return arr[0];
+                case 2: return arr[0] + arr[1] * BASE;
+                default: return arr[0] + (arr[1] + arr[2] * BASE) * BASE;
+            }
+        }
+        return arr;
+    }
+
+    function trim(v) {
+        var i = v.length;
+        while (v[--i] === 0);
+        v.length = i + 1;
+    }
+
+    function createArray(length) { // function shamelessly stolen from Yaffle's library https://github.com/Yaffle/BigInteger
+        var x = new Array(length);
+        var i = -1;
+        while (++i < length) {
+            x[i] = 0;
+        }
+        return x;
+    }
+
+    function truncate(n) {
+        if (n > 0) return Math.floor(n);
+        return Math.ceil(n);
+    }
+
+    function add(a, b) { // assumes a and b are arrays with a.length >= b.length
+        var l_a = a.length,
+            l_b = b.length,
+            r = new Array(l_a),
+            carry = 0,
+            base = BASE,
+            sum, i;
+        for (i = 0; i < l_b; i++) {
+            sum = a[i] + b[i] + carry;
+            carry = sum >= base ? 1 : 0;
+            r[i] = sum - carry * base;
+        }
+        while (i < l_a) {
+            sum = a[i] + carry;
+            carry = sum === base ? 1 : 0;
+            r[i++] = sum - carry * base;
+        }
+        if (carry > 0) r.push(carry);
+        return r;
+    }
+
+    function addAny(a, b) {
+        if (a.length >= b.length) return add(a, b);
+        return add(b, a);
+    }
+
+    function addSmall(a, carry) { // assumes a is array, carry is number with 0 <= carry < MAX_INT
+        var l = a.length,
+            r = new Array(l),
+            base = BASE,
+            sum, i;
+        for (i = 0; i < l; i++) {
+            sum = a[i] - base + carry;
+            carry = Math.floor(sum / base);
+            r[i] = sum - carry * base;
+            carry += 1;
+        }
+        while (carry > 0) {
+            r[i++] = carry % base;
+            carry = Math.floor(carry / base);
+        }
+        return r;
+    }
+
+    BigInteger.prototype.add = function (v) {
+        var n = parseValue(v);
+        if (this.sign !== n.sign) {
+            return this.subtract(n.negate());
+        }
+        var a = this.value, b = n.value;
+        if (n.isSmall) {
+            return new BigInteger(addSmall(a, Math.abs(b)), this.sign);
+        }
+        return new BigInteger(addAny(a, b), this.sign);
+    };
+    BigInteger.prototype.plus = BigInteger.prototype.add;
+
+    SmallInteger.prototype.add = function (v) {
+        var n = parseValue(v);
+        var a = this.value;
+        if (a < 0 !== n.sign) {
+            return this.subtract(n.negate());
+        }
+        var b = n.value;
+        if (n.isSmall) {
+            if (isPrecise(a + b)) return new SmallInteger(a + b);
+            b = smallToArray(Math.abs(b));
+        }
+        return new BigInteger(addSmall(b, Math.abs(a)), a < 0);
+    };
+    SmallInteger.prototype.plus = SmallInteger.prototype.add;
+
+    function subtract(a, b) { // assumes a and b are arrays with a >= b
+        var a_l = a.length,
+            b_l = b.length,
+            r = new Array(a_l),
+            borrow = 0,
+            base = BASE,
+            i, difference;
+        for (i = 0; i < b_l; i++) {
+            difference = a[i] - borrow - b[i];
+            if (difference < 0) {
+                difference += base;
+                borrow = 1;
+            } else borrow = 0;
+            r[i] = difference;
+        }
+        for (i = b_l; i < a_l; i++) {
+            difference = a[i] - borrow;
+            if (difference < 0) difference += base;
+            else {
+                r[i++] = difference;
+                break;
+            }
+            r[i] = difference;
+        }
+        for (; i < a_l; i++) {
+            r[i] = a[i];
+        }
+        trim(r);
+        return r;
+    }
+
+    function subtractAny(a, b, sign) {
+        var value;
+        if (compareAbs(a, b) >= 0) {
+            value = subtract(a, b);
+        } else {
+            value = subtract(b, a);
+            sign = !sign;
+        }
+        value = arrayToSmall(value);
+        if (typeof value === "number") {
+            if (sign) value = -value;
+            return new SmallInteger(value);
+        }
+        return new BigInteger(value, sign);
+    }
+
+    function subtractSmall(a, b, sign) { // assumes a is array, b is number with 0 <= b < MAX_INT
+        var l = a.length,
+            r = new Array(l),
+            carry = -b,
+            base = BASE,
+            i, difference;
+        for (i = 0; i < l; i++) {
+            difference = a[i] + carry;
+            carry = Math.floor(difference / base);
+            difference %= base;
+            r[i] = difference < 0 ? difference + base : difference;
+        }
+        r = arrayToSmall(r);
+        if (typeof r === "number") {
+            if (sign) r = -r;
+            return new SmallInteger(r);
+        } return new BigInteger(r, sign);
+    }
+
+    BigInteger.prototype.subtract = function (v) {
+        var n = parseValue(v);
+        if (this.sign !== n.sign) {
+            return this.add(n.negate());
+        }
+        var a = this.value, b = n.value;
+        if (n.isSmall)
+            return subtractSmall(a, Math.abs(b), this.sign);
+        return subtractAny(a, b, this.sign);
+    };
+    BigInteger.prototype.minus = BigInteger.prototype.subtract;
+
+    SmallInteger.prototype.subtract = function (v) {
+        var n = parseValue(v);
+        var a = this.value;
+        if (a < 0 !== n.sign) {
+            return this.add(n.negate());
+        }
+        var b = n.value;
+        if (n.isSmall) {
+            return new SmallInteger(a - b);
+        }
+        return subtractSmall(b, Math.abs(a), a >= 0);
+    };
+    SmallInteger.prototype.minus = SmallInteger.prototype.subtract;
+
+    BigInteger.prototype.negate = function () {
+        return new BigInteger(this.value, !this.sign);
+    };
+    SmallInteger.prototype.negate = function () {
+        var sign = this.sign;
+        var small = new SmallInteger(-this.value);
+        small.sign = !sign;
+        return small;
+    };
+
+    BigInteger.prototype.abs = function () {
+        return new BigInteger(this.value, false);
+    };
+    SmallInteger.prototype.abs = function () {
+        return new SmallInteger(Math.abs(this.value));
+    };
+
+    function multiplyLong(a, b) {
+        var a_l = a.length,
+            b_l = b.length,
+            l = a_l + b_l,
+            r = createArray(l),
+            base = BASE,
+            product, carry, i, a_i, b_j;
+        for (i = 0; i < a_l; ++i) {
+            a_i = a[i];
+            for (var j = 0; j < b_l; ++j) {
+                b_j = b[j];
+                product = a_i * b_j + r[i + j];
+                carry = Math.floor(product / base);
+                r[i + j] = product - carry * base;
+                r[i + j + 1] += carry;
+            }
+        }
+        trim(r);
+        return r;
+    }
+
+    function multiplySmall(a, b) { // assumes a is array, b is number with |b| < BASE
+        var l = a.length,
+            r = new Array(l),
+            base = BASE,
+            carry = 0,
+            product, i;
+        for (i = 0; i < l; i++) {
+            product = a[i] * b + carry;
+            carry = Math.floor(product / base);
+            r[i] = product - carry * base;
+        }
+        while (carry > 0) {
+            r[i++] = carry % base;
+            carry = Math.floor(carry / base);
+        }
+        return r;
+    }
+
+    function shiftLeft(x, n) {
+        var r = [];
+        while (n-- > 0) r.push(0);
+        return r.concat(x);
+    }
+
+    function multiplyKaratsuba(x, y) {
+        var n = Math.max(x.length, y.length);
+
+        if (n <= 30) return multiplyLong(x, y);
+        n = Math.ceil(n / 2);
+
+        var b = x.slice(n),
+            a = x.slice(0, n),
+            d = y.slice(n),
+            c = y.slice(0, n);
+
+        var ac = multiplyKaratsuba(a, c),
+            bd = multiplyKaratsuba(b, d),
+            abcd = multiplyKaratsuba(addAny(a, b), addAny(c, d));
+
+        var product = addAny(addAny(ac, shiftLeft(subtract(subtract(abcd, ac), bd), n)), shiftLeft(bd, 2 * n));
+        trim(product);
+        return product;
+    }
+
+    // The following function is derived from a surface fit of a graph plotting the performance difference
+    // between long multiplication and karatsuba multiplication versus the lengths of the two arrays.
+    function useKaratsuba(l1, l2) {
+        return -0.012 * l1 - 0.012 * l2 + 0.000015 * l1 * l2 > 0;
+    }
+
+    BigInteger.prototype.multiply = function (v) {
+        var n = parseValue(v),
+            a = this.value, b = n.value,
+            sign = this.sign !== n.sign,
+            abs;
+        if (n.isSmall) {
+            if (b === 0) return Integer[0];
+            if (b === 1) return this;
+            if (b === -1) return this.negate();
+            abs = Math.abs(b);
+            if (abs < BASE) {
+                return new BigInteger(multiplySmall(a, abs), sign);
+            }
+            b = smallToArray(abs);
+        }
+        if (useKaratsuba(a.length, b.length)) // Karatsuba is only faster for certain array sizes
+            return new BigInteger(multiplyKaratsuba(a, b), sign);
+        return new BigInteger(multiplyLong(a, b), sign);
+    };
+
+    BigInteger.prototype.times = BigInteger.prototype.multiply;
+
+    function multiplySmallAndArray(a, b, sign) { // a >= 0
+        if (a < BASE) {
+            return new BigInteger(multiplySmall(b, a), sign);
+        }
+        return new BigInteger(multiplyLong(b, smallToArray(a)), sign);
+    }
+    SmallInteger.prototype._multiplyBySmall = function (a) {
+        if (isPrecise(a.value * this.value)) {
+            return new SmallInteger(a.value * this.value);
+        }
+        return multiplySmallAndArray(Math.abs(a.value), smallToArray(Math.abs(this.value)), this.sign !== a.sign);
+    };
+    BigInteger.prototype._multiplyBySmall = function (a) {
+        if (a.value === 0) return Integer[0];
+        if (a.value === 1) return this;
+        if (a.value === -1) return this.negate();
+        return multiplySmallAndArray(Math.abs(a.value), this.value, this.sign !== a.sign);
+    };
+    SmallInteger.prototype.multiply = function (v) {
+        return parseValue(v)._multiplyBySmall(this);
+    };
+    SmallInteger.prototype.times = SmallInteger.prototype.multiply;
+
+    function square(a) {
+        //console.assert(2 * BASE * BASE < MAX_INT);
+        var l = a.length,
+            r = createArray(l + l),
+            base = BASE,
+            product, carry, i, a_i, a_j;
+        for (i = 0; i < l; i++) {
+            a_i = a[i];
+            carry = 0 - a_i * a_i;
+            for (var j = i; j < l; j++) {
+                a_j = a[j];
+                product = 2 * (a_i * a_j) + r[i + j] + carry;
+                carry = Math.floor(product / base);
+                r[i + j] = product - carry * base;
+            }
+            r[i + l] = carry;
+        }
+        trim(r);
+        return r;
+    }
+
+    BigInteger.prototype.square = function () {
+        return new BigInteger(square(this.value), false);
+    };
+
+    SmallInteger.prototype.square = function () {
+        var value = this.value * this.value;
+        if (isPrecise(value)) return new SmallInteger(value);
+        return new BigInteger(square(smallToArray(Math.abs(this.value))), false);
+    };
+
+    function divMod1(a, b) { // Left over from previous version. Performs faster than divMod2 on smaller input sizes.
+        var a_l = a.length,
+            b_l = b.length,
+            base = BASE,
+            result = createArray(b.length),
+            divisorMostSignificantDigit = b[b_l - 1],
+            // normalization
+            lambda = Math.ceil(base / (2 * divisorMostSignificantDigit)),
+            remainder = multiplySmall(a, lambda),
+            divisor = multiplySmall(b, lambda),
+            quotientDigit, shift, carry, borrow, i, l, q;
+        if (remainder.length <= a_l) remainder.push(0);
+        divisor.push(0);
+        divisorMostSignificantDigit = divisor[b_l - 1];
+        for (shift = a_l - b_l; shift >= 0; shift--) {
+            quotientDigit = base - 1;
+            if (remainder[shift + b_l] !== divisorMostSignificantDigit) {
+                quotientDigit = Math.floor((remainder[shift + b_l] * base + remainder[shift + b_l - 1]) / divisorMostSignificantDigit);
+            }
+            // quotientDigit <= base - 1
+            carry = 0;
+            borrow = 0;
+            l = divisor.length;
+            for (i = 0; i < l; i++) {
+                carry += quotientDigit * divisor[i];
+                q = Math.floor(carry / base);
+                borrow += remainder[shift + i] - (carry - q * base);
+                carry = q;
+                if (borrow < 0) {
+                    remainder[shift + i] = borrow + base;
+                    borrow = -1;
+                } else {
+                    remainder[shift + i] = borrow;
+                    borrow = 0;
+                }
+            }
+            while (borrow !== 0) {
+                quotientDigit -= 1;
+                carry = 0;
+                for (i = 0; i < l; i++) {
+                    carry += remainder[shift + i] - base + divisor[i];
+                    if (carry < 0) {
+                        remainder[shift + i] = carry + base;
+                        carry = 0;
+                    } else {
+                        remainder[shift + i] = carry;
+                        carry = 1;
+                    }
+                }
+                borrow += carry;
+            }
+            result[shift] = quotientDigit;
+        }
+        // denormalization
+        remainder = divModSmall(remainder, lambda)[0];
+        return [arrayToSmall(result), arrayToSmall(remainder)];
+    }
+
+    function divMod2(a, b) { // Implementation idea shamelessly stolen from Silent Matt's library http://silentmatt.com/biginteger/
+        // Performs faster than divMod1 on larger input sizes.
+        var a_l = a.length,
+            b_l = b.length,
+            result = [],
+            part = [],
+            base = BASE,
+            guess, xlen, highx, highy, check;
+        while (a_l) {
+            part.unshift(a[--a_l]);
+            trim(part);
+            if (compareAbs(part, b) < 0) {
+                result.push(0);
+                continue;
+            }
+            xlen = part.length;
+            highx = part[xlen - 1] * base + part[xlen - 2];
+            highy = b[b_l - 1] * base + b[b_l - 2];
+            if (xlen > b_l) {
+                highx = (highx + 1) * base;
+            }
+            guess = Math.ceil(highx / highy);
+            do {
+                check = multiplySmall(b, guess);
+                if (compareAbs(check, part) <= 0) break;
+                guess--;
+            } while (guess);
+            result.push(guess);
+            part = subtract(part, check);
+        }
+        result.reverse();
+        return [arrayToSmall(result), arrayToSmall(part)];
+    }
+
+    function divModSmall(value, lambda) {
+        var length = value.length,
+            quotient = createArray(length),
+            base = BASE,
+            i, q, remainder, divisor;
+        remainder = 0;
+        for (i = length - 1; i >= 0; --i) {
+            divisor = remainder * base + value[i];
+            q = truncate(divisor / lambda);
+            remainder = divisor - q * lambda;
+            quotient[i] = q | 0;
+        }
+        return [quotient, remainder | 0];
+    }
+
+    function divModAny(self, v) {
+        var value, n = parseValue(v);
+        var a = self.value, b = n.value;
+        var quotient;
+        if (b === 0) throw new Error("Cannot divide by zero");
+        if (self.isSmall) {
+            if (n.isSmall) {
+                return [new SmallInteger(truncate(a / b)), new SmallInteger(a % b)];
+            }
+            return [Integer[0], self];
+        }
+        if (n.isSmall) {
+            if (b === 1) return [self, Integer[0]];
+            if (b == -1) return [self.negate(), Integer[0]];
+            var abs = Math.abs(b);
+            if (abs < BASE) {
+                value = divModSmall(a, abs);
+                quotient = arrayToSmall(value[0]);
+                var remainder = value[1];
+                if (self.sign) remainder = -remainder;
+                if (typeof quotient === "number") {
+                    if (self.sign !== n.sign) quotient = -quotient;
+                    return [new SmallInteger(quotient), new SmallInteger(remainder)];
+                }
+                return [new BigInteger(quotient, self.sign !== n.sign), new SmallInteger(remainder)];
+            }
+            b = smallToArray(abs);
+        }
+        var comparison = compareAbs(a, b);
+        if (comparison === -1) return [Integer[0], self];
+        if (comparison === 0) return [Integer[self.sign === n.sign ? 1 : -1], Integer[0]];
+
+        // divMod1 is faster on smaller input sizes
+        if (a.length + b.length <= 200)
+            value = divMod1(a, b);
+        else value = divMod2(a, b);
+
+        quotient = value[0];
+        var qSign = self.sign !== n.sign,
+            mod = value[1],
+            mSign = self.sign;
+        if (typeof quotient === "number") {
+            if (qSign) quotient = -quotient;
+            quotient = new SmallInteger(quotient);
+        } else quotient = new BigInteger(quotient, qSign);
+        if (typeof mod === "number") {
+            if (mSign) mod = -mod;
+            mod = new SmallInteger(mod);
+        } else mod = new BigInteger(mod, mSign);
+        return [quotient, mod];
+    }
+
+    BigInteger.prototype.divmod = function (v) {
+        var result = divModAny(this, v);
+        return {
+            quotient: result[0],
+            remainder: result[1]
+        };
+    };
+    SmallInteger.prototype.divmod = BigInteger.prototype.divmod;
+
+    BigInteger.prototype.divide = function (v) {
+        return divModAny(this, v)[0];
+    };
+    SmallInteger.prototype.over = SmallInteger.prototype.divide = BigInteger.prototype.over = BigInteger.prototype.divide;
+
+    BigInteger.prototype.mod = function (v) {
+        return divModAny(this, v)[1];
+    };
+    SmallInteger.prototype.remainder = SmallInteger.prototype.mod = BigInteger.prototype.remainder = BigInteger.prototype.mod;
+
+    BigInteger.prototype.pow = function (v) {
+        var n = parseValue(v),
+            a = this.value,
+            b = n.value,
+            value, x, y;
+        if (b === 0) return Integer[1];
+        if (a === 0) return Integer[0];
+        if (a === 1) return Integer[1];
+        if (a === -1) return n.isEven() ? Integer[1] : Integer[-1];
+        if (n.sign) {
+            return Integer[0];
+        }
+        if (!n.isSmall) throw new Error("The exponent " + n.toString() + " is too large.");
+        if (this.isSmall) {
+            if (isPrecise(value = Math.pow(a, b)))
+                return new SmallInteger(truncate(value));
+        }
+        x = this;
+        y = Integer[1];
+        while (true) {
+            if (b & 1 === 1) {
+                y = y.times(x);
+                --b;
+            }
+            if (b === 0) break;
+            b /= 2;
+            x = x.square();
+        }
+        return y;
+    };
+    SmallInteger.prototype.pow = BigInteger.prototype.pow;
+
+    BigInteger.prototype.modPow = function (exp, mod) {
+        exp = parseValue(exp);
+        mod = parseValue(mod);
+        if (mod.isZero()) throw new Error("Cannot take modPow with modulus 0");
+        var r = Integer[1],
+            base = this.mod(mod);
+        while (exp.isPositive()) {
+            if (base.isZero()) return Integer[0];
+            if (exp.isOdd()) r = r.multiply(base).mod(mod);
+            exp = exp.divide(2);
+            base = base.square().mod(mod);
+        }
+        return r;
+    };
+    SmallInteger.prototype.modPow = BigInteger.prototype.modPow;
+
+    function compareAbs(a, b) {
+        if (a.length !== b.length) {
+            return a.length > b.length ? 1 : -1;
+        }
+        for (var i = a.length - 1; i >= 0; i--) {
+            if (a[i] !== b[i]) return a[i] > b[i] ? 1 : -1;
+        }
+        return 0;
+    }
+
+    BigInteger.prototype.compareAbs = function (v) {
+        var n = parseValue(v),
+            a = this.value,
+            b = n.value;
+        if (n.isSmall) return 1;
+        return compareAbs(a, b);
+    };
+    SmallInteger.prototype.compareAbs = function (v) {
+        var n = parseValue(v),
+            a = Math.abs(this.value),
+            b = n.value;
+        if (n.isSmall) {
+            b = Math.abs(b);
+            return a === b ? 0 : a > b ? 1 : -1;
+        }
+        return -1;
+    };
+
+    BigInteger.prototype.compare = function (v) {
+        // See discussion about comparison with Infinity:
+        // https://github.com/peterolson/BigInteger.js/issues/61
+        if (v === Infinity) {
+            return -1;
+        }
+        if (v === -Infinity) {
+            return 1;
+        }
+
+        var n = parseValue(v),
+            a = this.value,
+            b = n.value;
+        if (this.sign !== n.sign) {
+            return n.sign ? 1 : -1;
+        }
+        if (n.isSmall) {
+            return this.sign ? -1 : 1;
+        }
+        return compareAbs(a, b) * (this.sign ? -1 : 1);
+    };
+    BigInteger.prototype.compareTo = BigInteger.prototype.compare;
+
+    SmallInteger.prototype.compare = function (v) {
+        if (v === Infinity) {
+            return -1;
+        }
+        if (v === -Infinity) {
+            return 1;
+        }
+
+        var n = parseValue(v),
+            a = this.value,
+            b = n.value;
+        if (n.isSmall) {
+            return a == b ? 0 : a > b ? 1 : -1;
+        }
+        if (a < 0 !== n.sign) {
+            return a < 0 ? -1 : 1;
+        }
+        return a < 0 ? 1 : -1;
+    };
+    SmallInteger.prototype.compareTo = SmallInteger.prototype.compare;
+
+    BigInteger.prototype.equals = function (v) {
+        return this.compare(v) === 0;
+    };
+    SmallInteger.prototype.eq = SmallInteger.prototype.equals = BigInteger.prototype.eq = BigInteger.prototype.equals;
+
+    BigInteger.prototype.notEquals = function (v) {
+        return this.compare(v) !== 0;
+    };
+    SmallInteger.prototype.neq = SmallInteger.prototype.notEquals = BigInteger.prototype.neq = BigInteger.prototype.notEquals;
+
+    BigInteger.prototype.greater = function (v) {
+        return this.compare(v) > 0;
+    };
+    SmallInteger.prototype.gt = SmallInteger.prototype.greater = BigInteger.prototype.gt = BigInteger.prototype.greater;
+
+    BigInteger.prototype.lesser = function (v) {
+        return this.compare(v) < 0;
+    };
+    SmallInteger.prototype.lt = SmallInteger.prototype.lesser = BigInteger.prototype.lt = BigInteger.prototype.lesser;
+
+    BigInteger.prototype.greaterOrEquals = function (v) {
+        return this.compare(v) >= 0;
+    };
+    SmallInteger.prototype.geq = SmallInteger.prototype.greaterOrEquals = BigInteger.prototype.geq = BigInteger.prototype.greaterOrEquals;
+
+    BigInteger.prototype.lesserOrEquals = function (v) {
+        return this.compare(v) <= 0;
+    };
+    SmallInteger.prototype.leq = SmallInteger.prototype.lesserOrEquals = BigInteger.prototype.leq = BigInteger.prototype.lesserOrEquals;
+
+    BigInteger.prototype.isEven = function () {
+        return (this.value[0] & 1) === 0;
+    };
+    SmallInteger.prototype.isEven = function () {
+        return (this.value & 1) === 0;
+    };
+
+    BigInteger.prototype.isOdd = function () {
+        return (this.value[0] & 1) === 1;
+    };
+    SmallInteger.prototype.isOdd = function () {
+        return (this.value & 1) === 1;
+    };
+
+    BigInteger.prototype.isPositive = function () {
+        return !this.sign;
+    };
+    SmallInteger.prototype.isPositive = function () {
+        return this.value > 0;
+    };
+
+    BigInteger.prototype.isNegative = function () {
+        return this.sign;
+    };
+    SmallInteger.prototype.isNegative = function () {
+        return this.value < 0;
+    };
+
+    BigInteger.prototype.isUnit = function () {
+        return false;
+    };
+    SmallInteger.prototype.isUnit = function () {
+        return Math.abs(this.value) === 1;
+    };
+
+    BigInteger.prototype.isZero = function () {
+        return false;
+    };
+    SmallInteger.prototype.isZero = function () {
+        return this.value === 0;
+    };
+    BigInteger.prototype.isDivisibleBy = function (v) {
+        var n = parseValue(v);
+        var value = n.value;
+        if (value === 0) return false;
+        if (value === 1) return true;
+        if (value === 2) return this.isEven();
+        return this.mod(n).equals(Integer[0]);
+    };
+    SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
+
+    function isBasicPrime(v) {
+        var n = v.abs();
+        if (n.isUnit()) return false;
+        if (n.equals(2) || n.equals(3) || n.equals(5)) return true;
+        if (n.isEven() || n.isDivisibleBy(3) || n.isDivisibleBy(5)) return false;
+        if (n.lesser(49)) return true;
+        // we don't know if it's prime: let the other functions figure it out
+    }
+    
+    function millerRabinTest(n, a) {
+        var nPrev = n.prev(),
+            b = nPrev,
+            r = 0,
+            d, t, i, x;
+        while (b.isEven()) b = b.divide(2), r++;
+        next : for (i = 0; i < a.length; i++) {
+            if (n.lesser(a[i])) continue;
+            x = bigInt(a[i]).modPow(b, n);
+            if (x.equals(Integer[1]) || x.equals(nPrev)) continue;
+            for (d = r - 1; d != 0; d--) {
+                x = x.square().mod(n);
+                if (x.isUnit()) return false;    
+                if (x.equals(nPrev)) continue next;
+            }
+            return false;
+        }
+        return true;
+    }
+    
+// Set "strict" to true to force GRH-supported lower bound of 2*log(N)^2
+    BigInteger.prototype.isPrime = function (strict) {
+        var isPrime = isBasicPrime(this);
+        if (isPrime !== undefined) return isPrime;
+        var n = this.abs();
+        var bits = n.bitLength();
+        if(bits <= 64)
+            return millerRabinTest(n, [2, 325, 9375, 28178, 450775, 9780504, 1795265022]);
+        var logN = Math.log(2) * bits;
+        var t = Math.ceil((strict === true) ? (2 * Math.pow(logN, 2)) : logN);
+        for (var a = [], i = 0; i < t; i++) {
+            a.push(bigInt(i + 2));
+        }
+        return millerRabinTest(n, a);
+    };
+    SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
+
+    BigInteger.prototype.isProbablePrime = function (iterations) {
+        var isPrime = isBasicPrime(this);
+        if (isPrime !== undefined) return isPrime;
+        var n = this.abs();
+        var t = iterations === undefined ? 5 : iterations;
+        for (var a = [], i = 0; i < t; i++) {
+            a.push(bigInt.randBetween(2, n.minus(2)));
+        }
+        return millerRabinTest(n, a);
+    };
+    SmallInteger.prototype.isProbablePrime = BigInteger.prototype.isProbablePrime;
+
+    BigInteger.prototype.modInv = function (n) {
+        var t = bigInt.zero, newT = bigInt.one, r = parseValue(n), newR = this.abs(), q, lastT, lastR;
+        while (!newR.equals(bigInt.zero)) {
+            q = r.divide(newR);
+            lastT = t;
+            lastR = r;
+            t = newT;
+            r = newR;
+            newT = lastT.subtract(q.multiply(newT));
+            newR = lastR.subtract(q.multiply(newR));
+        }
+        if (!r.equals(1)) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
+        if (t.compare(0) === -1) {
+            t = t.add(n);
+        }
+        if (this.isNegative()) {
+            return t.negate();
+        }
+        return t;
+    };
+
+    SmallInteger.prototype.modInv = BigInteger.prototype.modInv;
+
+    BigInteger.prototype.next = function () {
+        var value = this.value;
+        if (this.sign) {
+            return subtractSmall(value, 1, this.sign);
+        }
+        return new BigInteger(addSmall(value, 1), this.sign);
+    };
+    SmallInteger.prototype.next = function () {
+        var value = this.value;
+        if (value + 1 < MAX_INT) return new SmallInteger(value + 1);
+        return new BigInteger(MAX_INT_ARR, false);
+    };
+
+    BigInteger.prototype.prev = function () {
+        var value = this.value;
+        if (this.sign) {
+            return new BigInteger(addSmall(value, 1), true);
+        }
+        return subtractSmall(value, 1, this.sign);
+    };
+    SmallInteger.prototype.prev = function () {
+        var value = this.value;
+        if (value - 1 > -MAX_INT) return new SmallInteger(value - 1);
+        return new BigInteger(MAX_INT_ARR, true);
+    };
+
+    var powersOfTwo = [1];
+    while (2 * powersOfTwo[powersOfTwo.length - 1] <= BASE) powersOfTwo.push(2 * powersOfTwo[powersOfTwo.length - 1]);
+    var powers2Length = powersOfTwo.length, highestPower2 = powersOfTwo[powers2Length - 1];
+
+    function shift_isSmall(n) {
+        return ((typeof n === "number" || typeof n === "string") && +Math.abs(n) <= BASE) ||
+            (n instanceof BigInteger && n.value.length <= 1);
+    }
+
+    BigInteger.prototype.shiftLeft = function (n) {
+        if (!shift_isSmall(n)) {
+            throw new Error(String(n) + " is too large for shifting.");
+        }
+        n = +n;
+        if (n < 0) return this.shiftRight(-n);
+        var result = this;
+        if (result.isZero()) return result;
+        while (n >= powers2Length) {
+            result = result.multiply(highestPower2);
+            n -= powers2Length - 1;
+        }
+        return result.multiply(powersOfTwo[n]);
+    };
+    SmallInteger.prototype.shiftLeft = BigInteger.prototype.shiftLeft;
+
+    BigInteger.prototype.shiftRight = function (n) {
+        var remQuo;
+        if (!shift_isSmall(n)) {
+            throw new Error(String(n) + " is too large for shifting.");
+        }
+        n = +n;
+        if (n < 0) return this.shiftLeft(-n);
+        var result = this;
+        while (n >= powers2Length) {
+            if (result.isZero() || (result.isNegative() && result.isUnit())) return result;
+            remQuo = divModAny(result, highestPower2);
+            result = remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
+            n -= powers2Length - 1;
+        }
+        remQuo = divModAny(result, powersOfTwo[n]);
+        return remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
+    };
+    SmallInteger.prototype.shiftRight = BigInteger.prototype.shiftRight;
+
+    function bitwise(x, y, fn) {
+        y = parseValue(y);
+        var xSign = x.isNegative(), ySign = y.isNegative();
+        var xRem = xSign ? x.not() : x,
+            yRem = ySign ? y.not() : y;
+        var xDigit = 0, yDigit = 0;
+        var xDivMod = null, yDivMod = null;
+        var result = [];
+        while (!xRem.isZero() || !yRem.isZero()) {
+            xDivMod = divModAny(xRem, highestPower2);
+            xDigit = xDivMod[1].toJSNumber();
+            if (xSign) {
+                xDigit = highestPower2 - 1 - xDigit; // two's complement for negative numbers
+            }
+
+            yDivMod = divModAny(yRem, highestPower2);
+            yDigit = yDivMod[1].toJSNumber();
+            if (ySign) {
+                yDigit = highestPower2 - 1 - yDigit; // two's complement for negative numbers
+            }
+
+            xRem = xDivMod[0];
+            yRem = yDivMod[0];
+            result.push(fn(xDigit, yDigit));
+        }
+        var sum = fn(xSign ? 1 : 0, ySign ? 1 : 0) !== 0 ? bigInt(-1) : bigInt(0);
+        for (var i = result.length - 1; i >= 0; i -= 1) {
+            sum = sum.multiply(highestPower2).add(bigInt(result[i]));
+        }
+        return sum;
+    }
+
+    BigInteger.prototype.not = function () {
+        return this.negate().prev();
+    };
+    SmallInteger.prototype.not = BigInteger.prototype.not;
+
+    BigInteger.prototype.and = function (n) {
+        return bitwise(this, n, function (a, b) { return a & b; });
+    };
+    SmallInteger.prototype.and = BigInteger.prototype.and;
+
+    BigInteger.prototype.or = function (n) {
+        return bitwise(this, n, function (a, b) { return a | b; });
+    };
+    SmallInteger.prototype.or = BigInteger.prototype.or;
+
+    BigInteger.prototype.xor = function (n) {
+        return bitwise(this, n, function (a, b) { return a ^ b; });
+    };
+    SmallInteger.prototype.xor = BigInteger.prototype.xor;
+
+    var LOBMASK_I = 1 << 30, LOBMASK_BI = (BASE & -BASE) * (BASE & -BASE) | LOBMASK_I;
+    function roughLOB(n) { // get lowestOneBit (rough)
+        // SmallInteger: return Min(lowestOneBit(n), 1 << 30)
+        // BigInteger: return Min(lowestOneBit(n), 1 << 14) [BASE=1e7]
+        var v = n.value, x = typeof v === "number" ? v | LOBMASK_I : v[0] + v[1] * BASE | LOBMASK_BI;
+        return x & -x;
+    }
+
+    function integerLogarithm(value, base) {
+        if (base.compareTo(value) <= 0) {
+            var tmp = integerLogarithm(value, base.square(base));
+            var p = tmp.p;
+            var e = tmp.e;
+            var t = p.multiply(base);
+            return t.compareTo(value) <= 0 ? { p: t, e: e * 2 + 1 } : { p: p, e: e * 2 };
+        }
+        return { p: bigInt(1), e: 0 };
+    }
+
+    BigInteger.prototype.bitLength = function () {
+        var n = this;
+        if (n.compareTo(bigInt(0)) < 0) {
+            n = n.negate().subtract(bigInt(1));
+        }
+        if (n.compareTo(bigInt(0)) === 0) {
+            return bigInt(0);
+        }
+        return bigInt(integerLogarithm(n, bigInt(2)).e).add(bigInt(1));
+    }
+    SmallInteger.prototype.bitLength = BigInteger.prototype.bitLength;
+
+    function max(a, b) {
+        a = parseValue(a);
+        b = parseValue(b);
+        return a.greater(b) ? a : b;
+    }
+    function min(a, b) {
+        a = parseValue(a);
+        b = parseValue(b);
+        return a.lesser(b) ? a : b;
+    }
+    function gcd(a, b) {
+        a = parseValue(a).abs();
+        b = parseValue(b).abs();
+        if (a.equals(b)) return a;
+        if (a.isZero()) return b;
+        if (b.isZero()) return a;
+        var c = Integer[1], d, t;
+        while (a.isEven() && b.isEven()) {
+            d = Math.min(roughLOB(a), roughLOB(b));
+            a = a.divide(d);
+            b = b.divide(d);
+            c = c.multiply(d);
+        }
+        while (a.isEven()) {
+            a = a.divide(roughLOB(a));
+        }
+        do {
+            while (b.isEven()) {
+                b = b.divide(roughLOB(b));
+            }
+            if (a.greater(b)) {
+                t = b; b = a; a = t;
+            }
+            b = b.subtract(a);
+        } while (!b.isZero());
+        return c.isUnit() ? a : a.multiply(c);
+    }
+    function lcm(a, b) {
+        a = parseValue(a).abs();
+        b = parseValue(b).abs();
+        return a.divide(gcd(a, b)).multiply(b);
+    }
+    function randBetween(a, b) {
+        a = parseValue(a);
+        b = parseValue(b);
+        var low = min(a, b), high = max(a, b);
+        var range = high.subtract(low).add(1);
+        if (range.isSmall) return low.add(Math.floor(Math.random() * range));
+        var length = range.value.length - 1;
+        var result = [], restricted = true;
+        for (var i = length; i >= 0; i--) {
+            var top = restricted ? range.value[i] : BASE;
+            var digit = truncate(Math.random() * top);
+            result.unshift(digit);
+            if (digit < top) restricted = false;
+        }
+        result = arrayToSmall(result);
+        return low.add(typeof result === "number" ? new SmallInteger(result) : new BigInteger(result, false));
+    }
+    var parseBase = function (text, base) {
+        var length = text.length;
+        var i;
+        var absBase = Math.abs(base);
+        for (var i = 0; i < length; i++) {
+            var c = text[i].toLowerCase();
+            if (c === "-") continue;
+            if (/[a-z0-9]/.test(c)) {
+                if (/[0-9]/.test(c) && +c >= absBase) {
+                    if (c === "1" && absBase === 1) continue;
+                    throw new Error(c + " is not a valid digit in base " + base + ".");
+                } else if (c.charCodeAt(0) - 87 >= absBase) {
+                    throw new Error(c + " is not a valid digit in base " + base + ".");
+                }
+            }
+        }
+        if (2 <= base && base <= 36) {
+            if (length <= LOG_MAX_INT / Math.log(base)) {
+                var result = parseInt(text, base);
+                if (isNaN(result)) {
+                    throw new Error(c + " is not a valid digit in base " + base + ".");
+                }
+                return new SmallInteger(parseInt(text, base));
+            }
+        }
+        base = parseValue(base);
+        var digits = [];
+        var isNegative = text[0] === "-";
+        for (i = isNegative ? 1 : 0; i < text.length; i++) {
+            var c = text[i].toLowerCase(),
+                charCode = c.charCodeAt(0);
+            if (48 <= charCode && charCode <= 57) digits.push(parseValue(c));
+            else if (97 <= charCode && charCode <= 122) digits.push(parseValue(c.charCodeAt(0) - 87));
+            else if (c === "<") {
+                var start = i;
+                do { i++; } while (text[i] !== ">");
+                digits.push(parseValue(text.slice(start + 1, i)));
+            }
+            else throw new Error(c + " is not a valid character");
+        }
+        return parseBaseFromArray(digits, base, isNegative);
+    };
+
+    function parseBaseFromArray(digits, base, isNegative) {
+        var val = Integer[0], pow = Integer[1], i;
+        for (i = digits.length - 1; i >= 0; i--) {
+            val = val.add(digits[i].times(pow));
+            pow = pow.times(base);
+        }
+        return isNegative ? val.negate() : val;
+    }
+
+    function stringify(digit) {
+        if (digit <= 35) {
+            return "0123456789abcdefghijklmnopqrstuvwxyz".charAt(digit);
+        }
+        return "<" + digit + ">";
+    }
+
+    function toBase(n, base) {
+        base = bigInt(base);
+        if (base.isZero()) {
+            if (n.isZero()) return { value: [0], isNegative: false };
+            throw new Error("Cannot convert nonzero numbers to base 0.");
+        }
+        if (base.equals(-1)) {
+            if (n.isZero()) return { value: [0], isNegative: false };
+            if (n.isNegative())
+                return {
+                    value: [].concat.apply([], Array.apply(null, Array(-n))
+                        .map(Array.prototype.valueOf, [1, 0])
+                    ),
+                    isNegative: false
+                };
+
+            var arr = Array.apply(null, Array(+n - 1))
+                .map(Array.prototype.valueOf, [0, 1]);
+            arr.unshift([1]);
+            return {
+                value: [].concat.apply([], arr),
+                isNegative: false
+            };
+        }
+
+        var neg = false;
+        if (n.isNegative() && base.isPositive()) {
+            neg = true;
+            n = n.abs();
+        }
+        if (base.equals(1)) {
+            if (n.isZero()) return { value: [0], isNegative: false };
+
+            return {
+                value: Array.apply(null, Array(+n))
+                    .map(Number.prototype.valueOf, 1),
+                isNegative: neg
+            };
+        }
+        var out = [];
+        var left = n, divmod;
+        while (left.isNegative() || left.compareAbs(base) >= 0) {
+            divmod = left.divmod(base);
+            left = divmod.quotient;
+            var digit = divmod.remainder;
+            if (digit.isNegative()) {
+                digit = base.minus(digit).abs();
+                left = left.next();
+            }
+            out.push(digit.toJSNumber());
+        }
+        out.push(left.toJSNumber());
+        return { value: out.reverse(), isNegative: neg };
+    }
+
+    function toBaseString(n, base) {
+        var arr = toBase(n, base);
+        return (arr.isNegative ? "-" : "") + arr.value.map(stringify).join('');
+    }
+
+    BigInteger.prototype.toArray = function (radix) {
+        return toBase(this, radix);
+    };
+
+    SmallInteger.prototype.toArray = function (radix) {
+        return toBase(this, radix);
+    };
+
+    BigInteger.prototype.toString = function (radix) {
+        if (radix === undefined) radix = 10;
+        if (radix !== 10) return toBaseString(this, radix);
+        var v = this.value, l = v.length, str = String(v[--l]), zeros = "0000000", digit;
+        while (--l >= 0) {
+            digit = String(v[l]);
+            str += zeros.slice(digit.length) + digit;
+        }
+        var sign = this.sign ? "-" : "";
+        return sign + str;
+    };
+
+    SmallInteger.prototype.toString = function (radix) {
+        if (radix === undefined) radix = 10;
+        if (radix != 10) return toBaseString(this, radix);
+        return String(this.value);
+    };
+    BigInteger.prototype.toJSON = SmallInteger.prototype.toJSON = function () { return this.toString(); }
+
+    BigInteger.prototype.valueOf = function () {
+        return parseInt(this.toString(), 10);
+    };
+    BigInteger.prototype.toJSNumber = BigInteger.prototype.valueOf;
+
+    SmallInteger.prototype.valueOf = function () {
+        return this.value;
+    };
+    SmallInteger.prototype.toJSNumber = SmallInteger.prototype.valueOf;
+
+    function parseStringValue(v) {
+        if (isPrecise(+v)) {
+            var x = +v;
+            if (x === truncate(x))
+                return new SmallInteger(x);
+            throw new Error("Invalid integer: " + v);
+        }
+        var sign = v[0] === "-";
+        if (sign) v = v.slice(1);
+        var split = v.split(/e/i);
+        if (split.length > 2) throw new Error("Invalid integer: " + split.join("e"));
+        if (split.length === 2) {
+            var exp = split[1];
+            if (exp[0] === "+") exp = exp.slice(1);
+            exp = +exp;
+            if (exp !== truncate(exp) || !isPrecise(exp)) throw new Error("Invalid integer: " + exp + " is not a valid exponent.");
+            var text = split[0];
+            var decimalPlace = text.indexOf(".");
+            if (decimalPlace >= 0) {
+                exp -= text.length - decimalPlace - 1;
+                text = text.slice(0, decimalPlace) + text.slice(decimalPlace + 1);
+            }
+            if (exp < 0) throw new Error("Cannot include negative exponent part for integers");
+            text += (new Array(exp + 1)).join("0");
+            v = text;
+        }
+        var isValid = /^([0-9][0-9]*)$/.test(v);
+        if (!isValid) throw new Error("Invalid integer: " + v);
+        var r = [], max = v.length, l = LOG_BASE, min = max - l;
+        while (max > 0) {
+            r.push(+v.slice(min, max));
+            min -= l;
+            if (min < 0) min = 0;
+            max -= l;
+        }
+        trim(r);
+        return new BigInteger(r, sign);
+    }
+
+    function parseNumberValue(v) {
+        if (isPrecise(v)) {
+            if (v !== truncate(v)) throw new Error(v + " is not an integer.");
+            return new SmallInteger(v);
+        }
+        return parseStringValue(v.toString());
+    }
+
+    function parseValue(v) {
+        if (typeof v === "number") {
+            return parseNumberValue(v);
+        }
+        if (typeof v === "string") {
+            return parseStringValue(v);
+        }
+        return v;
+    }
+    // Pre-define numbers in range [-999,999]
+    for (var i = 0; i < 1000; i++) {
+        Integer[i] = new SmallInteger(i);
+        if (i > 0) Integer[-i] = new SmallInteger(-i);
+    }
+    // Backwards compatibility
+    Integer.one = Integer[1];
+    Integer.zero = Integer[0];
+    Integer.minusOne = Integer[-1];
+    Integer.max = max;
+    Integer.min = min;
+    Integer.gcd = gcd;
+    Integer.lcm = lcm;
+    Integer.isInstance = function (x) { return x instanceof BigInteger || x instanceof SmallInteger; };
+    Integer.randBetween = randBetween;
+
+    Integer.fromArray = function (digits, base, isNegative) {
+        return parseBaseFromArray(digits.map(parseValue), parseValue(base || 10), isNegative);
+    };
+
+    return Integer;
+})();
+
+// Node.js check
+if ( true && module.hasOwnProperty("exports")) {
+    module.exports = bigInt;
+}
+
+//amd check
+if (true) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+        return bigInt;
+    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+}
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(46)(module)))
+
+/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4452,7 +4452,7 @@ var forge = __webpack_require__(0);
 __webpack_require__(6);
 __webpack_require__(31);
 __webpack_require__(32);
-__webpack_require__(2);
+__webpack_require__(1);
 
 (function() {
 
@@ -4766,7 +4766,7 @@ module.exports = forge.random;
  * 0x06062A864886F70D
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 __webpack_require__(7);
 
 /* ASN.1 API */
@@ -6081,7 +6081,7 @@ forge.md.algorithms = forge.md.algorithms || {};
 var forge = __webpack_require__(0);
 __webpack_require__(19);
 __webpack_require__(26);
-__webpack_require__(2);
+__webpack_require__(1);
 
 /* AES API */
 module.exports = forge.aes = forge.aes || {};
@@ -7354,7 +7354,7 @@ _IN('1.3.6.1.5.5.7.3.8', 'timeStamping');
  * body: the binary-encoded body.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 
 // shortcut for pem API
 var pem = module.exports = forge.pem = forge.pem || {};
@@ -26017,7 +26017,7 @@ function isnan (val) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(5);
-__webpack_require__(2);
+__webpack_require__(1);
 
 /* HMAC API */
 var hmac = module.exports = forge.hmac = forge.hmac || {};
@@ -26167,7 +26167,7 @@ hmac.create = function() {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(5);
-__webpack_require__(2);
+__webpack_require__(1);
 
 var sha1 = module.exports = forge.sha1 = forge.sha1 || {};
 forge.md.sha1 = forge.md.algorithms.sha1 = sha1;
@@ -26517,7 +26517,7 @@ __webpack_require__(33);
 __webpack_require__(57);
 __webpack_require__(58);
 __webpack_require__(27);
-__webpack_require__(2);
+__webpack_require__(1);
 
 
 /***/ }),
@@ -26747,7 +26747,7 @@ process.umask = function() { return 0; };
 var forge = __webpack_require__(0);
 __webpack_require__(19);
 __webpack_require__(26);
-__webpack_require__(2);
+__webpack_require__(1);
 
 /* DES API */
 module.exports = forge.des = forge.des || {};
@@ -27285,7 +27285,7 @@ __webpack_require__(7);
 __webpack_require__(34);
 __webpack_require__(35);
 __webpack_require__(3);
-__webpack_require__(2);
+__webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
   var BigInteger = forge.jsbn.BigInteger;
@@ -30453,7 +30453,7 @@ function fromByteArray (uint8) {
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 
 module.exports = forge.cipher = forge.cipher || {};
 
@@ -30716,7 +30716,7 @@ module.exports = g;
  */
 var forge = __webpack_require__(0);
 __webpack_require__(5);
-__webpack_require__(2);
+__webpack_require__(1);
 
 var md5 = module.exports = forge.md5 = forge.md5 || {};
 forge.md.md5 = forge.md.algorithms.md5 = md5;
@@ -31014,7 +31014,7 @@ function _update(s, w, bytes) {
 var forge = __webpack_require__(0);
 __webpack_require__(11);
 __webpack_require__(5);
-__webpack_require__(2);
+__webpack_require__(1);
 
 var pkcs5 = forge.pkcs5 = forge.pkcs5 || {};
 
@@ -31339,7 +31339,7 @@ __webpack_require__(7);
 __webpack_require__(8);
 __webpack_require__(24);
 __webpack_require__(16);
-__webpack_require__(2);
+__webpack_require__(1);
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
@@ -34506,7 +34506,7 @@ pki.verifyCertificateChain = function(caStore, chain, verify) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(3);
-__webpack_require__(2);
+__webpack_require__(1);
 
 // shortcut for PSS API
 var pss = module.exports = forge.pss = forge.pss || {};
@@ -34822,7 +34822,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 
 forge.cipher = forge.cipher || {};
 
@@ -36047,7 +36047,7 @@ __webpack_require__(8);
 __webpack_require__(28);
 __webpack_require__(3);
 __webpack_require__(12);
-__webpack_require__(2);
+__webpack_require__(1);
 
 /**
  * Generates pseudo random bytes by mixing the result of two hash functions,
@@ -40099,7 +40099,7 @@ __webpack_require__(22);
 __webpack_require__(36);
 __webpack_require__(24);
 __webpack_require__(16);
-__webpack_require__(2);
+__webpack_require__(1);
 __webpack_require__(23);
 
 // shortcut for asn.1 API
@@ -40220,7 +40220,7 @@ __webpack_require__(8);
 __webpack_require__(3);
 __webpack_require__(33);
 __webpack_require__(16);
-__webpack_require__(2);
+__webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
   var BigInteger = forge.jsbn.BigInteger;
@@ -41236,7 +41236,7 @@ function createPbkdf2Params(salt, countBytes, dkLen, prfAlgorithm) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(5);
-__webpack_require__(2);
+__webpack_require__(1);
 
 var sha256 = module.exports = forge.sha256 = forge.sha256 || {};
 forge.md.sha256 = forge.md.algorithms.sha256 = sha256;
@@ -41570,7 +41570,7 @@ function _update(s, w, bytes) {
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 
 var _crypto = null;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript &&
@@ -41996,7 +41996,7 @@ prng.create = function(plugin) {
  * http://www.ietf.org/rfc/rfc2268.txt
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 
 var piTable = [
   0xd9, 0x78, 0xf9, 0xc4, 0x19, 0xdd, 0xb5, 0xed, 0x28, 0xe9, 0xfd, 0x79, 0x4a, 0xa0, 0xd8, 0x9d,
@@ -42447,7 +42447,7 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
  * Copyright (c) 2013-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 __webpack_require__(3);
 __webpack_require__(12);
 
@@ -42691,7 +42691,7 @@ function rsa_mgf1(seed, maskLength, hash) {
  * Copyright (c) 2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 __webpack_require__(17);
 __webpack_require__(3);
 
@@ -43090,7 +43090,7 @@ __webpack_require__(29);
 __webpack_require__(3);
 __webpack_require__(16);
 __webpack_require__(12);
-__webpack_require__(2);
+__webpack_require__(1);
 __webpack_require__(23);
 
 // shortcut for asn.1 & PKI API
@@ -44177,7 +44177,7 @@ p12.generateKey = forge.pbe.generatePkcs12Key;
  */
 var forge = __webpack_require__(0);
 __webpack_require__(4);
-__webpack_require__(2);
+__webpack_require__(1);
 
 // shortcut for ASN.1 API
 var asn1 = forge.asn1;
@@ -44491,7 +44491,7 @@ p7v.recipientInfoValidator = {
  * Copyright (c) 2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 
 forge.mgf = forge.mgf || {};
 var mgf1 = module.exports = forge.mgf.mgf1 = forge.mgf1 = forge.mgf1 || {};
@@ -44642,7 +44642,7 @@ forge.debug.clear = function(cat, name) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(5);
-__webpack_require__(2);
+__webpack_require__(1);
 
 var sha512 = module.exports = forge.sha512 = forge.sha512 || {};
 
@@ -45203,7 +45203,7 @@ function _update(s, w, bytes) {
  * Copyright (c) 2008-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 
 /* LOG API */
 module.exports = forge.log = forge.log || {};
@@ -46359,7 +46359,7 @@ var forge = __webpack_require__(0);
 __webpack_require__(17);
 __webpack_require__(3);
 __webpack_require__(40);
-__webpack_require__(2);
+__webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
   var BigInteger = forge.jsbn.BigInteger;
@@ -47358,7 +47358,7 @@ function M(o, a, b) {
  * Copyright (c) 2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(2);
+__webpack_require__(1);
 __webpack_require__(3);
 __webpack_require__(17);
 
@@ -47567,7 +47567,7 @@ __webpack_require__(7);
 __webpack_require__(8);
 __webpack_require__(37);
 __webpack_require__(3);
-__webpack_require__(2);
+__webpack_require__(1);
 __webpack_require__(23);
 
 // shortcut for ASN.1 API
@@ -48819,7 +48819,7 @@ __webpack_require__(6);
 __webpack_require__(11);
 __webpack_require__(21);
 __webpack_require__(12);
-__webpack_require__(2);
+__webpack_require__(1);
 
 var ssh = module.exports = forge.ssh = forge.ssh || {};
 
@@ -49058,7 +49058,7 @@ function _sha1() {
 var forge = __webpack_require__(0);
 __webpack_require__(39);
 __webpack_require__(41);
-__webpack_require__(2);
+__webpack_require__(1);
 
 // logging category
 var cat = 'forge.task';
@@ -50127,24 +50127,11 @@ var TlvInputStream_TlvInputStream = /** @class */ (function () {
 }());
 
 
-// CONCATENATED MODULE: ./src/common/parser/ITlvTag.ts
-function isTlvTag(object) {
-    return object instanceof Object
-        && typeof object.id === 'number'
-        && typeof object.tlv16BitFlag === 'boolean'
-        && typeof object.nonCriticalFlag === 'boolean'
-        && typeof object.forwardFlag === 'boolean'
-        && typeof object.getValueBytes === 'function'
-        && typeof object.encode === 'function';
-}
-
 // CONCATENATED MODULE: ./src/common/parser/TlvOutputStream.ts
-
-
 /**
  * Specialized output stream for encoding TLV data from TLVTag classes
  */
-var TlvOutputStream_TlvOutputStream = /** @class */ (function () {
+var TlvOutputStream = /** @class */ (function () {
     function TlvOutputStream() {
         this.data = new Uint8Array(0);
     }
@@ -50152,15 +50139,9 @@ var TlvOutputStream_TlvOutputStream = /** @class */ (function () {
         return new Uint8Array(this.data);
     };
     TlvOutputStream.prototype.writeTag = function (tlvTag) {
-        if (!(isTlvTag(tlvTag))) {
-            throw new TlvError("Invalid tlvTag: " + tlvTag);
-        }
         this.write(tlvTag.encode());
     };
     TlvOutputStream.prototype.write = function (data) {
-        if (!(data instanceof Uint8Array)) {
-            throw new TlvError("Invalid data: " + data);
-        }
         var combinedData = new Uint8Array(this.data.length + data.length);
         combinedData.set(this.data);
         combinedData.set(data, this.data.length);
@@ -50202,7 +50183,7 @@ var CompositeTag_CompositeTag = /** @class */ (function (_super) {
     }
     CompositeTag.CREATE_FROM_LIST = function (id, nonCriticalFlag, forwardFlag, value, tlv16BitFlag) {
         if (tlv16BitFlag === void 0) { tlv16BitFlag = false; }
-        var stream = new TlvOutputStream_TlvOutputStream();
+        var stream = new TlvOutputStream();
         for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
             var tlvTag = value_1[_i];
             stream.writeTag(tlvTag);
@@ -50695,7 +50676,7 @@ var ImprintTag_ImprintTag = /** @class */ (function (_super) {
 
 
 // EXTERNAL MODULE: ./node_modules/big-integer/BigInteger.js
-var BigInteger = __webpack_require__(1);
+var BigInteger = __webpack_require__(2);
 var BigInteger_default = /*#__PURE__*/__webpack_require__.n(BigInteger);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/UnsignedLongCoder.js
@@ -51162,236 +51143,12 @@ var PublicationRecord_PublicationRecord = /** @class */ (function (_super) {
 }(CompositeTag_CompositeTag));
 
 
-// CONCATENATED MODULE: ./src/common/service/PduPayload.ts
-var PduPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Base class for PDU payloads
- */
-var PduPayload = /** @class */ (function (_super) {
-    PduPayload_extends(PduPayload, _super);
-    function PduPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return PduPayload;
-}(CompositeTag_CompositeTag));
-
-
-// CONCATENATED MODULE: ./src/common/service/ResponsePayload.ts
-var ResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * PDU payload base class for responses
- */
-var ResponsePayload_ResponsePayload = /** @class */ (function (_super) {
-    ResponsePayload_extends(ResponsePayload, _super);
-    function ResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.errorMessage = null;
-        return _this;
-    }
-    ResponsePayload.prototype.getStatus = function () {
-        return this.status.getValue();
-    };
-    ResponsePayload.prototype.getErrorMessage = function () {
-        return this.errorMessage !== null ? this.errorMessage.getValue() : null;
-    };
-    ResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.StatusTagType:
-                return this.status = new IntegerTag_IntegerTag(tlvTag);
-            case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
-                return this.errorMessage = new StringTag_StringTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    ResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.StatusTagType] !== 1) {
-            throw new TlvError('Exactly one status code must exist in response payload.');
-        }
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType] > 1) {
-            throw new TlvError('Only one error message is allowed in response payload.');
-        }
-    };
-    return ResponsePayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/RequestResponsePayload.ts
-var RequestResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-/**
- * PDU payload base class for requested responses
- */
-var RequestResponsePayload_RequestResponsePayload = /** @class */ (function (_super) {
-    RequestResponsePayload_extends(RequestResponsePayload, _super);
-    function RequestResponsePayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    RequestResponsePayload.prototype.getRequestId = function () {
-        return this.requestId.getValue();
-    };
-    RequestResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
-                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    RequestResponsePayload.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
-            throw new TlvError('Exactly one request id must exist in response payload.');
-        }
-    };
-    return RequestResponsePayload;
-}(ResponsePayload_ResponsePayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/AggregationResponsePayload.ts
-var AggregationResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-/**
- * Aggregation response payload
- */
-var AggregationResponsePayload_AggregationResponsePayload = /** @class */ (function (_super) {
-    AggregationResponsePayload_extends(AggregationResponsePayload, _super);
-    function AggregationResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationResponsePayload.prototype.getSignatureTags = function () {
-        var tlvList = [];
-        for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
-            var tlvTag = _a[_i];
-            if (tlvTag.id > 0x800 && tlvTag.id < 0x900) {
-                tlvList.push(tlvTag);
-            }
-        }
-        return tlvList;
-    };
-    AggregationResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
-            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
-            case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
-            case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
-                return tlvTag;
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    AggregationResponsePayload.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one extender config request payload is allowed in PDU.');
-        }
-    };
-    return AggregationResponsePayload;
-}(RequestResponsePayload_RequestResponsePayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/KsiError.ts
-var KsiError_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-/**
- * KSI related error
- */
-var KsiError = /** @class */ (function (_super) {
-    KsiError_extends(KsiError, _super);
-    function KsiError(message) {
-        var _this = _super.call(this, message) || this;
-        _this.name = 'KsiError';
-        Object.setPrototypeOf(_this, KsiError.prototype);
-        return _this;
-    }
-    return KsiError;
-}(Error));
-
-
 // CONCATENATED MODULE: ./src/common/signature/LegacyIdentity.ts
-
 /**
  *
  */
-var LegacyIdentity_LegacyIdentity = /** @class */ (function () {
+var LegacyIdentity = /** @class */ (function () {
     function LegacyIdentity(clientId) {
-        if (typeof clientId !== 'string') {
-            throw new KsiError('Invalid clientId');
-        }
         this.clientId = clientId;
     }
     LegacyIdentity.prototype.getClientId = function () {
@@ -51601,7 +51358,7 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
     };
     AggregationHashChainLink.prototype.getIdentity = function () {
         if (this.legacyId !== null) {
-            return new LegacyIdentity_LegacyIdentity(this.legacyIdString);
+            return new LegacyIdentity(this.legacyIdString);
         }
         return this.metadata;
     };
@@ -52051,7 +51808,7 @@ var CalendarHashChain_CalendarHashChain = /** @class */ (function (_super) {
         // iterate over the chain in reverse
         for (var i = this.chainLinks.length - 1; i >= 0; i -= 1) {
             if (r.lt(0)) {
-                console.log('Invalid calendar hash chain shape for publication time. Cannot calculate registration time.');
+                console.warn('Invalid calendar hash chain shape for publication time. Cannot calculate registration time.');
                 return BigInteger_default()(0);
             }
             if (this.chainLinks[i].id === LinkDirection.Left) {
@@ -52063,7 +51820,7 @@ var CalendarHashChain_CalendarHashChain = /** @class */ (function (_super) {
             }
         }
         if (r.neq(0)) {
-            console.log('Calendar hash chain shape inconsistent with publication time. Cannot calculate registration time.');
+            console.warn('Calendar hash chain shape inconsistent with publication time. Cannot calculate registration time.');
             return BigInteger_default()(0);
         }
         return t;
@@ -52418,8 +52175,6 @@ var KsiSignature_generator = (undefined && undefined.__generator) || function (t
 
 
 
-
-
 /**
  * KSI Signature TLV object
  */
@@ -52441,15 +52196,9 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
         return _this;
     }
     KsiSignature.CREATE = function (payload) {
-        if (!(payload instanceof AggregationResponsePayload_AggregationResponsePayload)) {
-            throw new KsiError("Invalid payload: " + payload);
-        }
         return new KsiSignature(CompositeTag_CompositeTag.CREATE_FROM_LIST(KSI_SIGNATURE_CONSTANTS.TagType, false, false, payload.getSignatureTags()));
     };
     KsiSignature.CREATE_FROM_BASE64 = function (value) {
-        if ((typeof value) !== 'string') {
-            throw new KsiError("Invalid value: " + value);
-        }
         return new KsiSignature(new TlvInputStream_TlvInputStream(Base64Coder_Base64Coder.decode(value)).readTag());
     };
     KsiSignature.prototype.getPublicationRecord = function () {
@@ -52511,14 +52260,7 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
         return this.publicationRecord != null;
     };
     KsiSignature.prototype.extend = function (calendarHashChain, publicationRecord) {
-        if (publicationRecord === void 0) { publicationRecord = null; }
-        if (!(calendarHashChain instanceof CalendarHashChain_CalendarHashChain)) {
-            throw new KsiError("Invalid calendar hash chain: " + calendarHashChain);
-        }
-        if (!(publicationRecord instanceof PublicationRecord_PublicationRecord)) {
-            throw new KsiError("Invalid publication record: " + publicationRecord);
-        }
-        var stream = new TlvOutputStream_TlvOutputStream();
+        var stream = new TlvOutputStream();
         for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
             var childTag = _a[_i];
             switch (childTag.id) {
@@ -52740,28 +52482,16 @@ var VerificationResult = /** @class */ (function () {
     function VerificationResult(ruleName, resultCode, verificationError, childResults) {
         if (verificationError === void 0) { verificationError = null; }
         if (childResults === void 0) { childResults = null; }
-        var _this = this;
         this.childResults = [];
         this.ruleName = ruleName;
         this.resultCode = resultCode;
         this.verificationError = verificationError || null;
         if (Array.isArray(childResults)) {
-            childResults.forEach(function (result) {
-                if (!(result instanceof VerificationResult)) {
-                    throw new Error('Invalid verification result.');
-                }
-                _this.childResults.push(result);
-            });
+            this.childResults.concat(childResults);
         }
     }
     VerificationResult.CREATE_FROM_RESULTS = function (ruleName, childResults) {
-        if (!Array.isArray(childResults) || childResults.length === 0) {
-            throw new Error('Invalid child results.');
-        }
         var lastResult = childResults[childResults.length - 1];
-        if (!(lastResult instanceof VerificationResult)) {
-            throw new Error('Invalid verification result.');
-        }
         return new VerificationResult(ruleName, lastResult.resultCode, lastResult.verificationError, childResults);
     };
     VerificationResult.prototype.getResultCode = function () {
@@ -52776,22 +52506,6 @@ var VerificationResult = /** @class */ (function () {
     return VerificationResult;
 }());
 
-
-// CONCATENATED MODULE: ./src/common/signature/IKsiSignature.ts
-function isKsiSignature(object) {
-    return object instanceof Object
-        && typeof object.getAggregationHashChains === 'function'
-        && typeof object.getPublicationRecord === 'function'
-        && typeof object.getCalendarAuthenticationRecord === 'function'
-        && typeof object.getCalendarHashChain === 'function'
-        && typeof object.getAggregationTime === 'function'
-        && typeof object.getRfc3161Record === 'function'
-        && typeof object.getLastAggregationHashChainRootHash === 'function'
-        && typeof object.getInputHash === 'function'
-        && typeof object.getIdentity === 'function'
-        && typeof object.isExtended === 'function'
-        && typeof object.extend === 'function';
-}
 
 // CONCATENATED MODULE: ./src/common/signature/verification/KsiVerificationError.ts
 var KsiVerificationError_extends = (undefined && undefined.__extends) || (function () {
@@ -52820,6 +52534,6017 @@ var KsiVerificationError = /** @class */ (function (_super) {
     }
     return KsiVerificationError;
 }(Error));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/VerificationRule.ts
+/**
+ * Verification Rule for KSI Signature
+ */
+
+
+
+var VerificationRule_VerificationRule = /** @class */ (function () {
+    function VerificationRule(ruleName) {
+        if (ruleName === void 0) { ruleName = null; }
+        this.ruleName = this.constructor.name;
+        this.onSuccessRule = null;
+        this.onFailureRule = null;
+        this.onNaRule = null;
+        if (ruleName !== null) {
+            this.ruleName = ruleName;
+        }
+    }
+    VerificationRule.getSignature = function (context) {
+        if (!context.getSignature()) {
+            throw new KsiVerificationError('Invalid KSI signature in context: null.');
+        }
+        return context.getSignature();
+    };
+    VerificationRule.getCalendarHashChain = function (signature) {
+        var calendarHashChain = signature.getCalendarHashChain();
+        if (!calendarHashChain) {
+            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+        }
+        return calendarHashChain;
+    };
+    VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink = function (calendarHashChain) {
+        if (!calendarHashChain) {
+            throw new KsiVerificationError('Invalid calendar hash chain.');
+        }
+        for (var _i = 0, _a = calendarHashChain.getChainLinks(); _i < _a.length; _i++) {
+            var link = _a[_i];
+            if (link.id !== LinkDirection.Left) {
+                continue;
+            }
+            if (link.getValue().hashAlgorithm.isDeprecated(calendarHashChain.getPublicationTime().valueOf())) {
+                return link;
+            }
+        }
+        return null;
+    };
+    VerificationRule.prototype.getRuleName = function () {
+        return this.ruleName;
+    };
+    VerificationRule.prototype.onSuccess = function (rule) {
+        this.onSuccessRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.onFailure = function (rule) {
+        this.onFailureRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.onNa = function (rule) {
+        this.onNaRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.getNextRule = function (resultCode) {
+        switch (resultCode) {
+            case VerificationResultCode.OK:
+                return this.onSuccessRule;
+            case VerificationResultCode.FAIL:
+                return this.onFailureRule;
+            case VerificationResultCode.NA:
+                return this.onNaRule;
+            default:
+                return null;
+        }
+    };
+    return VerificationRule;
+}());
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationExistenceRule.ts
+var UserProvidedPublicationExistenceRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var UserProvidedPublicationExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var UserProvidedPublicationExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule checks that user has provided a publication.
+ */
+var UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule = /** @class */ (function (_super) {
+    UserProvidedPublicationExistenceRule_extends(UserProvidedPublicationExistenceRule, _super);
+    function UserProvidedPublicationExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    UserProvidedPublicationExistenceRule.prototype.verify = function (context) {
+        return UserProvidedPublicationExistenceRule_awaiter(this, void 0, void 0, function () {
+            return UserProvidedPublicationExistenceRule_generator(this, function (_a) {
+                return [2 /*return*/, context.getUserPublication() === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return UserProvidedPublicationExistenceRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainAlgorithmDeprecatedRule.ts
+var AggregationHashChainAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var AggregationHashChainAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var AggregationHashChainAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Verifies that aggregation hash chains use hash algorithms that were not deprecated at the aggregation time.
+ */
+var AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    AggregationHashChainAlgorithmDeprecatedRule_extends(AggregationHashChainAlgorithmDeprecatedRule, _super);
+    function AggregationHashChainAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return AggregationHashChainAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, _i, aggregationHashChains_1, chain;
+            return AggregationHashChainAlgorithmDeprecatedRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                aggregationHashChains = signature.getAggregationHashChains();
+                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
+                    chain = aggregationHashChains_1[_i];
+                    if (chain.getAggregationAlgorithm().isDeprecated(chain.getAggregationTime().valueOf())) {
+                        // tslint:disable-next-line:max-line-length
+                        console.warn("Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: " + chain.getAggregationAlgorithm().name + "; Aggregation time: " + chain.getAggregationTime());
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15)];
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainConsistencyRule.ts
+var AggregationHashChainConsistencyRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var AggregationHashChainConsistencyRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var AggregationHashChainConsistencyRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule verifies if all aggregation hash chains are consistent. e.g. previous aggregation hash chain output hash
+ * equals to current aggregation hash chain input hash.
+ */
+var AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule = /** @class */ (function (_super) {
+    AggregationHashChainConsistencyRule_extends(AggregationHashChainConsistencyRule, _super);
+    function AggregationHashChainConsistencyRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainConsistencyRule.prototype.verify = function (context) {
+        return AggregationHashChainConsistencyRule_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, chainHashResult, _i, aggregationHashChains_1, chain;
+            return AggregationHashChainConsistencyRule_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        aggregationHashChains = signature.getAggregationHashChains();
+                        chainHashResult = null;
+                        _i = 0, aggregationHashChains_1 = aggregationHashChains;
+                        _a.label = 1;
+                    case 1:
+                        if (!(_i < aggregationHashChains_1.length)) return [3 /*break*/, 4];
+                        chain = aggregationHashChains_1[_i];
+                        if (chainHashResult === null) {
+                            chainHashResult = { level: BigInteger_default()(0), hash: chain.getInputHash() };
+                        }
+                        if (!chain.getInputHash().equals(chainHashResult.hash)) {
+                            // tslint:disable-next-line:max-line-length
+                            console.warn("Aggregation hash chains not consistent. Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous aggregation hash chain output hash " + chainHashResult.hash + ".");
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)];
+                        }
+                        return [4 /*yield*/, chain.getOutputHash(chainHashResult)];
+                    case 2:
+                        chainHashResult = _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return AggregationHashChainConsistencyRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainIndexSuccessorRule.ts
+var AggregationHashChainIndexSuccessorRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var AggregationHashChainIndexSuccessorRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var AggregationHashChainIndexSuccessorRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * This rule checks that chain index of a aggregation hash chain is successor to it's parent aggregation hash chain index.
+ */
+var AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRule = /** @class */ (function (_super) {
+    AggregationHashChainIndexSuccessorRule_extends(AggregationHashChainIndexSuccessorRule, _super);
+    function AggregationHashChainIndexSuccessorRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainIndexSuccessorRule.prototype.verify = function (context) {
+        return AggregationHashChainIndexSuccessorRule_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, parentChainIndex, chainIndex, _i, aggregationHashChains_1, chain;
+            return AggregationHashChainIndexSuccessorRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                aggregationHashChains = signature.getAggregationHashChains();
+                parentChainIndex = null;
+                chainIndex = null;
+                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
+                    chain = aggregationHashChains_1[_i];
+                    chainIndex = chain.getChainIndex();
+                    if (parentChainIndex !== null && !(parentChainIndex.length !== chainIndex.length
+                        || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
+                        // tslint:disable-next-line:max-line-length
+                        console.warn("Chain index is not the successor to the parent aggregation hash chain index. Chain index: " + chainIndex + "; Parent chain index: " + parentChainIndex);
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                    }
+                    parentChainIndex = chainIndex;
+                }
+                if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
+                    console.warn("Highest aggregation hash chain index length is not 1. Chain index: " + chainIndex + ";");
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainIndexSuccessorRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainMetadataRule.ts
+var AggregationHashChainMetadataRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var AggregationHashChainMetadataRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var AggregationHashChainMetadataRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+/**
+ * Rule verifies if all metadata tags in aggregation hash chains are valid.
+ */
+var AggregationHashChainMetadataRule_AggregationHashChainMetadataRule = /** @class */ (function (_super) {
+    AggregationHashChainMetadataRule_extends(AggregationHashChainMetadataRule, _super);
+    function AggregationHashChainMetadataRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainMetadataRule.prototype.verify = function (context) {
+        return AggregationHashChainMetadataRule_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, _i, aggregationHashChains_1, chain, _a, _b, link, metadata, paddingTag, metadataBytes, hashAlgorithmId, hashAlgorithm, valueBytesString, stream;
+            return AggregationHashChainMetadataRule_generator(this, function (_c) {
+                signature = context.getSignature();
+                aggregationHashChains = signature.getAggregationHashChains();
+                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
+                    chain = aggregationHashChains_1[_i];
+                    for (_a = 0, _b = chain.getChainLinks(); _a < _b.length; _a++) {
+                        link = _b[_a];
+                        metadata = link.getMetadata();
+                        if (metadata === null) {
+                            continue;
+                        }
+                        paddingTag = metadata.getPaddingTag();
+                        if (paddingTag === null) {
+                            metadataBytes = metadata.getValueBytes();
+                            if (metadataBytes.length === 0) {
+                                continue;
+                            }
+                            hashAlgorithmId = metadataBytes[0];
+                            if (HashAlgorithm_HashAlgorithm.isInvalidAlgorithm(hashAlgorithmId)) {
+                                continue;
+                            }
+                            hashAlgorithm = HashAlgorithm_HashAlgorithm.getById(hashAlgorithmId);
+                            if (hashAlgorithm !== null && hashAlgorithm.length === metadataBytes.length - 1) {
+                                console.warn("Metadata without padding may not be trusted. Metadata: " + metadata);
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                            }
+                        }
+                        else {
+                            if (metadata.value.indexOf(paddingTag) !== 0) {
+                                console.warn("Metadata with padding may not be trusted. Padding is not the first element. Metadata: " + metadata);
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                            }
+                            if (paddingTag.tlv16BitFlag) {
+                                console.warn("Metadata with padding may not be trusted. Padding is not TLV8. Metadata: " + metadata);
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                            }
+                            if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
+                                // tslint:disable-next-line:max-line-length
+                                console.warn("Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: " + metadata);
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                            }
+                            valueBytesString = JSON.stringify(paddingTag.getValueBytes());
+                            if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
+                                && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
+                                console.warn("Metadata with padding may not be trusted. Unknown padding value. Metadata: " + metadata);
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                            }
+                            stream = new TlvOutputStream();
+                            stream.writeTag(metadata);
+                            if (stream.getData().length % 2 !== 0) {
+                                console.warn("Metadata with padding may not be trusted. Invalid padding value. Metadata: " + metadata);
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                            }
+                        }
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainMetadataRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainShapeRule.ts
+var AggregationHashChainShapeRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var AggregationHashChainShapeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var AggregationHashChainShapeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule checks that shape of the aggregation hash chain matches with chain index.
+ */
+var AggregationHashChainShapeRule_AggregationHashChainShapeRule = /** @class */ (function (_super) {
+    AggregationHashChainShapeRule_extends(AggregationHashChainShapeRule, _super);
+    function AggregationHashChainShapeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainShapeRule.prototype.verify = function (context) {
+        return AggregationHashChainShapeRule_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, _i, aggregationHashChains_1, chain, chainIndex, calculatedValue, lastIndexValue;
+            return AggregationHashChainShapeRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                aggregationHashChains = signature.getAggregationHashChains();
+                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
+                    chain = aggregationHashChains_1[_i];
+                    chainIndex = chain.getChainIndex();
+                    calculatedValue = chain.calculateLocationPointer();
+                    lastIndexValue = chainIndex[chainIndex.length - 1];
+                    if (!lastIndexValue.eq(calculatedValue)) {
+                        // tslint:disable-next-line:max-line-length
+                        console.warn("The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue);
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10)];
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainShapeRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainTimeConsistencyRule.ts
+var AggregationHashChainTimeConsistencyRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var AggregationHashChainTimeConsistencyRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var AggregationHashChainTimeConsistencyRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule checks that aggregation hash chain times are consistent. It means that previous aggregation hash chain
+ * aggregation time equals to current one.
+ */
+var AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyRule = /** @class */ (function (_super) {
+    AggregationHashChainTimeConsistencyRule_extends(AggregationHashChainTimeConsistencyRule, _super);
+    function AggregationHashChainTimeConsistencyRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    AggregationHashChainTimeConsistencyRule.prototype.verify = function (context) {
+        return AggregationHashChainTimeConsistencyRule_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChains, time, _i, aggregationHashChains_1, chain;
+            return AggregationHashChainTimeConsistencyRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                aggregationHashChains = signature.getAggregationHashChains();
+                time = null;
+                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
+                    chain = aggregationHashChains_1[_i];
+                    if (time === null) {
+                        time = chain.getAggregationTime();
+                    }
+                    if (!chain.getAggregationTime().equals(time)) {
+                        // tslint:disable-next-line:max-line-length
+                        console.warn("Previous aggregation hash chain aggregation time " + time + " does not match current aggregation time " + chain.getAggregationTime() + ".");
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return AggregationHashChainTimeConsistencyRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordAggregationHashRule.ts
+var CalendarAuthenticationRecordAggregationHashRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarAuthenticationRecordAggregationHashRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarAuthenticationRecordAggregationHashRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule verifies that calendar authentication record publication hash equals to calendar hash chain output hash.
+ * Without calendar authentication record VerificationResultCode.Ok is returned.
+ */
+var CalendarAuthenticationRecordAggregationHashRule_CalendarAuthenticationRecordAggregationHashRule = /** @class */ (function (_super) {
+    CalendarAuthenticationRecordAggregationHashRule_extends(CalendarAuthenticationRecordAggregationHashRule, _super);
+    function CalendarAuthenticationRecordAggregationHashRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarAuthenticationRecordAggregationHashRule.prototype.verify = function (context) {
+        return CalendarAuthenticationRecordAggregationHashRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarAuthenticationRecord, calendarHashChain;
+            return CalendarAuthenticationRecordAggregationHashRule_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
+                        if (calendarAuthenticationRecord == null) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        }
+                        calendarHashChain = signature.getCalendarHashChain();
+                        if (calendarHashChain === null) {
+                            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                        }
+                        return [4 /*yield*/, calendarHashChain.calculateOutputHash()];
+                    case 1: return [2 /*return*/, !(_a.sent())
+                            .equals(calendarAuthenticationRecord.getPublicationData().getPublicationHash())
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return CalendarAuthenticationRecordAggregationHashRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordExistenceRule.ts
+var CalendarAuthenticationRecordExistenceRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarAuthenticationRecordExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarAuthenticationRecordExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule verifies that KSI signature contains calendar authentication record.
+ */
+var CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExistenceRule = /** @class */ (function (_super) {
+    CalendarAuthenticationRecordExistenceRule_extends(CalendarAuthenticationRecordExistenceRule, _super);
+    function CalendarAuthenticationRecordExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarAuthenticationRecordExistenceRule.prototype.verify = function (context) {
+        return CalendarAuthenticationRecordExistenceRule_awaiter(this, void 0, void 0, function () {
+            return CalendarAuthenticationRecordExistenceRule_generator(this, function (_a) {
+                return [2 /*return*/, context.getSignature().getCalendarAuthenticationRecord() === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarAuthenticationRecordExistenceRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordPublicationTimeRule.ts
+var CalendarAuthenticationRecordPublicationTimeRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarAuthenticationRecordPublicationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarAuthenticationRecordPublicationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule verifies that calendar authentication record publication time equals to calendar hash chain publication time.
+ * Without calendar authentication record VerificationResultCode.Ok is returned.
+ */
+var CalendarAuthenticationRecordPublicationTimeRule_CalendarAuthenticationRecordPublicationTimeRule = /** @class */ (function (_super) {
+    CalendarAuthenticationRecordPublicationTimeRule_extends(CalendarAuthenticationRecordPublicationTimeRule, _super);
+    function CalendarAuthenticationRecordPublicationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarAuthenticationRecordPublicationTimeRule.prototype.verify = function (context) {
+        return CalendarAuthenticationRecordPublicationTimeRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarAuthenticationRecord, calendarHashChain;
+            return CalendarAuthenticationRecordPublicationTimeRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
+                if (calendarAuthenticationRecord == null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                }
+                return [2 /*return*/, calendarHashChain.getPublicationTime().neq(calendarAuthenticationRecord.getPublicationData().getPublicationTime())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_06)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarAuthenticationRecordPublicationTimeRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainAggregationTimeRule.ts
+var CalendarHashChainAggregationTimeRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarHashChainAggregationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarHashChainAggregationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule verifies calendar hash chain aggregation time equality to last aggregation hash chain aggrega tion time.
+ * Without calendar authentication record <see cref="VerificationResultCode.Ok" /> is returned.
+ */
+var CalendarHashChainAggregationTimeRule_CalendarHashChainAggregationTimeRule = /** @class */ (function (_super) {
+    CalendarHashChainAggregationTimeRule_extends(CalendarHashChainAggregationTimeRule, _super);
+    function CalendarHashChainAggregationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainAggregationTimeRule.prototype.verify = function (context) {
+        return CalendarHashChainAggregationTimeRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain, aggregationHashChains;
+            return CalendarHashChainAggregationTimeRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                aggregationHashChains = signature.getAggregationHashChains();
+                return [2 /*return*/, aggregationHashChains[aggregationHashChains.length - 1].getAggregationTime().neq(calendarHashChain.getAggregationTime())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainAggregationTimeRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainAlgorithmObsoleteRule.ts
+var CalendarHashChainAlgorithmObsoleteRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarHashChainAlgorithmObsoleteRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarHashChainAlgorithmObsoleteRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Verifies that calendar hash chain right link hash algorithms were not obsolete at the publication time.
+ * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
+ */
+var CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRule = /** @class */ (function (_super) {
+    CalendarHashChainAlgorithmObsoleteRule_extends(CalendarHashChainAlgorithmObsoleteRule, _super);
+    function CalendarHashChainAlgorithmObsoleteRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainAlgorithmObsoleteRule.prototype.verify = function (context) {
+        return CalendarHashChainAlgorithmObsoleteRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain, _i, _a, link;
+            return CalendarHashChainAlgorithmObsoleteRule_generator(this, function (_b) {
+                signature = context.getSignature();
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                for (_i = 0, _a = calendarHashChain.getChainLinks(); _i < _a.length; _i++) {
+                    link = _a[_i];
+                    if (link.id !== LinkDirection.Left) {
+                        continue;
+                    }
+                    if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
+                        console.warn("Calendar hash chain contains obsolete aggregation algorithm at publication time.\n                             Algorithm: " + link.getValue().hashAlgorithm.name + ";\n                             Publication time: " + calendarHashChain.getPublicationTime());
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16)];
+                    }
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainAlgorithmObsoleteRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainExistenceRule.ts
+var CalendarHashChainExistenceRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarHashChainExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarHashChainExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule for checking if KSI signature contains calendar hash chain. Used for key-based and publication-based verification policies.
+ */
+var CalendarHashChainExistenceRule_CalendarHashChainExistenceRule = /** @class */ (function (_super) {
+    CalendarHashChainExistenceRule_extends(CalendarHashChainExistenceRule, _super);
+    function CalendarHashChainExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainExistenceRule.prototype.verify = function (context) {
+        return CalendarHashChainExistenceRule_awaiter(this, void 0, void 0, function () {
+            return CalendarHashChainExistenceRule_generator(this, function (_a) {
+                return [2 /*return*/, context.getSignature().getCalendarHashChain() === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainExistenceRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainInputHashVerificationRule.ts
+var CalendarHashChainInputHashVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarHashChainInputHashVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarHashChainInputHashVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule verifies that last aggregation hash chain output hash is equal to calendar hash chain input hash. If calendar
+ * hash chain is missing, status VerificationResultCode.Ok is returned.
+ */
+var CalendarHashChainInputHashVerificationRule_CalendarHashChainInputHashVerificationRule = /** @class */ (function (_super) {
+    CalendarHashChainInputHashVerificationRule_extends(CalendarHashChainInputHashVerificationRule, _super);
+    function CalendarHashChainInputHashVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainInputHashVerificationRule.prototype.verify = function (context) {
+        return CalendarHashChainInputHashVerificationRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain;
+            return CalendarHashChainInputHashVerificationRule_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        calendarHashChain = signature.getCalendarHashChain();
+                        if (calendarHashChain === null) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        }
+                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
+                    case 1: return [2 /*return*/, !(_a.sent()).equals(calendarHashChain.getInputHash())
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return CalendarHashChainInputHashVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainRegistrationTimeRule.ts
+var CalendarHashChainRegistrationTimeRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarHashChainRegistrationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarHashChainRegistrationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule is used to verify calendar hash chain registration time (calculated from calendar hash  chain shape) equality
+ * to calendar hash chain aggregation time. If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
+ */
+var CalendarHashChainRegistrationTimeRule_CalendarHashChainRegistrationTimeRule = /** @class */ (function (_super) {
+    CalendarHashChainRegistrationTimeRule_extends(CalendarHashChainRegistrationTimeRule, _super);
+    function CalendarHashChainRegistrationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainRegistrationTimeRule.prototype.verify = function (context) {
+        return CalendarHashChainRegistrationTimeRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain;
+            return CalendarHashChainRegistrationTimeRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                return [2 /*return*/, calendarHashChain.getAggregationTime().neq(calendarHashChain.calculateRegistrationTime())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainRegistrationTimeRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/DocumentHashLevelVerificationRule.ts
+var DocumentHashLevelVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var DocumentHashLevelVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var DocumentHashLevelVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * This rule verifies that given document hash level is not greater than the first link level
+ * correction of the first aggregation hash chain. In case RFC3161 signature the given document hash level must be 0.
+ * If the level is equal to or less than expected then VerificationResultCode.Ok is returned.
+ */
+var DocumentHashLevelVerificationRule_DocumentHashLevelVerificationRule = /** @class */ (function (_super) {
+    DocumentHashLevelVerificationRule_extends(DocumentHashLevelVerificationRule, _super);
+    function DocumentHashLevelVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    DocumentHashLevelVerificationRule.prototype.verify = function (context) {
+        return DocumentHashLevelVerificationRule_awaiter(this, void 0, void 0, function () {
+            var signature, levelCorrection;
+            return DocumentHashLevelVerificationRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                levelCorrection = signature.getRfc3161Record() !== null
+                    ? BigInteger_default()(0)
+                    : signature.getAggregationHashChains()[0].getChainLinks()[0].getLevelCorrection();
+                return [2 /*return*/, context.getDocumentHashLevel() > levelCorrection
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return DocumentHashLevelVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/DocumentHashVerificationRule.ts
+var DocumentHashVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var DocumentHashVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var DocumentHashVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * This rule verifies document hash. If RFC3161 record is present then document hash must equal to RFC3161 record input hash.
+ * Otherwise document hash is compared to aggregation hash chain input hash.
+ * If document hash is not provided then VerificationResultCode.Ok is returned.
+ */
+var DocumentHashVerificationRule_DocumentHashVerificationRule = /** @class */ (function (_super) {
+    DocumentHashVerificationRule_extends(DocumentHashVerificationRule, _super);
+    function DocumentHashVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    DocumentHashVerificationRule.prototype.verify = function (context) {
+        return DocumentHashVerificationRule_awaiter(this, void 0, void 0, function () {
+            var signature, documentHash, inputHash;
+            return DocumentHashVerificationRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                documentHash = context.getDocumentHash();
+                if (documentHash === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                inputHash = signature.getInputHash();
+                if (!documentHash.equals(inputHash)) {
+                    console.warn("Invalid document hash. Expected " + documentHash + ", found " + inputHash);
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return DocumentHashVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/InputHashAlgorithmDeprecatedRule.ts
+var InputHashAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var InputHashAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var InputHashAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * This rule verifies that input hash algorithm is not deprecated at aggregation time.
+ * If RFC3161 record is present then RFC3161 record input hash algorithm deprecation is checked.
+ */
+var InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    InputHashAlgorithmDeprecatedRule_extends(InputHashAlgorithmDeprecatedRule, _super);
+    function InputHashAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InputHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return InputHashAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
+            var signature, inputHash;
+            return InputHashAlgorithmDeprecatedRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                inputHash = signature.getInputHash();
+                if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
+                    // tslint:disable-next-line:max-line-length
+                    console.warn("Input hash algorithm was deprecated at aggregation time. Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime());
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return InputHashAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/InputHashAlgorithmVerificationRule.ts
+var InputHashAlgorithmVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var InputHashAlgorithmVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var InputHashAlgorithmVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * This rule verifies input hash algorithm. If RFC3161 record is present then intput hash algorithm must equal
+ * to RFC3161 record input hash algorithm. Otherwise input hash algorithm is compared to aggregation hash chain input hash algorithm.
+ * If input hash is not provided then <see cref="VerificationResultCode.Ok" /> is returned.
+ */
+var InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule = /** @class */ (function (_super) {
+    InputHashAlgorithmVerificationRule_extends(InputHashAlgorithmVerificationRule, _super);
+    function InputHashAlgorithmVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    InputHashAlgorithmVerificationRule.prototype.verify = function (context) {
+        return InputHashAlgorithmVerificationRule_awaiter(this, void 0, void 0, function () {
+            var signature, documentHash, inputHash;
+            return InputHashAlgorithmVerificationRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                documentHash = context.getDocumentHash();
+                if (documentHash === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                inputHash = signature.getInputHash();
+                if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
+                    // TODO: Turn off console logging
+                    console.warn("Wrong input hash algorithm. Expected " + documentHash.hashAlgorithm + ", found " + inputHash.hashAlgorithm);
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return InputHashAlgorithmVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordAggregationTimeRule.ts
+var Rfc3161RecordAggregationTimeRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Rfc3161RecordAggregationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Rfc3161RecordAggregationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * This rule verifies that aggregation hash chain aggregation time and RFC3161 record aggregation time match.
+ * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
+ */
+var Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule = /** @class */ (function (_super) {
+    Rfc3161RecordAggregationTimeRule_extends(Rfc3161RecordAggregationTimeRule, _super);
+    function Rfc3161RecordAggregationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordAggregationTimeRule.prototype.verify = function (context) {
+        return Rfc3161RecordAggregationTimeRule_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record, aggregationHashChains;
+            return Rfc3161RecordAggregationTimeRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                rfc3161Record = signature.getRfc3161Record();
+                if (rfc3161Record === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                aggregationHashChains = signature.getAggregationHashChains();
+                if (aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
+                    console.warn("Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.");
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return Rfc3161RecordAggregationTimeRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordChainIndexRule.ts
+var Rfc3161RecordChainIndexRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Rfc3161RecordChainIndexRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Rfc3161RecordChainIndexRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * This rule verifies that aggregation hash chain index and RFC3161 record chain index match.
+ * If RFC3161 record is not present then VerificationResultCode.Ok is returned.
+ */
+var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (function (_super) {
+    Rfc3161RecordChainIndexRule_extends(Rfc3161RecordChainIndexRule, _super);
+    function Rfc3161RecordChainIndexRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordChainIndexRule.prototype.verify = function (context) {
+        return Rfc3161RecordChainIndexRule_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record, aggregationHashChains, rfc3161ChainIndex, aggregationChainIndex, rfc3161ChainIndexJson, aggregationChainIndexJson;
+            return Rfc3161RecordChainIndexRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                rfc3161Record = signature.getRfc3161Record();
+                if (rfc3161Record === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                aggregationHashChains = signature.getAggregationHashChains();
+                rfc3161ChainIndex = rfc3161Record.getChainIndex();
+                aggregationChainIndex = aggregationHashChains[0].getChainIndex();
+                rfc3161ChainIndexJson = JSON.stringify(rfc3161ChainIndex);
+                aggregationChainIndexJson = JSON.stringify(aggregationChainIndex);
+                if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
+                    // tslint:disable-next-line:max-line-length
+                    console.warn("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson);
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return Rfc3161RecordChainIndexRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordHashAlgorithmDeprecatedRule.ts
+var Rfc3161RecordHashAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Rfc3161RecordHashAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Rfc3161RecordHashAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Verifies that all hash algorithms used internally in RFC3161 record were not deprecated at the aggregation time.
+ * If RFC3161 record is not present then VerificationResultCode.Ok is returned.
+ */
+var Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    Rfc3161RecordHashAlgorithmDeprecatedRule_extends(Rfc3161RecordHashAlgorithmDeprecatedRule, _super);
+    function Rfc3161RecordHashAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return Rfc3161RecordHashAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record;
+            return Rfc3161RecordHashAlgorithmDeprecatedRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                rfc3161Record = signature.getRfc3161Record();
+                if (rfc3161Record === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                if (rfc3161Record.getTstInfoAlgorithm() != null
+                    && rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
+                    // tslint:disable-next-line:max-line-length
+                    console.warn("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime());
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
+                }
+                if (rfc3161Record.getSignedAttributesAlgorithm() != null
+                    && rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
+                    // tslint:disable-next-line:max-line-length
+                    console.warn("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime());
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return Rfc3161RecordHashAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordOutputHashAlgorithmDeprecatedRule.ts
+var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Verifies that RFC3161 record output hash algorithm was not deprecated at the aggregation time.
+ * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
+ */
+var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    Rfc3161RecordOutputHashAlgorithmDeprecatedRule_extends(Rfc3161RecordOutputHashAlgorithmDeprecatedRule, _super);
+    function Rfc3161RecordOutputHashAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordOutputHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return Rfc3161RecordOutputHashAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
+            var signature, aggregationHashChain, hashAlgorithm, aggregationTime;
+            return Rfc3161RecordOutputHashAlgorithmDeprecatedRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                if (signature.getRfc3161Record() === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                aggregationHashChain = signature.getAggregationHashChains()[0];
+                hashAlgorithm = aggregationHashChain.getInputHash().hashAlgorithm;
+                aggregationTime = aggregationHashChain.getAggregationTime();
+                if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
+                    // tslint:disable-next-line:max-line-length
+                    console.warn("RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: " + hashAlgorithm + "; Aggregation time: " + aggregationTime);
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return Rfc3161RecordOutputHashAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordOutputHashVerificationRule.ts
+var Rfc3161RecordOutputHashVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Rfc3161RecordOutputHashVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Rfc3161RecordOutputHashVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * This rule verifies RFC3161 output hash equals to aggregation chain input hash.
+ * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
+ */
+var Rfc3161RecordOutputHashVerificationRule_Rfc3161RecordOutputHashVerificationRule = /** @class */ (function (_super) {
+    Rfc3161RecordOutputHashVerificationRule_extends(Rfc3161RecordOutputHashVerificationRule, _super);
+    function Rfc3161RecordOutputHashVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Rfc3161RecordOutputHashVerificationRule.prototype.verify = function (context) {
+        return Rfc3161RecordOutputHashVerificationRule_awaiter(this, void 0, void 0, function () {
+            var signature, rfc3161Record, aggregationHashChainInputHash, inputHash, _a, _b;
+            return Rfc3161RecordOutputHashVerificationRule_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        rfc3161Record = signature.getRfc3161Record();
+                        if (rfc3161Record === null) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        }
+                        aggregationHashChainInputHash = signature.getAggregationHashChains()[0].getInputHash();
+                        _b = (_a = new DataHasher_DataHasher(aggregationHashChainInputHash.hashAlgorithm)).update;
+                        return [4 /*yield*/, rfc3161Record.getOutputHash()];
+                    case 1: return [4 /*yield*/, _b.apply(_a, [(_c.sent()).imprint])
+                            .digest()];
+                    case 2:
+                        inputHash = _c.sent();
+                        return [2 /*return*/, !inputHash.equals(aggregationHashChainInputHash)
+                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)
+                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return Rfc3161RecordOutputHashVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/SignaturePublicationRecordExistenceRule.ts
+var SignaturePublicationRecordExistenceRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var SignaturePublicationRecordExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var SignaturePublicationRecordExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule checks if KSI signature contains publication record.
+ */
+var SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceRule = /** @class */ (function (_super) {
+    SignaturePublicationRecordExistenceRule_extends(SignaturePublicationRecordExistenceRule, _super);
+    function SignaturePublicationRecordExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SignaturePublicationRecordExistenceRule.prototype.verify = function (context) {
+        return SignaturePublicationRecordExistenceRule_awaiter(this, void 0, void 0, function () {
+            return SignaturePublicationRecordExistenceRule_generator(this, function (_a) {
+                return [2 /*return*/, context.getSignature().getPublicationRecord() === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return SignaturePublicationRecordExistenceRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/SignaturePublicationRecordPublicationHashRule.ts
+var SignaturePublicationRecordPublicationHashRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var SignaturePublicationRecordPublicationHashRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var SignaturePublicationRecordPublicationHashRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks if KSI signature calendar hash chain publication hash matches signature publication record publication hash.
+ * If publication record is missing, VerificationResultCode.Ok is returned.
+ */
+var SignaturePublicationRecordPublicationHashRule_SignaturePublicationRecordPublicationHashRule = /** @class */ (function (_super) {
+    SignaturePublicationRecordPublicationHashRule_extends(SignaturePublicationRecordPublicationHashRule, _super);
+    function SignaturePublicationRecordPublicationHashRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SignaturePublicationRecordPublicationHashRule.prototype.verify = function (context) {
+        return SignaturePublicationRecordPublicationHashRule_awaiter(this, void 0, void 0, function () {
+            var signature, publicationRecord, calendarHashChain;
+            return SignaturePublicationRecordPublicationHashRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                publicationRecord = signature.getPublicationRecord();
+                if (publicationRecord === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                }
+                return [2 /*return*/, publicationRecord.getPublicationHash().equals(calendarHashChain.calculateOutputHash())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return SignaturePublicationRecordPublicationHashRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/SignaturePublicationRecordPublicationTimeRule.ts
+var SignaturePublicationRecordPublicationTimeRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var SignaturePublicationRecordPublicationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var SignaturePublicationRecordPublicationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks if KSI signature calendar hash chain publication time matches signature publication record publication time.
+ * If publication record is missing, VerificationResultCode.Ok is returned.
+ */
+var SignaturePublicationRecordPublicationTimeRule_SignaturePublicationRecordPublicationTimeRule = /** @class */ (function (_super) {
+    SignaturePublicationRecordPublicationTimeRule_extends(SignaturePublicationRecordPublicationTimeRule, _super);
+    function SignaturePublicationRecordPublicationTimeRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SignaturePublicationRecordPublicationTimeRule.prototype.verify = function (context) {
+        return SignaturePublicationRecordPublicationTimeRule_awaiter(this, void 0, void 0, function () {
+            var signature, publicationRecord, calendarHashChain;
+            return SignaturePublicationRecordPublicationTimeRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                publicationRecord = signature.getPublicationRecord();
+                if (publicationRecord === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                }
+                return [2 /*return*/, publicationRecord.getPublicationTime().neq(calendarHashChain.getPublicationTime())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_07)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return SignaturePublicationRecordPublicationTimeRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/SuccessResultRule.ts
+var SuccessResultRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var SuccessResultRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var SuccessResultRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+/**
+ * Rule that always returns VerificationResultCode.Ok
+ */
+var SuccessResultRule_SuccessResultRule = /** @class */ (function (_super) {
+    SuccessResultRule_extends(SuccessResultRule, _super);
+    function SuccessResultRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SuccessResultRule.prototype.verify = function (context) {
+        return SuccessResultRule_awaiter(this, void 0, void 0, function () {
+            return SuccessResultRule_generator(this, function (_a) {
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return SuccessResultRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/policy/VerificationPolicy.ts
+var VerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var VerificationPolicy_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var VerificationPolicy_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+/**
+ * Verification policy for KSI signature
+ */
+var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
+    VerificationPolicy_extends(VerificationPolicy, _super);
+    function VerificationPolicy(rule, ruleName) {
+        if (ruleName === void 0) { ruleName = null; }
+        var _this = _super.call(this, ruleName) || this;
+        _this.verificationResults = [];
+        _this.firstRule = rule;
+        return _this;
+    }
+    VerificationPolicy.prototype.verify = function (context) {
+        return VerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var verificationRule, result, error_1;
+            return VerificationPolicy_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        verificationRule = this.firstRule;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 5, , 6]);
+                        _a.label = 2;
+                    case 2:
+                        if (!(verificationRule !== null)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, verificationRule.verify(context)];
+                    case 3:
+                        result = _a.sent();
+                        this.verificationResults.push(result);
+                        verificationRule = verificationRule.getNextRule(result.getResultCode());
+                        return [3 /*break*/, 2];
+                    case 4: return [3 /*break*/, 6];
+                    case 5:
+                        error_1 = _a.sent();
+                        throw error_1;
+                    case 6:
+                        Object.freeze(this.verificationResults);
+                        return [2 /*return*/, VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), this.verificationResults)];
+                }
+            });
+        });
+    };
+    return VerificationPolicy;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/policy/InternalVerificationPolicy.ts
+var InternalVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Policy for verifying KSI signature internal consistency.
+ */
+var InternalVerificationPolicy_InternalVerificationPolicy = /** @class */ (function (_super) {
+    InternalVerificationPolicy_extends(InternalVerificationPolicy, _super);
+    function InternalVerificationPolicy() {
+        return _super.call(this, InternalVerificationPolicy.verifyInput()
+            .onSuccess(InternalVerificationPolicy.verifyRfc3161()
+            .onSuccess(InternalVerificationPolicy.verifyAggregationChain()
+            .onSuccess(
+        // Verify calendar hash chain if exists
+        new CalendarHashChainExistenceRule_CalendarHashChainExistenceRule() // Gen-02
+            .onSuccess(InternalVerificationPolicy.verifyCalendarChain()
+            .onSuccess(
+        // Verify calendar auth record if exists
+        new CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExistenceRule() // Gen-02
+            .onSuccess(new CalendarAuthenticationRecordPublicationTimeRule_CalendarAuthenticationRecordPublicationTimeRule() // Int-06
+            .onSuccess(new CalendarAuthenticationRecordAggregationHashRule_CalendarAuthenticationRecordAggregationHashRule()))
+            // No calendar auth record. Verify publication record.
+            .onNa(new SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceRule() // Gen-02
+            .onSuccess(new SignaturePublicationRecordPublicationTimeRule_SignaturePublicationRecordPublicationTimeRule() // Int-07
+            .onSuccess(new SignaturePublicationRecordPublicationHashRule_SignaturePublicationRecordPublicationHashRule())) // Int-09
+            // No publication record
+            .onNa(new SuccessResultRule_SuccessResultRule())))))
+            // No calendar hash chain
+            .onNa(new SuccessResultRule_SuccessResultRule())))) || this;
+    }
+    InternalVerificationPolicy.verifyInput = function () {
+        return new VerificationPolicy_VerificationPolicy(new InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule() // Gen-04
+            .onSuccess(new DocumentHashVerificationRule_DocumentHashVerificationRule() // Gen-01
+            .onSuccess(new DocumentHashLevelVerificationRule_DocumentHashLevelVerificationRule() // Gen-03
+            .onSuccess(new InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule()))), 'Verify Input'); // Int-13)
+    };
+    InternalVerificationPolicy.verifyRfc3161 = function () {
+        return new VerificationPolicy_VerificationPolicy(new Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecatedRule() // Int-14
+            .onSuccess(new Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgorithmDeprecatedRule() // Int-17
+            .onSuccess(new Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule() // Int-12
+            .onSuccess(new Rfc3161RecordOutputHashVerificationRule_Rfc3161RecordOutputHashVerificationRule() // Int-01
+            .onSuccess(new Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule())))), 'Verify Rfc3161'); // Int-02
+    };
+    InternalVerificationPolicy.verifyAggregationChain = function () {
+        return new VerificationPolicy_VerificationPolicy(new AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRule() // Int-12
+            .onSuccess(new AggregationHashChainMetadataRule_AggregationHashChainMetadataRule() // Int-11
+            .onSuccess(new AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDeprecatedRule() // Int-15
+            .onSuccess(new AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule() // Int-01
+            .onSuccess(new AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyRule() // Int-02
+            .onSuccess(new AggregationHashChainShapeRule_AggregationHashChainShapeRule()))))), 'Verify aggregation hash chain'); // Int-10
+    };
+    InternalVerificationPolicy.verifyCalendarChain = function () {
+        return new VerificationPolicy_VerificationPolicy(new CalendarHashChainInputHashVerificationRule_CalendarHashChainInputHashVerificationRule() // Int-03
+            .onSuccess(new CalendarHashChainAggregationTimeRule_CalendarHashChainAggregationTimeRule() // Int-04
+            .onSuccess(new CalendarHashChainRegistrationTimeRule_CalendarHashChainRegistrationTimeRule() // Int-05
+            .onSuccess(new CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRule()))), 'Verify calendar hash chain'); // Int-16 // Int-10
+    };
+    return InternalVerificationPolicy;
+}(VerificationPolicy_VerificationPolicy));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainAlgorithmDeprecatedRule.ts
+var CalendarHashChainAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarHashChainAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarHashChainAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Verifies that calendar hash chain right link hash algorithms were not deprecated at the publication time.
+ * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
+ */
+var CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    CalendarHashChainAlgorithmDeprecatedRule_extends(CalendarHashChainAlgorithmDeprecatedRule, _super);
+    function CalendarHashChainAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarHashChainAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return CalendarHashChainAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarHashChain, deprecatedLink;
+            return CalendarHashChainAlgorithmDeprecatedRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                calendarHashChain = signature.getCalendarHashChain();
+                if (calendarHashChain === null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain);
+                if (deprecatedLink !== null) {
+                    console.warn("Calendar hash chain contains deprecated aggregation algorithm at publication time.\n                             Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + ";\n                             Publication time: " + calendarHashChain.getPublicationTime());
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CalendarHashChainAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule.ts
+var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Verifies that extender response calendar hash chain right link hash algorithms are not deprecated.
+ */
+var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule = /** @class */ (function (_super) {
+    ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_extends(ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule, _super);
+    function ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule.prototype.verify = function (context) {
+        return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
+            var signature, userPublication, publicationData, publicationsFile, publicationRecord, extendedCalendarHashChain, deprecatedLink;
+            return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        userPublication = context.getUserPublication();
+                        if (userPublication !== null) {
+                            publicationData = userPublication;
+                        }
+                        else {
+                            publicationsFile = context.getPublicationsFile();
+                            if (publicationsFile === null) {
+                                throw new KsiVerificationError('Invalid publications file in context: null.');
+                            }
+                            publicationRecord = publicationsFile
+                                .getNearestPublicationRecord(signature.getAggregationTime());
+                            if (publicationRecord === null) {
+                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                            }
+                            publicationData = publicationRecord.getPublicationData();
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationData.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
+                        if (deprecatedLink !== null) {
+                            console.warn("Calendar hash chain contains deprecated aggregation algorithm at publication time.\n                             Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + ";\n                             Publication time: " + publicationData.getPublicationTime());
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                        }
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/ExtendingPermittedVerificationRule.ts
+var ExtendingPermittedVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var ExtendingPermittedVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var ExtendingPermittedVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+/**
+ * Rule checks that extending is permitted by user.
+ */
+var ExtendingPermittedVerificationRule_ExtendingPermittedVerificationRule = /** @class */ (function (_super) {
+    ExtendingPermittedVerificationRule_extends(ExtendingPermittedVerificationRule, _super);
+    function ExtendingPermittedVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ExtendingPermittedVerificationRule.prototype.verify = function (context) {
+        return ExtendingPermittedVerificationRule_awaiter(this, void 0, void 0, function () {
+            return ExtendingPermittedVerificationRule_generator(this, function (_a) {
+                return [2 /*return*/, context.isExtendingAllowed()
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.OK)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+            });
+        });
+    };
+    return ExtendingPermittedVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/PublicationsFileExtendedSignatureInputHashRule.ts
+var PublicationsFileExtendedSignatureInputHashRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var PublicationsFileExtendedSignatureInputHashRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var PublicationsFileExtendedSignatureInputHashRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks that extender response calendar hash chain input hash matches with signature aggregation root hash.
+ */
+var PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSignatureInputHashRule = /** @class */ (function (_super) {
+    PublicationsFileExtendedSignatureInputHashRule_extends(PublicationsFileExtendedSignatureInputHashRule, _super);
+    function PublicationsFileExtendedSignatureInputHashRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PublicationsFileExtendedSignatureInputHashRule.prototype.verify = function (context) {
+        return PublicationsFileExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
+            var signature, publicationsFile, publicationRecord, extendedCalendarHashChain, _a, _b;
+            return PublicationsFileExtendedSignatureInputHashRule_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        publicationsFile = context.getPublicationsFile();
+                        if (publicationsFile === null) {
+                            throw new KsiVerificationError('Invalid publications file in context: null.');
+                        }
+                        publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
+                        if (publicationRecord == null) {
+                            throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _c.sent();
+                        _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
+                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
+                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return PublicationsFileExtendedSignatureInputHashRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/PublicationsFilePublicationHashMatchesExtenderResponseRule.ts
+var PublicationsFilePublicationHashMatchesExtenderResponseRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var PublicationsFilePublicationHashMatchesExtenderResponseRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var PublicationsFilePublicationHashMatchesExtenderResponseRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks that publications file publication hash matches with extender response calendar hash chain root hash.
+ */
+var PublicationsFilePublicationHashMatchesExtenderResponseRule_PublicationsFilePublicationHashMatchesExtenderResponseRule = /** @class */ (function (_super) {
+    PublicationsFilePublicationHashMatchesExtenderResponseRule_extends(PublicationsFilePublicationHashMatchesExtenderResponseRule, _super);
+    function PublicationsFilePublicationHashMatchesExtenderResponseRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PublicationsFilePublicationHashMatchesExtenderResponseRule.prototype.verify = function (context) {
+        return PublicationsFilePublicationHashMatchesExtenderResponseRule_awaiter(this, void 0, void 0, function () {
+            var publicationsFile, signature, publicationRecord, extendedCalendarHashChain;
+            return PublicationsFilePublicationHashMatchesExtenderResponseRule_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        publicationsFile = context.getPublicationsFile();
+                        if (publicationsFile === null) {
+                            throw new KsiVerificationError('Invalid publications file in context: null.');
+                        }
+                        signature = context.getSignature();
+                        publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
+                        if (publicationRecord == null) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
+                    case 2: return [2 /*return*/, !(_a.sent()).equals(publicationRecord.getPublicationHash())
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return PublicationsFilePublicationHashMatchesExtenderResponseRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/PublicationsFilePublicationTimeMatchesExtenderResponseRule.ts
+var PublicationsFilePublicationTimeMatchesExtenderResponseRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var PublicationsFilePublicationTimeMatchesExtenderResponseRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var PublicationsFilePublicationTimeMatchesExtenderResponseRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks that publications file publication time matches with extender response calendar hash chain shape.
+ */
+var PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFilePublicationTimeMatchesExtenderResponseRule = /** @class */ (function (_super) {
+    PublicationsFilePublicationTimeMatchesExtenderResponseRule_extends(PublicationsFilePublicationTimeMatchesExtenderResponseRule, _super);
+    function PublicationsFilePublicationTimeMatchesExtenderResponseRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PublicationsFilePublicationTimeMatchesExtenderResponseRule.prototype.verify = function (context) {
+        return PublicationsFilePublicationTimeMatchesExtenderResponseRule_awaiter(this, void 0, void 0, function () {
+            var publicationsFile, signature, publicationRecord, extendedCalendarHashChain;
+            return PublicationsFilePublicationTimeMatchesExtenderResponseRule_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        publicationsFile = context.getPublicationsFile();
+                        if (publicationsFile === null) {
+                            throw new KsiVerificationError('Invalid publications file in context: null.');
+                        }
+                        signature = context.getSignature();
+                        publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
+                        if (publicationRecord == null) {
+                            throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        if (publicationRecord.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
+                        }
+                        return [2 /*return*/, signature.getAggregationTime().neq(extendedCalendarHashChain.calculateRegistrationTime())
+                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return PublicationsFilePublicationTimeMatchesExtenderResponseRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/PublicationsFileSignaturePublicationMatchRule.ts
+var PublicationsFileSignaturePublicationMatchRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var PublicationsFileSignaturePublicationMatchRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var PublicationsFileSignaturePublicationMatchRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks if publications file and signature publication record match.
+ */
+var PublicationsFileSignaturePublicationMatchRule_PublicationsFileSignaturePublicationMatchRule = /** @class */ (function (_super) {
+    PublicationsFileSignaturePublicationMatchRule_extends(PublicationsFileSignaturePublicationMatchRule, _super);
+    function PublicationsFileSignaturePublicationMatchRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PublicationsFileSignaturePublicationMatchRule.prototype.verify = function (context) {
+        return PublicationsFileSignaturePublicationMatchRule_awaiter(this, void 0, void 0, function () {
+            var publicationsFile, signature, publicationRecord, publicationRecordInPublicationFile;
+            return PublicationsFileSignaturePublicationMatchRule_generator(this, function (_a) {
+                publicationsFile = context.getPublicationsFile();
+                if (publicationsFile === null) {
+                    throw new KsiVerificationError('Invalid publications file in context: null.');
+                }
+                signature = context.getSignature();
+                publicationRecord = signature.getPublicationRecord();
+                if (publicationRecord == null) {
+                    throw new KsiVerificationError("Publication record is missing from KSI signature.");
+                }
+                publicationRecordInPublicationFile = publicationsFile
+                    .getNearestPublicationRecord(publicationRecord.getPublicationTime());
+                // TODO: Check if it should fail
+                if (publicationRecordInPublicationFile === null
+                    || publicationRecordInPublicationFile.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                }
+                return [2 /*return*/, !publicationRecordInPublicationFile.getPublicationHash().equals(publicationRecord.getPublicationHash())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_05)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return PublicationsFileSignaturePublicationMatchRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/policy/PublicationsFileVerificationPolicy.ts
+var PublicationsFileVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+// tslint:disable-next-line:max-line-length
+
+// tslint:disable-next-line:max-line-length
+
+
+
+
+/**
+ * Policy for verifying KSI signature with publications file.
+ */
+var PublicationsFileVerificationPolicy_PublicationsFileVerificationPolicy = /** @class */ (function (_super) {
+    PublicationsFileVerificationPolicy_extends(PublicationsFileVerificationPolicy, _super);
+    function PublicationsFileVerificationPolicy() {
+        var _this = this;
+        var verificationRule = new ExtendingPermittedVerificationRule_ExtendingPermittedVerificationRule() // Gen-02
+            .onSuccess(new ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule() // Gen-02
+            .onSuccess(new PublicationsFilePublicationHashMatchesExtenderResponseRule_PublicationsFilePublicationHashMatchesExtenderResponseRule() // Pub-01,  Gen-02
+            .onSuccess(new PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFilePublicationTimeMatchesExtenderResponseRule() // Pub-02
+            .onSuccess(new PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSignatureInputHashRule())))); // Pub-03
+        _this = _super.call(this, new SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceRule() // Gen-02
+            .onSuccess(new PublicationsFileSignaturePublicationMatchRule_PublicationsFileSignaturePublicationMatchRule() // Pub-05, Gen-02
+            .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule()) // Gen-02
+            .onNa(verificationRule))
+            .onNa(verificationRule)) || this;
+        return _this;
+    }
+    return PublicationsFileVerificationPolicy;
+}(VerificationPolicy_VerificationPolicy));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationCreationTimeVerificationRule.ts
+var UserProvidedPublicationCreationTimeVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var UserProvidedPublicationCreationTimeVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var UserProvidedPublicationCreationTimeVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks that signature is created before user provided publication.
+ */
+var UserProvidedPublicationCreationTimeVerificationRule_UserProvidedPublicationCreationTimeVerificationRule = /** @class */ (function (_super) {
+    UserProvidedPublicationCreationTimeVerificationRule_extends(UserProvidedPublicationCreationTimeVerificationRule, _super);
+    function UserProvidedPublicationCreationTimeVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    UserProvidedPublicationCreationTimeVerificationRule.prototype.verify = function (context) {
+        return UserProvidedPublicationCreationTimeVerificationRule_awaiter(this, void 0, void 0, function () {
+            var aggregationTime, userPublication, userPublicationTime;
+            return UserProvidedPublicationCreationTimeVerificationRule_generator(this, function (_a) {
+                aggregationTime = context.getSignature().getAggregationTime();
+                userPublication = context.getUserPublication();
+                if (userPublication == null) {
+                    throw new KsiVerificationError('Invalid user publication in context: null.');
+                }
+                userPublicationTime = userPublication.getPublicationTime();
+                return [2 /*return*/, aggregationTime.geq(userPublicationTime)
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return UserProvidedPublicationCreationTimeVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationExtendedSignatureInputHashRule.ts
+var UserProvidedPublicationExtendedSignatureInputHashRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var UserProvidedPublicationExtendedSignatureInputHashRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var UserProvidedPublicationExtendedSignatureInputHashRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks that extender response input hash equals to signature aggregation root hash.
+ */
+var UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicationExtendedSignatureInputHashRule = /** @class */ (function (_super) {
+    UserProvidedPublicationExtendedSignatureInputHashRule_extends(UserProvidedPublicationExtendedSignatureInputHashRule, _super);
+    function UserProvidedPublicationExtendedSignatureInputHashRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    UserProvidedPublicationExtendedSignatureInputHashRule.prototype.verify = function (context) {
+        return UserProvidedPublicationExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
+            var signature, userPublication, extendedCalendarHashChain, _a, _b;
+            return UserProvidedPublicationExtendedSignatureInputHashRule_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        userPublication = context.getUserPublication();
+                        if (userPublication === null) {
+                            throw new KsiVerificationError('Invalid user publication in context: null.');
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _c.sent();
+                        _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
+                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
+                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return UserProvidedPublicationExtendedSignatureInputHashRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationHashMatchesExtendedResponseRule.ts
+var UserProvidedPublicationHashMatchesExtendedResponseRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var UserProvidedPublicationHashMatchesExtendedResponseRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var UserProvidedPublicationHashMatchesExtendedResponseRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * RRule checks that user provided publication hash matches extender response calendar hash chain root hash.
+ */
+var UserProvidedPublicationHashMatchesExtendedResponseRule_UserProvidedPublicationHashMatchesExtendedResponseRule = /** @class */ (function (_super) {
+    UserProvidedPublicationHashMatchesExtendedResponseRule_extends(UserProvidedPublicationHashMatchesExtendedResponseRule, _super);
+    function UserProvidedPublicationHashMatchesExtendedResponseRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    UserProvidedPublicationHashMatchesExtendedResponseRule.prototype.verify = function (context) {
+        return UserProvidedPublicationHashMatchesExtendedResponseRule_awaiter(this, void 0, void 0, function () {
+            var userPublication, extendedCalendarHashChain;
+            return UserProvidedPublicationHashMatchesExtendedResponseRule_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userPublication = context.getUserPublication();
+                        if (userPublication === null) {
+                            throw new KsiVerificationError('Invalid user publication in context: null.');
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
+                    case 2: return [2 /*return*/, (_a.sent()).equals(userPublication.getPublicationHash())
+                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
+                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return UserProvidedPublicationHashMatchesExtendedResponseRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationTimeMatchesExtendedResponseRule.ts
+var UserProvidedPublicationTimeMatchesExtendedResponseRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var UserProvidedPublicationTimeMatchesExtendedResponseRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var UserProvidedPublicationTimeMatchesExtendedResponseRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks that user provided publication time matches extender response calendar hash chain shape.
+ */
+var UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicationTimeMatchesExtendedResponseRule = /** @class */ (function (_super) {
+    UserProvidedPublicationTimeMatchesExtendedResponseRule_extends(UserProvidedPublicationTimeMatchesExtendedResponseRule, _super);
+    function UserProvidedPublicationTimeMatchesExtendedResponseRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    UserProvidedPublicationTimeMatchesExtendedResponseRule.prototype.verify = function (context) {
+        return UserProvidedPublicationTimeMatchesExtendedResponseRule_awaiter(this, void 0, void 0, function () {
+            var signature, userPublication, extendedCalendarHashChain;
+            return UserProvidedPublicationTimeMatchesExtendedResponseRule_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        userPublication = context.getUserPublication();
+                        if (userPublication === null) {
+                            throw new KsiVerificationError('Invalid user publication in context: null.');
+                        }
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 1:
+                        extendedCalendarHashChain = _a.sent();
+                        if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
+                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
+                        }
+                        return [2 /*return*/, signature.getAggregationTime().equals(extendedCalendarHashChain.calculateRegistrationTime())
+                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+            });
+        });
+    };
+    return UserProvidedPublicationTimeMatchesExtendedResponseRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationVerificationRule.ts
+var UserProvidedPublicationVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var UserProvidedPublicationVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var UserProvidedPublicationVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule checks that user provided publication equals to publication in KSI signature.
+ */
+var UserProvidedPublicationVerificationRule_UserProvidedPublicationVerificationRule = /** @class */ (function (_super) {
+    UserProvidedPublicationVerificationRule_extends(UserProvidedPublicationVerificationRule, _super);
+    function UserProvidedPublicationVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    UserProvidedPublicationVerificationRule.prototype.verify = function (context) {
+        return UserProvidedPublicationVerificationRule_awaiter(this, void 0, void 0, function () {
+            var signature, userPublication, publicationRecord;
+            return UserProvidedPublicationVerificationRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                userPublication = context.getUserPublication();
+                if (userPublication === null) {
+                    throw new KsiVerificationError('Invalid user publication in context: null.');
+                }
+                publicationRecord = signature.getPublicationRecord();
+                if (publicationRecord === null) {
+                    throw new KsiVerificationError('Invalid publication record in signature: null');
+                }
+                if (userPublication.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
+                    console.warn("User provided publication time does not equal to signature publication time.\n                         User provided publication time: " + userPublication.getPublicationTime() + ";\n                         Signature publication time: " + publicationRecord.getPublicationTime());
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                }
+                return [2 /*return*/, !userPublication.getPublicationHash().equals(publicationRecord.getPublicationHash())
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_04)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return UserProvidedPublicationVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/policy/UserProvidedPublicationBasedVerificationPolicy.ts
+var UserProvidedPublicationBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Policy for verifying KSI signature with user provided publication.
+ */
+var UserProvidedPublicationBasedVerificationPolicy_UserProvidedPublicationBasedVerificationPolicy = /** @class */ (function (_super) {
+    UserProvidedPublicationBasedVerificationPolicy_extends(UserProvidedPublicationBasedVerificationPolicy, _super);
+    function UserProvidedPublicationBasedVerificationPolicy() {
+        var _this = this;
+        var verificationRule = new UserProvidedPublicationCreationTimeVerificationRule_UserProvidedPublicationCreationTimeVerificationRule() // Gen-02
+            .onSuccess(new ExtendingPermittedVerificationRule_ExtendingPermittedVerificationRule() // Gen-02
+            .onSuccess(new ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule() // Gen-02
+            .onSuccess(new UserProvidedPublicationHashMatchesExtendedResponseRule_UserProvidedPublicationHashMatchesExtendedResponseRule() // Pub-01
+            .onSuccess(new UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicationTimeMatchesExtendedResponseRule() // Pub-02
+            .onSuccess(new UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicationExtendedSignatureInputHashRule())))));
+        _this = _super.call(this, new UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule() // Gen-02
+            .onSuccess(new SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceRule() // Gen-02
+            .onSuccess(new UserProvidedPublicationVerificationRule_UserProvidedPublicationVerificationRule() // Pub-04, Gen-02
+            .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule()) // Gen-02
+            .onNa(verificationRule))
+            .onNa(verificationRule))) || this; // Pub-03
+        return _this;
+    }
+    return UserProvidedPublicationBasedVerificationPolicy;
+}(VerificationPolicy_VerificationPolicy));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/policy/PublicationBasedVerificationPolicy.ts
+var PublicationBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+/**
+ * Policy for verifying KSI signature with publication.
+ */
+var PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy = /** @class */ (function (_super) {
+    PublicationBasedVerificationPolicy_extends(PublicationBasedVerificationPolicy, _super);
+    function PublicationBasedVerificationPolicy() {
+        return _super.call(this, new InternalVerificationPolicy_InternalVerificationPolicy()
+            .onSuccess(new UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule() // Gen-02
+            .onSuccess(new UserProvidedPublicationBasedVerificationPolicy_UserProvidedPublicationBasedVerificationPolicy()) // Gen-02
+            .onNa(new PublicationsFileVerificationPolicy_PublicationsFileVerificationPolicy()))) || this;
+    }
+    return PublicationBasedVerificationPolicy;
+}(VerificationPolicy_VerificationPolicy));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/VerificationContext.ts
+var VerificationContext_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var VerificationContext_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+/**
+ * Verification context for KSI signature
+ */
+
+
+var VerificationContext_VerificationContext = /** @class */ (function () {
+    function VerificationContext(signature) {
+        this.ksiService = null;
+        this.documentHash = null;
+        this.publicationsFile = null;
+        this.publicationData = null;
+        this.extendingAllowed = true;
+        this.ksiSignature = signature;
+    }
+    VerificationContext.prototype.getSignature = function () {
+        return this.ksiSignature;
+    };
+    /**
+     * Get extended latest calendar hash chain.
+     */
+    VerificationContext.prototype.getExtendedLatestCalendarHashChain = function () {
+        return VerificationContext_awaiter(this, void 0, void 0, function () {
+            return VerificationContext_generator(this, function (_a) {
+                return [2 /*return*/, this.getExtendedCalendarHashChain(null)];
+            });
+        });
+    };
+    /**
+     * Get extended calendar hash chain from given publication time.
+     */
+    VerificationContext.prototype.getExtendedCalendarHashChain = function (publicationTime) {
+        return VerificationContext_awaiter(this, void 0, void 0, function () {
+            return VerificationContext_generator(this, function (_a) {
+                if (!this.ksiService) {
+                    throw new KsiVerificationError('Invalid KSI service in context.');
+                }
+                return [2 /*return*/, this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime)];
+            });
+        });
+    };
+    /**
+     * Get document hash.
+     */
+    VerificationContext.prototype.getDocumentHash = function () {
+        return this.documentHash;
+    };
+    VerificationContext.prototype.setDocumentHash = function (documentHash) {
+        this.documentHash = documentHash;
+    };
+    VerificationContext.prototype.setKsiService = function (ksiService) {
+        this.ksiService = ksiService;
+    };
+    /**
+     * Get document hash node level value in the aggregation tree
+     */
+    VerificationContext.prototype.getDocumentHashLevel = function () {
+        return BigInteger_default()(0);
+    };
+    VerificationContext.prototype.getPublicationsFile = function () {
+        return this.publicationsFile;
+    };
+    VerificationContext.prototype.setPublicationsFile = function (publicationsFile) {
+        this.publicationsFile = publicationsFile;
+    };
+    VerificationContext.prototype.getUserPublication = function () {
+        return this.publicationData;
+    };
+    VerificationContext.prototype.setUserPublication = function (publicationData) {
+        this.publicationData = publicationData;
+    };
+    VerificationContext.prototype.isExtendingAllowed = function () {
+        return this.extendingAllowed;
+    };
+    VerificationContext.prototype.setExtendingAllowed = function (extendingAllowed) {
+        this.extendingAllowed = extendingAllowed;
+    };
+    return VerificationContext;
+}());
+
+
+// EXTERNAL MODULE: ./node_modules/gt-js-common/node_modules/node-forge/dist/forge.gt.js
+var forge_gt = __webpack_require__(9);
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/SyncDataHasher.js
+
+
+
+
+
+
+const forgeSupportedAlgorithms = [HashAlgorithm_HashAlgorithm.SHA1,
+    HashAlgorithm_HashAlgorithm.SHA2_256];
+/**
+ * Provides synchronous hashing functions
+ */
+class SyncDataHasher_SyncDataHasher {
+    /**
+     * Create SyncDataHasher instance the hash algorithm
+     * @param {HashAlgorithm} hashAlgorithm
+     */
+    constructor(hashAlgorithm) {
+        if (!(hashAlgorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            throw new HashingError('Invalid HashAlgorithm');
+        }
+        if (forgeSupportedAlgorithms.indexOf(hashAlgorithm) === -1) {
+            throw new HashingError('Sync hashing does not support: ' + hashAlgorithm.name);
+        }
+        this.hashAlgorithm = hashAlgorithm;
+        // Since crypto API is working different for web and node store data here
+        this.data = new Uint8Array(0);
+    }
+    /**
+     * Add data for hashing
+     * @param {Uint8Array} data byte array
+     * @returns {DataHasher}
+     */
+    update(data) {
+        if (!(data instanceof Uint8Array)) {
+            throw new Error('Invalid array for hashing');
+        }
+        const previousData = this.data;
+        this.data = new Uint8Array(previousData.length + data.length);
+        this.data.set(previousData);
+        this.data.set(data, previousData.length);
+        return this;
+    }
+    /**
+     * Hashes the data and returns the DataHash
+     * @returns DataHash
+     */
+    digest() {
+        let md;
+        switch (this.hashAlgorithm) {
+            case HashAlgorithm_HashAlgorithm.SHA1:
+                md = forge_gt["md"].sha1.create();
+                break;
+            case HashAlgorithm_HashAlgorithm.SHA2_256:
+                md = forge_gt["md"].sha256.create();
+                break;
+            default:
+                throw new HashingError("Invalid algorithm");
+        }
+        md.update(ASCIIConverter.ToString(this.data));
+        const digestAsHex = md.digest().toHex();
+        return DataHash_DataHash.create(this.hashAlgorithm, HexCoder_HexCoder.decode(digestAsHex));
+    }
+    /**
+     * Resets the hash calculation.
+     * @returns {DataHasher} The same data hasher object for chaining calls.
+     */
+    reset() {
+        this.data = new Uint8Array(0);
+        return this;
+    }
+}
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/X509.js
+
+
+
+
+class X509_X509 {
+    /**
+     * Verifies that the data is signed with the provided signature and that the signature matches
+     * the provided X509 certificate.
+     *
+     * @param {Uint8Array} certificateBytes
+     * @param {Uint8Array} signedData
+     * @param {Uint8Array} signature
+     * @returns {boolean} true if verification successful, false otherwise.
+     * @throws In case of invalid data formats, throws according errors.
+     */
+    static verify(certificateBytes, signedData, signature) {
+        if (!(certificateBytes instanceof Uint8Array)) {
+            throw new Error('Invalid certificate bytes');
+        }
+        if (!(signedData instanceof Uint8Array)) {
+            throw new Error('Invalid signed data bytes');
+        }
+        if (!(signature instanceof Uint8Array)) {
+            throw new Error('Invalid signature bytes');
+        }
+        const cert = convertToForgeCert(certificateBytes);
+        const hashOfData = hashData(cert, signedData).value;
+        return cert.publicKey.verify(ASCIIConverter.ToString(hashOfData), ASCIIConverter.ToString(signature));
+    }
+}
+/**
+ * Hashes the signed data for the verification process.
+ * Support only some hashing algorithms.
+ *
+ * @param {pki.Certificate} certificate
+ * @param {Uint8Array} signedData
+ * @returns {DataHash}
+ */
+function hashData(certificate, signedData) {
+    let hashAlgorithm;
+    switch (certificate.siginfo.algorithmOid) {
+        case '1.2.840.113549.1.1.5':
+            hashAlgorithm = HashAlgorithm_HashAlgorithm.SHA1;
+            break;
+        case '1.2.840.113549.1.1.11':
+            hashAlgorithm = HashAlgorithm_HashAlgorithm.SHA2_256;
+            break;
+        default:
+            throw new Error(`Unsupported algorithm: ${certificate.siginfo.algorithmOid}`);
+    }
+    const hasher = new SyncDataHasher_SyncDataHasher(hashAlgorithm);
+    hasher.update(signedData);
+    return hasher.digest();
+}
+/**
+ * Converts bytes to the Forge certificate object
+ *
+ * @param {Uint8Array} certificateBytes
+ * @returns {pki.Certificate}
+ */
+function convertToForgeCert(certificateBytes) {
+    const certAsn1Format = forge_gt["asn1"].fromDer(ASCIIConverter.ToString(certificateBytes));
+    return forge_gt["pki"].certificateFromAsn1(certAsn1Format);
+}
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordSignatureVerificationRule.ts
+var CalendarAuthenticationRecordSignatureVerificationRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CalendarAuthenticationRecordSignatureVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CalendarAuthenticationRecordSignatureVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+/**
+ * Rule validates calendar authentication record signature. Signature is made from calendar authentication record
+ * publication data. X.509 certificate is searched from publications file and when found, it is used to validate PKI
+ * signature in calendar authentication record.
+ */
+var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthenticationRecordSignatureVerificationRule = /** @class */ (function (_super) {
+    CalendarAuthenticationRecordSignatureVerificationRule_extends(CalendarAuthenticationRecordSignatureVerificationRule, _super);
+    function CalendarAuthenticationRecordSignatureVerificationRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CalendarAuthenticationRecordSignatureVerificationRule.prototype.verify = function (context) {
+        return CalendarAuthenticationRecordSignatureVerificationRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarAuthenticationRecord, publicationsFile, signatureData, certificateRecord, signedBytes;
+            return CalendarAuthenticationRecordSignatureVerificationRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
+                if (calendarAuthenticationRecord == null) {
+                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                }
+                publicationsFile = context.getPublicationsFile();
+                if (publicationsFile === null) {
+                    throw new KsiVerificationError('Invalid publications file in context: null.');
+                }
+                signatureData = calendarAuthenticationRecord.getSignatureData();
+                certificateRecord = publicationsFile
+                    .findCertificateById(signatureData.getCertificateId());
+                if (certificateRecord === null) {
+                    throw new KsiVerificationError("No certificate found in publications file with id:\n                                            " + HexCoder_HexCoder.encode(signatureData.getCertificateId()) + ".");
+                }
+                signedBytes = calendarAuthenticationRecord.getPublicationData().encode();
+                try {
+                    if (X509_X509.verify(certificateRecord.getX509Certificate(), signedBytes, signatureData.getSignatureValue())) {
+                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    }
+                }
+                catch (error) {
+                    console.warn(error);
+                }
+                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03)];
+            });
+        });
+    };
+    return CalendarAuthenticationRecordSignatureVerificationRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/rule/CertificateExistenceRule.ts
+var CertificateExistenceRule_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var CertificateExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var CertificateExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+/**
+ * Rule for checking if KSI signature contains calendar hash chain. Used for key-based and publication-based verification policies.
+ */
+var CertificateExistenceRule_CertificateExistenceRule = /** @class */ (function (_super) {
+    CertificateExistenceRule_extends(CertificateExistenceRule, _super);
+    function CertificateExistenceRule() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    CertificateExistenceRule.prototype.verify = function (context) {
+        return CertificateExistenceRule_awaiter(this, void 0, void 0, function () {
+            var signature, calendarAuthenticationRecord, publicationsFile, signatureData;
+            return CertificateExistenceRule_generator(this, function (_a) {
+                signature = context.getSignature();
+                calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
+                if (calendarAuthenticationRecord == null) {
+                    // TODO: Should it return NA?
+                    throw new KsiVerificationError('Invalid calendar authentication record: null');
+                }
+                publicationsFile = context.getPublicationsFile();
+                if (publicationsFile === null) {
+                    throw new KsiVerificationError('Invalid publications file in context: null.');
+                }
+                signatureData = calendarAuthenticationRecord.getSignatureData();
+                return [2 /*return*/, publicationsFile.findCertificateById(signatureData.getCertificateId()) === null
+                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_01)
+                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            });
+        });
+    };
+    return CertificateExistenceRule;
+}(VerificationRule_VerificationRule));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/policy/KeyBasedVerificationPolicy.ts
+var KeyBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+
+/**
+ * Policy for verifying KSI signature with PKI.
+ */
+var KeyBasedVerificationPolicy_KeyBasedVerificationPolicy = /** @class */ (function (_super) {
+    KeyBasedVerificationPolicy_extends(KeyBasedVerificationPolicy, _super);
+    function KeyBasedVerificationPolicy(skipInternalVerification) {
+        if (skipInternalVerification === void 0) { skipInternalVerification = false; }
+        var _this = this;
+        var verificationRule = new CalendarHashChainExistenceRule_CalendarHashChainExistenceRule() // Gen-02
+            .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule() // Gen-02
+            .onSuccess(new CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExistenceRule() // Gen-02
+            .onSuccess(new CertificateExistenceRule_CertificateExistenceRule() // Key-01
+            .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthenticationRecordSignatureVerificationRule())))); // Key-02, Key-03
+        if (!skipInternalVerification) {
+            verificationRule = new InternalVerificationPolicy_InternalVerificationPolicy().onSuccess(verificationRule);
+        }
+        _this = _super.call(this, verificationRule) || this;
+        return _this;
+    }
+    return KeyBasedVerificationPolicy;
+}(VerificationPolicy_VerificationPolicy));
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/policy/DefaultVerificationPolicy.ts
+var DefaultVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+/**
+ * Default verification policy
+ */
+var DefaultVerificationPolicy_DefaultVerificationPolicy = /** @class */ (function (_super) {
+    DefaultVerificationPolicy_extends(DefaultVerificationPolicy, _super);
+    function DefaultVerificationPolicy() {
+        return _super.call(this, new PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy()
+            .onNa(new KeyBasedVerificationPolicy_KeyBasedVerificationPolicy(true))) || this;
+    }
+    return DefaultVerificationPolicy;
+}(VerificationPolicy_VerificationPolicy));
+
+
+// CONCATENATED MODULE: ./src/common/service/KsiServiceError.ts
+var KsiServiceError_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+ * KSI Service related error
+ */
+var KsiServiceError = /** @class */ (function (_super) {
+    KsiServiceError_extends(KsiServiceError, _super);
+    function KsiServiceError(message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = 'KsiServiceError';
+        Object.setPrototypeOf(_this, KsiServiceError.prototype);
+        return _this;
+    }
+    return KsiServiceError;
+}(Error));
+
+
+// CONCATENATED MODULE: ./src/common/service/KsiService.ts
+var KsiService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var KsiService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+/**
+ * KSI service.
+ */
+var KsiService_KsiService = /** @class */ (function () {
+    function KsiService(signingService, extendingService, publicationsFileService) {
+        if (signingService === void 0) { signingService = null; }
+        if (extendingService === void 0) { extendingService = null; }
+        this.signingService = signingService;
+        this.extendingService = extendingService;
+        this.publicationsFileService = publicationsFileService;
+    }
+    KsiService.prototype.sign = function (hash, level) {
+        if (level === void 0) { level = BigInteger_default()(0); }
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            return KsiService_generator(this, function (_a) {
+                if (!this.signingService) {
+                    throw new KsiServiceError('Signing protocol not defined. Cannot use signing.');
+                }
+                return [2 /*return*/, this.signingService.sign(hash, level)];
+            });
+        });
+    };
+    KsiService.prototype.extend = function (aggregationTime, publicationTime) {
+        if (publicationTime === void 0) { publicationTime = null; }
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            return KsiService_generator(this, function (_a) {
+                if (!this.extendingService) {
+                    throw new KsiServiceError('Extending service not defined. Cannot use extending.');
+                }
+                return [2 /*return*/, this.extendingService.extend(aggregationTime, publicationTime)];
+            });
+        });
+    };
+    KsiService.prototype.getPublicationsFile = function () {
+        return KsiService_awaiter(this, void 0, void 0, function () {
+            return KsiService_generator(this, function (_a) {
+                if (!this.publicationsFileService) {
+                    throw new KsiServiceError('Publications file service not defined. Cannot get publications file.');
+                }
+                return [2 /*return*/, this.publicationsFileService.getPublicationsFile()];
+            });
+        });
+    };
+    return KsiService;
+}());
+
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/random/RandomUtil.js
+
+const pseudoRandomLong = () => {
+    return BigInteger_default.a.randBetween(0, 9223372036854775807);
+};
+
+// CONCATENATED MODULE: ./src/common/service/AggregationRequestPayload.ts
+var AggregationRequestPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Aggregation request payload
+ */
+var AggregationRequestPayload_AggregationRequestPayload = /** @class */ (function (_super) {
+    AggregationRequestPayload_extends(AggregationRequestPayload, _super);
+    function AggregationRequestPayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationRequestPayload.CREATE = function (requestId, hash, level) {
+        if (level === void 0) { level = BigInteger_default()(0); }
+        var childTlv = [
+            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
+            ImprintTag_ImprintTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType, false, false, hash)
+        ];
+        if (level.neq(0)) {
+            childTlv.push(IntegerTag_IntegerTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType, false, false, level));
+        }
+        return new AggregationRequestPayload(CompositeTag_CompositeTag.CREATE_FROM_LIST(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+    };
+    AggregationRequestPayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType:
+                return this.requestHash = new ImprintTag_ImprintTag(tlvTag);
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType:
+                return this.requestLevel = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    AggregationRequestPayload.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+            throw new TlvError('Exactly one request id must exist in aggregation request payload.');
+        }
+        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType] !== 1) {
+            throw new TlvError('Exactly one request hash must exist in aggregation request payload.');
+        }
+        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType] > 1) {
+            throw new TlvError('Only one request level is allowed in aggregation request payload.');
+        }
+    };
+    return AggregationRequestPayload;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/common/service/PduPayload.ts
+var PduPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Base class for PDU payloads
+ */
+var PduPayload = /** @class */ (function (_super) {
+    PduPayload_extends(PduPayload, _super);
+    function PduPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return PduPayload;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/common/service/AggregatorConfigRequestPayload.ts
+var AggregatorConfigRequestPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Aggregator configuration request payload.
+ */
+var AggregatorConfigRequestPayload = /** @class */ (function (_super) {
+    AggregatorConfigRequestPayload_extends(AggregatorConfigRequestPayload, _super);
+    function AggregatorConfigRequestPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return AggregatorConfigRequestPayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/WebHMAC.js
+
+class WebHMAC_WebHMAC {
+    /**
+     * @param {HashAlgorithm} algorithm
+     * @param {Uint8Array} key
+     * @param {Uint8Array} data
+     * @returns {Promise.<Uint8Array, Error>}
+     */
+    static digest(algorithm, key, data) {
+        if (!(algorithm instanceof HashAlgorithm_HashAlgorithm)) {
+            return Promise.reject(new Error(`Invalid hash algorithm, must be HashAlgorithm but is ${typeof data}`));
+        }
+        if (!(key instanceof Uint8Array)) {
+            return Promise.reject(new Error(`Invalid key, must be Uint8Array but is ${typeof key}`));
+        }
+        if (!(data instanceof Uint8Array)) {
+            return Promise.reject(new Error(`Invalid data, must be Uint8Array but is ${typeof data}`));
+        }
+        return window.crypto.subtle.importKey('raw', key, {
+            name: 'HMAC',
+            hash: { name: algorithm.name },
+        }, false, ['sign']).then(key => window.crypto.subtle.sign('HMAC', key, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer)));
+    }
+}
+
+// CONCATENATED MODULE: ./src/common/service/ResponsePayload.ts
+var ResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * PDU payload base class for responses
+ */
+var ResponsePayload_ResponsePayload = /** @class */ (function (_super) {
+    ResponsePayload_extends(ResponsePayload, _super);
+    function ResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.errorMessage = null;
+        return _this;
+    }
+    ResponsePayload.prototype.getStatus = function () {
+        return this.status.getValue();
+    };
+    ResponsePayload.prototype.getErrorMessage = function () {
+        return this.errorMessage !== null ? this.errorMessage.getValue() : null;
+    };
+    ResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.StatusTagType:
+                return this.status = new IntegerTag_IntegerTag(tlvTag);
+            case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
+                return this.errorMessage = new StringTag_StringTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    ResponsePayload.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.StatusTagType] !== 1) {
+            throw new TlvError('Exactly one status code must exist in response payload.');
+        }
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType] > 1) {
+            throw new TlvError('Only one error message is allowed in response payload.');
+        }
+    };
+    return ResponsePayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/ErrorPayload.ts
+var ErrorPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * KSI service error response payload.
+ */
+var ErrorPayload = /** @class */ (function (_super) {
+    ErrorPayload_extends(ErrorPayload, _super);
+    function ErrorPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return ErrorPayload;
+}(ResponsePayload_ResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/PduHeader.ts
+var PduHeader_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+/**
+ * PDU header class
+ */
+var PduHeader_PduHeader = /** @class */ (function (_super) {
+    PduHeader_extends(PduHeader, _super);
+    function PduHeader(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    PduHeader.CREATE_FROM_LOGIN_ID = function (loginId) {
+        return new PduHeader(CompositeTag_CompositeTag.CREATE_FROM_LIST(PDU_HEADER_CONSTANTS.TagType, false, false, [
+            StringTag_StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
+        ]));
+    };
+    PduHeader.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_HEADER_CONSTANTS.LoginIdTagType:
+                return this.loginId = new StringTag_StringTag(tlvTag);
+            case PDU_HEADER_CONSTANTS.InstanceIdTagType:
+                return this.instanceId = new IntegerTag_IntegerTag(tlvTag);
+            case PDU_HEADER_CONSTANTS.MessageIdTagType:
+                return this.messageId = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    PduHeader.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
+            throw new TlvError('Exactly one login id must exist in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
+            throw new TlvError('Only one instance id is allowed in PDU header.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
+            throw new TlvError('Only one message id is allowed in PDU header.');
+        }
+    };
+    return PduHeader;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/common/service/Pdu.ts
+var Pdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Pdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Pdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+/**
+ * PDU base classs
+ */
+var Pdu_Pdu = /** @class */ (function (_super) {
+    Pdu_extends(Pdu, _super);
+    function Pdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.payloads = [];
+        _this.errorPayload = null;
+        return _this;
+    }
+    Pdu.create = function (tagType, header, payload, algorithm, key) {
+        return Pdu_awaiter(this, void 0, void 0, function () {
+            var pduBytes, _a, _b;
+            return Pdu_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        pduBytes = CompositeTag_CompositeTag.CREATE_FROM_LIST(tagType, false, false, [
+                            header,
+                            payload,
+                            ImprintTag_ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash_DataHash.create(algorithm, new Uint8Array(algorithm.length)))
+                        ]).encode();
+                        _b = (_a = pduBytes).set;
+                        return [4 /*yield*/, WebHMAC_WebHMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length))];
+                    case 1:
+                        _b.apply(_a, [_c.sent(), pduBytes.length - algorithm.length]);
+                        return [2 /*return*/, new TlvInputStream_TlvInputStream(pduBytes).readTag()];
+                }
+            });
+        });
+    };
+    Pdu.prototype.getErrorPayload = function () {
+        return this.errorPayload;
+    };
+    Pdu.prototype.getPayloads = function () {
+        return this.payloads;
+    };
+    Pdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_HEADER_CONSTANTS.TagType:
+                return this.header = new PduHeader_PduHeader(tlvTag);
+            case PDU_CONSTANTS.MacTagType:
+                return this.hmac = new ImprintTag_ImprintTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    Pdu.prototype.validate = function (tagCount) {
+        if (ErrorPayload != null) {
+            return;
+        }
+        if (this.payloads.length === 0) {
+            throw new TlvError('Payloads are missing in PDU.');
+        }
+        if (tagCount[PDU_HEADER_CONSTANTS.TagType] !== 1) {
+            throw new TlvError('Exactly one header must exist in PDU.');
+        }
+        if (this.value[0] !== this.header) {
+            throw new TlvError('Header must be the first element in PDU.');
+        }
+        if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
+            throw new TlvError('Exactly one MAC must exist in PDU');
+        }
+        if (this.value[this.value.length - 1] !== this.hmac) {
+            throw new TlvError('MAC must be the last element in PDU');
+        }
+    };
+    return Pdu;
+}(CompositeTag_CompositeTag));
+
+
+// CONCATENATED MODULE: ./src/common/service/AggregationRequestPdu.ts
+var AggregationRequestPdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var AggregationRequestPdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var AggregationRequestPdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+/**
+ * Aggregation request PDU
+ */
+var AggregationRequestPdu_AggregationRequestPdu = /** @class */ (function (_super) {
+    AggregationRequestPdu_extends(AggregationRequestPdu, _super);
+    function AggregationRequestPdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationRequestPdu.CREATE = function (header, payload, algorithm, key) {
+        return AggregationRequestPdu_awaiter(this, void 0, void 0, function () {
+            var _a;
+            return AggregationRequestPdu_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = AggregationRequestPdu.bind;
+                        return [4 /*yield*/, Pdu_Pdu.create(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
+                    case 1: return [2 /*return*/, new (_a.apply(AggregationRequestPdu, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    AggregationRequestPdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                var aggregationRequestPayload = new AggregationRequestPayload_AggregationRequestPayload(tlvTag);
+                this.payloads.push(aggregationRequestPayload);
+                return aggregationRequestPayload;
+            case AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                return this.aggregatorConfigRequest = new AggregatorConfigRequestPayload(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    AggregationRequestPdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one aggregator config request payload is allowed in PDU.');
+        }
+    };
+    return AggregationRequestPdu;
+}(Pdu_Pdu));
+
+
+// CONCATENATED MODULE: ./src/common/service/AggregationErrorPayload.ts
+var AggregationErrorPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Aggregation Error payload TLV element.
+ */
+var AggregationErrorPayload = /** @class */ (function (_super) {
+    AggregationErrorPayload_extends(AggregationErrorPayload, _super);
+    function AggregationErrorPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return AggregationErrorPayload;
+}(ErrorPayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/RequestResponsePayload.ts
+var RequestResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+/**
+ * PDU payload base class for requested responses
+ */
+var RequestResponsePayload_RequestResponsePayload = /** @class */ (function (_super) {
+    RequestResponsePayload_extends(RequestResponsePayload, _super);
+    function RequestResponsePayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    RequestResponsePayload.prototype.getRequestId = function () {
+        return this.requestId.getValue();
+    };
+    RequestResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    RequestResponsePayload.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+            throw new TlvError('Exactly one request id must exist in response payload.');
+        }
+    };
+    return RequestResponsePayload;
+}(ResponsePayload_ResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/AggregationResponsePayload.ts
+var AggregationResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+/**
+ * Aggregation response payload
+ */
+var AggregationResponsePayload_AggregationResponsePayload = /** @class */ (function (_super) {
+    AggregationResponsePayload_extends(AggregationResponsePayload, _super);
+    function AggregationResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationResponsePayload.prototype.getSignatureTags = function () {
+        var tlvList = [];
+        for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
+            var tlvTag = _a[_i];
+            if (tlvTag.id > 0x800 && tlvTag.id < 0x900) {
+                tlvList.push(tlvTag);
+            }
+        }
+        return tlvList;
+    };
+    AggregationResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
+            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
+            case KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType:
+            case CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType:
+                return tlvTag;
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    AggregationResponsePayload.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config request payload is allowed in PDU.');
+        }
+    };
+    return AggregationResponsePayload;
+}(RequestResponsePayload_RequestResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/AggregatorConfigResponsePayload.ts
+var AggregatorConfigResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Aggregator configuration response payload.
+ */
+var AggregatorConfigResponsePayload_AggregatorConfigResponsePayload = /** @class */ (function (_super) {
+    AggregatorConfigResponsePayload_extends(AggregatorConfigResponsePayload, _super);
+    function AggregatorConfigResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.parentUriList = [];
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregatorConfigResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType:
+                return this.maxLevel = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType:
+                return this.aggregationAlgorithm = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType:
+                return this.aggregationPeriod = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
+                return this.maxRequests = new IntegerTag_IntegerTag(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.ParentUriTagType:
+                var uriTag = new StringTag_StringTag(tlvTag);
+                this.parentUriList.push(uriTag);
+                return uriTag;
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    AggregatorConfigResponsePayload.prototype.validate = function (tagCount) {
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType] > 1) {
+            throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');
+        }
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType] > 1) {
+            throw new TlvError('Only one aggregation algorithm tag is allowed in aggregator config response payload.');
+        }
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType] > 1) {
+            throw new TlvError('Only one aggregation period tag is allowed in aggregator config response payload.');
+        }
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
+            throw new TlvError('Only one max requests tag is allowed in aggregator config response payload.');
+        }
+    };
+    return AggregatorConfigResponsePayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/AggregationResponsePdu.ts
+var AggregationResponsePdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Aggregation response PDU
+ */
+var AggregationResponsePdu_AggregationResponsePdu = /** @class */ (function (_super) {
+    AggregationResponsePdu_extends(AggregationResponsePdu, _super);
+    function AggregationResponsePdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    AggregationResponsePdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                var aggregationResponsePayload = new AggregationResponsePayload_AggregationResponsePayload(tlvTag);
+                this.payloads.push(aggregationResponsePayload);
+                return aggregationResponsePayload;
+            case ERROR_PAYLOAD_CONSTANTS.TagType:
+                return this.errorPayload = new AggregationErrorPayload(tlvTag);
+            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return this.aggregatorConfigResponse = new AggregatorConfigResponsePayload_AggregatorConfigResponsePayload(tlvTag);
+            // not implemented yet, so just return the tag
+            case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return tlvTag;
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    AggregationResponsePdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one aggregator config response payload is allowed in PDU.');
+        }
+    };
+    return AggregationResponsePdu;
+}(Pdu_Pdu));
+
+
+// CONCATENATED MODULE: ./src/common/service/SigningService.ts
+var SigningService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var SigningService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+
+/**
+ * Signing service
+ */
+var SigningService_SigningService = /** @class */ (function () {
+    function SigningService(signingServiceProtocol, signingServiceCredentials) {
+        this.requests = {};
+        this.signingServiceProtocol = signingServiceProtocol;
+        this.signingServiceCredentials = signingServiceCredentials;
+    }
+    SigningService.processPayload = function (payload) {
+        if (payload.getStatus().neq(0)) {
+            // tslint:disable-next-line:max-line-length
+            throw new KsiServiceError("Server responded with error message. Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
+        }
+        return KsiSignature_KsiSignature.CREATE(payload);
+    };
+    SigningService.prototype.sign = function (hash, level) {
+        if (level === void 0) { level = BigInteger_default()(0); }
+        return SigningService_awaiter(this, void 0, void 0, function () {
+            var header, requestId, requestPayload, requestPdu, ksiRequest, responseBytes, stream, responsePdu, errorPayload, currentAggregationPayload, _i, _a, responsePayload, aggregationPayload, payloadRequestId, request;
+            return SigningService_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
+                        requestId = pseudoRandomLong();
+                        requestPayload = AggregationRequestPayload_AggregationRequestPayload.CREATE(requestId, hash, level);
+                        return [4 /*yield*/, AggregationRequestPdu_AggregationRequestPdu.CREATE(header, requestPayload, this.signingServiceCredentials.getHmacAlgorithm(), this.signingServiceCredentials.getLoginKey())];
+                    case 1:
+                        requestPdu = _b.sent();
+                        ksiRequest = this.signingServiceProtocol.sign(requestPdu.encode());
+                        this.requests[requestId.toString()] = ksiRequest;
+                        return [4 /*yield*/, ksiRequest.getResponse()];
+                    case 2:
+                        responseBytes = _b.sent();
+                        if (ksiRequest.isAborted()) {
+                            return [2 /*return*/, SigningService.processPayload(ksiRequest.getAbortResponse())];
+                        }
+                        stream = new TlvInputStream_TlvInputStream(responseBytes);
+                        responsePdu = new AggregationResponsePdu_AggregationResponsePdu(stream.readTag());
+                        if (stream.getPosition() < stream.getLength()) {
+                            throw new KsiServiceError("Response contains more bytes than PDU length");
+                        }
+                        errorPayload = responsePdu.getErrorPayload();
+                        if (errorPayload !== null) {
+                            if (responsePdu.getPayloads().length > 0) {
+                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
+                            }
+                            // tslint:disable-next-line:max-line-length
+                            throw new KsiServiceError("Server responded with error message. Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
+                        }
+                        currentAggregationPayload = null;
+                        for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
+                            responsePayload = _a[_i];
+                            aggregationPayload = responsePayload;
+                            payloadRequestId = aggregationPayload.getRequestId().toString();
+                            if (!this.requests.hasOwnProperty(payloadRequestId)) {
+                                throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent!');
+                            }
+                            request = this.requests[payloadRequestId];
+                            delete this.requests[payloadRequestId];
+                            if (payloadRequestId !== requestId.toString()) {
+                                request.abort(aggregationPayload);
+                                continue;
+                            }
+                            if (currentAggregationPayload !== null) {
+                                throw new KsiServiceError('Multiple aggregation responses in single PDU.');
+                            }
+                            currentAggregationPayload = aggregationPayload;
+                        }
+                        if (currentAggregationPayload === null) {
+                            throw new KsiServiceError('No matching aggregation payloads in PDU!');
+                        }
+                        return [2 /*return*/, SigningService.processPayload(currentAggregationPayload)];
+                }
+            });
+        });
+    };
+    return SigningService;
+}());
+
+
+// CONCATENATED MODULE: ./src/common/service/ExtendRequestPayload.ts
+var ExtendRequestPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+/**
+ * Aggregation request payload
+ */
+var ExtendRequestPayload_ExtendRequestPayload = /** @class */ (function (_super) {
+    ExtendRequestPayload_extends(ExtendRequestPayload, _super);
+    function ExtendRequestPayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtendRequestPayload.CREATE = function (requestId, aggregationTime, publicationTime) {
+        if (publicationTime === void 0) { publicationTime = null; }
+        var childTlv = [
+            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
+            IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType, false, false, aggregationTime)
+        ];
+        if (publicationTime !== null) {
+            childTlv.push(IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType, false, false, publicationTime));
+        }
+        return new ExtendRequestPayload(CompositeTag_CompositeTag.CREATE_FROM_LIST(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
+    };
+    ExtendRequestPayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
+            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType:
+                return this.aggregationTime = new IntegerTag_IntegerTag(tlvTag);
+            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType:
+                return this.publicationTime = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    ExtendRequestPayload.prototype.validate = function (tagCount) {
+        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+            throw new TlvError('Exactly one request id must exist in extend request payload.');
+        }
+        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType] !== 1) {
+            throw new TlvError('Exactly one aggregation time must exist in extend request payload.');
+        }
+        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType] > 1) {
+            throw new TlvError('Only one publication time is allowed in extend request payload.');
+        }
+    };
+    return ExtendRequestPayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/ExtenderConfigRequestPayload.ts
+var ExtenderConfigRequestPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Extender configuration request payload.
+ */
+var ExtenderConfigRequestPayload = /** @class */ (function (_super) {
+    ExtenderConfigRequestPayload_extends(ExtenderConfigRequestPayload, _super);
+    function ExtenderConfigRequestPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return ExtenderConfigRequestPayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/ExtendRequestPdu.ts
+var ExtendRequestPdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var ExtendRequestPdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var ExtendRequestPdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+/**
+ * Extend request PDU
+ */
+var ExtendRequestPdu_ExtendRequestPdu = /** @class */ (function (_super) {
+    ExtendRequestPdu_extends(ExtendRequestPdu, _super);
+    function ExtendRequestPdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtendRequestPdu.CREATE = function (header, payload, algorithm, key) {
+        return ExtendRequestPdu_awaiter(this, void 0, void 0, function () {
+            var _a;
+            return ExtendRequestPdu_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = ExtendRequestPdu.bind;
+                        return [4 /*yield*/, Pdu_Pdu.create(EXTEND_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
+                    case 1: return [2 /*return*/, new (_a.apply(ExtendRequestPdu, [void 0, _b.sent()]))()];
+                }
+            });
+        });
+    };
+    ExtendRequestPdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                var extendRequestPayload = new ExtendRequestPayload_ExtendRequestPayload(tlvTag);
+                this.payloads.push(extendRequestPayload);
+                return extendRequestPayload;
+            case EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
+                return this.extenderConfigRequest = new ExtenderConfigRequestPayload(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    ExtendRequestPdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config request payload is allowed in PDU.');
+        }
+    };
+    return ExtendRequestPdu;
+}(Pdu_Pdu));
+
+
+// CONCATENATED MODULE: ./src/common/service/ExtenderConfigResponsePayload.ts
+var ExtenderConfigResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Aggregator configuration response payload.
+ */
+var ExtenderConfigResponsePayload_ExtenderConfigResponsePayload = /** @class */ (function (_super) {
+    ExtenderConfigResponsePayload_extends(ExtenderConfigResponsePayload, _super);
+    function ExtenderConfigResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.parentUriList = [];
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtenderConfigResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
+                return this.maxRequests = new IntegerTag_IntegerTag(tlvTag);
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.ParentUriTagType:
+                var uriTag = new StringTag_StringTag(tlvTag);
+                this.parentUriList.push(uriTag);
+                return uriTag;
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType:
+                return this.calendarFirstTime = new IntegerTag_IntegerTag(tlvTag);
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
+                return this.calendarLastTime = new IntegerTag_IntegerTag(tlvTag);
+            default:
+                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
+        }
+    };
+    ExtenderConfigResponsePayload.prototype.validate = function (tagCount) {
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
+            throw new TlvError('Only one max requests tag is allowed in extender config response payload.');
+        }
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType] > 1) {
+            throw new TlvError('Only one calendar first time tag is allowed in extender config response payload.');
+        }
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
+            throw new TlvError('Only one calendar last time tag is allowed in extender config response payload.');
+        }
+    };
+    return ExtenderConfigResponsePayload;
+}(PduPayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/ExtendErrorPayload.ts
+var ExtendErrorPayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+/**
+ * Extends Error payload TLV element.
+ */
+var ExtendErrorPayload = /** @class */ (function (_super) {
+    ExtendErrorPayload_extends(ExtendErrorPayload, _super);
+    function ExtendErrorPayload(tlvTag) {
+        return _super.call(this, tlvTag) || this;
+    }
+    return ExtendErrorPayload;
+}(ErrorPayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/ExtendResponsePayload.ts
+var ExtendResponsePayload_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+/**
+ * Extend response payload
+ */
+var ExtendResponsePayload_ExtendResponsePayload = /** @class */ (function (_super) {
+    ExtendResponsePayload_extends(ExtendResponsePayload, _super);
+    function ExtendResponsePayload(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtendResponsePayload.prototype.getCalendarHashChain = function () {
+        return this.calendarHashChain;
+    };
+    ExtendResponsePayload.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
+                return this.calendarLastTime = new IntegerTag_IntegerTag(tlvTag);
+            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
+                return this.calendarHashChain = new CalendarHashChain_CalendarHashChain(tlvTag);
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    ExtendResponsePayload.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
+            throw new TlvError('Only one calendar last time is allowed in extend response payload.');
+        }
+        if (this.getStatus().eq(0) && tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] !== 1) {
+            throw new TlvError('Exactly one calendar hash chain must exist in extend response payload.');
+        }
+    };
+    return ExtendResponsePayload;
+}(RequestResponsePayload_RequestResponsePayload));
+
+
+// CONCATENATED MODULE: ./src/common/service/ExtendResponsePdu.ts
+var ExtendResponsePdu_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+
+
+
+
+
+/**
+ * Extend response PDU
+ */
+var ExtendResponsePdu_ExtendResponsePdu = /** @class */ (function (_super) {
+    ExtendResponsePdu_extends(ExtendResponsePdu, _super);
+    function ExtendResponsePdu(tlvTag) {
+        var _this = _super.call(this, tlvTag) || this;
+        _this.decodeValue(_this.parseChild.bind(_this));
+        _this.validateValue(_this.validate.bind(_this));
+        Object.freeze(_this);
+        return _this;
+    }
+    ExtendResponsePdu.prototype.parseChild = function (tlvTag) {
+        switch (tlvTag.id) {
+            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                var extendResponsePayload = new ExtendResponsePayload_ExtendResponsePayload(tlvTag);
+                this.payloads.push(extendResponsePayload);
+                return extendResponsePayload;
+            case ERROR_PAYLOAD_CONSTANTS.TagType:
+                return this.errorPayload = new ExtendErrorPayload(tlvTag);
+            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return this.extenderConfigResponse = new ExtenderConfigResponsePayload_ExtenderConfigResponsePayload(tlvTag);
+            // not implemented yet, so just return the tag
+            case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
+                return tlvTag;
+            default:
+                return _super.prototype.parseChild.call(this, tlvTag);
+        }
+    };
+    ExtendResponsePdu.prototype.validate = function (tagCount) {
+        _super.prototype.validate.call(this, tagCount);
+        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
+            throw new TlvError('Only one extender config response payload is allowed in PDU.');
+        }
+    };
+    return ExtendResponsePdu;
+}(Pdu_Pdu));
+
+
+// CONCATENATED MODULE: ./src/common/service/ExtendingService.ts
+var ExtendingService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var ExtendingService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+/**
+ * Extending service
+ */
+var ExtendingService_ExtendingService = /** @class */ (function () {
+    function ExtendingService(extendingServiceProtocol, extendingServiceCredentials) {
+        this.requests = {};
+        this.extendingServiceProtocol = extendingServiceProtocol;
+        this.extendingServiceCredentials = extendingServiceCredentials;
+    }
+    ExtendingService.processPayload = function (payload) {
+        if (payload.getStatus().neq(0)) {
+            // tslint:disable-next-line:max-line-length
+            throw new KsiServiceError("Server responded with error message. Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
+        }
+        return payload.getCalendarHashChain();
+    };
+    ExtendingService.prototype.extend = function (aggregationTime, publicationTime) {
+        if (publicationTime === void 0) { publicationTime = null; }
+        return ExtendingService_awaiter(this, void 0, void 0, function () {
+            var header, requestId, requestPayload, requestPdu, ksiRequest, responseBytes, stream, responsePdu, errorPayload, currentExtendPayload, _i, _a, responsePayload, extendPayload, payloadRequestId, request;
+            return ExtendingService_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.extendingServiceCredentials.getLoginId());
+                        requestId = pseudoRandomLong();
+                        requestPayload = ExtendRequestPayload_ExtendRequestPayload.CREATE(requestId, aggregationTime, publicationTime);
+                        return [4 /*yield*/, ExtendRequestPdu_ExtendRequestPdu.CREATE(header, requestPayload, this.extendingServiceCredentials.getHmacAlgorithm(), this.extendingServiceCredentials.getLoginKey())];
+                    case 1:
+                        requestPdu = _b.sent();
+                        ksiRequest = this.extendingServiceProtocol.extend(requestPdu.encode());
+                        this.requests[requestId.toString()] = ksiRequest;
+                        return [4 /*yield*/, ksiRequest.getResponse()];
+                    case 2:
+                        responseBytes = _b.sent();
+                        if (ksiRequest.isAborted()) {
+                            return [2 /*return*/, ExtendingService.processPayload(ksiRequest.getAbortResponse())];
+                        }
+                        stream = new TlvInputStream_TlvInputStream(responseBytes);
+                        responsePdu = new ExtendResponsePdu_ExtendResponsePdu(stream.readTag());
+                        if (stream.getPosition() < stream.getLength()) {
+                            throw new KsiServiceError("Response contains more bytes than PDU length");
+                        }
+                        errorPayload = responsePdu.getErrorPayload();
+                        if (errorPayload !== null) {
+                            if (responsePdu.getPayloads().length > 0) {
+                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
+                            }
+                            // tslint:disable-next-line:max-line-length
+                            throw new KsiServiceError("Server responded with error message. Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
+                        }
+                        currentExtendPayload = null;
+                        for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
+                            responsePayload = _a[_i];
+                            extendPayload = responsePayload;
+                            payloadRequestId = extendPayload.getRequestId().toString();
+                            if (!this.requests.hasOwnProperty(payloadRequestId)) {
+                                throw new KsiServiceError('Extend response request ID does not match any request id which is sent!');
+                            }
+                            request = this.requests[payloadRequestId];
+                            delete this.requests[payloadRequestId];
+                            if (payloadRequestId !== requestId.toString()) {
+                                request.abort(extendPayload);
+                                continue;
+                            }
+                            if (currentExtendPayload !== null) {
+                                throw new KsiServiceError('Multiple extend payload responses in single PDU.');
+                            }
+                            currentExtendPayload = extendPayload;
+                        }
+                        if (currentExtendPayload === null) {
+                            throw new KsiServiceError('No matching extending payloads in PDU!');
+                        }
+                        return [2 /*return*/, ExtendingService.processPayload(currentExtendPayload)];
+                }
+            });
+        });
+    };
+    return ExtendingService;
+}());
+
+
+// CONCATENATED MODULE: ./src/common/service/PublicationsFileService.ts
+var PublicationsFileService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var PublicationsFileService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+/**
+ * Publications file service
+ */
+var PublicationsFileService = /** @class */ (function () {
+    function PublicationsFileService(publicationsFileServiceProtocol, publicationsFileFactory) {
+        this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
+        this.publicationsFileFactory = publicationsFileFactory;
+    }
+    PublicationsFileService.prototype.getPublicationsFile = function () {
+        return PublicationsFileService_awaiter(this, void 0, void 0, function () {
+            var _a, _b;
+            return PublicationsFileService_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _b = (_a = this.publicationsFileFactory).create;
+                        return [4 /*yield*/, this.publicationsFileServiceProtocol.getPublicationsFile()];
+                    case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
+                }
+            });
+        });
+    };
+    return PublicationsFileService;
+}());
+
+
+// CONCATENATED MODULE: ./src/common/service/ServiceCredentials.ts
+
+/**
+ * Service credentials class for KSI service
+ */
+var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
+    function ServiceCredentials(loginId, loginKey, hmacAlgorithm) {
+        if (hmacAlgorithm === void 0) { hmacAlgorithm = HashAlgorithm_HashAlgorithm.SHA2_256; }
+        this.loginId = loginId;
+        this.loginKey = loginKey;
+        this.hmacAlgorithm = hmacAlgorithm;
+    }
+    ServiceCredentials.prototype.getHmacAlgorithm = function () {
+        return this.hmacAlgorithm;
+    };
+    ServiceCredentials.prototype.getLoginId = function () {
+        return this.loginId;
+    };
+    ServiceCredentials.prototype.getLoginKey = function () {
+        return this.loginKey;
+    };
+    return ServiceCredentials;
+}());
 
 
 // CONCATENATED MODULE: ./src/common/publication/CertificateRecord.ts
@@ -53061,7 +58786,7 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
         return this.cmsSignature.getValue();
     };
     PublicationsFile.prototype.getSignedBytes = function () {
-        var stream = new TlvOutputStream_TlvOutputStream();
+        var stream = new TlvOutputStream();
         stream.write(PublicationsFile.FileBeginningMagicBytes);
         for (var _i = 0, _a = this.value; _i < _a.length; _i++) {
             var tlvTag = _a[_i];
@@ -53114,848 +58839,6 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
 }(CompositeTag_CompositeTag));
 
 
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/random/RandomUtil.js
-
-const pseudoRandomLong = () => {
-    return BigInteger_default.a.randBetween(0, 9223372036854775807);
-};
-
-// CONCATENATED MODULE: ./src/common/service/ExtendRequestPayload.ts
-var ExtendRequestPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Aggregation request payload
- */
-var ExtendRequestPayload_ExtendRequestPayload = /** @class */ (function (_super) {
-    ExtendRequestPayload_extends(ExtendRequestPayload, _super);
-    function ExtendRequestPayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtendRequestPayload.CREATE = function (requestId, aggregationTime, publicationTime) {
-        if (publicationTime === void 0) { publicationTime = null; }
-        if (!BigInteger_default.a.isInstance(requestId)) {
-            throw new TlvError("Invalid requestId: " + requestId);
-        }
-        if (!BigInteger_default.a.isInstance(aggregationTime)) {
-            throw new TlvError("Invalid aggregation time: " + aggregationTime);
-        }
-        if (publicationTime !== null && !BigInteger_default.a.isInstance(publicationTime)) {
-            throw new TlvError("Invalid publication time: " + publicationTime);
-        }
-        var childTlv = [
-            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
-            IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType, false, false, aggregationTime)
-        ];
-        if (publicationTime !== null) {
-            childTlv.push(IntegerTag_IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType, false, false, publicationTime));
-        }
-        return new ExtendRequestPayload(CompositeTag_CompositeTag.CREATE_FROM_LIST(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
-    };
-    ExtendRequestPayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
-                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
-            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType:
-                return this.aggregationTime = new IntegerTag_IntegerTag(tlvTag);
-            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType:
-                return this.publicationTime = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    ExtendRequestPayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
-            throw new TlvError('Exactly one request id must exist in extend request payload.');
-        }
-        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType] !== 1) {
-            throw new TlvError('Exactly one aggregation time must exist in extend request payload.');
-        }
-        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType] > 1) {
-            throw new TlvError('Only one publication time is allowed in extend request payload.');
-        }
-    };
-    return ExtendRequestPayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/ExtenderConfigRequestPayload.ts
-var ExtenderConfigRequestPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Extender configuration request payload.
- */
-var ExtenderConfigRequestPayload = /** @class */ (function (_super) {
-    ExtenderConfigRequestPayload_extends(ExtenderConfigRequestPayload, _super);
-    function ExtenderConfigRequestPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return ExtenderConfigRequestPayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/WebHMAC.js
-
-class WebHMAC_WebHMAC {
-    /**
-     * @param {HashAlgorithm} algorithm
-     * @param {Uint8Array} key
-     * @param {Uint8Array} data
-     * @returns {Promise.<Uint8Array, Error>}
-     */
-    static digest(algorithm, key, data) {
-        if (!(algorithm instanceof HashAlgorithm_HashAlgorithm)) {
-            return Promise.reject(new Error(`Invalid hash algorithm, must be HashAlgorithm but is ${typeof data}`));
-        }
-        if (!(key instanceof Uint8Array)) {
-            return Promise.reject(new Error(`Invalid key, must be Uint8Array but is ${typeof key}`));
-        }
-        if (!(data instanceof Uint8Array)) {
-            return Promise.reject(new Error(`Invalid data, must be Uint8Array but is ${typeof data}`));
-        }
-        return window.crypto.subtle.importKey('raw', key, {
-            name: 'HMAC',
-            hash: { name: algorithm.name },
-        }, false, ['sign']).then(key => window.crypto.subtle.sign('HMAC', key, data).then(hashArrayBuffer => new Uint8Array(hashArrayBuffer)));
-    }
-}
-
-// CONCATENATED MODULE: ./src/common/service/ErrorPayload.ts
-var ErrorPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * KSI service error response payload.
- */
-var ErrorPayload = /** @class */ (function (_super) {
-    ErrorPayload_extends(ErrorPayload, _super);
-    function ErrorPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return ErrorPayload;
-}(ResponsePayload_ResponsePayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/PduHeader.ts
-var PduHeader_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-/**
- * PDU header class
- */
-var PduHeader_PduHeader = /** @class */ (function (_super) {
-    PduHeader_extends(PduHeader, _super);
-    function PduHeader(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    PduHeader.CREATE_FROM_LOGIN_ID = function (loginId) {
-        if ((typeof loginId) !== 'string') {
-            throw new TlvError("Invalid loginId: " + loginId);
-        }
-        return new PduHeader(CompositeTag_CompositeTag.CREATE_FROM_LIST(PDU_HEADER_CONSTANTS.TagType, false, false, [
-            StringTag_StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId)
-        ]));
-    };
-    PduHeader.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_HEADER_CONSTANTS.LoginIdTagType:
-                return this.loginId = new StringTag_StringTag(tlvTag);
-            case PDU_HEADER_CONSTANTS.InstanceIdTagType:
-                return this.instanceId = new IntegerTag_IntegerTag(tlvTag);
-            case PDU_HEADER_CONSTANTS.MessageIdTagType:
-                return this.messageId = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    PduHeader.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
-            throw new TlvError('Exactly one login id must exist in PDU header.');
-        }
-        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
-            throw new TlvError('Only one instance id is allowed in PDU header.');
-        }
-        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
-            throw new TlvError('Only one message id is allowed in PDU header.');
-        }
-    };
-    return PduHeader;
-}(CompositeTag_CompositeTag));
-
-
-// CONCATENATED MODULE: ./src/common/service/Pdu.ts
-var Pdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Pdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var Pdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-
-
-/**
- * PDU base classs
- */
-var Pdu_Pdu = /** @class */ (function (_super) {
-    Pdu_extends(Pdu, _super);
-    function Pdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.payloads = [];
-        _this.errorPayload = null;
-        return _this;
-    }
-    Pdu.create = function (tagType, header, payload, algorithm, key) {
-        return Pdu_awaiter(this, void 0, void 0, function () {
-            var pduBytes, _a, _b;
-            return Pdu_generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        pduBytes = CompositeTag_CompositeTag.CREATE_FROM_LIST(tagType, false, false, [
-                            header,
-                            payload,
-                            ImprintTag_ImprintTag.CREATE(PDU_CONSTANTS.MacTagType, false, false, DataHash_DataHash.create(algorithm, new Uint8Array(algorithm.length)))
-                        ]).encode();
-                        _b = (_a = pduBytes).set;
-                        return [4 /*yield*/, WebHMAC_WebHMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length))];
-                    case 1:
-                        _b.apply(_a, [_c.sent(), pduBytes.length - algorithm.length]);
-                        return [2 /*return*/, new TlvInputStream_TlvInputStream(pduBytes).readTag()];
-                }
-            });
-        });
-    };
-    Pdu.prototype.getErrorPayload = function () {
-        return this.errorPayload;
-    };
-    Pdu.prototype.getPayloads = function () {
-        return this.payloads;
-    };
-    Pdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_HEADER_CONSTANTS.TagType:
-                return this.header = new PduHeader_PduHeader(tlvTag);
-            case PDU_CONSTANTS.MacTagType:
-                return this.hmac = new ImprintTag_ImprintTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    Pdu.prototype.validate = function (tagCount) {
-        if (ErrorPayload != null) {
-            return;
-        }
-        if (this.payloads.length === 0) {
-            throw new TlvError('Payloads are missing in PDU.');
-        }
-        if (tagCount[PDU_HEADER_CONSTANTS.TagType] !== 1) {
-            throw new TlvError('Exactly one header must exist in PDU.');
-        }
-        if (this.value[0] !== this.header) {
-            throw new TlvError('Header must be the first element in PDU.');
-        }
-        if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
-            throw new TlvError('Exactly one MAC must exist in PDU');
-        }
-        if (this.value[this.value.length - 1] !== this.hmac) {
-            throw new TlvError('MAC must be the last element in PDU');
-        }
-    };
-    return Pdu;
-}(CompositeTag_CompositeTag));
-
-
-// CONCATENATED MODULE: ./src/common/service/ExtendRequestPdu.ts
-var ExtendRequestPdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var ExtendRequestPdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var ExtendRequestPdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-/**
- * Extend request PDU
- */
-var ExtendRequestPdu_ExtendRequestPdu = /** @class */ (function (_super) {
-    ExtendRequestPdu_extends(ExtendRequestPdu, _super);
-    function ExtendRequestPdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtendRequestPdu.CREATE = function (header, payload, algorithm, key) {
-        return ExtendRequestPdu_awaiter(this, void 0, void 0, function () {
-            var _a;
-            return ExtendRequestPdu_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = ExtendRequestPdu.bind;
-                        return [4 /*yield*/, Pdu_Pdu.create(EXTEND_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
-                    case 1: return [2 /*return*/, new (_a.apply(ExtendRequestPdu, [void 0, _b.sent()]))()];
-                }
-            });
-        });
-    };
-    ExtendRequestPdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType:
-                var extendRequestPayload = new ExtendRequestPayload_ExtendRequestPayload(tlvTag);
-                this.payloads.push(extendRequestPayload);
-                return extendRequestPayload;
-            case EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
-                return this.extenderConfigRequest = new ExtenderConfigRequestPayload(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    ExtendRequestPdu.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one extender config request payload is allowed in PDU.');
-        }
-    };
-    return ExtendRequestPdu;
-}(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/common/service/ExtendResponsePayload.ts
-var ExtendResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-/**
- * Extend response payload
- */
-var ExtendResponsePayload_ExtendResponsePayload = /** @class */ (function (_super) {
-    ExtendResponsePayload_extends(ExtendResponsePayload, _super);
-    function ExtendResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtendResponsePayload.prototype.getCalendarHashChain = function () {
-        return this.calendarHashChain;
-    };
-    ExtendResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
-                return this.calendarLastTime = new IntegerTag_IntegerTag(tlvTag);
-            case CALENDAR_HASH_CHAIN_CONSTANTS.TagType:
-                return this.calendarHashChain = new CalendarHashChain_CalendarHashChain(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    ExtendResponsePayload.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
-            throw new TlvError('Only one calendar last time is allowed in extend response payload.');
-        }
-        if (this.getStatus().eq(0) && tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] !== 1) {
-            throw new TlvError('Exactly one calendar hash chain must exist in extend response payload.');
-        }
-    };
-    return ExtendResponsePayload;
-}(RequestResponsePayload_RequestResponsePayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/ExtenderConfigResponsePayload.ts
-var ExtenderConfigResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Aggregator configuration response payload.
- */
-var ExtenderConfigResponsePayload_ExtenderConfigResponsePayload = /** @class */ (function (_super) {
-    ExtenderConfigResponsePayload_extends(ExtenderConfigResponsePayload, _super);
-    function ExtenderConfigResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.parentUriList = [];
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtenderConfigResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
-                return this.maxRequests = new IntegerTag_IntegerTag(tlvTag);
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.ParentUriTagType:
-                var uriTag = new StringTag_StringTag(tlvTag);
-                this.parentUriList.push(uriTag);
-                return uriTag;
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType:
-                return this.calendarFirstTime = new IntegerTag_IntegerTag(tlvTag);
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
-                return this.calendarLastTime = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    ExtenderConfigResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
-            throw new TlvError('Only one max requests tag is allowed in extender config response payload.');
-        }
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType] > 1) {
-            throw new TlvError('Only one calendar first time tag is allowed in extender config response payload.');
-        }
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
-            throw new TlvError('Only one calendar last time tag is allowed in extender config response payload.');
-        }
-    };
-    return ExtenderConfigResponsePayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/ExtendErrorPayload.ts
-var ExtendErrorPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Extends Error payload TLV element.
- */
-var ExtendErrorPayload = /** @class */ (function (_super) {
-    ExtendErrorPayload_extends(ExtendErrorPayload, _super);
-    function ExtendErrorPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return ExtendErrorPayload;
-}(ErrorPayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/ExtendResponsePdu.ts
-var ExtendResponsePdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Extend response PDU
- */
-var ExtendResponsePdu_ExtendResponsePdu = /** @class */ (function (_super) {
-    ExtendResponsePdu_extends(ExtendResponsePdu, _super);
-    function ExtendResponsePdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    ExtendResponsePdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                var extendResponsePayload = new ExtendResponsePayload_ExtendResponsePayload(tlvTag);
-                this.payloads.push(extendResponsePayload);
-                return extendResponsePayload;
-            case ERROR_PAYLOAD_CONSTANTS.TagType:
-                return this.errorPayload = new ExtendErrorPayload(tlvTag);
-            case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return this.extenderConfigResponse = new ExtenderConfigResponsePayload_ExtenderConfigResponsePayload(tlvTag);
-            // not implemented yet, so just return the tag
-            case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return tlvTag;
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    ExtendResponsePdu.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one extender config response payload is allowed in PDU.');
-        }
-    };
-    return ExtendResponsePdu;
-}(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/common/service/IExtendingServiceProtocol.ts
-function isExtendingServiceProtocol(object) {
-    return 'extend' in object && typeof object.extend === 'function';
-}
-
-// CONCATENATED MODULE: ./src/common/service/IServiceCredentials.ts
-function isIServiceCredentials(object) {
-    return 'getLoginId' in object
-        && 'getLoginKey' in object
-        && 'getHmacAlgorithm' in object;
-}
-
-// CONCATENATED MODULE: ./src/common/service/KsiServiceError.ts
-var KsiServiceError_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-/**
- * KSI Service related error
- */
-var KsiServiceError = /** @class */ (function (_super) {
-    KsiServiceError_extends(KsiServiceError, _super);
-    function KsiServiceError(message) {
-        var _this = _super.call(this, message) || this;
-        _this.name = 'KsiServiceError';
-        Object.setPrototypeOf(_this, KsiServiceError.prototype);
-        return _this;
-    }
-    return KsiServiceError;
-}(Error));
-
-
-// CONCATENATED MODULE: ./src/common/service/ExtendingService.ts
-var ExtendingService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var ExtendingService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Extending service
- */
-var ExtendingService_ExtendingService = /** @class */ (function () {
-    function ExtendingService(extendingServiceProtocol, extendingServiceCredentials) {
-        this.requests = {};
-        if (!(isExtendingServiceProtocol(extendingServiceProtocol))) {
-            throw new KsiError("Invalid extending service protocol: " + extendingServiceProtocol);
-        }
-        if (!isIServiceCredentials(extendingServiceCredentials)) {
-            throw new KsiError("Invalid extending service credentials: " + extendingServiceCredentials);
-        }
-        this.extendingServiceProtocol = extendingServiceProtocol;
-        this.extendingServiceCredentials = extendingServiceCredentials;
-    }
-    ExtendingService.processPayload = function (payload) {
-        if (!(payload instanceof ExtendResponsePayload_ExtendResponsePayload)) {
-            throw new KsiError("Invalid ExtendResponsePayload: " + payload);
-        }
-        if (payload.getStatus().neq(0)) {
-            // tslint:disable-next-line:max-line-length
-            throw new KsiServiceError("Server responded with error message. Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
-        }
-        return payload.getCalendarHashChain();
-    };
-    ExtendingService.prototype.extend = function (aggregationTime, publicationTime) {
-        if (publicationTime === void 0) { publicationTime = null; }
-        return ExtendingService_awaiter(this, void 0, void 0, function () {
-            var header, requestId, requestPayload, requestPdu, ksiRequest, responseBytes, stream, responsePdu, errorPayload, currentExtendPayload, _i, _a, responsePayload, extendPayload, payloadRequestId, request;
-            return ExtendingService_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.extendingServiceCredentials.getLoginId());
-                        requestId = pseudoRandomLong();
-                        requestPayload = ExtendRequestPayload_ExtendRequestPayload.CREATE(requestId, aggregationTime, publicationTime);
-                        return [4 /*yield*/, ExtendRequestPdu_ExtendRequestPdu.CREATE(header, requestPayload, this.extendingServiceCredentials.getHmacAlgorithm(), this.extendingServiceCredentials.getLoginKey())];
-                    case 1:
-                        requestPdu = _b.sent();
-                        ksiRequest = this.extendingServiceProtocol.extend(requestPdu.encode());
-                        this.requests[requestId.toString()] = ksiRequest;
-                        return [4 /*yield*/, ksiRequest.getResponse()];
-                    case 2:
-                        responseBytes = _b.sent();
-                        if (ksiRequest.isAborted()) {
-                            return [2 /*return*/, ExtendingService.processPayload(ksiRequest.getAbortResponse())];
-                        }
-                        stream = new TlvInputStream_TlvInputStream(responseBytes);
-                        responsePdu = new ExtendResponsePdu_ExtendResponsePdu(stream.readTag());
-                        if (stream.getPosition() < stream.getLength()) {
-                            throw new KsiServiceError("Response contains more bytes than PDU length");
-                        }
-                        errorPayload = responsePdu.getErrorPayload();
-                        if (errorPayload !== null) {
-                            if (responsePdu.getPayloads().length > 0) {
-                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
-                            }
-                            // tslint:disable-next-line:max-line-length
-                            throw new KsiServiceError("Server responded with error message. Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
-                        }
-                        currentExtendPayload = null;
-                        for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
-                            responsePayload = _a[_i];
-                            extendPayload = responsePayload;
-                            payloadRequestId = extendPayload.getRequestId().toString();
-                            if (!this.requests.hasOwnProperty(payloadRequestId)) {
-                                throw new KsiServiceError('Extend response request ID does not match any request id which is sent!');
-                            }
-                            request = this.requests[payloadRequestId];
-                            delete this.requests[payloadRequestId];
-                            if (payloadRequestId !== requestId.toString()) {
-                                request.abort(extendPayload);
-                                continue;
-                            }
-                            if (currentExtendPayload !== null) {
-                                throw new KsiServiceError('Multiple extend payload responses in single PDU.');
-                            }
-                            currentExtendPayload = extendPayload;
-                        }
-                        return [2 /*return*/, ExtendingService.processPayload(currentExtendPayload)];
-                }
-            });
-        });
-    };
-    return ExtendingService;
-}());
-
-
 // CONCATENATED MODULE: ./src/common/publication/PublicationsFileFactory.ts
 
 
@@ -53975,5140 +58858,6 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
         return new PublicationsFile_PublicationsFile(RawTag_RawTag.CREATE(0x0, false, false, publicationFileBytes.slice(PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length)));
     };
     return PublicationsFileFactory;
-}());
-
-
-// CONCATENATED MODULE: ./src/common/service/IPublicationsFileServiceProtocol.ts
-function isPublicationsFileServiceProtocol(object) {
-    return 'getPublicationsFile' in object && typeof object.getPublicationsFile === 'function';
-}
-
-// CONCATENATED MODULE: ./src/common/service/PublicationsFileService.ts
-var PublicationsFileService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var PublicationsFileService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Publications file service
- */
-var PublicationsFileService_PublicationsFileService = /** @class */ (function () {
-    function PublicationsFileService(publicationsFileServiceProtocol, publicationsFileFactory) {
-        if (!(isPublicationsFileServiceProtocol(publicationsFileServiceProtocol))) {
-            throw new KsiServiceError("Invalid publications file service protocol: " + publicationsFileServiceProtocol);
-        }
-        if (!(publicationsFileFactory instanceof PublicationsFileFactory_PublicationsFileFactory)) {
-            throw new KsiServiceError("Invalid publications file factory: " + publicationsFileFactory);
-        }
-        this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
-        this.publicationsFileFactory = publicationsFileFactory;
-    }
-    PublicationsFileService.prototype.getPublicationsFile = function () {
-        return PublicationsFileService_awaiter(this, void 0, void 0, function () {
-            var _a, _b;
-            return PublicationsFileService_generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        _b = (_a = this.publicationsFileFactory).create;
-                        return [4 /*yield*/, this.publicationsFileServiceProtocol.getPublicationsFile()];
-                    case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
-                }
-            });
-        });
-    };
-    return PublicationsFileService;
-}());
-
-
-// CONCATENATED MODULE: ./src/common/service/AggregationRequestPayload.ts
-var AggregationRequestPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-
-/**
- * Aggregation request payload
- */
-var AggregationRequestPayload_AggregationRequestPayload = /** @class */ (function (_super) {
-    AggregationRequestPayload_extends(AggregationRequestPayload, _super);
-    function AggregationRequestPayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationRequestPayload.CREATE = function (requestId, hash, level) {
-        if (level === void 0) { level = BigInteger_default()(0); }
-        if (!BigInteger_default.a.isInstance(requestId)) {
-            throw new TlvError("Invalid requestId: " + requestId);
-        }
-        if (!(hash instanceof DataHash_DataHash)) {
-            throw new TlvError("Invalid requestId: " + hash);
-        }
-        if (!BigInteger_default.a.isInstance(level)) {
-            throw new TlvError("Invalid level: " + level);
-        }
-        var childTlv = [
-            IntegerTag_IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
-            ImprintTag_ImprintTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType, false, false, hash)
-        ];
-        if (level.neq(0)) {
-            childTlv.push(IntegerTag_IntegerTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType, false, false, level));
-        }
-        return new AggregationRequestPayload(CompositeTag_CompositeTag.CREATE_FROM_LIST(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv));
-    };
-    AggregationRequestPayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
-                return this.requestId = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType:
-                return this.requestHash = new ImprintTag_ImprintTag(tlvTag);
-            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType:
-                return this.requestLevel = new IntegerTag_IntegerTag(tlvTag);
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    AggregationRequestPayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
-            throw new TlvError('Exactly one request id must exist in aggregation request payload.');
-        }
-        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType] !== 1) {
-            throw new TlvError('Exactly one request hash must exist in aggregation request payload.');
-        }
-        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType] > 1) {
-            throw new TlvError('Only one request level is allowed in aggregation request payload.');
-        }
-    };
-    return AggregationRequestPayload;
-}(CompositeTag_CompositeTag));
-
-
-// CONCATENATED MODULE: ./src/common/service/AggregatorConfigRequestPayload.ts
-var AggregatorConfigRequestPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Aggregator configuration request payload.
- */
-var AggregatorConfigRequestPayload = /** @class */ (function (_super) {
-    AggregatorConfigRequestPayload_extends(AggregatorConfigRequestPayload, _super);
-    function AggregatorConfigRequestPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return AggregatorConfigRequestPayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/AggregationRequestPdu.ts
-var AggregationRequestPdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var AggregationRequestPdu_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var AggregationRequestPdu_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-/**
- * Aggregation request PDU
- */
-var AggregationRequestPdu_AggregationRequestPdu = /** @class */ (function (_super) {
-    AggregationRequestPdu_extends(AggregationRequestPdu, _super);
-    function AggregationRequestPdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationRequestPdu.CREATE = function (header, payload, algorithm, key) {
-        return AggregationRequestPdu_awaiter(this, void 0, void 0, function () {
-            var _a;
-            return AggregationRequestPdu_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = AggregationRequestPdu.bind;
-                        return [4 /*yield*/, Pdu_Pdu.create(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)];
-                    case 1: return [2 /*return*/, new (_a.apply(AggregationRequestPdu, [void 0, _b.sent()]))()];
-                }
-            });
-        });
-    };
-    AggregationRequestPdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType:
-                var aggregationRequestPayload = new AggregationRequestPayload_AggregationRequestPayload(tlvTag);
-                this.payloads.push(aggregationRequestPayload);
-                return aggregationRequestPayload;
-            case AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
-                return this.aggregatorConfigRequest = new AggregatorConfigRequestPayload(tlvTag);
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    AggregationRequestPdu.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one aggregator config request payload is allowed in PDU.');
-        }
-    };
-    return AggregationRequestPdu;
-}(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/common/service/AggregationErrorPayload.ts
-var AggregationErrorPayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-/**
- * Aggregation Error payload TLV element.
- */
-var AggregationErrorPayload = /** @class */ (function (_super) {
-    AggregationErrorPayload_extends(AggregationErrorPayload, _super);
-    function AggregationErrorPayload(tlvTag) {
-        return _super.call(this, tlvTag) || this;
-    }
-    return AggregationErrorPayload;
-}(ErrorPayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/AggregatorConfigResponsePayload.ts
-var AggregatorConfigResponsePayload_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Aggregator configuration response payload.
- */
-var AggregatorConfigResponsePayload_AggregatorConfigResponsePayload = /** @class */ (function (_super) {
-    AggregatorConfigResponsePayload_extends(AggregatorConfigResponsePayload, _super);
-    function AggregatorConfigResponsePayload(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.parentUriList = [];
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregatorConfigResponsePayload.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType:
-                return this.maxLevel = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType:
-                return this.aggregationAlgorithm = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType:
-                return this.aggregationPeriod = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
-                return this.maxRequests = new IntegerTag_IntegerTag(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.ParentUriTagType:
-                var uriTag = new StringTag_StringTag(tlvTag);
-                this.parentUriList.push(uriTag);
-                return uriTag;
-            default:
-                return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
-        }
-    };
-    AggregatorConfigResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType] > 1) {
-            throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');
-        }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType] > 1) {
-            throw new TlvError('Only one aggregation algorithm tag is allowed in aggregator config response payload.');
-        }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType] > 1) {
-            throw new TlvError('Only one aggregation period tag is allowed in aggregator config response payload.');
-        }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
-            throw new TlvError('Only one max requests tag is allowed in aggregator config response payload.');
-        }
-    };
-    return AggregatorConfigResponsePayload;
-}(PduPayload));
-
-
-// CONCATENATED MODULE: ./src/common/service/AggregationResponsePdu.ts
-var AggregationResponsePdu_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-/**
- * Aggregation response PDU
- */
-var AggregationResponsePdu_AggregationResponsePdu = /** @class */ (function (_super) {
-    AggregationResponsePdu_extends(AggregationResponsePdu, _super);
-    function AggregationResponsePdu(tlvTag) {
-        var _this = _super.call(this, tlvTag) || this;
-        _this.decodeValue(_this.parseChild.bind(_this));
-        _this.validateValue(_this.validate.bind(_this));
-        Object.freeze(_this);
-        return _this;
-    }
-    AggregationResponsePdu.prototype.parseChild = function (tlvTag) {
-        switch (tlvTag.id) {
-            case AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                var aggregationResponsePayload = new AggregationResponsePayload_AggregationResponsePayload(tlvTag);
-                this.payloads.push(aggregationResponsePayload);
-                return aggregationResponsePayload;
-            case ERROR_PAYLOAD_CONSTANTS.TagType:
-                return this.errorPayload = new AggregationErrorPayload(tlvTag);
-            case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return this.aggregatorConfigResponse = new AggregatorConfigResponsePayload_AggregatorConfigResponsePayload(tlvTag);
-            // not implemented yet, so just return the tag
-            case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-                return tlvTag;
-            default:
-                return _super.prototype.parseChild.call(this, tlvTag);
-        }
-    };
-    AggregationResponsePdu.prototype.validate = function (tagCount) {
-        _super.prototype.validate.call(this, tagCount);
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
-            throw new TlvError('Only one aggregator config response payload is allowed in PDU.');
-        }
-    };
-    return AggregationResponsePdu;
-}(Pdu_Pdu));
-
-
-// CONCATENATED MODULE: ./src/common/service/ISigningServiceProtocol.ts
-function isSigningServiceProtocol(object) {
-    return 'sign' in object && typeof object.sign === 'function';
-}
-
-// CONCATENATED MODULE: ./src/common/service/SigningService.ts
-var SigningService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var SigningService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Signing service
- */
-var SigningService_SigningService = /** @class */ (function () {
-    function SigningService(signingServiceProtocol, signingServiceCredentials) {
-        this.requests = {};
-        if (!(isSigningServiceProtocol(signingServiceProtocol))) {
-            throw new KsiServiceError("Invalid signing service protocol: " + signingServiceProtocol);
-        }
-        if (!isIServiceCredentials(signingServiceCredentials)) {
-            throw new KsiServiceError("Invalid signing service credentials: " + signingServiceCredentials);
-        }
-        this.signingServiceProtocol = signingServiceProtocol;
-        this.signingServiceCredentials = signingServiceCredentials;
-    }
-    SigningService.processPayload = function (payload) {
-        if (!(payload instanceof AggregationResponsePayload_AggregationResponsePayload)) {
-            throw new KsiServiceError("Invalid AggregationResponsePayload: " + payload);
-        }
-        if (payload.getStatus().neq(0)) {
-            // tslint:disable-next-line:max-line-length
-            throw new KsiServiceError("Server responded with error message. Status: " + payload.getStatus() + "; Message: " + payload.getErrorMessage() + ".");
-        }
-        return KsiSignature_KsiSignature.CREATE(payload);
-    };
-    SigningService.prototype.sign = function (hash, level) {
-        if (level === void 0) { level = BigInteger_default()(0); }
-        return SigningService_awaiter(this, void 0, void 0, function () {
-            var header, requestId, requestPayload, requestPdu, ksiRequest, responseBytes, stream, responsePdu, errorPayload, currentAggregationPayload, _i, _a, responsePayload, aggregationPayload, payloadRequestId, request;
-            return SigningService_generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (!(hash instanceof DataHash_DataHash)) {
-                            throw new KsiServiceError("Invalid hash: " + hash);
-                        }
-                        if (!BigInteger_default.a.isInstance(level)) {
-                            throw new KsiServiceError("Invalid level: " + level + ", must be BigInteger");
-                        }
-                        header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
-                        requestId = pseudoRandomLong();
-                        requestPayload = AggregationRequestPayload_AggregationRequestPayload.CREATE(requestId, hash, level);
-                        return [4 /*yield*/, AggregationRequestPdu_AggregationRequestPdu.CREATE(header, requestPayload, this.signingServiceCredentials.getHmacAlgorithm(), this.signingServiceCredentials.getLoginKey())];
-                    case 1:
-                        requestPdu = _b.sent();
-                        ksiRequest = this.signingServiceProtocol.sign(requestPdu.encode());
-                        this.requests[requestId.toString()] = ksiRequest;
-                        return [4 /*yield*/, ksiRequest.getResponse()];
-                    case 2:
-                        responseBytes = _b.sent();
-                        if (ksiRequest.isAborted()) {
-                            return [2 /*return*/, SigningService.processPayload(ksiRequest.getAbortResponse())];
-                        }
-                        stream = new TlvInputStream_TlvInputStream(responseBytes);
-                        responsePdu = new AggregationResponsePdu_AggregationResponsePdu(stream.readTag());
-                        if (stream.getPosition() < stream.getLength()) {
-                            throw new KsiServiceError("Response contains more bytes than PDU length");
-                        }
-                        errorPayload = responsePdu.getErrorPayload();
-                        if (errorPayload !== null) {
-                            if (responsePdu.getPayloads().length > 0) {
-                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
-                            }
-                            // tslint:disable-next-line:max-line-length
-                            throw new KsiServiceError("Server responded with error message. Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
-                        }
-                        currentAggregationPayload = null;
-                        for (_i = 0, _a = responsePdu.getPayloads(); _i < _a.length; _i++) {
-                            responsePayload = _a[_i];
-                            aggregationPayload = responsePayload;
-                            payloadRequestId = aggregationPayload.getRequestId().toString();
-                            if (!this.requests.hasOwnProperty(payloadRequestId)) {
-                                throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent!');
-                            }
-                            request = this.requests[payloadRequestId];
-                            delete this.requests[payloadRequestId];
-                            if (payloadRequestId !== requestId.toString()) {
-                                request.abort(aggregationPayload);
-                                continue;
-                            }
-                            if (currentAggregationPayload !== null) {
-                                throw new KsiServiceError('Multiple aggregation responses in single PDU.');
-                            }
-                            currentAggregationPayload = aggregationPayload;
-                        }
-                        return [2 /*return*/, SigningService.processPayload(currentAggregationPayload)];
-                }
-            });
-        });
-    };
-    return SigningService;
-}());
-
-
-// CONCATENATED MODULE: ./src/common/service/KsiService.ts
-var KsiService_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var KsiService_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-/**
- * KSI service.
- */
-var KsiService_KsiService = /** @class */ (function () {
-    function KsiService(signingService, extendingService, publicationsFileService) {
-        if (signingService === void 0) { signingService = null; }
-        if (extendingService === void 0) { extendingService = null; }
-        if (signingService !== null && !(signingService instanceof SigningService_SigningService)) {
-            throw new KsiServiceError("Invalid signing service: " + signingService);
-        }
-        if (extendingService !== null && !(extendingService instanceof ExtendingService_ExtendingService)) {
-            throw new KsiServiceError("Invalid extending service: " + extendingService);
-        }
-        if (publicationsFileService !== null && !(publicationsFileService instanceof PublicationsFileService_PublicationsFileService)) {
-            throw new KsiServiceError("Invalid publications file service: " + publicationsFileService);
-        }
-        this.signingService = signingService;
-        this.extendingService = extendingService;
-        this.publicationsFileService = publicationsFileService;
-    }
-    KsiService.prototype.sign = function (hash, level) {
-        if (level === void 0) { level = BigInteger_default()(0); }
-        return KsiService_awaiter(this, void 0, void 0, function () {
-            return KsiService_generator(this, function (_a) {
-                if (this.signingService === null) {
-                    throw new KsiServiceError('Signing protocol not defined. Cannot use signing.');
-                }
-                return [2 /*return*/, this.signingService.sign(hash, level)];
-            });
-        });
-    };
-    KsiService.prototype.extend = function (aggregationTime, publicationTime) {
-        if (publicationTime === void 0) { publicationTime = null; }
-        return KsiService_awaiter(this, void 0, void 0, function () {
-            return KsiService_generator(this, function (_a) {
-                if (this.extendingService === null) {
-                    throw new KsiServiceError('Extending service not defined. Cannot use extending.');
-                }
-                return [2 /*return*/, this.extendingService.extend(aggregationTime, publicationTime)];
-            });
-        });
-    };
-    KsiService.prototype.getPublicationsFile = function () {
-        return KsiService_awaiter(this, void 0, void 0, function () {
-            return KsiService_generator(this, function (_a) {
-                if (this.publicationsFileService === null) {
-                    throw new KsiServiceError('Publications file service not defined. Cannot get publications file.');
-                }
-                return [2 /*return*/, this.publicationsFileService.getPublicationsFile()];
-            });
-        });
-    };
-    return KsiService;
-}());
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/VerificationContext.ts
-var VerificationContext_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var VerificationContext_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-/**
- * Verification context for KSI signature
- */
-
-
-
-
-
-
-
-var VerificationContext_VerificationContext = /** @class */ (function () {
-    function VerificationContext(signature) {
-        this.documentHash = null;
-        this.publicationsFile = null;
-        this.publicationData = null;
-        this.extendingAllowed = false;
-        if (!isKsiSignature(signature)) {
-            throw new Error("Invalid signature: " + signature);
-        }
-        this.ksiSignature = signature;
-    }
-    VerificationContext.prototype.getSignature = function () {
-        return this.ksiSignature;
-    };
-    /**
-     * Get extended latest calendar hash chain.
-     */
-    VerificationContext.prototype.getExtendedLatestCalendarHashChain = function () {
-        return VerificationContext_awaiter(this, void 0, void 0, function () {
-            return VerificationContext_generator(this, function (_a) {
-                return [2 /*return*/, this.getExtendedCalendarHashChain(null)];
-            });
-        });
-    };
-    /**
-     * Get extended calendar hash chain from given publication time.
-     */
-    VerificationContext.prototype.getExtendedCalendarHashChain = function (publicationTime) {
-        return VerificationContext_awaiter(this, void 0, void 0, function () {
-            return VerificationContext_generator(this, function (_a) {
-                if (!(this.ksiService instanceof KsiService_KsiService)) {
-                    throw new KsiVerificationError('Invalid KSI service in context.');
-                }
-                return [2 /*return*/, this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime)];
-            });
-        });
-    };
-    /**
-     * Get document hash.
-     */
-    VerificationContext.prototype.getDocumentHash = function () {
-        return this.documentHash;
-    };
-    VerificationContext.prototype.setDocumentHash = function (documentHash) {
-        if (documentHash !== null && !(documentHash instanceof DataHash_DataHash)) {
-            throw new KsiVerificationError("Invalid document hash: " + documentHash);
-        }
-        this.documentHash = documentHash;
-    };
-    VerificationContext.prototype.setKsiService = function (ksiService) {
-        if (ksiService !== null && !(ksiService instanceof KsiService_KsiService)) {
-            throw new KsiVerificationError("Invalid ksi service: " + ksiService);
-        }
-        this.ksiService = ksiService;
-    };
-    /**
-     * Get document hash node level value in the aggregation tree
-     */
-    VerificationContext.prototype.getDocumentHashLevel = function () {
-        return BigInteger_default()(0);
-    };
-    VerificationContext.prototype.getPublicationsFile = function () {
-        return this.publicationsFile;
-    };
-    VerificationContext.prototype.setPublicationsFile = function (publicationsFile) {
-        if (publicationsFile !== null && !(publicationsFile instanceof PublicationsFile_PublicationsFile)) {
-            throw new KsiVerificationError("Invalid publications file: " + publicationsFile);
-        }
-        this.publicationsFile = publicationsFile;
-    };
-    VerificationContext.prototype.getUserPublication = function () {
-        return this.publicationData;
-    };
-    VerificationContext.prototype.setUserPublication = function (publicationData) {
-        if (publicationData !== null && !(publicationData instanceof PublicationData_PublicationData)) {
-            throw new KsiVerificationError("Invalid publications file: " + publicationData);
-        }
-        this.publicationData = publicationData;
-    };
-    VerificationContext.prototype.isExtendingAllowed = function () {
-        return this.extendingAllowed;
-    };
-    VerificationContext.prototype.setExtendingAllowed = function (extendingAllowed) {
-        this.extendingAllowed = extendingAllowed;
-    };
-    return VerificationContext;
-}());
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/VerificationRule.ts
-/**
- * Verification Rule for KSI Signature
- */
-
-
-
-
-
-
-
-var VerificationRule_VerificationRule = /** @class */ (function () {
-    function VerificationRule(ruleName) {
-        if (ruleName === void 0) { ruleName = null; }
-        this.ruleName = this.constructor.name;
-        this.onSuccessRule = null;
-        this.onFailureRule = null;
-        this.onNaRule = null;
-        if (ruleName !== null) {
-            if (typeof ruleName !== 'string') {
-                throw new KsiError("Invalid rule name: " + ruleName);
-            }
-            this.ruleName = ruleName;
-        }
-    }
-    VerificationRule.verifyContext = function (context) {
-        if (!(context instanceof VerificationContext_VerificationContext)) {
-            throw new KsiVerificationError('Invalid context');
-        }
-    };
-    VerificationRule.getSignature = function (context) {
-        VerificationRule.verifyContext(context);
-        if (!isKsiSignature(context.getSignature())) {
-            throw new KsiVerificationError('Invalid KSI signature in context: null.');
-        }
-        return context.getSignature();
-    };
-    VerificationRule.getCalendarHashChain = function (signature) {
-        var calendarHashChain = signature.getCalendarHashChain();
-        if (!(calendarHashChain instanceof CalendarHashChain_CalendarHashChain)) {
-            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
-        }
-        return calendarHashChain;
-    };
-    VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink = function (calendarHashChain) {
-        if (!(calendarHashChain instanceof CalendarHashChain_CalendarHashChain)) {
-            throw new KsiVerificationError('Invalid calendar hash chain.');
-        }
-        for (var _i = 0, _a = calendarHashChain.getChainLinks(); _i < _a.length; _i++) {
-            var link = _a[_i];
-            if (link.id !== LinkDirection.Left) {
-                continue;
-            }
-            if (link.getValue().hashAlgorithm.isDeprecated(calendarHashChain.getPublicationTime().valueOf())) {
-                return link;
-            }
-        }
-        return null;
-    };
-    VerificationRule.verifyRule = function (rule) {
-        if (!(rule instanceof VerificationRule)) {
-            throw new Error("Invalid rule: " + rule);
-        }
-    };
-    VerificationRule.prototype.getRuleName = function () {
-        return this.ruleName;
-    };
-    VerificationRule.prototype.onSuccess = function (rule) {
-        VerificationRule.verifyRule(rule);
-        this.onSuccessRule = rule;
-        return this;
-    };
-    VerificationRule.prototype.onFailure = function (rule) {
-        VerificationRule.verifyRule(rule);
-        this.onFailureRule = rule;
-        return this;
-    };
-    VerificationRule.prototype.onNa = function (rule) {
-        VerificationRule.verifyRule(rule);
-        this.onNaRule = rule;
-        return this;
-    };
-    VerificationRule.prototype.getNextRule = function (resultCode) {
-        switch (resultCode) {
-            case VerificationResultCode.OK:
-                return this.onSuccessRule;
-            case VerificationResultCode.FAIL:
-                return this.onFailureRule;
-            case VerificationResultCode.NA:
-                return this.onNaRule;
-            default:
-                return null;
-        }
-    };
-    return VerificationRule;
-}());
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationExistenceRule.ts
-var UserProvidedPublicationExistenceRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var UserProvidedPublicationExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var UserProvidedPublicationExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule checks that user has provided a publication.
- */
-var UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule = /** @class */ (function (_super) {
-    UserProvidedPublicationExistenceRule_extends(UserProvidedPublicationExistenceRule, _super);
-    function UserProvidedPublicationExistenceRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    UserProvidedPublicationExistenceRule.prototype.verify = function (context) {
-        return UserProvidedPublicationExistenceRule_awaiter(this, void 0, void 0, function () {
-            return UserProvidedPublicationExistenceRule_generator(this, function (_a) {
-                VerificationRule_VerificationRule.verifyContext(context);
-                return [2 /*return*/, context.getUserPublication() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return UserProvidedPublicationExistenceRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainAlgorithmDeprecatedRule.ts
-var AggregationHashChainAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var AggregationHashChainAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var AggregationHashChainAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Verifies that aggregation hash chains use hash algorithms that were not deprecated at the aggregation time.
- */
-var AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDeprecatedRule = /** @class */ (function (_super) {
-    AggregationHashChainAlgorithmDeprecatedRule_extends(AggregationHashChainAlgorithmDeprecatedRule, _super);
-    function AggregationHashChainAlgorithmDeprecatedRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    AggregationHashChainAlgorithmDeprecatedRule.prototype.verify = function (context) {
-        return AggregationHashChainAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChains, _i, aggregationHashChains_1, chain;
-            return AggregationHashChainAlgorithmDeprecatedRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                aggregationHashChains = signature.getAggregationHashChains();
-                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
-                    chain = aggregationHashChains_1[_i];
-                    if (chain.getAggregationAlgorithm().isDeprecated(chain.getAggregationTime().valueOf())) {
-                        // tslint:disable-next-line:max-line-length
-                        console.log("Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: " + chain.getAggregationAlgorithm().name + "; Aggregation time: " + chain.getAggregationTime());
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15)];
-                    }
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return AggregationHashChainAlgorithmDeprecatedRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainConsistencyRule.ts
-var AggregationHashChainConsistencyRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var AggregationHashChainConsistencyRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var AggregationHashChainConsistencyRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule verifies if all aggregation hash chains are consistent. e.g. previous aggregation hash chain output hash
- * equals to current aggregation hash chain input hash.
- */
-var AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule = /** @class */ (function (_super) {
-    AggregationHashChainConsistencyRule_extends(AggregationHashChainConsistencyRule, _super);
-    function AggregationHashChainConsistencyRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    AggregationHashChainConsistencyRule.prototype.verify = function (context) {
-        return AggregationHashChainConsistencyRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChains, chainHashResult, _i, aggregationHashChains_1, chain;
-            return AggregationHashChainConsistencyRule_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        aggregationHashChains = signature.getAggregationHashChains();
-                        chainHashResult = null;
-                        _i = 0, aggregationHashChains_1 = aggregationHashChains;
-                        _a.label = 1;
-                    case 1:
-                        if (!(_i < aggregationHashChains_1.length)) return [3 /*break*/, 4];
-                        chain = aggregationHashChains_1[_i];
-                        if (chainHashResult === null) {
-                            chainHashResult = { level: BigInteger_default()(0), hash: chain.getInputHash() };
-                        }
-                        if (!chain.getInputHash().equals(chainHashResult.hash)) {
-                            // tslint:disable-next-line:max-line-length
-                            console.log("Aggregation hash chains not consistent. Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous aggregation hash chain output hash " + chainHashResult.hash + ".");
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)];
-                        }
-                        return [4 /*yield*/, chain.getOutputHash(chainHashResult)];
-                    case 2:
-                        chainHashResult = _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 1];
-                    case 4: return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return AggregationHashChainConsistencyRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainIndexSuccessorRule.ts
-var AggregationHashChainIndexSuccessorRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var AggregationHashChainIndexSuccessorRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var AggregationHashChainIndexSuccessorRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * This rule checks that chain index of a aggregation hash chain is successor to it's parent aggregation hash chain index.
- */
-var AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRule = /** @class */ (function (_super) {
-    AggregationHashChainIndexSuccessorRule_extends(AggregationHashChainIndexSuccessorRule, _super);
-    function AggregationHashChainIndexSuccessorRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    AggregationHashChainIndexSuccessorRule.prototype.verify = function (context) {
-        return AggregationHashChainIndexSuccessorRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChains, parentChainIndex, chainIndex, _i, aggregationHashChains_1, chain;
-            return AggregationHashChainIndexSuccessorRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                aggregationHashChains = signature.getAggregationHashChains();
-                parentChainIndex = null;
-                chainIndex = null;
-                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
-                    chain = aggregationHashChains_1[_i];
-                    chainIndex = chain.getChainIndex();
-                    if (parentChainIndex !== null && !(parentChainIndex.length !== chainIndex.length
-                        || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
-                        // tslint:disable-next-line:max-line-length
-                        console.log("Chain index is not the successor to the parent aggregation hash chain index. Chain index: " + chainIndex + "; Parent chain index: " + parentChainIndex);
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
-                    }
-                    parentChainIndex = chainIndex;
-                }
-                if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
-                    console.log("Highest aggregation hash chain index length is not 1. Chain index: " + chainIndex + ";");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return AggregationHashChainIndexSuccessorRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainMetadataRule.ts
-var AggregationHashChainMetadataRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var AggregationHashChainMetadataRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var AggregationHashChainMetadataRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-
-/**
- * Rule verifies if all metadata tags in aggregation hash chains are valid.
- */
-var AggregationHashChainMetadataRule_AggregationHashChainMetadataRule = /** @class */ (function (_super) {
-    AggregationHashChainMetadataRule_extends(AggregationHashChainMetadataRule, _super);
-    function AggregationHashChainMetadataRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    AggregationHashChainMetadataRule.prototype.verify = function (context) {
-        return AggregationHashChainMetadataRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChains, _i, aggregationHashChains_1, chain, _a, _b, link, metadata, paddingTag, metadataBytes, hashAlgorithmId, hashAlgorithm, valueBytesString, stream;
-            return AggregationHashChainMetadataRule_generator(this, function (_c) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                aggregationHashChains = signature.getAggregationHashChains();
-                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
-                    chain = aggregationHashChains_1[_i];
-                    for (_a = 0, _b = chain.getChainLinks(); _a < _b.length; _a++) {
-                        link = _b[_a];
-                        metadata = link.getMetadata();
-                        if (metadata === null) {
-                            continue;
-                        }
-                        paddingTag = metadata.getPaddingTag();
-                        if (paddingTag === null) {
-                            metadataBytes = metadata.getValueBytes();
-                            if (metadataBytes.length === 0) {
-                                continue;
-                            }
-                            hashAlgorithmId = metadataBytes[0];
-                            if (HashAlgorithm_HashAlgorithm.isInvalidAlgorithm(hashAlgorithmId)) {
-                                continue;
-                            }
-                            hashAlgorithm = HashAlgorithm_HashAlgorithm.getById(hashAlgorithmId);
-                            if (hashAlgorithm !== null && hashAlgorithm.length === metadataBytes.length - 1) {
-                                console.log("Metadata without padding may not be trusted. Metadata: " + metadata);
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
-                            }
-                        }
-                        else {
-                            try {
-                                if (metadata.value.indexOf(paddingTag) !== 0) {
-                                    throw new Error('Padding is not the first element.');
-                                }
-                                if (paddingTag.tlv16BitFlag) {
-                                    throw new Error('Padding is not TLV8.');
-                                }
-                                if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
-                                    throw new Error('Non-critical and forward flags must be set.');
-                                }
-                                valueBytesString = JSON.stringify(paddingTag.getValueBytes());
-                                if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
-                                    && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
-                                    throw new Error('Unknown padding value.');
-                                }
-                                stream = new TlvOutputStream_TlvOutputStream();
-                                stream.writeTag(metadata);
-                                if (stream.getData().length % 2 !== 0) {
-                                    throw new Error('Invalid padding value.');
-                                }
-                            }
-                            catch (error) {
-                                console.log("Metadata with padding may not be trusted. " + error.message + " Metadata: " + metadata);
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
-                            }
-                        }
-                    }
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return AggregationHashChainMetadataRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainShapeRule.ts
-var AggregationHashChainShapeRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var AggregationHashChainShapeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var AggregationHashChainShapeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule checks that shape of the aggregation hash chain matches with chain index.
- */
-var AggregationHashChainShapeRule_AggregationHashChainShapeRule = /** @class */ (function (_super) {
-    AggregationHashChainShapeRule_extends(AggregationHashChainShapeRule, _super);
-    function AggregationHashChainShapeRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    AggregationHashChainShapeRule.prototype.verify = function (context) {
-        return AggregationHashChainShapeRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChains, _i, aggregationHashChains_1, chain, chainIndex, calculatedValue, lastIndexValue;
-            return AggregationHashChainShapeRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                aggregationHashChains = signature.getAggregationHashChains();
-                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
-                    chain = aggregationHashChains_1[_i];
-                    chainIndex = chain.getChainIndex();
-                    calculatedValue = chain.calculateLocationPointer();
-                    lastIndexValue = chainIndex[chainIndex.length - 1];
-                    if (!lastIndexValue.eq(calculatedValue)) {
-                        // tslint:disable-next-line:max-line-length
-                        console.log("The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue);
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10)];
-                    }
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return AggregationHashChainShapeRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/AggregationHashChainTimeConsistencyRule.ts
-var AggregationHashChainTimeConsistencyRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var AggregationHashChainTimeConsistencyRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var AggregationHashChainTimeConsistencyRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule checks that aggregation hash chain times are consistent. It means that previous aggregation hash chain
- * aggregation time equals to current one.
- */
-var AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyRule = /** @class */ (function (_super) {
-    AggregationHashChainTimeConsistencyRule_extends(AggregationHashChainTimeConsistencyRule, _super);
-    function AggregationHashChainTimeConsistencyRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    AggregationHashChainTimeConsistencyRule.prototype.verify = function (context) {
-        return AggregationHashChainTimeConsistencyRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChains, time, _i, aggregationHashChains_1, chain;
-            return AggregationHashChainTimeConsistencyRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                aggregationHashChains = signature.getAggregationHashChains();
-                time = null;
-                for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
-                    chain = aggregationHashChains_1[_i];
-                    if (time === null) {
-                        time = chain.getAggregationTime();
-                    }
-                    if (!chain.getAggregationTime().equals(time)) {
-                        // tslint:disable-next-line:max-line-length
-                        console.log("Previous aggregation hash chain aggregation time " + time + " does not match current aggregation time " + chain.getAggregationTime() + ".");
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
-                    }
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return AggregationHashChainTimeConsistencyRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordAggregationHashRule.ts
-var CalendarAuthenticationRecordAggregationHashRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarAuthenticationRecordAggregationHashRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarAuthenticationRecordAggregationHashRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule verifies that calendar authentication record publication hash equals to calendar hash chain output hash.
- * Without calendar authentication record VerificationResultCode.Ok is returned.
- */
-var CalendarAuthenticationRecordAggregationHashRule_CalendarAuthenticationRecordAggregationHashRule = /** @class */ (function (_super) {
-    CalendarAuthenticationRecordAggregationHashRule_extends(CalendarAuthenticationRecordAggregationHashRule, _super);
-    function CalendarAuthenticationRecordAggregationHashRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarAuthenticationRecordAggregationHashRule.prototype.verify = function (context) {
-        return CalendarAuthenticationRecordAggregationHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarAuthenticationRecord, calendarHashChain;
-            return CalendarAuthenticationRecordAggregationHashRule_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
-                        if (calendarAuthenticationRecord == null) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                        }
-                        calendarHashChain = signature.getCalendarHashChain();
-                        if (calendarHashChain === null) {
-                            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
-                        }
-                        return [4 /*yield*/, calendarHashChain.calculateOutputHash()];
-                    case 1: return [2 /*return*/, !(_a.sent())
-                            .equals(calendarAuthenticationRecord.getPublicationData().getPublicationHash())
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return CalendarAuthenticationRecordAggregationHashRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordExistenceRule.ts
-var CalendarAuthenticationRecordExistenceRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarAuthenticationRecordExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarAuthenticationRecordExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule verifies that KSI signature contains calendar authentication record.
- */
-var CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExistenceRule = /** @class */ (function (_super) {
-    CalendarAuthenticationRecordExistenceRule_extends(CalendarAuthenticationRecordExistenceRule, _super);
-    function CalendarAuthenticationRecordExistenceRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarAuthenticationRecordExistenceRule.prototype.verify = function (context) {
-        return CalendarAuthenticationRecordExistenceRule_awaiter(this, void 0, void 0, function () {
-            return CalendarAuthenticationRecordExistenceRule_generator(this, function (_a) {
-                return [2 /*return*/, VerificationRule_VerificationRule.getSignature(context).getCalendarAuthenticationRecord() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return CalendarAuthenticationRecordExistenceRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordPublicationTimeRule.ts
-var CalendarAuthenticationRecordPublicationTimeRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarAuthenticationRecordPublicationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarAuthenticationRecordPublicationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule verifies that calendar authentication record publication time equals to calendar hash chain publication time.
- * Without calendar authentication record VerificationResultCode.Ok is returned.
- */
-var CalendarAuthenticationRecordPublicationTimeRule_CalendarAuthenticationRecordPublicationTimeRule = /** @class */ (function (_super) {
-    CalendarAuthenticationRecordPublicationTimeRule_extends(CalendarAuthenticationRecordPublicationTimeRule, _super);
-    function CalendarAuthenticationRecordPublicationTimeRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarAuthenticationRecordPublicationTimeRule.prototype.verify = function (context) {
-        return CalendarAuthenticationRecordPublicationTimeRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarAuthenticationRecord, calendarHashChain;
-            return CalendarAuthenticationRecordPublicationTimeRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
-                if (calendarAuthenticationRecord == null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                calendarHashChain = signature.getCalendarHashChain();
-                if (calendarHashChain === null) {
-                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
-                }
-                return [2 /*return*/, calendarHashChain.getPublicationTime().neq(calendarAuthenticationRecord.getPublicationData().getPublicationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_06)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return CalendarAuthenticationRecordPublicationTimeRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainAggregationTimeRule.ts
-var CalendarHashChainAggregationTimeRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarHashChainAggregationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarHashChainAggregationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule verifies calendar hash chain aggregation time equality to last aggregation hash chain aggrega tion time.
- * Without calendar authentication record <see cref="VerificationResultCode.Ok" /> is returned.
- */
-var CalendarHashChainAggregationTimeRule_CalendarHashChainAggregationTimeRule = /** @class */ (function (_super) {
-    CalendarHashChainAggregationTimeRule_extends(CalendarHashChainAggregationTimeRule, _super);
-    function CalendarHashChainAggregationTimeRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarHashChainAggregationTimeRule.prototype.verify = function (context) {
-        return CalendarHashChainAggregationTimeRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarHashChain, aggregationHashChains;
-            return CalendarHashChainAggregationTimeRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                calendarHashChain = signature.getCalendarHashChain();
-                if (calendarHashChain === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                aggregationHashChains = signature.getAggregationHashChains();
-                return [2 /*return*/, aggregationHashChains[aggregationHashChains.length - 1].getAggregationTime().neq(calendarHashChain.getAggregationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return CalendarHashChainAggregationTimeRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainAlgorithmObsoleteRule.ts
-var CalendarHashChainAlgorithmObsoleteRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarHashChainAlgorithmObsoleteRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarHashChainAlgorithmObsoleteRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Verifies that calendar hash chain right link hash algorithms were not obsolete at the publication time.
- * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
- */
-var CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRule = /** @class */ (function (_super) {
-    CalendarHashChainAlgorithmObsoleteRule_extends(CalendarHashChainAlgorithmObsoleteRule, _super);
-    function CalendarHashChainAlgorithmObsoleteRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarHashChainAlgorithmObsoleteRule.prototype.verify = function (context) {
-        return CalendarHashChainAlgorithmObsoleteRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarHashChain, _i, _a, link;
-            return CalendarHashChainAlgorithmObsoleteRule_generator(this, function (_b) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                calendarHashChain = signature.getCalendarHashChain();
-                if (calendarHashChain === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                for (_i = 0, _a = calendarHashChain.getChainLinks(); _i < _a.length; _i++) {
-                    link = _a[_i];
-                    if (link.id !== LinkDirection.Left) {
-                        continue;
-                    }
-                    if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
-                        console.log("Calendar hash chain contains obsolete aggregation algorithm at publication time.\n                             Algorithm: " + link.getValue().hashAlgorithm.name + ";\n                             Publication time: " + calendarHashChain.getPublicationTime());
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16)];
-                    }
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return CalendarHashChainAlgorithmObsoleteRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainExistenceRule.ts
-var CalendarHashChainExistenceRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarHashChainExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarHashChainExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule for checking if KSI signature contains calendar hash chain. Used for key-based and publication-based verification policies.
- */
-var CalendarHashChainExistenceRule_CalendarHashChainExistenceRule = /** @class */ (function (_super) {
-    CalendarHashChainExistenceRule_extends(CalendarHashChainExistenceRule, _super);
-    function CalendarHashChainExistenceRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarHashChainExistenceRule.prototype.verify = function (context) {
-        return CalendarHashChainExistenceRule_awaiter(this, void 0, void 0, function () {
-            return CalendarHashChainExistenceRule_generator(this, function (_a) {
-                return [2 /*return*/, VerificationRule_VerificationRule.getSignature(context).getCalendarHashChain() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return CalendarHashChainExistenceRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainInputHashVerificationRule.ts
-var CalendarHashChainInputHashVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarHashChainInputHashVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarHashChainInputHashVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule verifies that last aggregation hash chain output hash is equal to calendar hash chain input hash. If calendar
- * hash chain is missing, status VerificationResultCode.Ok is returned.
- */
-var CalendarHashChainInputHashVerificationRule_CalendarHashChainInputHashVerificationRule = /** @class */ (function (_super) {
-    CalendarHashChainInputHashVerificationRule_extends(CalendarHashChainInputHashVerificationRule, _super);
-    function CalendarHashChainInputHashVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarHashChainInputHashVerificationRule.prototype.verify = function (context) {
-        return CalendarHashChainInputHashVerificationRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarHashChain;
-            return CalendarHashChainInputHashVerificationRule_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        calendarHashChain = signature.getCalendarHashChain();
-                        if (calendarHashChain === null) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                        }
-                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
-                    case 1: return [2 /*return*/, !(_a.sent()).equals(calendarHashChain.getInputHash())
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return CalendarHashChainInputHashVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainRegistrationTimeRule.ts
-var CalendarHashChainRegistrationTimeRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarHashChainRegistrationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarHashChainRegistrationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule is used to verify calendar hash chain registration time (calculated from calendar hash  chain shape) equality
- * to calendar hash chain aggregation time. If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
- */
-var CalendarHashChainRegistrationTimeRule_CalendarHashChainRegistrationTimeRule = /** @class */ (function (_super) {
-    CalendarHashChainRegistrationTimeRule_extends(CalendarHashChainRegistrationTimeRule, _super);
-    function CalendarHashChainRegistrationTimeRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarHashChainRegistrationTimeRule.prototype.verify = function (context) {
-        return CalendarHashChainRegistrationTimeRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarHashChain;
-            return CalendarHashChainRegistrationTimeRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                calendarHashChain = signature.getCalendarHashChain();
-                if (calendarHashChain === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                return [2 /*return*/, calendarHashChain.getAggregationTime().neq(calendarHashChain.calculateRegistrationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return CalendarHashChainRegistrationTimeRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/DocumentHashLevelVerificationRule.ts
-var DocumentHashLevelVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var DocumentHashLevelVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var DocumentHashLevelVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * This rule verifies that given document hash level is not greater than the first link level
- * correction of the first aggregation hash chain. In case RFC3161 signature the given document hash level must be 0.
- * If the level is equal to or less than expected then VerificationResultCode.Ok is returned.
- */
-var DocumentHashLevelVerificationRule_DocumentHashLevelVerificationRule = /** @class */ (function (_super) {
-    DocumentHashLevelVerificationRule_extends(DocumentHashLevelVerificationRule, _super);
-    function DocumentHashLevelVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    DocumentHashLevelVerificationRule.prototype.verify = function (context) {
-        return DocumentHashLevelVerificationRule_awaiter(this, void 0, void 0, function () {
-            var signature, levelCorrection;
-            return DocumentHashLevelVerificationRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                levelCorrection = signature.getRfc3161Record() !== null
-                    ? BigInteger_default()(0)
-                    : signature.getAggregationHashChains()[0].getChainLinks()[0].getLevelCorrection();
-                return [2 /*return*/, context.getDocumentHashLevel() > levelCorrection
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return DocumentHashLevelVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/DocumentHashVerificationRule.ts
-var DocumentHashVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var DocumentHashVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var DocumentHashVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * This rule verifies document hash. If RFC3161 record is present then document hash must equal to RFC3161 record input hash.
- * Otherwise document hash is compared to aggregation hash chain input hash.
- * If document hash is not provided then VerificationResultCode.Ok is returned.
- */
-var DocumentHashVerificationRule_DocumentHashVerificationRule = /** @class */ (function (_super) {
-    DocumentHashVerificationRule_extends(DocumentHashVerificationRule, _super);
-    function DocumentHashVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    DocumentHashVerificationRule.prototype.verify = function (context) {
-        return DocumentHashVerificationRule_awaiter(this, void 0, void 0, function () {
-            var signature, documentHash, inputHash;
-            return DocumentHashVerificationRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                documentHash = context.getDocumentHash();
-                if (documentHash === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                inputHash = signature.getInputHash();
-                if (!documentHash.equals(inputHash)) {
-                    console.log("Invalid document hash. Expected " + documentHash + ", found " + inputHash);
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return DocumentHashVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/InputHashAlgorithmDeprecatedRule.ts
-var InputHashAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var InputHashAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var InputHashAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * This rule verifies that input hash algorithm is not deprecated at aggregation time.
- * If RFC3161 record is present then RFC3161 record input hash algorithm deprecation is checked.
- */
-var InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
-    InputHashAlgorithmDeprecatedRule_extends(InputHashAlgorithmDeprecatedRule, _super);
-    function InputHashAlgorithmDeprecatedRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    InputHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
-        return InputHashAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
-            var signature, inputHash;
-            return InputHashAlgorithmDeprecatedRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                inputHash = signature.getInputHash();
-                if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
-                    // tslint:disable-next-line:max-line-length
-                    console.log("Input hash algorithm was deprecated at aggregation time. Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime());
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return InputHashAlgorithmDeprecatedRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/InputHashAlgorithmVerificationRule.ts
-var InputHashAlgorithmVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var InputHashAlgorithmVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var InputHashAlgorithmVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * This rule verifies input hash algorithm. If RFC3161 record is present then intput hash algorithm must equal
- * to RFC3161 record input hash algorithm. Otherwise input hash algorithm is compared to aggregation hash chain input hash algorithm.
- * If input hash is not provided then <see cref="VerificationResultCode.Ok" /> is returned.
- */
-var InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule = /** @class */ (function (_super) {
-    InputHashAlgorithmVerificationRule_extends(InputHashAlgorithmVerificationRule, _super);
-    function InputHashAlgorithmVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    InputHashAlgorithmVerificationRule.prototype.verify = function (context) {
-        return InputHashAlgorithmVerificationRule_awaiter(this, void 0, void 0, function () {
-            var signature, documentHash, inputHash;
-            return InputHashAlgorithmVerificationRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                documentHash = context.getDocumentHash();
-                if (documentHash === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                inputHash = signature.getInputHash();
-                if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
-                    // TODO: Turn off console logging
-                    console.log("Wrong input hash algorithm. Expected " + documentHash.hashAlgorithm + ", found " + inputHash.hashAlgorithm);
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return InputHashAlgorithmVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordAggregationTimeRule.ts
-var Rfc3161RecordAggregationTimeRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Rfc3161RecordAggregationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var Rfc3161RecordAggregationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * This rule verifies that aggregation hash chain aggregation time and RFC3161 record aggregation time match.
- * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
- */
-var Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule = /** @class */ (function (_super) {
-    Rfc3161RecordAggregationTimeRule_extends(Rfc3161RecordAggregationTimeRule, _super);
-    function Rfc3161RecordAggregationTimeRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    Rfc3161RecordAggregationTimeRule.prototype.verify = function (context) {
-        return Rfc3161RecordAggregationTimeRule_awaiter(this, void 0, void 0, function () {
-            var signature, rfc3161Record, aggregationHashChains;
-            return Rfc3161RecordAggregationTimeRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                rfc3161Record = signature.getRfc3161Record();
-                if (rfc3161Record === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                aggregationHashChains = signature.getAggregationHashChains();
-                if (aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
-                    console.log("Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return Rfc3161RecordAggregationTimeRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordChainIndexRule.ts
-var Rfc3161RecordChainIndexRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Rfc3161RecordChainIndexRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var Rfc3161RecordChainIndexRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * This rule verifies that aggregation hash chain index and RFC3161 record chain index match.
- * If RFC3161 record is not present then VerificationResultCode.Ok is returned.
- */
-var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (function (_super) {
-    Rfc3161RecordChainIndexRule_extends(Rfc3161RecordChainIndexRule, _super);
-    function Rfc3161RecordChainIndexRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    Rfc3161RecordChainIndexRule.prototype.verify = function (context) {
-        return Rfc3161RecordChainIndexRule_awaiter(this, void 0, void 0, function () {
-            var signature, rfc3161Record, aggregationHashChains, rfc3161ChainIndex, aggregationChainIndex, rfc3161ChainIndexJson, aggregationChainIndexJson;
-            return Rfc3161RecordChainIndexRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                rfc3161Record = signature.getRfc3161Record();
-                if (rfc3161Record === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                aggregationHashChains = signature.getAggregationHashChains();
-                rfc3161ChainIndex = rfc3161Record.getChainIndex();
-                aggregationChainIndex = aggregationHashChains[0].getChainIndex();
-                rfc3161ChainIndexJson = JSON.stringify(rfc3161ChainIndex);
-                aggregationChainIndexJson = JSON.stringify(aggregationChainIndex);
-                if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
-                    // tslint:disable-next-line:max-line-length
-                    console.log("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson);
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return Rfc3161RecordChainIndexRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordHashAlgorithmDeprecatedRule.ts
-var Rfc3161RecordHashAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Rfc3161RecordHashAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var Rfc3161RecordHashAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Verifies that all hash algorithms used internally in RFC3161 record were not deprecated at the aggregation time.
- * If RFC3161 record is not present then VerificationResultCode.Ok is returned.
- */
-var Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
-    Rfc3161RecordHashAlgorithmDeprecatedRule_extends(Rfc3161RecordHashAlgorithmDeprecatedRule, _super);
-    function Rfc3161RecordHashAlgorithmDeprecatedRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    Rfc3161RecordHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
-        return Rfc3161RecordHashAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
-            var signature, rfc3161Record;
-            return Rfc3161RecordHashAlgorithmDeprecatedRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                rfc3161Record = signature.getRfc3161Record();
-                if (rfc3161Record === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                if (rfc3161Record.getTstInfoAlgorithm() != null
-                    && rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
-                    // tslint:disable-next-line:max-line-length
-                    console.log("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime());
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
-                }
-                if (rfc3161Record.getSignedAttributesAlgorithm() != null
-                    && rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
-                    // tslint:disable-next-line:max-line-length
-                    console.log("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime());
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return Rfc3161RecordHashAlgorithmDeprecatedRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordOutputHashAlgorithmDeprecatedRule.ts
-var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Verifies that RFC3161 record output hash algorithm was not deprecated at the aggregation time.
- * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
- */
-var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgorithmDeprecatedRule = /** @class */ (function (_super) {
-    Rfc3161RecordOutputHashAlgorithmDeprecatedRule_extends(Rfc3161RecordOutputHashAlgorithmDeprecatedRule, _super);
-    function Rfc3161RecordOutputHashAlgorithmDeprecatedRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    Rfc3161RecordOutputHashAlgorithmDeprecatedRule.prototype.verify = function (context) {
-        return Rfc3161RecordOutputHashAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChain, hashAlgorithm, aggregationTime;
-            return Rfc3161RecordOutputHashAlgorithmDeprecatedRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                if (signature.getRfc3161Record() === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                aggregationHashChain = signature.getAggregationHashChains()[0];
-                hashAlgorithm = aggregationHashChain.getInputHash().hashAlgorithm;
-                aggregationTime = aggregationHashChain.getAggregationTime();
-                if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
-                    // tslint:disable-next-line:max-line-length
-                    console.log("RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: " + hashAlgorithm + "; Aggregation time: " + aggregationTime);
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return Rfc3161RecordOutputHashAlgorithmDeprecatedRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/Rfc3161RecordOutputHashVerificationRule.ts
-var Rfc3161RecordOutputHashVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Rfc3161RecordOutputHashVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var Rfc3161RecordOutputHashVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * This rule verifies RFC3161 output hash equals to aggregation chain input hash.
- * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
- */
-var Rfc3161RecordOutputHashVerificationRule_Rfc3161RecordOutputHashVerificationRule = /** @class */ (function (_super) {
-    Rfc3161RecordOutputHashVerificationRule_extends(Rfc3161RecordOutputHashVerificationRule, _super);
-    function Rfc3161RecordOutputHashVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    Rfc3161RecordOutputHashVerificationRule.prototype.verify = function (context) {
-        return Rfc3161RecordOutputHashVerificationRule_awaiter(this, void 0, void 0, function () {
-            var signature, rfc3161Record, aggregationHashChainInputHash, inputHash, _a, _b;
-            return Rfc3161RecordOutputHashVerificationRule_generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        rfc3161Record = signature.getRfc3161Record();
-                        if (rfc3161Record === null) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                        }
-                        aggregationHashChainInputHash = signature.getAggregationHashChains()[0].getInputHash();
-                        _b = (_a = new DataHasher_DataHasher(aggregationHashChainInputHash.hashAlgorithm)).update;
-                        return [4 /*yield*/, rfc3161Record.getOutputHash()];
-                    case 1: return [4 /*yield*/, _b.apply(_a, [(_c.sent()).imprint])
-                            .digest()];
-                    case 2:
-                        inputHash = _c.sent();
-                        return [2 /*return*/, !inputHash.equals(aggregationHashChainInputHash)
-                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)
-                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return Rfc3161RecordOutputHashVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/SignaturePublicationRecordExistenceRule.ts
-var SignaturePublicationRecordExistenceRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var SignaturePublicationRecordExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var SignaturePublicationRecordExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule checks if KSI signature contains publication record.
- */
-var SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceRule = /** @class */ (function (_super) {
-    SignaturePublicationRecordExistenceRule_extends(SignaturePublicationRecordExistenceRule, _super);
-    function SignaturePublicationRecordExistenceRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    SignaturePublicationRecordExistenceRule.prototype.verify = function (context) {
-        return SignaturePublicationRecordExistenceRule_awaiter(this, void 0, void 0, function () {
-            return SignaturePublicationRecordExistenceRule_generator(this, function (_a) {
-                return [2 /*return*/, VerificationRule_VerificationRule.getSignature(context).getPublicationRecord() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return SignaturePublicationRecordExistenceRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/SignaturePublicationRecordPublicationHashRule.ts
-var SignaturePublicationRecordPublicationHashRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var SignaturePublicationRecordPublicationHashRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var SignaturePublicationRecordPublicationHashRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks if KSI signature calendar hash chain publication hash matches signature publication record publication hash.
- * If publication record is missing, VerificationResultCode.Ok is returned.
- */
-var SignaturePublicationRecordPublicationHashRule_SignaturePublicationRecordPublicationHashRule = /** @class */ (function (_super) {
-    SignaturePublicationRecordPublicationHashRule_extends(SignaturePublicationRecordPublicationHashRule, _super);
-    function SignaturePublicationRecordPublicationHashRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    SignaturePublicationRecordPublicationHashRule.prototype.verify = function (context) {
-        return SignaturePublicationRecordPublicationHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, publicationRecord, calendarHashChain;
-            return SignaturePublicationRecordPublicationHashRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                publicationRecord = signature.getPublicationRecord();
-                if (publicationRecord === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                calendarHashChain = signature.getCalendarHashChain();
-                if (calendarHashChain === null) {
-                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
-                }
-                return [2 /*return*/, publicationRecord.getPublicationHash().equals(calendarHashChain.calculateOutputHash())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return SignaturePublicationRecordPublicationHashRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/SignaturePublicationRecordPublicationTimeRule.ts
-var SignaturePublicationRecordPublicationTimeRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var SignaturePublicationRecordPublicationTimeRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var SignaturePublicationRecordPublicationTimeRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks if KSI signature calendar hash chain publication time matches signature publication record publication time.
- * If publication record is missing, VerificationResultCode.Ok is returned.
- */
-var SignaturePublicationRecordPublicationTimeRule_SignaturePublicationRecordPublicationTimeRule = /** @class */ (function (_super) {
-    SignaturePublicationRecordPublicationTimeRule_extends(SignaturePublicationRecordPublicationTimeRule, _super);
-    function SignaturePublicationRecordPublicationTimeRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    SignaturePublicationRecordPublicationTimeRule.prototype.verify = function (context) {
-        return SignaturePublicationRecordPublicationTimeRule_awaiter(this, void 0, void 0, function () {
-            var signature, publicationRecord, calendarHashChain;
-            return SignaturePublicationRecordPublicationTimeRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                publicationRecord = signature.getPublicationRecord();
-                if (publicationRecord === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                calendarHashChain = signature.getCalendarHashChain();
-                if (calendarHashChain === null) {
-                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
-                }
-                return [2 /*return*/, publicationRecord.getPublicationTime().neq(calendarHashChain.getPublicationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_07)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return SignaturePublicationRecordPublicationTimeRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/SuccessResultRule.ts
-var SuccessResultRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var SuccessResultRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var SuccessResultRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-/**
- * Rule that always returns VerificationResultCode.Ok
- */
-var SuccessResultRule_SuccessResultRule = /** @class */ (function (_super) {
-    SuccessResultRule_extends(SuccessResultRule, _super);
-    function SuccessResultRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    SuccessResultRule.prototype.verify = function (context) {
-        return SuccessResultRule_awaiter(this, void 0, void 0, function () {
-            return SuccessResultRule_generator(this, function (_a) {
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return SuccessResultRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/policy/VerificationPolicy.ts
-var VerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var VerificationPolicy_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var VerificationPolicy_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-/**
- * Verification policy for KSI signature
- */
-var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
-    VerificationPolicy_extends(VerificationPolicy, _super);
-    function VerificationPolicy(rule, ruleName) {
-        if (rule === void 0) { rule = null; }
-        if (ruleName === void 0) { ruleName = null; }
-        var _this = _super.call(this, ruleName) || this;
-        _this.verificationResults = [];
-        if (rule !== null) {
-            VerificationRule_VerificationRule.verifyRule(rule);
-        }
-        _this.firstRule = rule;
-        return _this;
-    }
-    VerificationPolicy.prototype.verify = function (context) {
-        return VerificationPolicy_awaiter(this, void 0, void 0, function () {
-            var verificationRule, result, error_1;
-            return VerificationPolicy_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!(context instanceof VerificationContext_VerificationContext)) {
-                            throw new Error('Context is invalid');
-                        }
-                        if (!(context.getSignature() instanceof KsiSignature_KsiSignature)) {
-                            throw new KsiVerificationError('Invalid KSI signature in context');
-                        }
-                        verificationRule = this.firstRule;
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 5, , 6]);
-                        _a.label = 2;
-                    case 2:
-                        if (!(verificationRule !== null)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, verificationRule.verify(context)];
-                    case 3:
-                        result = _a.sent();
-                        this.verificationResults.push(result);
-                        verificationRule = verificationRule.getNextRule(result.getResultCode());
-                        return [3 /*break*/, 2];
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
-                        error_1 = _a.sent();
-                        throw error_1;
-                    case 6:
-                        Object.freeze(this.verificationResults);
-                        return [2 /*return*/, VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), this.verificationResults)];
-                }
-            });
-        });
-    };
-    return VerificationPolicy;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/policy/InternalVerificationPolicy.ts
-var InternalVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Policy for verifying KSI signature internal consistency.
- */
-var InternalVerificationPolicy_InternalVerificationPolicy = /** @class */ (function (_super) {
-    InternalVerificationPolicy_extends(InternalVerificationPolicy, _super);
-    function InternalVerificationPolicy() {
-        return _super.call(this, InternalVerificationPolicy.verifyInput()
-            .onSuccess(InternalVerificationPolicy.verifyRfc3161()
-            .onSuccess(InternalVerificationPolicy.verifyAggregationChain()
-            .onSuccess(
-        // Verify calendar hash chain if exists
-        new CalendarHashChainExistenceRule_CalendarHashChainExistenceRule() // Gen-02
-            .onSuccess(InternalVerificationPolicy.verifyCalendarChain()
-            .onSuccess(
-        // Verify calendar auth record if exists
-        new CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExistenceRule() // Gen-02
-            .onSuccess(new CalendarAuthenticationRecordPublicationTimeRule_CalendarAuthenticationRecordPublicationTimeRule() // Int-06
-            .onSuccess(new CalendarAuthenticationRecordAggregationHashRule_CalendarAuthenticationRecordAggregationHashRule()))
-            // No calendar auth record. Verify publication record.
-            .onNa(new SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceRule() // Gen-02
-            .onSuccess(new SignaturePublicationRecordPublicationTimeRule_SignaturePublicationRecordPublicationTimeRule() // Int-07
-            .onSuccess(new SignaturePublicationRecordPublicationHashRule_SignaturePublicationRecordPublicationHashRule())) // Int-09
-            // No publication record
-            .onNa(new SuccessResultRule_SuccessResultRule())))))
-            // No calendar hash chain
-            .onNa(new SuccessResultRule_SuccessResultRule())))) || this;
-    }
-    InternalVerificationPolicy.verifyInput = function () {
-        return new VerificationPolicy_VerificationPolicy(new InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule() // Gen-04
-            .onSuccess(new DocumentHashVerificationRule_DocumentHashVerificationRule() // Gen-01
-            .onSuccess(new DocumentHashLevelVerificationRule_DocumentHashLevelVerificationRule() // Gen-03
-            .onSuccess(new InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule()))), 'Verify Input'); // Int-13)
-    };
-    InternalVerificationPolicy.verifyRfc3161 = function () {
-        return new VerificationPolicy_VerificationPolicy(new Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecatedRule() // Int-14
-            .onSuccess(new Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgorithmDeprecatedRule() // Int-17
-            .onSuccess(new Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule() // Int-12
-            .onSuccess(new Rfc3161RecordOutputHashVerificationRule_Rfc3161RecordOutputHashVerificationRule() // Int-01
-            .onSuccess(new Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule())))), 'Verify Rfc3161'); // Int-02
-    };
-    InternalVerificationPolicy.verifyAggregationChain = function () {
-        return new VerificationPolicy_VerificationPolicy(new AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRule() // Int-12
-            .onSuccess(new AggregationHashChainMetadataRule_AggregationHashChainMetadataRule() // Int-11
-            .onSuccess(new AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDeprecatedRule() // Int-15
-            .onSuccess(new AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule() // Int-01
-            .onSuccess(new AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyRule() // Int-02
-            .onSuccess(new AggregationHashChainShapeRule_AggregationHashChainShapeRule()))))), 'Verify aggregation hash chain'); // Int-10
-    };
-    InternalVerificationPolicy.verifyCalendarChain = function () {
-        return new VerificationPolicy_VerificationPolicy(new CalendarHashChainInputHashVerificationRule_CalendarHashChainInputHashVerificationRule() // Int-03
-            .onSuccess(new CalendarHashChainAggregationTimeRule_CalendarHashChainAggregationTimeRule() // Int-04
-            .onSuccess(new CalendarHashChainRegistrationTimeRule_CalendarHashChainRegistrationTimeRule() // Int-05
-            .onSuccess(new CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRule()))), 'Verify calendar hash chain'); // Int-16 // Int-10
-    };
-    return InternalVerificationPolicy;
-}(VerificationPolicy_VerificationPolicy));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarHashChainAlgorithmDeprecatedRule.ts
-var CalendarHashChainAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarHashChainAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarHashChainAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Verifies that calendar hash chain right link hash algorithms were not deprecated at the publication time.
- * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
- */
-var CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule = /** @class */ (function (_super) {
-    CalendarHashChainAlgorithmDeprecatedRule_extends(CalendarHashChainAlgorithmDeprecatedRule, _super);
-    function CalendarHashChainAlgorithmDeprecatedRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarHashChainAlgorithmDeprecatedRule.prototype.verify = function (context) {
-        return CalendarHashChainAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarHashChain, deprecatedLink;
-            return CalendarHashChainAlgorithmDeprecatedRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                calendarHashChain = signature.getCalendarHashChain();
-                if (calendarHashChain === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain);
-                if (deprecatedLink !== null) {
-                    console.log("Calendar hash chain contains deprecated aggregation algorithm at publication time.\n                             Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + ";\n                             Publication time: " + calendarHashChain.getPublicationTime());
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return CalendarHashChainAlgorithmDeprecatedRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule.ts
-var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Verifies that extender response calendar hash chain right link hash algorithms are not deprecated.
- */
-var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule = /** @class */ (function (_super) {
-    ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_extends(ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule, _super);
-    function ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule.prototype.verify = function (context) {
-        return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, publicationData, publicationsFile, publicationRecord, extendedCalendarHashChain, deprecatedLink;
-            return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        userPublication = context.getUserPublication();
-                        if (userPublication !== null) {
-                            publicationData = userPublication;
-                        }
-                        else {
-                            publicationsFile = context.getPublicationsFile();
-                            if (publicationsFile === null) {
-                                throw new KsiVerificationError('Invalid publications file in context: null.');
-                            }
-                            publicationRecord = publicationsFile
-                                .getNearestPublicationRecord(signature.getAggregationTime());
-                            if (publicationRecord === null) {
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-                            }
-                            publicationData = publicationRecord.getPublicationData();
-                        }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationData.getPublicationTime())];
-                    case 1:
-                        extendedCalendarHashChain = _a.sent();
-                        deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
-                        if (deprecatedLink !== null) {
-                            console.log("Calendar hash chain contains deprecated aggregation algorithm at publication time.\n                             Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + ";\n                             Publication time: " + publicationData.getPublicationTime());
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-                        }
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/ExtendingPermittedVerificationRule.ts
-var ExtendingPermittedVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var ExtendingPermittedVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var ExtendingPermittedVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-/**
- * Rule checks that extending is permitted by user.
- */
-var ExtendingPermittedVerificationRule_ExtendingPermittedVerificationRule = /** @class */ (function (_super) {
-    ExtendingPermittedVerificationRule_extends(ExtendingPermittedVerificationRule, _super);
-    function ExtendingPermittedVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    ExtendingPermittedVerificationRule.prototype.verify = function (context) {
-        return ExtendingPermittedVerificationRule_awaiter(this, void 0, void 0, function () {
-            return ExtendingPermittedVerificationRule_generator(this, function (_a) {
-                VerificationRule_VerificationRule.verifyContext(context);
-                return [2 /*return*/, context.isExtendingAllowed()
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.OK)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-            });
-        });
-    };
-    return ExtendingPermittedVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/PublicationsFileExtendedSignatureInputHashRule.ts
-var PublicationsFileExtendedSignatureInputHashRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var PublicationsFileExtendedSignatureInputHashRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var PublicationsFileExtendedSignatureInputHashRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks that extender response calendar hash chain input hash matches with signature aggregation root hash.
- */
-var PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSignatureInputHashRule = /** @class */ (function (_super) {
-    PublicationsFileExtendedSignatureInputHashRule_extends(PublicationsFileExtendedSignatureInputHashRule, _super);
-    function PublicationsFileExtendedSignatureInputHashRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    PublicationsFileExtendedSignatureInputHashRule.prototype.verify = function (context) {
-        return PublicationsFileExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, publicationsFile, publicationRecord, extendedCalendarHashChain, _a, _b;
-            return PublicationsFileExtendedSignatureInputHashRule_generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        publicationsFile = context.getPublicationsFile();
-                        if (publicationsFile === null) {
-                            throw new KsiVerificationError('Invalid publications file in context: null.');
-                        }
-                        publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
-                        if (publicationRecord == null) {
-                            throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
-                        }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
-                    case 1:
-                        extendedCalendarHashChain = _c.sent();
-                        _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
-                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
-                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return PublicationsFileExtendedSignatureInputHashRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/PublicationsFilePublicationHashMatchesExtenderResponseRule.ts
-var PublicationsFilePublicationHashMatchesExtenderResponseRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var PublicationsFilePublicationHashMatchesExtenderResponseRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var PublicationsFilePublicationHashMatchesExtenderResponseRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks that publications file publication hash matches with extender response calendar hash chain root hash.
- */
-var PublicationsFilePublicationHashMatchesExtenderResponseRule_PublicationsFilePublicationHashMatchesExtenderResponseRule = /** @class */ (function (_super) {
-    PublicationsFilePublicationHashMatchesExtenderResponseRule_extends(PublicationsFilePublicationHashMatchesExtenderResponseRule, _super);
-    function PublicationsFilePublicationHashMatchesExtenderResponseRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    PublicationsFilePublicationHashMatchesExtenderResponseRule.prototype.verify = function (context) {
-        return PublicationsFilePublicationHashMatchesExtenderResponseRule_awaiter(this, void 0, void 0, function () {
-            var publicationsFile, signature, publicationRecord, extendedCalendarHashChain;
-            return PublicationsFilePublicationHashMatchesExtenderResponseRule_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        publicationsFile = context.getPublicationsFile();
-                        if (publicationsFile === null) {
-                            throw new KsiVerificationError('Invalid publications file in context: null.');
-                        }
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
-                        if (publicationRecord == null) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-                        }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
-                    case 1:
-                        extendedCalendarHashChain = _a.sent();
-                        return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
-                    case 2: return [2 /*return*/, !(_a.sent()).equals(publicationRecord.getPublicationHash())
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return PublicationsFilePublicationHashMatchesExtenderResponseRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/PublicationsFilePublicationTimeMatchesExtenderResponseRule.ts
-var PublicationsFilePublicationTimeMatchesExtenderResponseRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var PublicationsFilePublicationTimeMatchesExtenderResponseRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var PublicationsFilePublicationTimeMatchesExtenderResponseRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks that publications file publication time matches with extender response calendar hash chain shape.
- */
-var PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFilePublicationTimeMatchesExtenderResponseRule = /** @class */ (function (_super) {
-    PublicationsFilePublicationTimeMatchesExtenderResponseRule_extends(PublicationsFilePublicationTimeMatchesExtenderResponseRule, _super);
-    function PublicationsFilePublicationTimeMatchesExtenderResponseRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    PublicationsFilePublicationTimeMatchesExtenderResponseRule.prototype.verify = function (context) {
-        return PublicationsFilePublicationTimeMatchesExtenderResponseRule_awaiter(this, void 0, void 0, function () {
-            var publicationsFile, signature, publicationRecord, extendedCalendarHashChain;
-            return PublicationsFilePublicationTimeMatchesExtenderResponseRule_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        publicationsFile = context.getPublicationsFile();
-                        if (publicationsFile === null) {
-                            throw new KsiVerificationError('Invalid publications file in context: null.');
-                        }
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
-                        if (publicationRecord == null) {
-                            throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
-                        }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
-                    case 1:
-                        extendedCalendarHashChain = _a.sent();
-                        if (publicationRecord.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
-                        }
-                        return [2 /*return*/, signature.getAggregationTime().neq(extendedCalendarHashChain.calculateRegistrationTime())
-                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
-                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return PublicationsFilePublicationTimeMatchesExtenderResponseRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/PublicationsFileSignaturePublicationMatchRule.ts
-var PublicationsFileSignaturePublicationMatchRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var PublicationsFileSignaturePublicationMatchRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var PublicationsFileSignaturePublicationMatchRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks if publications file and signature publication record match.
- */
-var PublicationsFileSignaturePublicationMatchRule_PublicationsFileSignaturePublicationMatchRule = /** @class */ (function (_super) {
-    PublicationsFileSignaturePublicationMatchRule_extends(PublicationsFileSignaturePublicationMatchRule, _super);
-    function PublicationsFileSignaturePublicationMatchRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    PublicationsFileSignaturePublicationMatchRule.prototype.verify = function (context) {
-        return PublicationsFileSignaturePublicationMatchRule_awaiter(this, void 0, void 0, function () {
-            var publicationsFile, signature, publicationRecord, publicationRecordInPublicationFile;
-            return PublicationsFileSignaturePublicationMatchRule_generator(this, function (_a) {
-                publicationsFile = context.getPublicationsFile();
-                if (publicationsFile === null) {
-                    throw new KsiVerificationError('Invalid publications file in context: null.');
-                }
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                publicationRecord = signature.getPublicationRecord();
-                if (publicationRecord == null) {
-                    throw new KsiVerificationError("Publication record is missing from KSI signature.");
-                }
-                publicationRecordInPublicationFile = publicationsFile
-                    .getNearestPublicationRecord(publicationRecord.getPublicationTime());
-                // TODO: Check if it should fail
-                if (publicationRecordInPublicationFile === null
-                    || publicationRecordInPublicationFile.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-                }
-                return [2 /*return*/, !publicationRecordInPublicationFile.getPublicationHash().equals(publicationRecord.getPublicationHash())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_05)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return PublicationsFileSignaturePublicationMatchRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/policy/PublicationsFileVerificationPolicy.ts
-var PublicationsFileVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-// tslint:disable-next-line:max-line-length
-
-// tslint:disable-next-line:max-line-length
-
-
-
-
-/**
- * Policy for verifying KSI signature with publications file.
- */
-var PublicationsFileVerificationPolicy_PublicationsFileVerificationPolicy = /** @class */ (function (_super) {
-    PublicationsFileVerificationPolicy_extends(PublicationsFileVerificationPolicy, _super);
-    function PublicationsFileVerificationPolicy() {
-        var _this = this;
-        var verificationRule = new ExtendingPermittedVerificationRule_ExtendingPermittedVerificationRule() // Gen-02
-            .onSuccess(new ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule() // Gen-02
-            .onSuccess(new PublicationsFilePublicationHashMatchesExtenderResponseRule_PublicationsFilePublicationHashMatchesExtenderResponseRule() // Pub-01,  Gen-02
-            .onSuccess(new PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFilePublicationTimeMatchesExtenderResponseRule() // Pub-02
-            .onSuccess(new PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSignatureInputHashRule())))); // Pub-03
-        _this = _super.call(this, new SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceRule() // Gen-02
-            .onSuccess(new PublicationsFileSignaturePublicationMatchRule_PublicationsFileSignaturePublicationMatchRule() // Pub-05, Gen-02
-            .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule()) // Gen-02
-            .onNa(verificationRule))
-            .onNa(verificationRule)) || this;
-        return _this;
-    }
-    return PublicationsFileVerificationPolicy;
-}(VerificationPolicy_VerificationPolicy));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationCreationTimeVerificationRule.ts
-var UserProvidedPublicationCreationTimeVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var UserProvidedPublicationCreationTimeVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var UserProvidedPublicationCreationTimeVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks that signature is created before user provided publication.
- */
-var UserProvidedPublicationCreationTimeVerificationRule_UserProvidedPublicationCreationTimeVerificationRule = /** @class */ (function (_super) {
-    UserProvidedPublicationCreationTimeVerificationRule_extends(UserProvidedPublicationCreationTimeVerificationRule, _super);
-    function UserProvidedPublicationCreationTimeVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    UserProvidedPublicationCreationTimeVerificationRule.prototype.verify = function (context) {
-        return UserProvidedPublicationCreationTimeVerificationRule_awaiter(this, void 0, void 0, function () {
-            var aggregationTime, userPublication, userPublicationTime;
-            return UserProvidedPublicationCreationTimeVerificationRule_generator(this, function (_a) {
-                aggregationTime = VerificationRule_VerificationRule.getSignature(context).getAggregationTime();
-                userPublication = context.getUserPublication();
-                if (userPublication == null) {
-                    throw new KsiVerificationError('Invalid user publication in context: null.');
-                }
-                userPublicationTime = userPublication.getPublicationTime();
-                return [2 /*return*/, aggregationTime.geq(userPublicationTime)
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return UserProvidedPublicationCreationTimeVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationExtendedSignatureInputHashRule.ts
-var UserProvidedPublicationExtendedSignatureInputHashRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var UserProvidedPublicationExtendedSignatureInputHashRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var UserProvidedPublicationExtendedSignatureInputHashRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks that extender response input hash equals to signature aggregation root hash.
- */
-var UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicationExtendedSignatureInputHashRule = /** @class */ (function (_super) {
-    UserProvidedPublicationExtendedSignatureInputHashRule_extends(UserProvidedPublicationExtendedSignatureInputHashRule, _super);
-    function UserProvidedPublicationExtendedSignatureInputHashRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    UserProvidedPublicationExtendedSignatureInputHashRule.prototype.verify = function (context) {
-        return UserProvidedPublicationExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, extendedCalendarHashChain, _a, _b;
-            return UserProvidedPublicationExtendedSignatureInputHashRule_generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        userPublication = context.getUserPublication();
-                        if (userPublication === null) {
-                            throw new KsiVerificationError('Invalid user publication in context: null.');
-                        }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
-                    case 1:
-                        extendedCalendarHashChain = _c.sent();
-                        _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
-                        return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
-                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return UserProvidedPublicationExtendedSignatureInputHashRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationHashMatchesExtendedResponseRule.ts
-var UserProvidedPublicationHashMatchesExtendedResponseRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var UserProvidedPublicationHashMatchesExtendedResponseRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var UserProvidedPublicationHashMatchesExtendedResponseRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * RRule checks that user provided publication hash matches extender response calendar hash chain root hash.
- */
-var UserProvidedPublicationHashMatchesExtendedResponseRule_UserProvidedPublicationHashMatchesExtendedResponseRule = /** @class */ (function (_super) {
-    UserProvidedPublicationHashMatchesExtendedResponseRule_extends(UserProvidedPublicationHashMatchesExtendedResponseRule, _super);
-    function UserProvidedPublicationHashMatchesExtendedResponseRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    UserProvidedPublicationHashMatchesExtendedResponseRule.prototype.verify = function (context) {
-        return UserProvidedPublicationHashMatchesExtendedResponseRule_awaiter(this, void 0, void 0, function () {
-            var userPublication, extendedCalendarHashChain;
-            return UserProvidedPublicationHashMatchesExtendedResponseRule_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        userPublication = context.getUserPublication();
-                        if (userPublication === null) {
-                            throw new KsiVerificationError('Invalid user publication in context: null.');
-                        }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
-                    case 1:
-                        extendedCalendarHashChain = _a.sent();
-                        return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
-                    case 2: return [2 /*return*/, (_a.sent()).equals(userPublication.getPublicationHash())
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return UserProvidedPublicationHashMatchesExtendedResponseRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationTimeMatchesExtendedResponseRule.ts
-var UserProvidedPublicationTimeMatchesExtendedResponseRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var UserProvidedPublicationTimeMatchesExtendedResponseRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var UserProvidedPublicationTimeMatchesExtendedResponseRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks that user provided publication time matches extender response calendar hash chain shape.
- */
-var UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicationTimeMatchesExtendedResponseRule = /** @class */ (function (_super) {
-    UserProvidedPublicationTimeMatchesExtendedResponseRule_extends(UserProvidedPublicationTimeMatchesExtendedResponseRule, _super);
-    function UserProvidedPublicationTimeMatchesExtendedResponseRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    UserProvidedPublicationTimeMatchesExtendedResponseRule.prototype.verify = function (context) {
-        return UserProvidedPublicationTimeMatchesExtendedResponseRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, extendedCalendarHashChain;
-            return UserProvidedPublicationTimeMatchesExtendedResponseRule_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        signature = VerificationRule_VerificationRule.getSignature(context);
-                        userPublication = context.getUserPublication();
-                        if (userPublication === null) {
-                            throw new KsiVerificationError('Invalid user publication in context: null.');
-                        }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
-                    case 1:
-                        extendedCalendarHashChain = _a.sent();
-                        if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
-                        }
-                        return [2 /*return*/, signature.getAggregationTime().equals(extendedCalendarHashChain.calculateRegistrationTime())
-                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
-                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-            });
-        });
-    };
-    return UserProvidedPublicationTimeMatchesExtendedResponseRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/UserProvidedPublicationVerificationRule.ts
-var UserProvidedPublicationVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var UserProvidedPublicationVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var UserProvidedPublicationVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule checks that user provided publication equals to publication in KSI signature.
- */
-var UserProvidedPublicationVerificationRule_UserProvidedPublicationVerificationRule = /** @class */ (function (_super) {
-    UserProvidedPublicationVerificationRule_extends(UserProvidedPublicationVerificationRule, _super);
-    function UserProvidedPublicationVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    UserProvidedPublicationVerificationRule.prototype.verify = function (context) {
-        return UserProvidedPublicationVerificationRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, publicationRecord;
-            return UserProvidedPublicationVerificationRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                userPublication = context.getUserPublication();
-                if (userPublication === null) {
-                    throw new KsiVerificationError('Invalid user publication in context: null.');
-                }
-                publicationRecord = signature.getPublicationRecord();
-                if (publicationRecord === null) {
-                    throw new KsiVerificationError('Invalid publication record in signature: null');
-                }
-                if (userPublication.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
-                    console.log("User provided publication time does not equal to signature publication time.\n                         User provided publication time: " + userPublication.getPublicationTime() + ";\n                         Signature publication time: " + publicationRecord.getPublicationTime());
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
-                }
-                return [2 /*return*/, !userPublication.getPublicationHash().equals(publicationRecord.getPublicationHash())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_04)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return UserProvidedPublicationVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/policy/UserProvidedPublicationBasedVerificationPolicy.ts
-var UserProvidedPublicationBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Policy for verifying KSI signature with user provided publication.
- */
-var UserProvidedPublicationBasedVerificationPolicy_UserProvidedPublicationBasedVerificationPolicy = /** @class */ (function (_super) {
-    UserProvidedPublicationBasedVerificationPolicy_extends(UserProvidedPublicationBasedVerificationPolicy, _super);
-    function UserProvidedPublicationBasedVerificationPolicy() {
-        var _this = this;
-        var verificationRule = new UserProvidedPublicationCreationTimeVerificationRule_UserProvidedPublicationCreationTimeVerificationRule() // Gen-02
-            .onSuccess(new ExtendingPermittedVerificationRule_ExtendingPermittedVerificationRule() // Gen-02
-            .onSuccess(new ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule() // Gen-02
-            .onSuccess(new UserProvidedPublicationHashMatchesExtendedResponseRule_UserProvidedPublicationHashMatchesExtendedResponseRule() // Pub-01
-            .onSuccess(new UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicationTimeMatchesExtendedResponseRule() // Pub-02
-            .onSuccess(new UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicationExtendedSignatureInputHashRule())))));
-        _this = _super.call(this, new UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule() // Gen-02
-            .onSuccess(new SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceRule() // Gen-02
-            .onSuccess(new UserProvidedPublicationVerificationRule_UserProvidedPublicationVerificationRule() // Pub-04, Gen-02
-            .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule()) // Gen-02
-            .onNa(verificationRule))
-            .onNa(verificationRule))) || this; // Pub-03
-        return _this;
-    }
-    return UserProvidedPublicationBasedVerificationPolicy;
-}(VerificationPolicy_VerificationPolicy));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/policy/PublicationBasedVerificationPolicy.ts
-var PublicationBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-/**
- * Policy for verifying KSI signature with publication.
- */
-var PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy = /** @class */ (function (_super) {
-    PublicationBasedVerificationPolicy_extends(PublicationBasedVerificationPolicy, _super);
-    function PublicationBasedVerificationPolicy() {
-        return _super.call(this, new InternalVerificationPolicy_InternalVerificationPolicy()
-            .onSuccess(new UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule() // Gen-02
-            .onSuccess(new UserProvidedPublicationBasedVerificationPolicy_UserProvidedPublicationBasedVerificationPolicy()) // Gen-02
-            .onNa(new PublicationsFileVerificationPolicy_PublicationsFileVerificationPolicy()))) || this;
-    }
-    return PublicationBasedVerificationPolicy;
-}(VerificationPolicy_VerificationPolicy));
-
-
-// EXTERNAL MODULE: ./node_modules/gt-js-common/node_modules/node-forge/dist/forge.gt.js
-var forge_gt = __webpack_require__(9);
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/SyncDataHasher.js
-
-
-
-
-
-
-const forgeSupportedAlgorithms = [HashAlgorithm_HashAlgorithm.SHA1,
-    HashAlgorithm_HashAlgorithm.SHA2_256];
-/**
- * Provides synchronous hashing functions
- */
-class SyncDataHasher_SyncDataHasher {
-    /**
-     * Create SyncDataHasher instance the hash algorithm
-     * @param {HashAlgorithm} hashAlgorithm
-     */
-    constructor(hashAlgorithm) {
-        if (!(hashAlgorithm instanceof HashAlgorithm_HashAlgorithm)) {
-            throw new HashingError('Invalid HashAlgorithm');
-        }
-        if (forgeSupportedAlgorithms.indexOf(hashAlgorithm) === -1) {
-            throw new HashingError('Sync hashing does not support: ' + hashAlgorithm.name);
-        }
-        this.hashAlgorithm = hashAlgorithm;
-        // Since crypto API is working different for web and node store data here
-        this.data = new Uint8Array(0);
-    }
-    /**
-     * Add data for hashing
-     * @param {Uint8Array} data byte array
-     * @returns {DataHasher}
-     */
-    update(data) {
-        if (!(data instanceof Uint8Array)) {
-            throw new Error('Invalid array for hashing');
-        }
-        const previousData = this.data;
-        this.data = new Uint8Array(previousData.length + data.length);
-        this.data.set(previousData);
-        this.data.set(data, previousData.length);
-        return this;
-    }
-    /**
-     * Hashes the data and returns the DataHash
-     * @returns DataHash
-     */
-    digest() {
-        let md;
-        switch (this.hashAlgorithm) {
-            case HashAlgorithm_HashAlgorithm.SHA1:
-                md = forge_gt["md"].sha1.create();
-                break;
-            case HashAlgorithm_HashAlgorithm.SHA2_256:
-                md = forge_gt["md"].sha256.create();
-                break;
-            default:
-                throw new HashingError("Invalid algorithm");
-        }
-        md.update(ASCIIConverter.ToString(this.data));
-        const digestAsHex = md.digest().toHex();
-        return DataHash_DataHash.create(this.hashAlgorithm, HexCoder_HexCoder.decode(digestAsHex));
-    }
-    /**
-     * Resets the hash calculation.
-     * @returns {DataHasher} The same data hasher object for chaining calls.
-     */
-    reset() {
-        this.data = new Uint8Array(0);
-        return this;
-    }
-}
-
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/X509.js
-
-
-
-
-class X509_X509 {
-    /**
-     * Verifies that the data is signed with the provided signature and that the signature matches
-     * the provided X509 certificate.
-     *
-     * @param {Uint8Array} certificateBytes
-     * @param {Uint8Array} signedData
-     * @param {Uint8Array} signature
-     * @returns {boolean} true if verification successful, false otherwise.
-     * @throws In case of invalid data formats, throws according errors.
-     */
-    static verify(certificateBytes, signedData, signature) {
-        if (!(certificateBytes instanceof Uint8Array)) {
-            throw new Error('Invalid certificate bytes');
-        }
-        if (!(signedData instanceof Uint8Array)) {
-            throw new Error('Invalid signed data bytes');
-        }
-        if (!(signature instanceof Uint8Array)) {
-            throw new Error('Invalid signature bytes');
-        }
-        const cert = convertToForgeCert(certificateBytes);
-        const hashOfData = hashData(cert, signedData).value;
-        return cert.publicKey.verify(ASCIIConverter.ToString(hashOfData), ASCIIConverter.ToString(signature));
-    }
-}
-/**
- * Hashes the signed data for the verification process.
- * Support only some hashing algorithms.
- *
- * @param {pki.Certificate} certificate
- * @param {Uint8Array} signedData
- * @returns {DataHash}
- */
-function hashData(certificate, signedData) {
-    let hashAlgorithm;
-    switch (certificate.siginfo.algorithmOid) {
-        case '1.2.840.113549.1.1.5':
-            hashAlgorithm = HashAlgorithm_HashAlgorithm.SHA1;
-            break;
-        case '1.2.840.113549.1.1.11':
-            hashAlgorithm = HashAlgorithm_HashAlgorithm.SHA2_256;
-            break;
-        default:
-            throw new Error(`Unsupported algorithm: ${certificate.siginfo.algorithmOid}`);
-    }
-    const hasher = new SyncDataHasher_SyncDataHasher(hashAlgorithm);
-    hasher.update(signedData);
-    return hasher.digest();
-}
-/**
- * Converts bytes to the Forge certificate object
- *
- * @param {Uint8Array} certificateBytes
- * @returns {pki.Certificate}
- */
-function convertToForgeCert(certificateBytes) {
-    const certAsn1Format = forge_gt["asn1"].fromDer(ASCIIConverter.ToString(certificateBytes));
-    return forge_gt["pki"].certificateFromAsn1(certAsn1Format);
-}
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordSignatureVerificationRule.ts
-var CalendarAuthenticationRecordSignatureVerificationRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CalendarAuthenticationRecordSignatureVerificationRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CalendarAuthenticationRecordSignatureVerificationRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-
-/**
- * Rule validates calendar authentication record signature. Signature is made from calendar authentication record
- * publication data. X.509 certificate is searched from publications file and when found, it is used to validate PKI
- * signature in calendar authentication record.
- */
-var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthenticationRecordSignatureVerificationRule = /** @class */ (function (_super) {
-    CalendarAuthenticationRecordSignatureVerificationRule_extends(CalendarAuthenticationRecordSignatureVerificationRule, _super);
-    function CalendarAuthenticationRecordSignatureVerificationRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CalendarAuthenticationRecordSignatureVerificationRule.prototype.verify = function (context) {
-        return CalendarAuthenticationRecordSignatureVerificationRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarAuthenticationRecord, publicationsFile, signatureData, certificateRecord, signedBytes;
-            return CalendarAuthenticationRecordSignatureVerificationRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
-                if (calendarAuthenticationRecord == null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                }
-                publicationsFile = context.getPublicationsFile();
-                if (publicationsFile === null) {
-                    throw new KsiVerificationError('Invalid publications file in context: null.');
-                }
-                signatureData = calendarAuthenticationRecord.getSignatureData();
-                certificateRecord = publicationsFile
-                    .findCertificateById(signatureData.getCertificateId());
-                if (certificateRecord === null) {
-                    throw new KsiVerificationError("No certificate found in publications file with id:\n                                            " + HexCoder_HexCoder.encode(signatureData.getCertificateId()) + ".");
-                }
-                signedBytes = calendarAuthenticationRecord.getPublicationData().encode();
-                try {
-                    if (X509_X509.verify(certificateRecord.getX509Certificate(), signedBytes, signatureData.getSignatureValue())) {
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-                    }
-                }
-                catch (error) {
-                    console.log(error);
-                }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03)];
-            });
-        });
-    };
-    return CalendarAuthenticationRecordSignatureVerificationRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/rule/CertificateExistenceRule.ts
-var CertificateExistenceRule_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var CertificateExistenceRule_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var CertificateExistenceRule_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-
-
-/**
- * Rule for checking if KSI signature contains calendar hash chain. Used for key-based and publication-based verification policies.
- */
-var CertificateExistenceRule_CertificateExistenceRule = /** @class */ (function (_super) {
-    CertificateExistenceRule_extends(CertificateExistenceRule, _super);
-    function CertificateExistenceRule() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    CertificateExistenceRule.prototype.verify = function (context) {
-        return CertificateExistenceRule_awaiter(this, void 0, void 0, function () {
-            var signature, calendarAuthenticationRecord, publicationsFile, signatureData;
-            return CertificateExistenceRule_generator(this, function (_a) {
-                signature = VerificationRule_VerificationRule.getSignature(context);
-                calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
-                if (calendarAuthenticationRecord == null) {
-                    // TODO: Should it return NA?
-                    throw new KsiVerificationError('Invalid calendar authentication record: null');
-                }
-                publicationsFile = context.getPublicationsFile();
-                if (publicationsFile === null) {
-                    throw new KsiVerificationError('Invalid publications file in context: null.');
-                }
-                signatureData = calendarAuthenticationRecord.getSignatureData();
-                return [2 /*return*/, publicationsFile.findCertificateById(signatureData.getCertificateId()) === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_01)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
-            });
-        });
-    };
-    return CertificateExistenceRule;
-}(VerificationRule_VerificationRule));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/policy/KeyBasedVerificationPolicy.ts
-var KeyBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-
-
-
-
-/**
- * Policy for verifying KSI signature with PKI.
- */
-var KeyBasedVerificationPolicy_KeyBasedVerificationPolicy = /** @class */ (function (_super) {
-    KeyBasedVerificationPolicy_extends(KeyBasedVerificationPolicy, _super);
-    function KeyBasedVerificationPolicy(skipInternalVerification) {
-        if (skipInternalVerification === void 0) { skipInternalVerification = false; }
-        var _this = this;
-        var verificationRule = new CalendarHashChainExistenceRule_CalendarHashChainExistenceRule() // Gen-02
-            .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecatedRule() // Gen-02
-            .onSuccess(new CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExistenceRule() // Gen-02
-            .onSuccess(new CertificateExistenceRule_CertificateExistenceRule() // Key-01
-            .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthenticationRecordSignatureVerificationRule())))); // Key-02, Key-03
-        if (!skipInternalVerification) {
-            verificationRule = new InternalVerificationPolicy_InternalVerificationPolicy().onSuccess(verificationRule);
-        }
-        _this = _super.call(this, verificationRule) || this;
-        return _this;
-    }
-    return KeyBasedVerificationPolicy;
-}(VerificationPolicy_VerificationPolicy));
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/policy/DefaultVerificationPolicy.ts
-var DefaultVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-
-
-
-/**
- * Default verification policy
- */
-var DefaultVerificationPolicy_DefaultVerificationPolicy = /** @class */ (function (_super) {
-    DefaultVerificationPolicy_extends(DefaultVerificationPolicy, _super);
-    function DefaultVerificationPolicy() {
-        return _super.call(this, new PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy()
-            .onNa(new KeyBasedVerificationPolicy_KeyBasedVerificationPolicy(true))) || this;
-    }
-    return DefaultVerificationPolicy;
-}(VerificationPolicy_VerificationPolicy));
-
-
-// CONCATENATED MODULE: ./src/common/service/ServiceCredentials.ts
-
-
-/**
- * Service credentials class for KSI service
- */
-var ServiceCredentials_ServiceCredentials = /** @class */ (function () {
-    function ServiceCredentials(loginId, loginKey, hmacAlgorithm) {
-        if (hmacAlgorithm === void 0) { hmacAlgorithm = HashAlgorithm_HashAlgorithm.SHA2_256; }
-        if ((typeof loginId) !== 'string') {
-            throw new KsiServiceError("Invalid loginId: " + loginId);
-        }
-        if (!(loginKey instanceof Uint8Array)) {
-            throw new KsiServiceError("Invalid loginKey: " + loginId);
-        }
-        if (!(hmacAlgorithm instanceof HashAlgorithm_HashAlgorithm)) {
-            throw new KsiServiceError("Invalid hmacAlgorithm: " + hmacAlgorithm);
-        }
-        this.loginId = loginId;
-        this.loginKey = loginKey;
-        this.hmacAlgorithm = hmacAlgorithm;
-    }
-    ServiceCredentials.prototype.getHmacAlgorithm = function () {
-        return this.hmacAlgorithm;
-    };
-    ServiceCredentials.prototype.getLoginId = function () {
-        return this.loginId;
-    };
-    ServiceCredentials.prototype.getLoginKey = function () {
-        return this.loginKey;
-    };
-    return ServiceCredentials;
 }());
 
 
@@ -59175,16 +58924,11 @@ var KsiHttpProtocol_generator = (undefined && undefined.__generator) || function
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-
-
 /**
  * Http protocol for requests
  */
-var KsiHttpProtocol_KsiHttpProtocol = /** @class */ (function () {
+var KsiHttpProtocol = /** @class */ (function () {
     function KsiHttpProtocol(url) {
-        if (typeof url !== 'string') {
-            throw new KsiError('Invalid url');
-        }
         this.url = url;
     }
     KsiHttpProtocol.prototype.requestKsi = function (requestBytes, abortController) {
@@ -59192,22 +58936,15 @@ var KsiHttpProtocol_KsiHttpProtocol = /** @class */ (function () {
             var response, _a;
             return KsiHttpProtocol_generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0:
-                        if (!(requestBytes instanceof Uint8Array)) {
-                            throw new KsiServiceError("Invalid KSI request bytes: " + requestBytes);
-                        }
-                        if (!(abortController instanceof AbortController)) {
-                            throw new KsiServiceError("Invalid AbortController: " + abortController);
-                        }
-                        return [4 /*yield*/, fetch(this.url, {
-                                method: 'POST',
-                                body: requestBytes,
-                                headers: new Headers({
-                                    'Content-Type': 'application/ksi-request',
-                                    'Content-Length': requestBytes.length.toString()
-                                }),
-                                signal: abortController.signal
-                            })];
+                    case 0: return [4 /*yield*/, fetch(this.url, {
+                            method: 'POST',
+                            body: requestBytes,
+                            headers: new Headers({
+                                'Content-Type': 'application/ksi-request',
+                                'Content-Length': requestBytes.length.toString()
+                            }),
+                            signal: abortController.signal
+                        })];
                     case 1:
                         response = _b.sent();
                         if (abortController.signal.aborted) {
@@ -59275,15 +59012,11 @@ var KsiRequestBase_generator = (undefined && undefined.__generator) || function 
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-
 /**
  * KSI request base class for PDU exchanging with KSI servers.
  */
-var KsiRequestBase_KsiRequestBase = /** @class */ (function () {
+var KsiRequestBase = /** @class */ (function () {
     function KsiRequestBase(response) {
-        if (!(response instanceof Promise)) {
-            throw new KsiError('Invalid response');
-        }
         this.response = response;
     }
     KsiRequestBase.prototype.getResponse = function () {
@@ -59312,40 +59045,28 @@ var KsiRequest_extends = (undefined && undefined.__extends) || (function () {
     };
 })();
 
-
-
-
 /**
  * KSI request for PDU exchanging with KSI servers.
  */
-var KsiRequest_KsiRequest = /** @class */ (function (_super) {
+var KsiRequest = /** @class */ (function (_super) {
     KsiRequest_extends(KsiRequest, _super);
     function KsiRequest(response, abortController) {
         var _this = _super.call(this, response) || this;
-        if (!(abortController instanceof AbortController)) {
-            throw new KsiError('Invalid AbortController');
-        }
         _this.abortController = abortController;
         return _this;
     }
     KsiRequest.prototype.abort = function (payload) {
-        if (!(payload instanceof PduPayload)) {
-            throw new KsiServiceError("Invalid response bytes: " + payload);
-        }
         this.abortResponse = payload;
         this.abortController.abort();
     };
     KsiRequest.prototype.getAbortResponse = function () {
         return this.abortResponse;
     };
-    KsiRequest.prototype.getAbortSignal = function () {
-        return this.abortController.signal;
-    };
     KsiRequest.prototype.isAborted = function () {
         return this.abortController.signal.aborted;
     };
     return KsiRequest;
-}(KsiRequestBase_KsiRequestBase));
+}(KsiRequestBase));
 
 
 // CONCATENATED MODULE: ./src/web/service/SigningServiceProtocol.ts
@@ -59374,10 +59095,10 @@ var SigningServiceProtocol_SigningServiceProtocol = /** @class */ (function (_su
     }
     SigningServiceProtocol.prototype.sign = function (requestBytes) {
         var abortController = new AbortController();
-        return new KsiRequest_KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
+        return new KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
     };
     return SigningServiceProtocol;
-}(KsiHttpProtocol_KsiHttpProtocol));
+}(KsiHttpProtocol));
 
 
 // CONCATENATED MODULE: ./src/web/service/ExtendingServiceProtocol.ts
@@ -59406,10 +59127,10 @@ var ExtendingServiceProtocol_ExtendingServiceProtocol = /** @class */ (function 
     }
     ExtendingServiceProtocol.prototype.extend = function (requestBytes) {
         var abortController = new AbortController();
-        return new KsiRequest_KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
+        return new KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
     };
     return ExtendingServiceProtocol;
-}(KsiHttpProtocol_KsiHttpProtocol));
+}(KsiHttpProtocol));
 
 
 // CONCATENATED MODULE: ./src/web/service/PublicationsFileServiceProtocol.ts
@@ -59478,7 +59199,7 @@ var PublicationsFileServiceProtocol = /** @class */ (function (_super) {
         });
     };
     return PublicationsFileServiceProtocol;
-}(KsiHttpProtocol_KsiHttpProtocol));
+}(KsiHttpProtocol));
 
 
 // CONCATENATED MODULE: ./src/web/main.ts
@@ -59489,7 +59210,7 @@ var PublicationsFileServiceProtocol = /** @class */ (function (_super) {
 /* concated harmony reexport StringTag */__webpack_require__.d(__webpack_exports__, "StringTag", function() { return StringTag_StringTag; });
 /* concated harmony reexport TlvError */__webpack_require__.d(__webpack_exports__, "TlvError", function() { return TlvError; });
 /* concated harmony reexport TlvInputStream */__webpack_require__.d(__webpack_exports__, "TlvInputStream", function() { return TlvInputStream_TlvInputStream; });
-/* concated harmony reexport TlvOutputStream */__webpack_require__.d(__webpack_exports__, "TlvOutputStream", function() { return TlvOutputStream_TlvOutputStream; });
+/* concated harmony reexport TlvOutputStream */__webpack_require__.d(__webpack_exports__, "TlvOutputStream", function() { return TlvOutputStream; });
 /* concated harmony reexport BigInteger */__webpack_require__.d(__webpack_exports__, "BigInteger", function() { return BigInteger_default.a; });
 /* concated harmony reexport DataHash */__webpack_require__.d(__webpack_exports__, "DataHash", function() { return DataHash_DataHash; });
 /* concated harmony reexport HashAlgorithm */__webpack_require__.d(__webpack_exports__, "HashAlgorithm", function() { return HashAlgorithm_HashAlgorithm; });
@@ -59503,7 +59224,7 @@ var PublicationsFileServiceProtocol = /** @class */ (function (_super) {
 /* concated harmony reexport KsiService */__webpack_require__.d(__webpack_exports__, "KsiService", function() { return KsiService_KsiService; });
 /* concated harmony reexport SigningService */__webpack_require__.d(__webpack_exports__, "SigningService", function() { return SigningService_SigningService; });
 /* concated harmony reexport ExtendingService */__webpack_require__.d(__webpack_exports__, "ExtendingService", function() { return ExtendingService_ExtendingService; });
-/* concated harmony reexport PublicationsFileService */__webpack_require__.d(__webpack_exports__, "PublicationsFileService", function() { return PublicationsFileService_PublicationsFileService; });
+/* concated harmony reexport PublicationsFileService */__webpack_require__.d(__webpack_exports__, "PublicationsFileService", function() { return PublicationsFileService; });
 /* concated harmony reexport ServiceCredentials */__webpack_require__.d(__webpack_exports__, "ServiceCredentials", function() { return ServiceCredentials_ServiceCredentials; });
 /* concated harmony reexport PublicationsFileFactory */__webpack_require__.d(__webpack_exports__, "PublicationsFileFactory", function() { return PublicationsFileFactory_PublicationsFileFactory; });
 /* concated harmony reexport SigningServiceProtocol */__webpack_require__.d(__webpack_exports__, "SigningServiceProtocol", function() { return SigningServiceProtocol_SigningServiceProtocol; });

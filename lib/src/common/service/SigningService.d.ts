@@ -1,6 +1,6 @@
 import { BigInteger } from 'big-integer';
 import { DataHash } from 'gt-js-common';
-import { IKsiSignature } from '../signature/IKsiSignature';
+import { KsiSignature } from '../signature/KsiSignature';
 import { IServiceCredentials } from './IServiceCredentials';
 import { ISigningServiceProtocol } from './ISigningServiceProtocol';
 /**
@@ -12,5 +12,5 @@ export declare class SigningService {
     private signingServiceCredentials;
     constructor(signingServiceProtocol: ISigningServiceProtocol, signingServiceCredentials: IServiceCredentials);
     private static processPayload;
-    sign(hash: DataHash, level?: BigInteger): Promise<IKsiSignature>;
+    sign(hash: DataHash, level?: BigInteger): Promise<KsiSignature>;
 }

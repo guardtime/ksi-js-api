@@ -1,7 +1,6 @@
-import {IPublicationsFile} from '../publication/IPublicationsFile';
+import {PublicationsFile} from '../publication/PublicationsFile';
 import {PublicationsFileFactory} from '../publication/PublicationsFileFactory';
-import {IPublicationsFileServiceProtocol, isPublicationsFileServiceProtocol} from './IPublicationsFileServiceProtocol';
-import {KsiServiceError} from './KsiServiceError';
+import {IPublicationsFileServiceProtocol} from './IPublicationsFileServiceProtocol';
 
 /**
  * Publications file service
@@ -11,19 +10,11 @@ export class PublicationsFileService {
     private publicationsFileFactory: PublicationsFileFactory;
 
     constructor(publicationsFileServiceProtocol: IPublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory) {
-        if (!(isPublicationsFileServiceProtocol(publicationsFileServiceProtocol))) {
-            throw new KsiServiceError(`Invalid publications file service protocol: ${publicationsFileServiceProtocol}`);
-        }
-
-        if (!(publicationsFileFactory instanceof PublicationsFileFactory)) {
-            throw new KsiServiceError(`Invalid publications file factory: ${publicationsFileFactory}`);
-        }
-
         this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
         this.publicationsFileFactory = publicationsFileFactory;
     }
 
-    public async getPublicationsFile(): Promise<IPublicationsFile> {
+    public async getPublicationsFile(): Promise<PublicationsFile> {
         return this.publicationsFileFactory.create(await this.publicationsFileServiceProtocol.getPublicationsFile());
     }
 }

@@ -1,15 +1,14 @@
 import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash, pseudoRandomLong} from 'gt-js-common';
 import {TlvInputStream} from '../parser/TlvInputStream';
-import {IKsiSignature} from '../signature/IKsiSignature';
 import {KsiSignature} from '../signature/KsiSignature';
 import {AggregationRequestPayload} from './AggregationRequestPayload';
 import {AggregationRequestPdu} from './AggregationRequestPdu';
 import {AggregationResponsePayload} from './AggregationResponsePayload';
 import {AggregationResponsePdu} from './AggregationResponsePdu';
 import {ErrorPayload} from './ErrorPayload';
-import {IServiceCredentials, isIServiceCredentials} from './IServiceCredentials';
-import {ISigningServiceProtocol, isSigningServiceProtocol} from './ISigningServiceProtocol';
+import {IServiceCredentials} from './IServiceCredentials';
+import {ISigningServiceProtocol} from './ISigningServiceProtocol';
 import {KsiRequestBase} from './KsiRequestBase';
 import {KsiServiceError} from './KsiServiceError';
 import {PduHeader} from './PduHeader';
@@ -23,23 +22,11 @@ export class SigningService {
     private signingServiceCredentials: IServiceCredentials;
 
     constructor(signingServiceProtocol: ISigningServiceProtocol, signingServiceCredentials: IServiceCredentials) {
-        if (!(isSigningServiceProtocol(signingServiceProtocol))) {
-            throw new KsiServiceError(`Invalid signing service protocol: ${signingServiceProtocol}`);
-        }
-
-        if (!isIServiceCredentials(signingServiceCredentials)) {
-            throw new KsiServiceError(`Invalid signing service credentials: ${signingServiceCredentials}`);
-        }
-
         this.signingServiceProtocol = signingServiceProtocol;
         this.signingServiceCredentials = signingServiceCredentials;
     }
 
-    private static processPayload(payload: AggregationResponsePayload | null): IKsiSignature {
-        if (!(payload instanceof AggregationResponsePayload)) {
-            throw new KsiServiceError(`Invalid AggregationResponsePayload: ${payload}`);
-        }
-
+    private static processPayload(payload: AggregationResponsePayload): KsiSignature {
         if (payload.getStatus().neq(0))         {
             // tslint:disable-next-line:max-line-length
             throw new KsiServiceError(`Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`);
@@ -48,15 +35,7 @@ export class SigningService {
         return KsiSignature.CREATE(payload);
     }
 
-    public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<IKsiSignature> {
-        if (!(hash instanceof DataHash)) {
-            throw new KsiServiceError(`Invalid hash: ${hash}`);
-        }
-
-        if (!bigInteger.isInstance(level)) {
-            throw new KsiServiceError(`Invalid level: ${level}, must be BigInteger`);
-        }
-
+    public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
         const header: PduHeader = PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
         const requestId: BigInteger = pseudoRandomLong();
         const requestPayload: AggregationRequestPayload = AggregationRequestPayload.CREATE(requestId, hash, level);
@@ -108,6 +87,10 @@ export class SigningService {
             }
 
             currentAggregationPayload = aggregationPayload;
+        }
+
+        if (currentAggregationPayload === null) {
+            throw new KsiServiceError('No matching aggregation payloads in PDU!');
         }
 
         return SigningService.processPayload(currentAggregationPayload);

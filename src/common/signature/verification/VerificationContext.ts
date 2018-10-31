@@ -7,26 +7,22 @@ import {PublicationData} from '../../publication/PublicationData';
 import {PublicationsFile} from '../../publication/PublicationsFile';
 import {KsiService} from '../../service/KsiService';
 import {CalendarHashChain} from '../CalendarHashChain';
-import {IKsiSignature, isKsiSignature} from '../IKsiSignature';
+import {KsiSignature} from '../KsiSignature';
 import {KsiVerificationError} from './KsiVerificationError';
 
 export class VerificationContext {
-    private ksiService: KsiService | null;
-    private readonly ksiSignature: IKsiSignature;
+    private ksiService: KsiService | null = null;
+    private readonly ksiSignature: KsiSignature;
     private documentHash: DataHash | null = null;
     private publicationsFile: PublicationsFile | null = null;
     private publicationData: PublicationData | null = null;
-    private extendingAllowed: boolean = false;
+    private extendingAllowed: boolean = true;
 
-    constructor(signature: IKsiSignature) {
-        if (!isKsiSignature(signature)) {
-            throw new Error(`Invalid signature: ${signature}`);
-        }
-
+    constructor(signature: KsiSignature) {
         this.ksiSignature = signature;
     }
 
-    public getSignature(): IKsiSignature {
+    public getSignature(): KsiSignature {
         return this.ksiSignature;
     }
 
@@ -40,8 +36,8 @@ export class VerificationContext {
     /**
      * Get extended calendar hash chain from given publication time.
      */
-    public async getExtendedCalendarHashChain(publicationTime: bigInteger.BigInteger | null): Promise<CalendarHashChain> {
-        if (!(this.ksiService instanceof KsiService)) {
+    public async getExtendedCalendarHashChain(publicationTime: BigInteger | null): Promise<CalendarHashChain> {
+        if (!this.ksiService) {
             throw new KsiVerificationError('Invalid KSI service in context.');
         }
 
@@ -56,18 +52,10 @@ export class VerificationContext {
     }
 
     public setDocumentHash(documentHash: DataHash | null): void {
-        if (documentHash !== null && !(documentHash instanceof DataHash)) {
-            throw new KsiVerificationError(`Invalid document hash: ${documentHash}`);
-        }
-
         this.documentHash = documentHash;
     }
 
     public setKsiService(ksiService: KsiService | null): void {
-        if (ksiService !== null && !(ksiService instanceof KsiService)) {
-            throw new KsiVerificationError(`Invalid ksi service: ${ksiService}`);
-        }
-
         this.ksiService = ksiService;
     }
 
@@ -83,10 +71,6 @@ export class VerificationContext {
     }
 
     public setPublicationsFile(publicationsFile: PublicationsFile | null): void {
-        if (publicationsFile !== null && !(publicationsFile instanceof PublicationsFile)) {
-            throw new KsiVerificationError(`Invalid publications file: ${publicationsFile}`);
-        }
-
         this.publicationsFile = publicationsFile;
     }
 
@@ -95,10 +79,6 @@ export class VerificationContext {
     }
 
     public setUserPublication(publicationData: PublicationData | null): void {
-        if (publicationData !== null && !(publicationData instanceof PublicationData)) {
-            throw new KsiVerificationError(`Invalid publications file: ${publicationData}`);
-        }
-
         this.publicationData = publicationData;
     }
 

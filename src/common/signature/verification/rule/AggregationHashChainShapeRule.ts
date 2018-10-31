@@ -1,6 +1,6 @@
 import {BigInteger} from 'big-integer';
 import {AggregationHashChain} from '../../AggregationHashChain';
-import {IKsiSignature} from '../../IKsiSignature';
+import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -11,7 +11,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class AggregationHashChainShapeRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: IKsiSignature = VerificationRule.getSignature(context);
+        const signature: KsiSignature = context.getSignature();
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
 
         for (const chain of aggregationHashChains) {
@@ -21,7 +21,7 @@ export class AggregationHashChainShapeRule extends VerificationRule {
 
             if (!lastIndexValue.eq(calculatedValue)) {
                 // tslint:disable-next-line:max-line-length
-                console.log(`The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: ${calculatedValue}; Value in chain: ${lastIndexValue}`);
+                console.warn(`The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: ${calculatedValue}; Value in chain: ${lastIndexValue}`);
 
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10);
             }

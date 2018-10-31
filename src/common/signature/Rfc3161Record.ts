@@ -1,5 +1,4 @@
-import bigInteger from 'big-integer';
-
+import {BigInteger} from 'big-integer';
 import {DataHash, DataHasher, HashAlgorithm} from 'gt-js-common';
 import {RFC_3161_RECORD_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
@@ -44,15 +43,15 @@ export class Rfc3161Record extends CompositeTag {
         return this.signedAttributesAlgorithm;
     }
 
-    public getAggregationTime(): bigInteger.BigInteger {
+    public getAggregationTime(): BigInteger {
         return this.aggregationTime.getValue();
     }
 
     /**
      * Get chain index values
      */
-    public getChainIndex(): bigInteger.BigInteger[] {
-        const result: bigInteger.BigInteger[] = [];
+    public getChainIndex(): BigInteger[] {
+        const result: BigInteger[] = [];
         for (const tag of this.chainIndexes) {
             result.push(tag.getValue());
         }

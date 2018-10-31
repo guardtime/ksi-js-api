@@ -11,7 +11,7 @@ import {VerificationRule} from '../VerificationRule';
  */
 export class UserProvidedPublicationCreationTimeVerificationRule extends VerificationRule {
     public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const aggregationTime: BigInteger = VerificationRule.getSignature(context).getAggregationTime();
+        const aggregationTime: BigInteger = context.getSignature().getAggregationTime();
         const userPublication: PublicationData | null = context.getUserPublication();
 
         if (userPublication == null) {
