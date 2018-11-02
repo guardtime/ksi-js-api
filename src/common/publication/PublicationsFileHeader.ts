@@ -1,3 +1,4 @@
+import {BigInteger} from 'big-integer';
 import {PUBLICATIONS_FILE_HEADER_CONSTANTS} from '../Constants';
 import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
@@ -12,7 +13,7 @@ export class PublicationsFileHeader extends CompositeTag {
 
     private version: IntegerTag;
     private creationTime: IntegerTag;
-    private repositoryUri: StringTag;
+    private repositoryUri: StringTag | null = null;
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
@@ -20,6 +21,18 @@ export class PublicationsFileHeader extends CompositeTag {
         this.decodeValue(this.parseChild.bind(this));
         this.validateValue(this.validate.bind(this));
         Object.freeze(this);
+    }
+
+    public getVersion(): BigInteger {
+        return this.version.getValue();
+    }
+
+    public getCreationTime(): BigInteger {
+        return this.creationTime.getValue();
+    }
+
+    public getRepositoryUri(): string | null {
+        return this.repositoryUri === null ? null : this.repositoryUri.getValue();
     }
 
     private parseChild(tlvTag: TlvTag): TlvTag {

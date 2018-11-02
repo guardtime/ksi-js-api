@@ -8,7 +8,7 @@ import {PublicationsFileError} from './PublicationsFileError';
 export class PublicationsFileFactory {
 
     public create(publicationFileBytes: Uint8Array): PublicationsFile {
-        if (JSON.stringify(publicationFileBytes.slice(0, PublicationsFile.FileBeginningMagicBytes.length - 1)) ===
+        if (JSON.stringify(publicationFileBytes.slice(0, PublicationsFile.FileBeginningMagicBytes.length)) !==
             JSON.stringify(PublicationsFile.FileBeginningMagicBytes)) {
             throw new PublicationsFileError(
                 'Publications file header is incorrect. Invalid publications file magic bytes.');

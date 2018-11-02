@@ -42,7 +42,7 @@ export class CertificateRecord extends CompositeTag {
 
     private validate(tagCount: ITlvCount): void {
         if (tagCount[CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType] !== 1) {
-            throw new TlvError('Certificate Id is missing.');
+            throw new TlvError('Exactly one certificate id must exist in certificate record.');
         }
 
         if (tagCount[CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType] !== 1) {

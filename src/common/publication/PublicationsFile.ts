@@ -22,8 +22,8 @@ export class PublicationsFile extends CompositeTag {
     private readonly publicationRecordList: PublicationRecord[] = [];
     private publicationsFileHeader: PublicationsFileHeader;
     private headerIndex: number = 0;
-    private lastCertificateRecordIndex: number = 0;
-    private firstPublicationRecordIndex: number = 0;
+    private lastCertificateRecordIndex: number | null = null;
+    private firstPublicationRecordIndex: number | null = null;
     private cmsSignatureIndex: number = 0;
 
     constructor(tlvTag: TlvTag) {
@@ -111,7 +111,7 @@ export class PublicationsFile extends CompositeTag {
 
                 return certificateRecord;
             case PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType:
-                if (this.firstPublicationRecordIndex === 0) {
+                if (this.firstPublicationRecordIndex === null) {
                     this.firstPublicationRecordIndex = position;
                 }
 
@@ -129,25 +129,27 @@ export class PublicationsFile extends CompositeTag {
     }
 
     private validate(tagCount: ITlvCount): void {
-        if (this.headerIndex !== 0) {
-            throw new PublicationsFileError(
-                'Publications file header should be the first element in publications file.');
-        }
-
-        if (this.firstPublicationRecordIndex <= this.lastCertificateRecordIndex) {
-            throw new PublicationsFileError('Certificate records should be before publication records.');
-        }
-
-        if (this.cmsSignatureIndex !== this.value.length - 1) {
-            throw new PublicationsFileError('Cms signature should be last element in publications file.');
-        }
-
         if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType] !== 1) {
             throw new PublicationsFileError('Exactly one publications file header must exist in publications file.');
         }
 
         if (tagCount[PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType] !== 1) {
             throw new PublicationsFileError('Exactly one signature must exist in publications file.');
+        }
+
+        if (this.headerIndex !== 0) {
+            throw new PublicationsFileError(
+                'Publications file header should be the first element in publications file.');
+        }
+
+        if (this.firstPublicationRecordIndex !== null
+            && this.lastCertificateRecordIndex !== null
+            && this.firstPublicationRecordIndex <= this.lastCertificateRecordIndex) {
+            throw new PublicationsFileError('Certificate records should be before publication records.');
+        }
+
+        if (this.cmsSignatureIndex !== this.value.length - 1) {
+            throw new PublicationsFileError('Cms signature should be last element in publications file.');
         }
     }
 }
