@@ -1,236 +1,386 @@
 import bigInteger from 'big-integer';
+import {DataHash, HashAlgorithm, HexCoder} from 'gt-js-common';
 
-import {AGGREGATION_HASH_CHAIN_CONSTANTS} from '../../src/common/Constants';
+import {AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection} from '../../src/common/Constants';
 import {CompositeTag} from '../../src/common/parser/CompositeTag';
+import {ImprintTag} from '../../src/common/parser/ImprintTag';
 import {IntegerTag} from '../../src/common/parser/IntegerTag';
 import {RawTag} from '../../src/common/parser/RawTag';
 import {StringTag} from '../../src/common/parser/StringTag';
 import {TlvTag} from '../../src/common/parser/TlvTag';
-import {AggregationHashChainLinkMetaData} from '../../src/common/signature/AggregationHashChain';
-import {ImprintTag} from '../../src/common/parser/ImprintTag';
-import HashAlgorithm from 'gt-js-common/lib/hash/HashAlgorithm';
-import DataHash from 'gt-js-common/lib/hash/DataHash';
+import {AggregationHashChain, AggregationHashChainLink} from '../../src/common/signature/AggregationHashChain';
+import {IKsiIdentity} from '../../src/common/signature/IKsiIdentity';
 
 /**
- * Aggregation hash chain link metadata TLV tag tests
+ * Aggregation hash chain TLV tag tests
  */
-describe('AggregationHashChainLinkMetaData', () => {
-    it('Creation with TlvTag', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingTagType,
-                false,
-                false,
-                AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000))
+describe('AggregationHashChain', () => {
+    it('Creation with TlvTag with optional content', async () => {
+        const links = [
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
+        ];
+
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType, false, false, new Uint8Array([0x74, 0x65, 0x73, 0x74])),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            ...links
         ]);
 
-        const metaData: AggregationHashChainLinkMetaData = new AggregationHashChainLinkMetaData(tlvTag);
-        expect(metaData.getClientId()).toEqual('test_client');
-        expect(metaData.getMachineId()).toEqual('test_machine');
-        expect(metaData.getSequenceNumber()).toEqual(bigInteger(0));
-        expect(metaData.getRequestTime()).toEqual(bigInteger(1000));
-        expect((<RawTag>metaData.getPaddingTag()).getValue()).toEqual(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd);
+        const chain: AggregationHashChain = new AggregationHashChain(tlvTag);
+
+        expect(chain.getIdentity().map((identity: IKsiIdentity) => identity.getClientId())).toEqual(['test', 'me']);
+        expect(chain.getChainIndex()).toEqual([bigInteger(1), bigInteger(2)]);
+        expect(chain.getAggregationTime()).toEqual(bigInteger(1000));
+        expect(JSON.stringify(chain.getChainLinks())).toEqual(
+            JSON.stringify(links.map((tag: TlvTag) => new AggregationHashChainLink(tag))));
+        expect(chain.getInputHash()).toEqual(
+            DataHash.create(HashAlgorithm.SHA2_256, HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')));
+        expect(chain.getInputData()).toEqual(new Uint8Array([0x74, 0x65, 0x73, 0x74]));
+        expect(await chain.getOutputHash({level: bigInteger(0), hash: chain.getInputHash()})).toEqual(
+            {
+                level: bigInteger(3),
+                hash: DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array([
+                    229, 50, 26, 124, 51, 134, 56, 23, 57, 55, 68, 237, 176, 74,
+                    47, 141, 50, 205, 88, 1, 173, 136, 129, 101, 21, 18, 93, 17, 98, 87, 125, 75
+                ]))
+            }
+        );
+        expect(chain.getAggregationAlgorithm()).toEqual(HashAlgorithm.SHA2_256);
     });
 
-    it('Creation with only client Id', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')
-        ]);
-
-        const metaData: AggregationHashChainLinkMetaData = new AggregationHashChainLinkMetaData(tlvTag);
-        expect(metaData.getClientId()).toEqual('test_client');
-        expect(metaData.getMachineId()).toEqual(null);
-        expect(metaData.getSequenceNumber()).toEqual(null);
-        expect(metaData.getRequestTime()).toEqual(null);
-        expect(metaData.getPaddingTag()).toEqual(null);
-    });
-
-    it('Creation with missing client id', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000))
-        ]);
-
-        expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Exactly one client id must exist in aggregation hash chain link metadata.');
-    });
-
-    it('Creation with multiple client id', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client1')
-        ]);
-
-        expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Exactly one client id must exist in aggregation hash chain link metadata.');
-    });
-
-    it('Creation with multiple machine id', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine1')
-        ]);
-
-        expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Only one machine id is allowed in aggregation hash chain link metadata.');
-    });
-
-    it('Creation with multiple sequence number', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(1))
-        ]);
-
-        expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Only one sequence number is allowed in aggregation hash chain link metadata.');
-    });
-
-    it('Creation with multiple request time', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1))
-        ]);
-
-        expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Only one request time is allowed in aggregation hash chain link metadata.');
-    });
-});
-
-/**
- * Aggregation hash chain link metadata TLV tag tests
- */
-describe('AggregationHashChainLink', () => {
-    it('Creation with TlvTag', () => {
-
-        const legacyId: Uint8Array = new Uint8Array(29);
-        legacyId.set([0x3]);
-
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(0x7, false, false, [
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(0)),
-            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false, DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
-            RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
-            CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-                StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')
+    it('Creation with TlvTag', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
             ])
         ]);
 
-        const metaData: AggregationHashChainLinkMetaData = new AggregationHashChainLinkMetaData(tlvTag);
-        expect(metaData.getClientId()).toEqual('test_client');
-        expect(metaData.getMachineId()).toEqual('test_machine');
-        expect(metaData.getSequenceNumber()).toEqual(bigInteger(0));
-        expect(metaData.getRequestTime()).toEqual(bigInteger(1000));
-        expect((<RawTag>metaData.getPaddingTag()).getValue()).toEqual(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd);
+        const chain: AggregationHashChain = new AggregationHashChain(tlvTag);
+
+        expect(chain.getIdentity().map((identity: IKsiIdentity) => identity.getClientId())).toEqual(['test', 'me']);
+        expect(chain.getChainIndex()).toEqual([bigInteger(1), bigInteger(2)]);
+        expect(chain.getAggregationTime()).toEqual(bigInteger(1000));
+        expect(chain.getChainLinks().map(
+            (link: AggregationHashChainLink) =>
+                link.getIdentity() === null ? null : (<IKsiIdentity>link.getIdentity()).getClientId()))
+            .toEqual(['me', null, 'test']);
+        expect(chain.getInputHash()).toEqual(
+            DataHash.create(HashAlgorithm.SHA2_256, HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')));
+        expect(chain.getInputData()).toEqual(null);
+        expect(await chain.getOutputHash({level: bigInteger(0), hash: chain.getInputHash()})).toEqual(
+            {
+                level: bigInteger(3),
+                hash: DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array([
+                    229, 50, 26, 124, 51, 134, 56, 23, 57, 55, 68, 237, 176, 74,
+                    47, 141, 50, 205, 88, 1, 173, 136, 129, 101, 21, 18, 93, 17, 98, 87, 125, 75
+                ]))
+            }
+        );
+        expect(chain.getAggregationAlgorithm()).toEqual(HashAlgorithm.SHA2_256);
     });
 
-    it('Creation with only client Id', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')
-        ]);
-
-        const metaData: AggregationHashChainLinkMetaData = new AggregationHashChainLinkMetaData(tlvTag);
-        expect(metaData.getClientId()).toEqual('test_client');
-        expect(metaData.getMachineId()).toEqual(null);
-        expect(metaData.getSequenceNumber()).toEqual(null);
-        expect(metaData.getRequestTime()).toEqual(null);
-        expect(metaData.getPaddingTag()).toEqual(null);
-    });
-
-    it('Creation with missing client id', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000))
-        ]);
-
-        expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Exactly one client id must exist in aggregation hash chain link metadata.');
-    });
-
-    it('Creation with multiple client id', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client1')
-        ]);
-
-        expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Exactly one client id must exist in aggregation hash chain link metadata.');
-    });
-
-    it('Creation with multiple machine id', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine1')
+    it('Creation with TlvTag missing aggregation time tag', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
         ]);
 
         expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Only one machine id is allowed in aggregation hash chain link metadata.');
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Exactly one aggregation time must exist in aggregation hash chain.');
     });
 
-    it('Creation with multiple sequence number', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(1))
+    it('Creation with TlvTag multiple aggregation time tag', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1001)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
         ]);
 
         expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Only one sequence number is allowed in aggregation hash chain link metadata.');
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Exactly one aggregation time must exist in aggregation hash chain.');
     });
 
-    it('Creation with multiple request time', () => {
-        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
-            StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1))
+    it('Creation with TlvTag missing chain indexes', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
         ]);
 
         expect(() => {
-            // @ts-ignore
-            return new AggregationHashChainLinkMetaData(tlvTag);
-        }).toThrow('Only one request time is allowed in aggregation hash chain link metadata.');
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Chain index is missing in aggregation hash chain.');
     });
+
+    it('Creation with TlvTag containing multiple input data', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType, false, false, new Uint8Array([0x74, 0x65, 0x73, 0x74])),
+            RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType, false, false, new Uint8Array([0x74, 0x65, 0x73, 0x74])),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
+        ]);
+
+        expect(() => {
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Only one input data value is allowed in aggregation hash chain.');
+    });
+
+    it('Creation with TlvTag missing input hash', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
+        ]);
+
+        expect(() => {
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Exactly one input hash must exist in aggregation hash chain.');
+    });
+
+    it('Creation with TlvTag containing multiple input hash', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
+        ]);
+
+        expect(() => {
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Exactly one input hash must exist in aggregation hash chain.');
+    });
+
+    it('Creation with TlvTag missing aggregation algorithm', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
+        ]);
+
+        expect(() => {
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Exactly one algorithm must exist in aggregation hash chain.');
+    });
+
+    it('Creation with TlvTag containing multiple aggregation algorithm', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id)),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
+                ])
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType, false, false,
+                                  DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+            ]),
+            CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
+                CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
+                    StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
+                ])
+            ])
+        ]);
+
+        expect(() => {
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Exactly one algorithm must exist in aggregation hash chain.');
+    });
+
+    it('Creation with TlvTag missing chain links', async () => {
+        const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType, false, false, bigInteger(1000)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(1)),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.ChainIndexTagType, false, false, bigInteger(2)),
+            ImprintTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType, false, false,
+                              DataHash.create(HashAlgorithm.SHA2_256,
+                                              HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'))),
+            IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType, false, false,
+                              bigInteger(HashAlgorithm.SHA2_256.id))
+        ]);
+
+        expect(() => {
+            return new AggregationHashChain(tlvTag);
+        }).toThrow('Links are missing in aggregation hash chain.');
+    });
+
 });

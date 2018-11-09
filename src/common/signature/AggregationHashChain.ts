@@ -94,6 +94,7 @@ export class AggregationHashChainLink extends CompositeTag {
     private static readonly LEGACY_ID_FIRST_OCTET: number = 0x3;
     private static readonly LEGACY_ID_LENGTH: number = 29;
 
+    private direction: LinkDirection;
     private levelCorrection: IntegerTag | null = null;
     private siblingHash: ImprintTag | null = null;
     private legacyId: RawTag | null = null;
@@ -106,39 +107,50 @@ export class AggregationHashChainLink extends CompositeTag {
         this.decodeValue(this.parseChild.bind(this));
         this.validateValue(this.validate.bind(this));
 
+        switch (this.id) {
+            case LinkDirection.Left:
+                this.direction = LinkDirection.Left;
+                break;
+            case LinkDirection.Right:
+                this.direction = LinkDirection.Right;
+                break;
+            default:
+                throw new TlvError('Invalid Link direction.');
+        }
+
         Object.freeze(this);
     }
 
     private static getLegacyIdString(bytes: Uint8Array): string {
         if (bytes.length === 0) {
-            throw new TlvError('Invalid legacy id tag: empty');
+            throw new TlvError('Invalid legacy id tag: empty.');
         }
 
         if (bytes[0] !== AggregationHashChainLink.LEGACY_ID_FIRST_OCTET) {
-            throw new TlvError(`Invalid first octet in legacy id tag: ${bytes[0]}`);
+            throw new TlvError(`Invalid first octet in legacy id tag: 0x${bytes[0].toString(16)}.`);
         }
 
         if (bytes[1] !== 0x0) {
-            throw new TlvError(`Invalid second octet in legacy id tag: ${bytes[0]}`);
+            throw new TlvError(`Invalid second octet in legacy id tag: 0x${bytes[1].toString(16)}.`);
         }
 
         if (bytes.length !== AggregationHashChainLink.LEGACY_ID_LENGTH) {
-            throw new TlvError(`Invalid legacy id tag length. Length: ${bytes.length}`);
+            throw new TlvError(`Invalid legacy id tag length. Length: ${bytes.length}.`);
         }
 
         const idStringLength: number = bytes[2];
 
-        if (bytes.length < idStringLength + 4) {
-            throw new TlvError(`Invalid legacy id length value: ${idStringLength}`);
+        if (bytes.length <= idStringLength + 3) {
+            throw new TlvError(`Invalid legacy id length value: ${idStringLength}.`);
         }
 
         for (let i: number = idStringLength + 3; i < bytes.length; i += 1) {
             if (bytes[i] !== 0x0) {
-                throw new TlvError(`Invalid padding octet. Index: ${i}`);
+                throw new TlvError(`Invalid padding octet. Index: ${i}.`);
             }
         }
 
-        return util.text.utf8.decode(bytes.slice(3, idStringLength));
+        return util.text.utf8.decode(bytes.slice(3, idStringLength + 3));
     }
 
     public getLevelCorrection(): BigInteger {
@@ -150,14 +162,7 @@ export class AggregationHashChainLink extends CompositeTag {
     }
 
     public getDirection(): LinkDirection {
-        switch (this.id) {
-            case LinkDirection.Left:
-                return LinkDirection.Left;
-            case LinkDirection.Right:
-                return LinkDirection.Right;
-            default:
-                throw new TlvError('Invalid Link direction');
-        }
+        return this.direction;
     }
 
     public getSiblingData(): Uint8Array {
@@ -225,7 +230,7 @@ export class AggregationHashChain extends CompositeTag {
     private chainLinks: AggregationHashChainLink[] = [];
     private aggregationAlgorithm: HashAlgorithm;
     private inputHash: ImprintTag;
-    private inputData: RawTag;
+    private inputData: RawTag | null = null;
 
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
@@ -292,6 +297,10 @@ export class AggregationHashChain extends CompositeTag {
 
     public getInputHash(): DataHash {
         return this.inputHash.getValue();
+    }
+
+    public getInputData(): Uint8Array | null {
+        return this.inputData === null ? null : this.inputData.getValue();
     }
 
     /**

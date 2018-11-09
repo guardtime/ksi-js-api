@@ -93,7 +93,7 @@ export class KsiHttpProtocol {
             return httpRequest(options, callback);
         }
 
-        throw new KsiServiceError(`Network protocol not supported: ${this.url.protocol}`);
+        throw new KsiServiceError(`Network protocol not supported: ${this.url.protocol}.`);
     }
 
 }

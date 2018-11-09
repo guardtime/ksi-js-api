@@ -22,8 +22,7 @@ export class InputHashAlgorithmVerificationRule extends VerificationRule {
         const inputHash: DataHash = signature.getInputHash();
 
         if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
-            // TODO: Turn off console logging
-            console.warn(`Wrong input hash algorithm. Expected ${documentHash.hashAlgorithm}, found ${inputHash.hashAlgorithm}`);
+            console.debug(`Wrong input hash algorithm. Expected ${documentHash.hashAlgorithm}, found ${inputHash.hashAlgorithm}.`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04);
         }

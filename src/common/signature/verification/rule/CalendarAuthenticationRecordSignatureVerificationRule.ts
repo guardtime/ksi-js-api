@@ -34,8 +34,8 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
             .findCertificateById(signatureData.getCertificateId());
 
         if (certificateRecord === null) {
-            throw new KsiVerificationError(`No certificate found in publications file with id:
-                                            ${HexCoder.encode(signatureData.getCertificateId())}.`);
+            // tslint:disable-next-line:max-line-length
+            throw new KsiVerificationError(`No certificate found in publications file with id: ${HexCoder.encode(signatureData.getCertificateId())}.`);
         }
 
         const signedBytes: Uint8Array = calendarAuthenticationRecord.getPublicationData().encode();
@@ -44,7 +44,7 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
             }
         } catch (error) {
-            console.warn(error);
+            console.debug(error);
         }
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03);

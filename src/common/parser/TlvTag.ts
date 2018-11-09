@@ -24,6 +24,26 @@ export class TlvTag {
         }
     }
 
+    // tslint:disable-next-line:no-any
+    public static EQUALS(x: any, y: any): boolean {
+        if (!(x instanceof TlvTag) || !(y instanceof TlvTag)) {
+            return false;
+        }
+
+        if (x === y) {
+            return true;
+        }
+
+        if (x.constructor.name !== y.constructor.name) {
+            return false;
+        }
+
+        return !(x.id !== y.id
+            || x.forwardFlag !== y.forwardFlag
+            || x.nonCriticalFlag !== y.nonCriticalFlag
+            || JSON.stringify(x.getValueBytes()) !== JSON.stringify(y.getValueBytes()));
+    }
+
     public encode(): Uint8Array {
         if (this.id > TLV_CONSTANTS.MaxType) {
             throw new TlvError('Could not write TlvTag: Type is larger than max id');
@@ -60,5 +80,10 @@ export class TlvTag {
         }
 
         return result;
+    }
+
+    // tslint:disable-next-line:no-any
+    public equals(tag: any): boolean {
+        return TlvTag.EQUALS(this, tag);
     }
 }

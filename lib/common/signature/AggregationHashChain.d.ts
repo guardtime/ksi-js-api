@@ -29,6 +29,7 @@ export declare class AggregationHashChainLinkMetaData extends CompositeTag imple
 export declare class AggregationHashChainLink extends CompositeTag {
     private static readonly LEGACY_ID_FIRST_OCTET;
     private static readonly LEGACY_ID_LENGTH;
+    private direction;
     private levelCorrection;
     private siblingHash;
     private legacyId;
@@ -69,6 +70,7 @@ export declare class AggregationHashChain extends CompositeTag {
     getIdentity(): IKsiIdentity[];
     getOutputHash(result: AggregationHashResult): Promise<AggregationHashResult>;
     getInputHash(): DataHash;
+    getInputData(): Uint8Array | null;
     /**
      * Returns location pointer based on aggregation hash chain links
      */

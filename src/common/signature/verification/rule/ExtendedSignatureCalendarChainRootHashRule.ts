@@ -18,7 +18,7 @@ export class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule
 
         // TODO: Should return ok as result?
         if (calendarHashChain === null) {
-            throw new KsiVerificationError('Invalid calendar hash chain: null');
+            throw new KsiVerificationError('Invalid calendar hash chain: null.');
         }
 
         const extendedCalendarHashChain: CalendarHashChain =

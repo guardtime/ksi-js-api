@@ -41,9 +41,8 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
             await context.getExtendedCalendarHashChain(publicationData.getPublicationTime());
         const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
         if (deprecatedLink !== null) {
-            console.warn(`Calendar hash chain contains deprecated aggregation algorithm at publication time.
-                             Algorithm: ${deprecatedLink.getValue().hashAlgorithm.name};
-                             Publication time: ${publicationData.getPublicationTime()}`);
+            // tslint:disable-next-line:max-line-length
+            console.debug(`Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${deprecatedLink.getValue().hashAlgorithm.name}; Publication time: ${publicationData.getPublicationTime()}.`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02);
         }

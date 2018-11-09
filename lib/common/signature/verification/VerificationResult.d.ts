@@ -17,4 +17,5 @@ export declare class VerificationResult {
     getResultCode(): VerificationResultCode;
     getVerificationError(): VerificationError | null;
     getRuleName(): string;
+    getChildResults(): VerificationResult[];
 }

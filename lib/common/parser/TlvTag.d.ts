@@ -8,5 +8,7 @@ export declare class TlvTag {
     readonly forwardFlag: boolean;
     readonly getValueBytes: () => Uint8Array;
     constructor(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, valueBytes: Uint8Array, tlv16BitFlag?: boolean);
+    static EQUALS(x: any, y: any): boolean;
     encode(): Uint8Array;
+    equals(tag: any): boolean;
 }

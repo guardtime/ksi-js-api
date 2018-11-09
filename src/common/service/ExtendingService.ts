@@ -53,13 +53,13 @@ export class ExtendingService {
         const stream: TlvInputStream = new TlvInputStream(<Uint8Array>responseBytes);
         const responsePdu: ExtendResponsePdu = new ExtendResponsePdu(stream.readTag());
         if (stream.getPosition() < stream.getLength()) {
-            throw new KsiServiceError(`Response contains more bytes than PDU length`);
+            throw new KsiServiceError(`Response contains more bytes than PDU length.`);
         }
 
         const errorPayload: ErrorPayload | null = responsePdu.getErrorPayload();
         if (errorPayload !== null) {
             if (responsePdu.getPayloads().length > 0) {
-                throw new KsiServiceError(`PDU contains unexpected response payloads!\nPDU:\n${responsePdu}`);
+                throw new KsiServiceError(`PDU contains unexpected response payloads!\nPDU:\n${responsePdu}.`);
             }
 
             // tslint:disable-next-line:max-line-length
@@ -71,7 +71,7 @@ export class ExtendingService {
             const extendPayload: ExtendResponsePayload = <ExtendResponsePayload>responsePayload;
             const payloadRequestId: string = extendPayload.getRequestId().toString();
             if (!this.requests.hasOwnProperty(payloadRequestId)) {
-                throw new KsiServiceError('Extend response request ID does not match any request id which is sent!');
+                throw new KsiServiceError('Extend response request ID does not match any request id which is sent.');
             }
 
             const request: KsiRequestBase = this.requests[payloadRequestId];
@@ -89,7 +89,7 @@ export class ExtendingService {
         }
 
         if (currentExtendPayload === null) {
-            throw new KsiServiceError('No matching extending payloads in PDU!');
+            throw new KsiServiceError('No matching extending payloads in PDU.');
         }
 
         return ExtendingService.processPayload(currentExtendPayload);

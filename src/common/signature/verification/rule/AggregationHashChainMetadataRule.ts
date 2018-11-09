@@ -39,27 +39,27 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
 
                     const hashAlgorithm: HashAlgorithm | null = HashAlgorithm.getById(hashAlgorithmId);
                     if (hashAlgorithm !== null && hashAlgorithm.length === metadataBytes.length - 1) {
-                        console.warn(`Metadata without padding may not be trusted. Metadata: ${metadata}`);
+                        console.debug(`Metadata without padding may not be trusted. Metadata: ${metadata}.`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }
                 } else {
 
                     if (metadata.value.indexOf(paddingTag) !== 0) {
-                        console.warn(`Metadata with padding may not be trusted. Padding is not the first element. Metadata: ${metadata}`);
+                        console.debug(`Metadata with padding may not be trusted. Padding is not the first element. Metadata: ${metadata}.`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }
 
                     if (paddingTag.tlv16BitFlag) {
-                        console.warn(`Metadata with padding may not be trusted. Padding is not TLV8. Metadata: ${metadata}`);
+                        console.debug(`Metadata with padding may not be trusted. Padding is not TLV8. Metadata: ${metadata}.`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }
 
                     if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
                         // tslint:disable-next-line:max-line-length
-                        console.warn(`Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: ${metadata}`);
+                        console.debug(`Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: ${metadata}.`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }
@@ -67,7 +67,7 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
                     const valueBytesString: string = JSON.stringify(paddingTag.getValueBytes());
                     if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
                         && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
-                        console.warn(`Metadata with padding may not be trusted. Unknown padding value. Metadata: ${metadata}`);
+                        console.debug(`Metadata with padding may not be trusted. Unknown padding value. Metadata: ${metadata}.`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }
@@ -75,7 +75,7 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
                     const stream: TlvOutputStream = new TlvOutputStream();
                     stream.writeTag(metadata);
                     if (stream.getData().length % 2 !== 0) {
-                        console.warn(`Metadata with padding may not be trusted. Invalid padding value. Metadata: ${metadata}`);
+                        console.debug(`Metadata with padding may not be trusted. Invalid padding value. Metadata: ${metadata}.`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }
