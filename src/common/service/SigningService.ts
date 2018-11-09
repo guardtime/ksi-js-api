@@ -54,13 +54,13 @@ export class SigningService {
         const stream: TlvInputStream = new TlvInputStream(<Uint8Array>responseBytes);
         const responsePdu: AggregationResponsePdu = new AggregationResponsePdu(stream.readTag());
         if (stream.getPosition() < stream.getLength()) {
-            throw new KsiServiceError(`Response contains more bytes than PDU length`);
+            throw new KsiServiceError(`Response contains more bytes than PDU length.`);
         }
 
         const errorPayload: ErrorPayload | null = responsePdu.getErrorPayload();
         if (errorPayload !== null) {
             if (responsePdu.getPayloads().length > 0) {
-                throw new KsiServiceError(`PDU contains unexpected response payloads!\nPDU:\n${responsePdu}`);
+                throw new KsiServiceError(`PDU contains unexpected response payloads!\nPDU:\n${responsePdu}.`);
             }
 
             // tslint:disable-next-line:max-line-length
@@ -72,7 +72,7 @@ export class SigningService {
             const aggregationPayload: AggregationResponsePayload = <AggregationResponsePayload>responsePayload;
             const payloadRequestId: string = aggregationPayload.getRequestId().toString();
             if (!this.requests.hasOwnProperty(payloadRequestId)) {
-                throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent!');
+                throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent.');
             }
 
             const request: KsiRequestBase = this.requests[payloadRequestId];
@@ -90,7 +90,7 @@ export class SigningService {
         }
 
         if (currentAggregationPayload === null) {
-            throw new KsiServiceError('No matching aggregation payloads in PDU!');
+            throw new KsiServiceError('No matching aggregation payloads in PDU.');
         }
 
         return SigningService.processPayload(currentAggregationPayload);

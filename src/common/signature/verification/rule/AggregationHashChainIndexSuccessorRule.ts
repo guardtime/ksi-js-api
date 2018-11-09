@@ -23,7 +23,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
                 || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
 
                 // tslint:disable-next-line:max-line-length
-                console.warn(`Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}`);
+                console.debug(`Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}.`);
 
                 return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12);
             }
@@ -32,7 +32,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
         }
 
         if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
-            console.warn(`Highest aggregation hash chain index length is not 1. Chain index: ${chainIndex};`);
+            console.debug(`Highest aggregation hash chain index length is not 1. Chain index: ${chainIndex}.`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12);
         }

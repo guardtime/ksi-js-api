@@ -14,7 +14,7 @@ import {PublicationsFileHeader} from './PublicationsFileHeader';
  */
 export class PublicationsFile extends CompositeTag {
     public static get FileBeginningMagicBytes(): Uint8Array {
-        return new Uint8Array([0x4B, 0x53, 0x49, 0x50, 0x55, 0x42, 0x4B, 0x46]);
+        return new Uint8Array([0x4B, 0x53, 0x49, 0x50, 0x55, 0x42, 0x4C, 0x46]);
     }
 
     private readonly certificateRecordList: CertificateRecord[] = [];

@@ -96,7 +96,7 @@ export class Rfc3161Record extends CompositeTag {
                 const tstInfoAlgorithmTag: IntegerTag = new IntegerTag(tlvTag);
                 const tstInfoAlgorithm: HashAlgorithm | null = HashAlgorithm.getById(tstInfoAlgorithmTag.getValue().valueOf());
                 if (tstInfoAlgorithm === null) {
-                    throw new Error(`Invalid algorithm: ${tstInfoAlgorithmTag.getValue()}`);
+                    throw new Error(`Invalid algorithm: ${tstInfoAlgorithmTag.getValue()}.`);
                 }
 
                 this.tstInfoAlgorithm = tstInfoAlgorithm;
@@ -112,7 +112,7 @@ export class Rfc3161Record extends CompositeTag {
                     HashAlgorithm.getById(signedAttributesAlgorithmTag.getValue().valueOf());
 
                 if (signedAttributesAlgorithm === null) {
-                    throw new Error(`Invalid algorithm: ${signedAttributesAlgorithmTag.getValue()}`);
+                    throw new Error(`Invalid algorithm: ${signedAttributesAlgorithmTag.getValue()}.`);
                 }
 
                 this.signedAttributesAlgorithm = signedAttributesAlgorithm;

@@ -15,7 +15,7 @@ export class ExtendedSignatureCalendarHashChainRightLinksMatchRule extends Verif
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
 
         if (calendarHashChain === null) {
-            throw new KsiVerificationError('Invalid calendar hash chain: null');
+            throw new KsiVerificationError('Invalid calendar hash chain: null.');
         }
 
         const extendedCalendarHashChain: CalendarHashChain =

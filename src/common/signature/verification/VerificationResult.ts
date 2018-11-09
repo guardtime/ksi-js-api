@@ -22,13 +22,15 @@ export class VerificationResult {
         this.resultCode = resultCode;
         this.verificationError = verificationError || null;
 
-        if (Array.isArray(childResults)) {
-            this.childResults.concat(childResults);
+        if (childResults !== null) {
+            this.childResults = childResults.slice();
         }
     }
 
     public static CREATE_FROM_RESULTS(ruleName: string, childResults: VerificationResult[]): VerificationResult {
-        const lastResult: VerificationResult = childResults[childResults.length - 1];
+        const lastResult: VerificationResult = childResults.length > 0
+            ? childResults[childResults.length - 1]
+            : new VerificationResult(ruleName, VerificationResultCode.OK);
 
         return new VerificationResult(ruleName, lastResult.resultCode, lastResult.verificationError, childResults);
     }
@@ -43,5 +45,9 @@ export class VerificationResult {
 
     public getRuleName(): string {
         return this.ruleName;
+    }
+
+    public getChildResults(): VerificationResult[] {
+        return this.childResults.slice();
     }
 }

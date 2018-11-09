@@ -69,10 +69,10 @@ export abstract class Pdu extends CompositeTag {
             throw new TlvError('Header must be the first element in PDU.');
         }
         if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
-            throw new TlvError('Exactly one MAC must exist in PDU');
+            throw new TlvError('Exactly one MAC must exist in PDU.');
         }
         if (this.value[this.value.length - 1] !== this.hmac) {
-            throw new TlvError('MAC must be the last element in PDU');
+            throw new TlvError('MAC must be the last element in PDU.');
         }
     }
 }

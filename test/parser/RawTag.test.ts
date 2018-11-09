@@ -12,6 +12,7 @@ describe('RawTag', () => {
         expect(objectTag.nonCriticalFlag).toBeTruthy();
         expect(objectTag.forwardFlag).toBeTruthy();
         expect(objectTag.getValue()).toMatchObject(new Uint8Array([0x1, 0x2]));
+        expect(objectTag.equals(RawTag.CREATE(0x1, true, true, new Uint8Array([0x1, 0x2])))).toBeTruthy();
     });
 
     it('Creation with CREATE', () => {

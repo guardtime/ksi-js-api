@@ -50032,6 +50032,22 @@ var TlvTag_TlvTag = /** @class */ (function () {
             Object.freeze(this);
         }
     }
+    // tslint:disable-next-line:no-any
+    TlvTag.EQUALS = function (x, y) {
+        if (!(x instanceof TlvTag) || !(y instanceof TlvTag)) {
+            return false;
+        }
+        if (x === y) {
+            return true;
+        }
+        if (x.constructor.name !== y.constructor.name) {
+            return false;
+        }
+        return !(x.id !== y.id
+            || x.forwardFlag !== y.forwardFlag
+            || x.nonCriticalFlag !== y.nonCriticalFlag
+            || JSON.stringify(x.getValueBytes()) !== JSON.stringify(y.getValueBytes()));
+    };
     TlvTag.prototype.encode = function () {
         if (this.id > TLV_CONSTANTS.MaxType) {
             throw new TlvError('Could not write TlvTag: Type is larger than max id');
@@ -50063,6 +50079,10 @@ var TlvTag_TlvTag = /** @class */ (function () {
             result.set(valueBytes, 2);
         }
         return result;
+    };
+    // tslint:disable-next-line:no-any
+    TlvTag.prototype.equals = function (tag) {
+        return TlvTag.EQUALS(this, tag);
     };
     return TlvTag;
 }());
@@ -51304,32 +51324,42 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
         _this.metadata = null;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
+        switch (_this.id) {
+            case LinkDirection.Left:
+                _this.direction = LinkDirection.Left;
+                break;
+            case LinkDirection.Right:
+                _this.direction = LinkDirection.Right;
+                break;
+            default:
+                throw new TlvError('Invalid Link direction.');
+        }
         Object.freeze(_this);
         return _this;
     }
     AggregationHashChainLink.getLegacyIdString = function (bytes) {
         if (bytes.length === 0) {
-            throw new TlvError('Invalid legacy id tag: empty');
+            throw new TlvError('Invalid legacy id tag: empty.');
         }
         if (bytes[0] !== AggregationHashChainLink.LEGACY_ID_FIRST_OCTET) {
-            throw new TlvError("Invalid first octet in legacy id tag: " + bytes[0]);
+            throw new TlvError("Invalid first octet in legacy id tag: 0x" + bytes[0].toString(16) + ".");
         }
         if (bytes[1] !== 0x0) {
-            throw new TlvError("Invalid second octet in legacy id tag: " + bytes[0]);
+            throw new TlvError("Invalid second octet in legacy id tag: 0x" + bytes[1].toString(16) + ".");
         }
         if (bytes.length !== AggregationHashChainLink.LEGACY_ID_LENGTH) {
-            throw new TlvError("Invalid legacy id tag length. Length: " + bytes.length);
+            throw new TlvError("Invalid legacy id tag length. Length: " + bytes.length + ".");
         }
         var idStringLength = bytes[2];
-        if (bytes.length < idStringLength + 4) {
-            throw new TlvError("Invalid legacy id length value: " + idStringLength);
+        if (bytes.length <= idStringLength + 3) {
+            throw new TlvError("Invalid legacy id length value: " + idStringLength + ".");
         }
         for (var i = idStringLength + 3; i < bytes.length; i += 1) {
             if (bytes[i] !== 0x0) {
-                throw new TlvError("Invalid padding octet. Index: " + i);
+                throw new TlvError("Invalid padding octet. Index: " + i + ".");
             }
         }
-        return lib["util"].text.utf8.decode(bytes.slice(3, idStringLength));
+        return lib["util"].text.utf8.decode(bytes.slice(3, idStringLength + 3));
     };
     AggregationHashChainLink.prototype.getLevelCorrection = function () {
         return this.levelCorrection === null ? BigInteger_default()(0) : this.levelCorrection.getValue();
@@ -51338,14 +51368,7 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
         return this.metadata;
     };
     AggregationHashChainLink.prototype.getDirection = function () {
-        switch (this.id) {
-            case LinkDirection.Left:
-                return LinkDirection.Left;
-            case LinkDirection.Right:
-                return LinkDirection.Right;
-            default:
-                throw new TlvError('Invalid Link direction');
-        }
+        return this.direction;
     };
     AggregationHashChainLink.prototype.getSiblingData = function () {
         if (this.siblingHash !== null) {
@@ -51404,6 +51427,7 @@ var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super)
         var _this = _super.call(this, tlvTag) || this;
         _this.chainIndexes = [];
         _this.chainLinks = [];
+        _this.inputData = null;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
@@ -51474,6 +51498,9 @@ var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super)
     };
     AggregationHashChain.prototype.getInputHash = function () {
         return this.inputHash.getValue();
+    };
+    AggregationHashChain.prototype.getInputData = function () {
+        return this.inputData === null ? null : this.inputData.getValue();
     };
     /**
      * Returns location pointer based on aggregation hash chain links
@@ -52054,7 +52081,7 @@ var Rfc3161Record_Rfc3161Record = /** @class */ (function (_super) {
                 var tstInfoAlgorithmTag = new IntegerTag_IntegerTag(tlvTag);
                 var tstInfoAlgorithm = HashAlgorithm_HashAlgorithm.getById(tstInfoAlgorithmTag.getValue().valueOf());
                 if (tstInfoAlgorithm === null) {
-                    throw new Error("Invalid algorithm: " + tstInfoAlgorithmTag.getValue());
+                    throw new Error("Invalid algorithm: " + tstInfoAlgorithmTag.getValue() + ".");
                 }
                 this.tstInfoAlgorithm = tstInfoAlgorithm;
                 return tstInfoAlgorithmTag;
@@ -52066,7 +52093,7 @@ var Rfc3161Record_Rfc3161Record = /** @class */ (function (_super) {
                 var signedAttributesAlgorithmTag = new IntegerTag_IntegerTag(tlvTag);
                 var signedAttributesAlgorithm = HashAlgorithm_HashAlgorithm.getById(signedAttributesAlgorithmTag.getValue().valueOf());
                 if (signedAttributesAlgorithm === null) {
-                    throw new Error("Invalid algorithm: " + signedAttributesAlgorithmTag.getValue());
+                    throw new Error("Invalid algorithm: " + signedAttributesAlgorithmTag.getValue() + ".");
                 }
                 this.signedAttributesAlgorithm = signedAttributesAlgorithm;
                 return signedAttributesAlgorithmTag;
@@ -52486,12 +52513,14 @@ var VerificationResult = /** @class */ (function () {
         this.ruleName = ruleName;
         this.resultCode = resultCode;
         this.verificationError = verificationError || null;
-        if (Array.isArray(childResults)) {
-            this.childResults.concat(childResults);
+        if (childResults !== null) {
+            this.childResults = childResults.slice();
         }
     }
     VerificationResult.CREATE_FROM_RESULTS = function (ruleName, childResults) {
-        var lastResult = childResults[childResults.length - 1];
+        var lastResult = childResults.length > 0
+            ? childResults[childResults.length - 1]
+            : new VerificationResult(ruleName, VerificationResultCode.OK);
         return new VerificationResult(ruleName, lastResult.resultCode, lastResult.verificationError, childResults);
     };
     VerificationResult.prototype.getResultCode = function () {
@@ -52502,6 +52531,9 @@ var VerificationResult = /** @class */ (function () {
     };
     VerificationResult.prototype.getRuleName = function () {
         return this.ruleName;
+    };
+    VerificationResult.prototype.getChildResults = function () {
+        return this.childResults.slice();
     };
     return VerificationResult;
 }());
@@ -52756,7 +52788,7 @@ var AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDep
                     chain = aggregationHashChains_1[_i];
                     if (chain.getAggregationAlgorithm().isDeprecated(chain.getAggregationTime().valueOf())) {
                         // tslint:disable-next-line:max-line-length
-                        console.warn("Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: " + chain.getAggregationAlgorithm().name + "; Aggregation time: " + chain.getAggregationTime());
+                        console.debug("Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: " + chain.getAggregationAlgorithm().name + "; Aggregation time: " + chain.getAggregationTime() + ".s");
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15)];
                     }
                 }
@@ -52849,7 +52881,7 @@ var AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule = /*
                         }
                         if (!chain.getInputHash().equals(chainHashResult.hash)) {
                             // tslint:disable-next-line:max-line-length
-                            console.warn("Aggregation hash chains not consistent. Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous aggregation hash chain output hash " + chainHashResult.hash + ".");
+                            console.debug("Aggregation hash chains not consistent. Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous aggregation hash chain output hash " + chainHashResult.hash + ".");
                             return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)];
                         }
                         return [4 /*yield*/, chain.getOutputHash(chainHashResult)];
@@ -52942,13 +52974,13 @@ var AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRul
                     if (parentChainIndex !== null && !(parentChainIndex.length !== chainIndex.length
                         || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
                         // tslint:disable-next-line:max-line-length
-                        console.warn("Chain index is not the successor to the parent aggregation hash chain index. Chain index: " + chainIndex + "; Parent chain index: " + parentChainIndex);
+                        console.debug("Chain index is not the successor to the parent aggregation hash chain index. Chain index: " + chainIndex + "; Parent chain index: " + parentChainIndex + ".");
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                     }
                     parentChainIndex = chainIndex;
                 }
                 if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
-                    console.warn("Highest aggregation hash chain index length is not 1. Chain index: " + chainIndex + ";");
+                    console.debug("Highest aggregation hash chain index length is not 1. Chain index: " + chainIndex + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -53048,34 +53080,34 @@ var AggregationHashChainMetadataRule_AggregationHashChainMetadataRule = /** @cla
                             }
                             hashAlgorithm = HashAlgorithm_HashAlgorithm.getById(hashAlgorithmId);
                             if (hashAlgorithm !== null && hashAlgorithm.length === metadataBytes.length - 1) {
-                                console.warn("Metadata without padding may not be trusted. Metadata: " + metadata);
+                                console.debug("Metadata without padding may not be trusted. Metadata: " + metadata + ".");
                                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                         }
                         else {
                             if (metadata.value.indexOf(paddingTag) !== 0) {
-                                console.warn("Metadata with padding may not be trusted. Padding is not the first element. Metadata: " + metadata);
+                                console.debug("Metadata with padding may not be trusted. Padding is not the first element. Metadata: " + metadata + ".");
                                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                             if (paddingTag.tlv16BitFlag) {
-                                console.warn("Metadata with padding may not be trusted. Padding is not TLV8. Metadata: " + metadata);
+                                console.debug("Metadata with padding may not be trusted. Padding is not TLV8. Metadata: " + metadata + ".");
                                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                             if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
                                 // tslint:disable-next-line:max-line-length
-                                console.warn("Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: " + metadata);
+                                console.debug("Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: " + metadata + ".");
                                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                             valueBytesString = JSON.stringify(paddingTag.getValueBytes());
                             if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
                                 && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
-                                console.warn("Metadata with padding may not be trusted. Unknown padding value. Metadata: " + metadata);
+                                console.debug("Metadata with padding may not be trusted. Unknown padding value. Metadata: " + metadata + ".");
                                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                             stream = new TlvOutputStream();
                             stream.writeTag(metadata);
                             if (stream.getData().length % 2 !== 0) {
-                                console.warn("Metadata with padding may not be trusted. Invalid padding value. Metadata: " + metadata);
+                                console.debug("Metadata with padding may not be trusted. Invalid padding value. Metadata: " + metadata + ".");
                                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                         }
@@ -53162,7 +53194,7 @@ var AggregationHashChainShapeRule_AggregationHashChainShapeRule = /** @class */ 
                     lastIndexValue = chainIndex[chainIndex.length - 1];
                     if (!lastIndexValue.eq(calculatedValue)) {
                         // tslint:disable-next-line:max-line-length
-                        console.warn("The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue);
+                        console.debug("The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue + ".");
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10)];
                     }
                 }
@@ -53249,7 +53281,7 @@ var AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyR
                     }
                     if (!chain.getAggregationTime().equals(time)) {
                         // tslint:disable-next-line:max-line-length
-                        console.warn("Previous aggregation hash chain aggregation time " + time + " does not match current aggregation time " + chain.getAggregationTime() + ".");
+                        console.debug("Previous aggregation hash chain aggregation time " + time + " does not match current aggregation time " + chain.getAggregationTime() + ".");
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
                     }
                 }
@@ -53667,7 +53699,8 @@ var CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRul
                         continue;
                     }
                     if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
-                        console.warn("Calendar hash chain contains obsolete aggregation algorithm at publication time.\n                             Algorithm: " + link.getValue().hashAlgorithm.name + ";\n                             Publication time: " + calendarHashChain.getPublicationTime());
+                        // tslint:disable-next-line:max-line-length
+                        console.debug("Calendar hash chain contains obsolete aggregation algorithm at publication time. Algorithm: " + link.getValue().hashAlgorithm.name + "; Publication time: " + calendarHashChain.getPublicationTime() + ".");
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16)];
                     }
                 }
@@ -54070,7 +54103,7 @@ var DocumentHashVerificationRule_DocumentHashVerificationRule = /** @class */ (f
                 }
                 inputHash = signature.getInputHash();
                 if (!documentHash.equals(inputHash)) {
-                    console.warn("Invalid document hash. Expected " + documentHash + ", found " + inputHash);
+                    console.debug("Invalid document hash. Expected " + documentHash + ", found " + inputHash + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54150,7 +54183,7 @@ var InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule = /** @cla
                 inputHash = signature.getInputHash();
                 if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
-                    console.warn("Input hash algorithm was deprecated at aggregation time. Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime());
+                    console.debug("Input hash algorithm was deprecated at aggregation time. Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime() + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54234,8 +54267,7 @@ var InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule = /** 
                 }
                 inputHash = signature.getInputHash();
                 if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
-                    // TODO: Turn off console logging
-                    console.warn("Wrong input hash algorithm. Expected " + documentHash.hashAlgorithm + ", found " + inputHash.hashAlgorithm);
+                    console.debug("Wrong input hash algorithm. Expected " + documentHash.hashAlgorithm + ", found " + inputHash.hashAlgorithm + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54318,7 +54350,7 @@ var Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule = /** @cla
                 }
                 aggregationHashChains = signature.getAggregationHashChains();
                 if (aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
-                    console.warn("Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.");
+                    console.debug("Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54406,7 +54438,7 @@ var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (fun
                 aggregationChainIndexJson = JSON.stringify(aggregationChainIndex);
                 if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
                     // tslint:disable-next-line:max-line-length
-                    console.warn("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson);
+                    console.debug("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54490,13 +54522,13 @@ var Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecate
                 if (rfc3161Record.getTstInfoAlgorithm() != null
                     && rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
-                    console.warn("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime());
+                    console.debug("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime() + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
                 }
                 if (rfc3161Record.getSignedAttributesAlgorithm() != null
                     && rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
-                    console.warn("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime());
+                    console.debug("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime() + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54581,7 +54613,7 @@ var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgori
                 aggregationTime = aggregationHashChain.getAggregationTime();
                 if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
                     // tslint:disable-next-line:max-line-length
-                    console.warn("RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: " + hashAlgorithm + "; Aggregation time: " + aggregationTime);
+                    console.debug("RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: " + hashAlgorithm + "; Aggregation time: " + aggregationTime + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -55055,17 +55087,17 @@ var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
     function VerificationPolicy(rule, ruleName) {
         if (ruleName === void 0) { ruleName = null; }
         var _this = _super.call(this, ruleName) || this;
-        _this.verificationResults = [];
         _this.firstRule = rule;
         return _this;
     }
     VerificationPolicy.prototype.verify = function (context) {
         return VerificationPolicy_awaiter(this, void 0, void 0, function () {
-            var verificationRule, result, error_1;
+            var verificationRule, verificationResults, result, error_1;
             return VerificationPolicy_generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         verificationRule = this.firstRule;
+                        verificationResults = [];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 5, , 6]);
@@ -55075,16 +55107,14 @@ var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
                         return [4 /*yield*/, verificationRule.verify(context)];
                     case 3:
                         result = _a.sent();
-                        this.verificationResults.push(result);
+                        verificationResults.push(result);
                         verificationRule = verificationRule.getNextRule(result.getResultCode());
                         return [3 /*break*/, 2];
                     case 4: return [3 /*break*/, 6];
                     case 5:
                         error_1 = _a.sent();
                         throw error_1;
-                    case 6:
-                        Object.freeze(this.verificationResults);
-                        return [2 /*return*/, VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), this.verificationResults)];
+                    case 6: return [2 /*return*/, VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), verificationResults)];
                 }
             });
         });
@@ -55265,7 +55295,8 @@ var CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecate
                 }
                 deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain);
                 if (deprecatedLink !== null) {
-                    console.warn("Calendar hash chain contains deprecated aggregation algorithm at publication time.\n                             Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + ";\n                             Publication time: " + calendarHashChain.getPublicationTime());
+                    // tslint:disable-next-line:max-line-length
+                    console.debug("Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + "; Publication time: " + calendarHashChain.getPublicationTime() + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -55365,7 +55396,8 @@ var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCal
                         extendedCalendarHashChain = _a.sent();
                         deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
                         if (deprecatedLink !== null) {
-                            console.warn("Calendar hash chain contains deprecated aggregation algorithm at publication time.\n                             Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + ";\n                             Publication time: " + publicationData.getPublicationTime());
+                            // tslint:disable-next-line:max-line-length
+                            console.debug("Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + "; Publication time: " + publicationData.getPublicationTime() + ".");
                             return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                         }
                         return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -55524,7 +55556,8 @@ var PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSigna
                         }
                         publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
                         if (publicationRecord == null) {
-                            throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
+                            // tslint:disable-next-line:max-line-length
+                            throw new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".");
                         }
                         return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
                     case 1:
@@ -55707,7 +55740,8 @@ var PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFileP
                         signature = context.getSignature();
                         publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
                         if (publicationRecord == null) {
-                            throw new KsiVerificationError("No publication record found after given time in publications file:\n                                            " + signature.getAggregationTime() + ".");
+                            // tslint:disable-next-line:max-line-length
+                            throw new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".");
                         }
                         return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
                     case 1:
@@ -56281,10 +56315,11 @@ var UserProvidedPublicationVerificationRule_UserProvidedPublicationVerificationR
                 }
                 publicationRecord = signature.getPublicationRecord();
                 if (publicationRecord === null) {
-                    throw new KsiVerificationError('Invalid publication record in signature: null');
+                    throw new KsiVerificationError('Invalid publication record in signature: null.');
                 }
                 if (userPublication.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
-                    console.warn("User provided publication time does not equal to signature publication time.\n                         User provided publication time: " + userPublication.getPublicationTime() + ";\n                         Signature publication time: " + publicationRecord.getPublicationTime());
+                    // tslint:disable-next-line:max-line-length
+                    console.debug("User provided publication time does not equal to signature publication time. User provided publication time: " + userPublication.getPublicationTime() + "; Signature publication time: " + publicationRecord.getPublicationTime() + ".");
                     return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                 }
                 return [2 /*return*/, !userPublication.getPublicationHash().equals(publicationRecord.getPublicationHash())
@@ -56720,7 +56755,8 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                 certificateRecord = publicationsFile
                     .findCertificateById(signatureData.getCertificateId());
                 if (certificateRecord === null) {
-                    throw new KsiVerificationError("No certificate found in publications file with id:\n                                            " + HexCoder_HexCoder.encode(signatureData.getCertificateId()) + ".");
+                    // tslint:disable-next-line:max-line-length
+                    throw new KsiVerificationError("No certificate found in publications file with id: " + HexCoder_HexCoder.encode(signatureData.getCertificateId()) + ".");
                 }
                 signedBytes = calendarAuthenticationRecord.getPublicationData().encode();
                 try {
@@ -56729,7 +56765,7 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                     }
                 }
                 catch (error) {
-                    console.warn(error);
+                    console.debug(error);
                 }
                 return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03)];
             });
@@ -57435,10 +57471,10 @@ var Pdu_Pdu = /** @class */ (function (_super) {
             throw new TlvError('Header must be the first element in PDU.');
         }
         if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
-            throw new TlvError('Exactly one MAC must exist in PDU');
+            throw new TlvError('Exactly one MAC must exist in PDU.');
         }
         if (this.value[this.value.length - 1] !== this.hmac) {
-            throw new TlvError('MAC must be the last element in PDU');
+            throw new TlvError('MAC must be the last element in PDU.');
         }
     };
     return Pdu;
@@ -57892,12 +57928,12 @@ var SigningService_SigningService = /** @class */ (function () {
                         stream = new TlvInputStream_TlvInputStream(responseBytes);
                         responsePdu = new AggregationResponsePdu_AggregationResponsePdu(stream.readTag());
                         if (stream.getPosition() < stream.getLength()) {
-                            throw new KsiServiceError("Response contains more bytes than PDU length");
+                            throw new KsiServiceError("Response contains more bytes than PDU length.");
                         }
                         errorPayload = responsePdu.getErrorPayload();
                         if (errorPayload !== null) {
                             if (responsePdu.getPayloads().length > 0) {
-                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
+                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu + ".");
                             }
                             // tslint:disable-next-line:max-line-length
                             throw new KsiServiceError("Server responded with error message. Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
@@ -57908,7 +57944,7 @@ var SigningService_SigningService = /** @class */ (function () {
                             aggregationPayload = responsePayload;
                             payloadRequestId = aggregationPayload.getRequestId().toString();
                             if (!this.requests.hasOwnProperty(payloadRequestId)) {
-                                throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent!');
+                                throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent.');
                             }
                             request = this.requests[payloadRequestId];
                             delete this.requests[payloadRequestId];
@@ -57922,7 +57958,7 @@ var SigningService_SigningService = /** @class */ (function () {
                             currentAggregationPayload = aggregationPayload;
                         }
                         if (currentAggregationPayload === null) {
-                            throw new KsiServiceError('No matching aggregation payloads in PDU!');
+                            throw new KsiServiceError('No matching aggregation payloads in PDU.');
                         }
                         return [2 /*return*/, SigningService.processPayload(currentAggregationPayload)];
                 }
@@ -58420,12 +58456,12 @@ var ExtendingService_ExtendingService = /** @class */ (function () {
                         stream = new TlvInputStream_TlvInputStream(responseBytes);
                         responsePdu = new ExtendResponsePdu_ExtendResponsePdu(stream.readTag());
                         if (stream.getPosition() < stream.getLength()) {
-                            throw new KsiServiceError("Response contains more bytes than PDU length");
+                            throw new KsiServiceError("Response contains more bytes than PDU length.");
                         }
                         errorPayload = responsePdu.getErrorPayload();
                         if (errorPayload !== null) {
                             if (responsePdu.getPayloads().length > 0) {
-                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu);
+                                throw new KsiServiceError("PDU contains unexpected response payloads!\nPDU:\n" + responsePdu + ".");
                             }
                             // tslint:disable-next-line:max-line-length
                             throw new KsiServiceError("Server responded with error message. Status: " + errorPayload.getStatus() + "; Message: " + errorPayload.getErrorMessage() + ".");
@@ -58436,7 +58472,7 @@ var ExtendingService_ExtendingService = /** @class */ (function () {
                             extendPayload = responsePayload;
                             payloadRequestId = extendPayload.getRequestId().toString();
                             if (!this.requests.hasOwnProperty(payloadRequestId)) {
-                                throw new KsiServiceError('Extend response request ID does not match any request id which is sent!');
+                                throw new KsiServiceError('Extend response request ID does not match any request id which is sent.');
                             }
                             request = this.requests[payloadRequestId];
                             delete this.requests[payloadRequestId];
@@ -58450,7 +58486,7 @@ var ExtendingService_ExtendingService = /** @class */ (function () {
                             currentExtendPayload = extendPayload;
                         }
                         if (currentExtendPayload === null) {
-                            throw new KsiServiceError('No matching extending payloads in PDU!');
+                            throw new KsiServiceError('No matching extending payloads in PDU.');
                         }
                         return [2 /*return*/, ExtendingService.processPayload(currentExtendPayload)];
                 }
@@ -58595,7 +58631,7 @@ var CertificateRecord_CertificateRecord = /** @class */ (function (_super) {
     };
     CertificateRecord.prototype.validate = function (tagCount) {
         if (tagCount[CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType] !== 1) {
-            throw new TlvError('Certificate Id is missing.');
+            throw new TlvError('Exactly one certificate id must exist in certificate record.');
         }
         if (tagCount[CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType] !== 1) {
             throw new TlvError('Exactly one certificate must exist in certificate record.');
@@ -58660,11 +58696,21 @@ var PublicationsFileHeader_PublicationsFileHeader = /** @class */ (function (_su
     PublicationsFileHeader_extends(PublicationsFileHeader, _super);
     function PublicationsFileHeader(tlvTag) {
         var _this = _super.call(this, tlvTag) || this;
+        _this.repositoryUri = null;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
         Object.freeze(_this);
         return _this;
     }
+    PublicationsFileHeader.prototype.getVersion = function () {
+        return this.version.getValue();
+    };
+    PublicationsFileHeader.prototype.getCreationTime = function () {
+        return this.creationTime.getValue();
+    };
+    PublicationsFileHeader.prototype.getRepositoryUri = function () {
+        return this.repositoryUri === null ? null : this.repositoryUri.getValue();
+    };
     PublicationsFileHeader.prototype.parseChild = function (tlvTag) {
         switch (tlvTag.id) {
             case PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType:
@@ -58724,8 +58770,8 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
         _this.certificateRecordList = [];
         _this.publicationRecordList = [];
         _this.headerIndex = 0;
-        _this.lastCertificateRecordIndex = 0;
-        _this.firstPublicationRecordIndex = 0;
+        _this.lastCertificateRecordIndex = null;
+        _this.firstPublicationRecordIndex = null;
         _this.cmsSignatureIndex = 0;
         _this.decodeValue(_this.parseChild.bind(_this));
         _this.validateValue(_this.validate.bind(_this));
@@ -58734,7 +58780,7 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
     }
     Object.defineProperty(PublicationsFile, "FileBeginningMagicBytes", {
         get: function () {
-            return new Uint8Array([0x4B, 0x53, 0x49, 0x50, 0x55, 0x42, 0x4B, 0x46]);
+            return new Uint8Array([0x4B, 0x53, 0x49, 0x50, 0x55, 0x42, 0x4C, 0x46]);
         },
         enumerable: true,
         configurable: true
@@ -58805,7 +58851,7 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
                 this.certificateRecordList.push(certificateRecord);
                 return certificateRecord;
             case PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType:
-                if (this.firstPublicationRecordIndex === 0) {
+                if (this.firstPublicationRecordIndex === null) {
                     this.firstPublicationRecordIndex = position;
                 }
                 var publicationRecord = new PublicationRecord_PublicationRecord(tlvTag);
@@ -58819,20 +58865,22 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
         }
     };
     PublicationsFile.prototype.validate = function (tagCount) {
-        if (this.headerIndex !== 0) {
-            throw new PublicationsFileError('Publications file header should be the first element in publications file.');
-        }
-        if (this.firstPublicationRecordIndex <= this.lastCertificateRecordIndex) {
-            throw new PublicationsFileError('Certificate records should be before publication records.');
-        }
-        if (this.cmsSignatureIndex !== this.value.length - 1) {
-            throw new PublicationsFileError('Cms signature should be last element in publications file.');
-        }
         if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType] !== 1) {
             throw new PublicationsFileError('Exactly one publications file header must exist in publications file.');
         }
         if (tagCount[PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType] !== 1) {
             throw new PublicationsFileError('Exactly one signature must exist in publications file.');
+        }
+        if (this.headerIndex !== 0) {
+            throw new PublicationsFileError('Publications file header should be the first element in publications file.');
+        }
+        if (this.firstPublicationRecordIndex !== null
+            && this.lastCertificateRecordIndex !== null
+            && this.firstPublicationRecordIndex <= this.lastCertificateRecordIndex) {
+            throw new PublicationsFileError('Certificate records should be before publication records.');
+        }
+        if (this.cmsSignatureIndex !== this.value.length - 1) {
+            throw new PublicationsFileError('Cms signature should be last element in publications file.');
         }
     };
     return PublicationsFile;
@@ -58850,7 +58898,7 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
     function PublicationsFileFactory() {
     }
     PublicationsFileFactory.prototype.create = function (publicationFileBytes) {
-        if (JSON.stringify(publicationFileBytes.slice(0, PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length - 1)) ===
+        if (JSON.stringify(publicationFileBytes.slice(0, PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length)) !==
             JSON.stringify(PublicationsFile_PublicationsFile.FileBeginningMagicBytes)) {
             throw new PublicationsFileError('Publications file header is incorrect. Invalid publications file magic bytes.');
         }

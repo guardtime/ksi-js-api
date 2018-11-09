@@ -22,8 +22,8 @@ export class PublicationsFilePublicationTimeMatchesExtenderResponseRule extends 
         const publicationRecord: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
 
         if (publicationRecord == null) {
-            throw new KsiVerificationError(`No publication record found after given time in publications file:
-                                            ${signature.getAggregationTime()}.`);
+            // tslint:disable-next-line:max-line-length
+            throw new KsiVerificationError(`No publication record found after given time in publications file: ${signature.getAggregationTime()}.`);
         }
 
         const extendedCalendarHashChain: CalendarHashChain =
