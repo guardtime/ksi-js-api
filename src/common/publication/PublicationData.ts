@@ -6,6 +6,9 @@ import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
+import Base32Coder from 'gt-js-common/lib/coders/Base32Coder';
+import CRC32 from 'gt-js-common/lib/crc/CRC32';
+import UnsignedLongCoder from 'gt-js-common/lib/coders/UnsignedLongCoder';
 
 /**
  * Publication Data TLV object
@@ -30,9 +33,28 @@ export class PublicationData extends CompositeTag {
         ]));
     }
 
+    public static CREATE_FROM_PUBLICATION_STRING(publicationString: string): PublicationData {
+        const bytesWithCrc32: Uint8Array = Base32Coder.decode(publicationString);
+
+        // Length needs to be at least 13 bytes (8 bytes for time plus non-empty hash imprint plus 4 bytes for crc32)
+        if (bytesWithCrc32.length < 13) {
+            throw new TlvError('Publication string base 32 decode failed.');
+        }
+
+        if (JSON.stringify(CRC32.create(bytesWithCrc32.slice(0, -4))) !== JSON.stringify(bytesWithCrc32.slice(-4))) {
+            throw new TlvError('Publication string CRC 32 check failed.');
+        }
+
+        return PublicationData.CREATE(
+            UnsignedLongCoder.decode(bytesWithCrc32, 0, bytesWithCrc32.length - 12),
+            new DataHash(bytesWithCrc32.slice(0, 8))
+        );
+    }
+
     public getPublicationHash(): DataHash {
         return this.publicationHash.getValue();
     }
+
     public getPublicationTime(): bigInteger.BigInteger {
         return this.publicationTime.getValue();
     }

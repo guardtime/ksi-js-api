@@ -6,6 +6,8 @@
     "no-suspicious-comment": false,
     "no-console": false,
     "import-name": true,
-    "variable-name": [true, "allow-leading-underscore"]
+    "variable-name": [true, "allow-leading-underscore"],
+    "no-implicit-dependencies": [true, "dev"],
+    "no-submodule-imports": [true, "csv-parse/lib/sync", "gt-js-common/lib/coders/HexCoder", "gt-js-common/lib/hash/DataHash"]
   }
 }

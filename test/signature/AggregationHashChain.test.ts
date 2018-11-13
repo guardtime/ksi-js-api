@@ -16,7 +16,7 @@ import {IKsiIdentity} from '../../src/common/signature/IKsiIdentity';
  */
 describe('AggregationHashChain', () => {
     it('Creation with TlvTag with optional content', async () => {
-        const links = [
+        const links: TlvTag[] = [
             CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
                 CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
                     StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')

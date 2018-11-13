@@ -1,6 +1,6 @@
-import {TlvTag} from '../../src/common/parser/TlvTag';
-import {TlvError} from '../../src/common/parser/TlvError';
 import {StringTag} from '../../src/common/parser/StringTag';
+import {TlvError} from '../../src/common/parser/TlvError';
+import {TlvTag} from '../../src/common/parser/TlvTag';
 
 /**
  * TlvTag tests

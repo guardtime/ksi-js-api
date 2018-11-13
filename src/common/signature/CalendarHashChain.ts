@@ -89,7 +89,7 @@ export class CalendarHashChain extends CompositeTag {
 
         // iterate over the chain in reverse
         for (let i: number = this.chainLinks.length - 1; i >= 0; i -= 1) {
-            if (r.lt(0)) {
+            if (r.leq(0)) {
                 console.warn('Invalid calendar hash chain shape for publication time. Cannot calculate registration time.');
 
                 return bigInteger(0);

@@ -20,7 +20,7 @@ export class Rfc3161RecordAggregationTimeRule extends VerificationRule {
         }
 
         const aggregationHashChains: Readonly<AggregationHashChain[]> = signature.getAggregationHashChains();
-        if (aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
+        if (!aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
             console.debug(`Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02);

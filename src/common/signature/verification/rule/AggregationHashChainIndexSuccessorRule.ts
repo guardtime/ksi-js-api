@@ -19,8 +19,8 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
 
         for (const chain of aggregationHashChains) {
             chainIndex = chain.getChainIndex();
-            if (parentChainIndex !== null && !(parentChainIndex.length !== chainIndex.length
-                || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
+            if (parentChainIndex !== null && (parentChainIndex.length <= chainIndex.length
+                || !JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex).slice(0, -1)))) {
 
                 // tslint:disable-next-line:max-line-length
                 console.debug(`Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}.`);

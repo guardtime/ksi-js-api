@@ -17,6 +17,7 @@ export class VerificationContext {
     private publicationsFile: PublicationsFile | null = null;
     private publicationData: PublicationData | null = null;
     private extendingAllowed: boolean = true;
+    private documentHashLevel: BigInteger = bigInteger(0);
 
     constructor(signature: KsiSignature) {
         this.ksiSignature = signature;
@@ -63,7 +64,11 @@ export class VerificationContext {
      * Get document hash node level value in the aggregation tree
      */
     public getDocumentHashLevel(): BigInteger {
-        return bigInteger(0);
+        return this.documentHashLevel;
+    }
+
+    public setDocumentHashLevel(documentHashLevel: BigInteger): void {
+        this.documentHashLevel = documentHashLevel;
     }
 
     public getPublicationsFile(): PublicationsFile | null {

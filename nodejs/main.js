@@ -1,5 +1,5 @@
 const fs = require('fs');
-const CONFIG = require('./config.js');
+const CONFIG = require('../config/ksi-config.js');
 const KSI = require('../dist/main.node');
 
 const service = new KSI.KsiService(

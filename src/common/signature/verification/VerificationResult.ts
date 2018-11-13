@@ -2,6 +2,7 @@
  * Verification result for KSI signature
  */
 import {VerificationError} from './VerificationError';
+import {tabPrefix} from 'gt-js-common';
 
 export enum VerificationResultCode {
   OK, FAIL, NA
@@ -49,5 +50,22 @@ export class VerificationResult {
 
     public getChildResults(): VerificationResult[] {
         return this.childResults.slice();
+    }
+
+    public toString(): string {
+        let result: string = `VerificationResult ${this.getRuleName()} [${VerificationResultCode[this.getResultCode()]}]`;
+
+        if (this.childResults.length > 0) {
+            result += ':\n';
+        }
+
+        for (let i: number = 0; i < this.childResults.length; i += 1) {
+            result += tabPrefix(this.childResults[i].toString());
+            if (i < (this.childResults.length - 1)) {
+                result += '\n';
+            }
+        }
+
+        return result;
     }
 }

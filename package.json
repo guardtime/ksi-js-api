@@ -6,7 +6,8 @@
   "browser": "./dist/main.js",
   "types": "./lib/nodejs/main.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --testPathPattern=^test/.*$",
+    "integration-test": "jest --testPathPattern=^test-integration/.*$",
     "build": "rimraf lib && tsc -t ES6 -d  && webpack",
     "browser:dev": "webpack-dev-server"
   },
@@ -24,7 +25,7 @@
       "^.+\\.tsx?$": "ts-jest",
       "^.+\\.m?js$": "babel-jest"
     },
-    "testRegex": "(^test/.*|(\\.|/)(test|spec))\\.(tsx?)$",
+    "testRegex": "(^.*\\.test)\\.(tsx?)$",
     "moduleFileExtensions": [
       "ts",
       "js",
@@ -61,6 +62,8 @@
     "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#typescript",
     "big-integer": "^1.6.36",
     "@types/node-forge": "^0.7.6",
-    "node-forge": "^0.7.6"
+    "node-forge": "^0.7.6",
+    "csv-parse": "^3.2.0",
+    "@types/csv-parse": "^1.1.11"
   }
 }

@@ -1,7 +1,7 @@
 import bigInteger from 'big-integer';
 import {DataHash, HashAlgorithm} from 'gt-js-common';
 
-import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATION_DATA_CONSTANTS} from '../../src/common/Constants';
+import {PUBLICATION_DATA_CONSTANTS} from '../../src/common/Constants';
 import {CompositeTag} from '../../src/common/parser/CompositeTag';
 import {ImprintTag} from '../../src/common/parser/ImprintTag';
 import {IntegerTag} from '../../src/common/parser/IntegerTag';

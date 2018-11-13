@@ -28,7 +28,7 @@ const web = {
         minimize: false
     },
     devServer: {
-        contentBase: './web/',
+        contentBase: [path.join(__dirname, './web'), path.join(__dirname, './config')],
         publicPath: '/dist/',
     }
 };

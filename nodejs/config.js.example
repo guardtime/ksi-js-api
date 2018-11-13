@@ -1,7 +1,0 @@
-module.exports = {
-    AGGREGATION_URL: 'http://URL:0000',
-    EXTENDER_URL: 'http://URL:0000',
-    LOGIN_ID: 'loginId',
-    LOGIN_KEY: new Uint8Array([0,0,0,0]),
-    PUBLICATIONS_FILE_URL: 'http://URL:0000'
-};

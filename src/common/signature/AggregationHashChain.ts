@@ -94,7 +94,7 @@ export class AggregationHashChainLink extends CompositeTag {
     private static readonly LEGACY_ID_FIRST_OCTET: number = 0x3;
     private static readonly LEGACY_ID_LENGTH: number = 29;
 
-    private direction: LinkDirection;
+    private readonly direction: LinkDirection;
     private levelCorrection: IntegerTag | null = null;
     private siblingHash: ImprintTag | null = null;
     private legacyId: RawTag | null = null;
