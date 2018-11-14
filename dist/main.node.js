@@ -82,7 +82,7 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 56);
+/******/ 	return __webpack_require__(__webpack_require__.s = 54);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -116,7 +116,7 @@ module.exports = {
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-var baseN = __webpack_require__(47);
+var baseN = __webpack_require__(45);
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -4417,7 +4417,7 @@ if (true) {
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(46)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(44)(module)))
 
 /***/ }),
 /* 3 */
@@ -24690,30 +24690,30 @@ function _update(s, w, bytes) {
  */
 module.exports = __webpack_require__(0);
 __webpack_require__(6);
-__webpack_require__(48);
+__webpack_require__(46);
 __webpack_require__(4);
 __webpack_require__(18);
 __webpack_require__(36);
 __webpack_require__(14);
-__webpack_require__(50);
+__webpack_require__(48);
 __webpack_require__(11);
-__webpack_require__(51);
+__webpack_require__(49);
 __webpack_require__(38);
-__webpack_require__(52);
+__webpack_require__(50);
 __webpack_require__(35);
 __webpack_require__(20);
 __webpack_require__(8);
 __webpack_require__(31);
 __webpack_require__(33);
-__webpack_require__(53);
+__webpack_require__(51);
 __webpack_require__(26);
 __webpack_require__(32);
 __webpack_require__(29);
 __webpack_require__(22);
 __webpack_require__(3);
 __webpack_require__(30);
-__webpack_require__(54);
-__webpack_require__(55);
+__webpack_require__(52);
+__webpack_require__(53);
 __webpack_require__(25);
 __webpack_require__(1);
 
@@ -29163,7 +29163,7 @@ __webpack_require__(6);
 __webpack_require__(4);
 __webpack_require__(14);
 __webpack_require__(5);
-__webpack_require__(49);
+__webpack_require__(47);
 __webpack_require__(7);
 __webpack_require__(8);
 __webpack_require__(22);
@@ -43445,9 +43445,7 @@ module.exports = require("url");
 /***/ }),
 /* 42 */,
 /* 43 */,
-/* 44 */,
-/* 45 */,
-/* 46 */
+/* 44 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -43475,7 +43473,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 47 */
+/* 45 */
 /***/ (function(module, exports) {
 
 /**
@@ -43667,7 +43665,7 @@ function _encodeWithByteBuffer(input, alphabet) {
 
 
 /***/ }),
-/* 48 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43957,7 +43955,7 @@ function compareMacs(key, mac1, mac2) {
 
 
 /***/ }),
-/* 49 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43975,7 +43973,7 @@ forge.mgf.mgf1 = forge.mgf1;
 
 
 /***/ }),
-/* 50 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44977,7 +44975,7 @@ function M(o, a, b) {
 
 
 /***/ }),
-/* 51 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45151,7 +45149,7 @@ function _createKDF(kdf, md, counterStart, digestLength) {
 
 
 /***/ }),
-/* 52 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45170,7 +45168,7 @@ __webpack_require__(37);
 
 
 /***/ }),
-/* 53 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46433,7 +46431,7 @@ function _decryptContent(msg) {
 
 
 /***/ }),
-/* 54 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46675,7 +46673,7 @@ function _sha1() {
 
 
 /***/ }),
-/* 55 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47406,7 +47404,7 @@ forge.task.createCondition = function() {
 
 
 /***/ }),
-/* 56 */
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -48666,6 +48664,101 @@ class Base64Coder_Base64Coder {
     }
 }
 
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base32Coder.js
+class Base32Coder {
+    // https://github.com/chrismiceli/base32decode-javascript
+    static decode(base32EncodedString) {
+        if (typeof base32EncodedString !== 'string') {
+            throw new Error('Invalid string');
+        }
+        base32EncodedString = base32EncodedString.replace(/-/g, '');
+        if (base32EncodedString.length * 5 % 8 !== 0) {
+            throw new Error('base32EncodedString is not of the proper length. Please verify padding.');
+        }
+        base32EncodedString = base32EncodedString.toLowerCase();
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz234567';
+        let returnArray = new Array(base32EncodedString.length * 5 / 8);
+        let currentByte = 0;
+        let bitsRemaining = 8;
+        let mask = 0;
+        let arrayIndex = 0;
+        for (let count = 0; count < base32EncodedString.length; count++) {
+            const currentIndexValue = alphabet.indexOf(base32EncodedString[count]);
+            if (currentIndexValue === -1) {
+                if (base32EncodedString[count] === '=') {
+                    let paddingCount = 0;
+                    for (; count < base32EncodedString.length; count++) {
+                        if (base32EncodedString[count] !== '=') {
+                            throw new Error("Invalid '=' in encoded string");
+                        }
+                        else {
+                            paddingCount++;
+                        }
+                    }
+                    switch (paddingCount) {
+                        case 6:
+                            returnArray = returnArray.slice(0, returnArray.length - 4);
+                            break;
+                        case 4:
+                            returnArray = returnArray.slice(0, returnArray.length - 3);
+                            break;
+                        case 3:
+                            returnArray = returnArray.slice(0, returnArray.length - 2);
+                            break;
+                        case 1:
+                            returnArray = returnArray.slice(0, returnArray.length - 1);
+                            break;
+                        default:
+                            throw new Error('Incorrect padding');
+                    }
+                }
+                else {
+                    throw new Error('base32EncodedString contains invalid characters or invalid padding.');
+                }
+            }
+            else if (bitsRemaining > 5) {
+                mask = currentIndexValue << (bitsRemaining - 5);
+                currentByte |= mask;
+                bitsRemaining -= 5;
+            }
+            else {
+                mask = currentIndexValue >> (5 - bitsRemaining);
+                currentByte |= mask;
+                returnArray[arrayIndex++] = currentByte;
+                currentByte = currentIndexValue << (3 + bitsRemaining);
+                bitsRemaining += 3;
+            }
+        }
+        return new Uint8Array(returnArray);
+    }
+}
+
+// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crc/CRC32.js
+
+// TODO: Get better library
+function makeCRCTable() {
+    let c;
+    const crcTable = [];
+    for (let n = 0; n < 256; n++) {
+        c = n;
+        for (let k = 0; k < 8; k++) {
+            c = ((c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+        }
+        crcTable[n] = c;
+    }
+    return crcTable;
+}
+class CRC32_CRC32 {
+    static create(value) {
+        let crc = 0 ^ (-1);
+        for (let i = 0; i < value.length; i++) {
+            crc = (crc >>> 8) ^ this.crcTable[(crc ^ value[i]) & 0xFF];
+        }
+        return BigInteger_default()((crc ^ (-1)) >>> 0);
+    }
+}
+CRC32_CRC32.crcTable = makeCRCTable();
+
 // CONCATENATED MODULE: ./src/common/publication/PublicationData.ts
 var PublicationData_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -48680,6 +48773,10 @@ var PublicationData_extends = (undefined && undefined.__extends) || (function ()
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+
+
+
+
 
 
 
@@ -48702,6 +48799,18 @@ var PublicationData_PublicationData = /** @class */ (function (_super) {
             IntegerTag_IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
             ImprintTag_ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash)
         ]));
+    };
+    PublicationData.CREATE_FROM_PUBLICATION_STRING = function (publicationString) {
+        var bytesWithCrc32 = Base32Coder.decode(publicationString);
+        // Length needs to be at least 13 bytes (8 bytes for time plus non-empty hash imprint plus 4 bytes for crc32)
+        if (bytesWithCrc32.length < 13) {
+            throw new TlvError('Publication string base 32 decode failed.');
+        }
+        console.log('TEST', bytesWithCrc32.slice(0, -4), bytesWithCrc32.slice(-4), CRC32_CRC32.create(bytesWithCrc32.slice(0, -4)));
+        if (JSON.stringify(CRC32_CRC32.create(bytesWithCrc32.slice(0, -4))) !== JSON.stringify(bytesWithCrc32.slice(-4))) {
+            throw new TlvError('Publication string CRC 32 check failed.');
+        }
+        return PublicationData.CREATE(UnsignedLongCoder_UnsignedLongCoder.decode(bytesWithCrc32, 0, bytesWithCrc32.length - 12), new DataHash_DataHash(bytesWithCrc32.slice(0, 8)));
     };
     PublicationData.prototype.getPublicationHash = function () {
         return this.publicationHash.getValue();
@@ -49479,7 +49588,7 @@ var CalendarHashChain_CalendarHashChain = /** @class */ (function (_super) {
         var t = BigInteger_default()(0);
         // iterate over the chain in reverse
         for (var i = this.chainLinks.length - 1; i >= 0; i -= 1) {
-            if (r.lt(0)) {
+            if (r.leq(0)) {
                 console.warn('Invalid calendar hash chain shape for publication time. Cannot calculate registration time.');
                 return BigInteger_default()(0);
             }
@@ -50000,6 +50109,7 @@ var VerificationError = /** @class */ (function () {
     function VerificationError(code, message) {
         this.code = code;
         this.message = message;
+        Object.freeze(this);
     }
     /**
      * Returns a string that represents the current object.
@@ -50144,13 +50254,14 @@ var VerificationError = /** @class */ (function () {
 
 
 // CONCATENATED MODULE: ./src/common/signature/verification/VerificationResult.ts
+
 var VerificationResultCode;
 (function (VerificationResultCode) {
     VerificationResultCode[VerificationResultCode["OK"] = 0] = "OK";
     VerificationResultCode[VerificationResultCode["FAIL"] = 1] = "FAIL";
     VerificationResultCode[VerificationResultCode["NA"] = 2] = "NA";
 })(VerificationResultCode || (VerificationResultCode = {}));
-var VerificationResult = /** @class */ (function () {
+var VerificationResult_VerificationResult = /** @class */ (function () {
     function VerificationResult(ruleName, resultCode, verificationError, childResults) {
         if (verificationError === void 0) { verificationError = null; }
         if (childResults === void 0) { childResults = null; }
@@ -50179,6 +50290,19 @@ var VerificationResult = /** @class */ (function () {
     };
     VerificationResult.prototype.getChildResults = function () {
         return this.childResults.slice();
+    };
+    VerificationResult.prototype.toString = function () {
+        var result = "VerificationResult " + this.getRuleName() + " [" + VerificationResultCode[this.getResultCode()] + "]";
+        if (this.childResults.length > 0) {
+            result += ':\n';
+        }
+        for (var i = 0; i < this.childResults.length; i += 1) {
+            result += tabPrefix(this.childResults[i].toString());
+            if (i < (this.childResults.length - 1)) {
+                result += '\n';
+            }
+        }
+        return result;
     };
     return VerificationResult;
 }());
@@ -50354,8 +50478,8 @@ var UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule = 
         return UserProvidedPublicationExistenceRule_awaiter(this, void 0, void 0, function () {
             return UserProvidedPublicationExistenceRule_generator(this, function (_a) {
                 return [2 /*return*/, context.getUserPublication() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -50434,10 +50558,10 @@ var AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDep
                     if (chain.getAggregationAlgorithm().isDeprecated(chain.getAggregationTime().valueOf())) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: " + chain.getAggregationAlgorithm().name + "; Aggregation time: " + chain.getAggregationTime() + ".s");
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15)];
                     }
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -50527,7 +50651,7 @@ var AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule = /*
                         if (!chain.getInputHash().equals(chainHashResult.hash)) {
                             // tslint:disable-next-line:max-line-length
                             console.debug("Aggregation hash chains not consistent. Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous aggregation hash chain output hash " + chainHashResult.hash + ".");
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)];
                         }
                         return [4 /*yield*/, chain.getOutputHash(chainHashResult)];
                     case 2:
@@ -50536,7 +50660,7 @@ var AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule = /*
                     case 3:
                         _i++;
                         return [3 /*break*/, 1];
-                    case 4: return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    case 4: return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -50616,19 +50740,19 @@ var AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRul
                 for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
                     chain = aggregationHashChains_1[_i];
                     chainIndex = chain.getChainIndex();
-                    if (parentChainIndex !== null && !(parentChainIndex.length !== chainIndex.length
-                        || JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex)))) {
+                    if (parentChainIndex !== null && (parentChainIndex.length <= chainIndex.length
+                        || !JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex).slice(0, -1)))) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Chain index is not the successor to the parent aggregation hash chain index. Chain index: " + chainIndex + "; Parent chain index: " + parentChainIndex + ".");
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                     }
                     parentChainIndex = chainIndex;
                 }
                 if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
                     console.debug("Highest aggregation hash chain index length is not 1. Chain index: " + chainIndex + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -50726,39 +50850,39 @@ var AggregationHashChainMetadataRule_AggregationHashChainMetadataRule = /** @cla
                             hashAlgorithm = HashAlgorithm_HashAlgorithm.getById(hashAlgorithmId);
                             if (hashAlgorithm !== null && hashAlgorithm.length === metadataBytes.length - 1) {
                                 console.debug("Metadata without padding may not be trusted. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                         }
                         else {
                             if (metadata.value.indexOf(paddingTag) !== 0) {
                                 console.debug("Metadata with padding may not be trusted. Padding is not the first element. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                             if (paddingTag.tlv16BitFlag) {
                                 console.debug("Metadata with padding may not be trusted. Padding is not TLV8. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                             if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
                                 // tslint:disable-next-line:max-line-length
                                 console.debug("Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                             valueBytesString = JSON.stringify(paddingTag.getValueBytes());
                             if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
                                 && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
                                 console.debug("Metadata with padding may not be trusted. Unknown padding value. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                             stream = new TlvOutputStream();
                             stream.writeTag(metadata);
                             if (stream.getData().length % 2 !== 0) {
                                 console.debug("Metadata with padding may not be trusted. Invalid padding value. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
                         }
                     }
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -50840,10 +50964,10 @@ var AggregationHashChainShapeRule_AggregationHashChainShapeRule = /** @class */ 
                     if (!lastIndexValue.eq(calculatedValue)) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue + ".");
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10)];
                     }
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -50927,10 +51051,10 @@ var AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyR
                     if (!chain.getAggregationTime().equals(time)) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Previous aggregation hash chain aggregation time " + time + " does not match current aggregation time " + chain.getAggregationTime() + ".");
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
                     }
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51009,7 +51133,7 @@ var CalendarAuthenticationRecordAggregationHashRule_CalendarAuthenticationRecord
                         signature = context.getSignature();
                         calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
                         if (calendarAuthenticationRecord == null) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                         }
                         calendarHashChain = signature.getCalendarHashChain();
                         if (calendarHashChain === null) {
@@ -51018,8 +51142,8 @@ var CalendarAuthenticationRecordAggregationHashRule_CalendarAuthenticationRecord
                         return [4 /*yield*/, calendarHashChain.calculateOutputHash()];
                     case 1: return [2 /*return*/, !(_a.sent())
                             .equals(calendarAuthenticationRecord.getPublicationData().getPublicationHash())
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08)
+                            : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -51092,8 +51216,8 @@ var CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExiste
         return CalendarAuthenticationRecordExistenceRule_awaiter(this, void 0, void 0, function () {
             return CalendarAuthenticationRecordExistenceRule_generator(this, function (_a) {
                 return [2 /*return*/, context.getSignature().getCalendarAuthenticationRecord() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51170,15 +51294,15 @@ var CalendarAuthenticationRecordPublicationTimeRule_CalendarAuthenticationRecord
                 signature = context.getSignature();
                 calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
                 if (calendarAuthenticationRecord == null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
                     throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
                 }
                 return [2 /*return*/, calendarHashChain.getPublicationTime().neq(calendarAuthenticationRecord.getPublicationData().getPublicationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_06)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_06)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51254,12 +51378,12 @@ var CalendarHashChainAggregationTimeRule_CalendarHashChainAggregationTimeRule = 
                 signature = context.getSignature();
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 aggregationHashChains = signature.getAggregationHashChains();
                 return [2 /*return*/, aggregationHashChains[aggregationHashChains.length - 1].getAggregationTime().neq(calendarHashChain.getAggregationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51336,7 +51460,7 @@ var CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRul
                 signature = context.getSignature();
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 for (_i = 0, _a = calendarHashChain.getChainLinks(); _i < _a.length; _i++) {
                     link = _a[_i];
@@ -51346,10 +51470,10 @@ var CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRul
                     if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Calendar hash chain contains obsolete aggregation algorithm at publication time. Algorithm: " + link.getValue().hashAlgorithm.name + "; Publication time: " + calendarHashChain.getPublicationTime() + ".");
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16)];
                     }
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51421,8 +51545,8 @@ var CalendarHashChainExistenceRule_CalendarHashChainExistenceRule = /** @class *
         return CalendarHashChainExistenceRule_awaiter(this, void 0, void 0, function () {
             return CalendarHashChainExistenceRule_generator(this, function (_a) {
                 return [2 /*return*/, context.getSignature().getCalendarHashChain() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51500,12 +51624,12 @@ var CalendarHashChainInputHashVerificationRule_CalendarHashChainInputHashVerific
                         signature = context.getSignature();
                         calendarHashChain = signature.getCalendarHashChain();
                         if (calendarHashChain === null) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                         }
                         return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
                     case 1: return [2 /*return*/, !(_a.sent()).equals(calendarHashChain.getInputHash())
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03)
+                            : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -51582,11 +51706,11 @@ var CalendarHashChainRegistrationTimeRule_CalendarHashChainRegistrationTimeRule 
                 signature = context.getSignature();
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 return [2 /*return*/, calendarHashChain.getAggregationTime().neq(calendarHashChain.calculateRegistrationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51666,8 +51790,8 @@ var DocumentHashLevelVerificationRule_DocumentHashLevelVerificationRule = /** @c
                     ? BigInteger_default()(0)
                     : signature.getAggregationHashChains()[0].getChainLinks()[0].getLevelCorrection();
                 return [2 /*return*/, context.getDocumentHashLevel() > levelCorrection
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51744,14 +51868,14 @@ var DocumentHashVerificationRule_DocumentHashVerificationRule = /** @class */ (f
                 signature = context.getSignature();
                 documentHash = context.getDocumentHash();
                 if (documentHash === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 inputHash = signature.getInputHash();
                 if (!documentHash.equals(inputHash)) {
                     console.debug("Invalid document hash. Expected " + documentHash + ", found " + inputHash + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51829,9 +51953,9 @@ var InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule = /** @cla
                 if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Input hash algorithm was deprecated at aggregation time. Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime() + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51908,14 +52032,14 @@ var InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule = /** 
                 signature = context.getSignature();
                 documentHash = context.getDocumentHash();
                 if (documentHash === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 inputHash = signature.getInputHash();
                 if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
                     console.debug("Wrong input hash algorithm. Expected " + documentHash.hashAlgorithm + ", found " + inputHash.hashAlgorithm + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -51991,14 +52115,14 @@ var Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule = /** @cla
                 signature = context.getSignature();
                 rfc3161Record = signature.getRfc3161Record();
                 if (rfc3161Record === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 aggregationHashChains = signature.getAggregationHashChains();
-                if (aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
+                if (!aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
                     console.debug("Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -52074,7 +52198,7 @@ var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (fun
                 signature = context.getSignature();
                 rfc3161Record = signature.getRfc3161Record();
                 if (rfc3161Record === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 aggregationHashChains = signature.getAggregationHashChains();
                 rfc3161ChainIndex = rfc3161Record.getChainIndex();
@@ -52084,9 +52208,9 @@ var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (fun
                 if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -52162,21 +52286,21 @@ var Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecate
                 signature = context.getSignature();
                 rfc3161Record = signature.getRfc3161Record();
                 if (rfc3161Record === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 if (rfc3161Record.getTstInfoAlgorithm() != null
                     && rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime() + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
                 }
                 if (rfc3161Record.getSignedAttributesAlgorithm() != null
                     && rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime() + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -52251,7 +52375,7 @@ var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgori
             return Rfc3161RecordOutputHashAlgorithmDeprecatedRule_generator(this, function (_a) {
                 signature = context.getSignature();
                 if (signature.getRfc3161Record() === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 aggregationHashChain = signature.getAggregationHashChains()[0];
                 hashAlgorithm = aggregationHashChain.getInputHash().hashAlgorithm;
@@ -52259,9 +52383,9 @@ var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgori
                 if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: " + hashAlgorithm + "; Aggregation time: " + aggregationTime + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -52340,7 +52464,7 @@ var Rfc3161RecordOutputHashVerificationRule_Rfc3161RecordOutputHashVerificationR
                         signature = context.getSignature();
                         rfc3161Record = signature.getRfc3161Record();
                         if (rfc3161Record === null) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                         }
                         aggregationHashChainInputHash = signature.getAggregationHashChains()[0].getInputHash();
                         _b = (_a = new DataHasher_DataHasher(aggregationHashChainInputHash.hashAlgorithm)).update;
@@ -52350,8 +52474,8 @@ var Rfc3161RecordOutputHashVerificationRule_Rfc3161RecordOutputHashVerificationR
                     case 2:
                         inputHash = _c.sent();
                         return [2 /*return*/, !inputHash.equals(aggregationHashChainInputHash)
-                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)
-                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                                ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)
+                                : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -52424,8 +52548,8 @@ var SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceR
         return SignaturePublicationRecordExistenceRule_awaiter(this, void 0, void 0, function () {
             return SignaturePublicationRecordExistenceRule_generator(this, function (_a) {
                 return [2 /*return*/, context.getSignature().getPublicationRecord() === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -52502,15 +52626,15 @@ var SignaturePublicationRecordPublicationHashRule_SignaturePublicationRecordPubl
                 signature = context.getSignature();
                 publicationRecord = signature.getPublicationRecord();
                 if (publicationRecord === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
                     throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
                 }
-                return [2 /*return*/, publicationRecord.getPublicationHash().equals(calendarHashChain.calculateOutputHash())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, !publicationRecord.getPublicationHash().equals(calendarHashChain.calculateOutputHash())
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -52587,15 +52711,15 @@ var SignaturePublicationRecordPublicationTimeRule_SignaturePublicationRecordPubl
                 signature = context.getSignature();
                 publicationRecord = signature.getPublicationRecord();
                 if (publicationRecord === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
                     throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
                 }
                 return [2 /*return*/, publicationRecord.getPublicationTime().neq(calendarHashChain.getPublicationTime())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_07)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_07)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -52665,7 +52789,7 @@ var SuccessResultRule_SuccessResultRule = /** @class */ (function (_super) {
     SuccessResultRule.prototype.verify = function (context) {
         return SuccessResultRule_awaiter(this, void 0, void 0, function () {
             return SuccessResultRule_generator(this, function (_a) {
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -52759,7 +52883,7 @@ var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
                     case 5:
                         error_1 = _a.sent();
                         throw error_1;
-                    case 6: return [2 /*return*/, VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), verificationResults)];
+                    case 6: return [2 /*return*/, VerificationResult_VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), verificationResults)];
                 }
             });
         });
@@ -52936,15 +53060,15 @@ var CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecate
                 signature = context.getSignature();
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain);
                 if (deprecatedLink !== null) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + "; Publication time: " + calendarHashChain.getPublicationTime() + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -53032,7 +53156,7 @@ var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCal
                             publicationRecord = publicationsFile
                                 .getNearestPublicationRecord(signature.getAggregationTime());
                             if (publicationRecord === null) {
-                                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                             }
                             publicationData = publicationRecord.getPublicationData();
                         }
@@ -53043,9 +53167,9 @@ var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCal
                         if (deprecatedLink !== null) {
                             // tslint:disable-next-line:max-line-length
                             console.debug("Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + "; Publication time: " + publicationData.getPublicationTime() + ".");
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                         }
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -53118,8 +53242,8 @@ var ExtendingPermittedVerificationRule_ExtendingPermittedVerificationRule = /** 
         return ExtendingPermittedVerificationRule_awaiter(this, void 0, void 0, function () {
             return ExtendingPermittedVerificationRule_generator(this, function (_a) {
                 return [2 /*return*/, context.isExtendingAllowed()
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.OK)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
             });
         });
     };
@@ -53210,8 +53334,8 @@ var PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSigna
                         _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
                         return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
                     case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                            : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -53294,15 +53418,15 @@ var PublicationsFilePublicationHashMatchesExtenderResponseRule_PublicationsFileP
                         signature = context.getSignature();
                         publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
                         if (publicationRecord == null) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                         }
                         return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
                     case 1:
                         extendedCalendarHashChain = _a.sent();
                         return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
                     case 2: return [2 /*return*/, !(_a.sent()).equals(publicationRecord.getPublicationHash())
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
+                            : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -53392,11 +53516,11 @@ var PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFileP
                     case 1:
                         extendedCalendarHashChain = _a.sent();
                         if (publicationRecord.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
                         }
                         return [2 /*return*/, signature.getAggregationTime().neq(extendedCalendarHashChain.calculateRegistrationTime())
-                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
-                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                                ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                                : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -53484,11 +53608,11 @@ var PublicationsFileSignaturePublicationMatchRule_PublicationsFileSignaturePubli
                 // TODO: Check if it should fail
                 if (publicationRecordInPublicationFile === null
                     || publicationRecordInPublicationFile.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                 }
                 return [2 /*return*/, !publicationRecordInPublicationFile.getPublicationHash().equals(publicationRecord.getPublicationHash())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_05)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_05)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -53616,8 +53740,8 @@ var UserProvidedPublicationCreationTimeVerificationRule_UserProvidedPublicationC
                 }
                 userPublicationTime = userPublication.getPublicationTime();
                 return [2 /*return*/, aggregationTime.geq(userPublicationTime)
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -53703,8 +53827,8 @@ var UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicatio
                         _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
                         return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
                     case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                            : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -53789,8 +53913,8 @@ var UserProvidedPublicationHashMatchesExtendedResponseRule_UserProvidedPublicati
                         extendedCalendarHashChain = _a.sent();
                         return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
                     case 2: return [2 /*return*/, (_a.sent()).equals(userPublication.getPublicationHash())
-                            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
-                            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
+                            : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -53875,11 +53999,11 @@ var UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicati
                     case 1:
                         extendedCalendarHashChain = _a.sent();
                         if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-                            return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
                         }
                         return [2 /*return*/, signature.getAggregationTime().equals(extendedCalendarHashChain.calculateRegistrationTime())
-                                ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
-                                : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                                ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                                : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -53965,11 +54089,11 @@ var UserProvidedPublicationVerificationRule_UserProvidedPublicationVerificationR
                 if (userPublication.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("User provided publication time does not equal to signature publication time. User provided publication time: " + userPublication.getPublicationTime() + "; Signature publication time: " + publicationRecord.getPublicationTime() + ".");
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
                 }
                 return [2 /*return*/, !userPublication.getPublicationHash().equals(publicationRecord.getPublicationHash())
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_04)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_04)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -54109,6 +54233,7 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
         this.publicationsFile = null;
         this.publicationData = null;
         this.extendingAllowed = true;
+        this.documentHashLevel = BigInteger_default()(0);
         this.ksiSignature = signature;
     }
     VerificationContext.prototype.getSignature = function () {
@@ -54153,7 +54278,10 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
      * Get document hash node level value in the aggregation tree
      */
     VerificationContext.prototype.getDocumentHashLevel = function () {
-        return BigInteger_default()(0);
+        return this.documentHashLevel;
+    };
+    VerificationContext.prototype.setDocumentHashLevel = function (documentHashLevel) {
+        this.documentHashLevel = documentHashLevel;
     };
     VerificationContext.prototype.getPublicationsFile = function () {
         return this.publicationsFile;
@@ -54390,7 +54518,7 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                 signature = context.getSignature();
                 calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
                 if (calendarAuthenticationRecord == null) {
-                    return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 publicationsFile = context.getPublicationsFile();
                 if (publicationsFile === null) {
@@ -54406,13 +54534,13 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                 signedBytes = calendarAuthenticationRecord.getPublicationData().encode();
                 try {
                     if (X509_X509.verify(certificateRecord.getX509Certificate(), signedBytes, signatureData.getSignatureValue())) {
-                        return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                     }
                 }
                 catch (error) {
                     console.debug(error);
                 }
-                return [2 /*return*/, new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03)];
             });
         });
     };
@@ -54497,8 +54625,8 @@ var CertificateExistenceRule_CertificateExistenceRule = /** @class */ (function 
                 }
                 signatureData = calendarAuthenticationRecord.getSignatureData();
                 return [2 /*return*/, publicationsFile.findCertificateById(signatureData.getCertificateId()) === null
-                        ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_01)
-                        : new VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_01)
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };

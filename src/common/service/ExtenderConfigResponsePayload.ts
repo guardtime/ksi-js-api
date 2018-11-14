@@ -1,5 +1,5 @@
 import {EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
@@ -42,16 +42,16 @@ export class ExtenderConfigResponsePayload extends PduPayload {
         }
     }
 
-    protected validate(tagCount: ITlvCount): void {
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
+    protected validate(tagCount: ICount): void {
+        if (tagCount.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType) > 1) {
             throw new TlvError('Only one max requests tag is allowed in extender config response payload.');
         }
 
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType] > 1) {
+        if (tagCount.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType) > 1) {
             throw new TlvError('Only one calendar first time tag is allowed in extender config response payload.');
         }
 
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
+        if (tagCount.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType) > 1) {
             throw new TlvError('Only one calendar last time tag is allowed in extender config response payload.');
         }
     }

@@ -1,6 +1,6 @@
 import {DataHash, HashAlgorithm, HMAC} from 'gt-js-common';
 import {PDU_CONSTANTS, PDU_HEADER_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvInputStream} from '../parser/TlvInputStream';
@@ -54,7 +54,7 @@ export abstract class Pdu extends CompositeTag {
         }
     }
 
-    protected validate(tagCount: ITlvCount): void {
+    protected validate(tagCount: ICount): void {
         if (ErrorPayload != null) {
             return;
         }
@@ -62,13 +62,13 @@ export abstract class Pdu extends CompositeTag {
         if (this.payloads.length === 0) {
             throw new TlvError('Payloads are missing in PDU.');
         }
-        if (tagCount[PDU_HEADER_CONSTANTS.TagType] !== 1) {
+        if (tagCount.getCount(PDU_HEADER_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one header must exist in PDU.');
         }
         if (this.value[0] !== this.header) {
             throw new TlvError('Header must be the first element in PDU.');
         }
-        if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
+        if (tagCount.getCount(PDU_CONSTANTS.MacTagType) !== 1) {
             throw new TlvError('Exactly one MAC must exist in PDU.');
         }
         if (this.value[this.value.length - 1] !== this.hmac) {

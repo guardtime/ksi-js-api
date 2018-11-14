@@ -5,6 +5,7 @@ import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
 import {VerificationRule} from '../VerificationRule';
+import {compareArrayEquals} from '../../../util/Array';
 
 /**
  * This rule checks that chain index of a aggregation hash chain is successor to it's parent aggregation hash chain index.
@@ -20,7 +21,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
         for (const chain of aggregationHashChains) {
             chainIndex = chain.getChainIndex();
             if (parentChainIndex !== null && (parentChainIndex.length <= chainIndex.length
-                || !JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex).slice(0, -1)))) {
+                || !compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))) {
 
                 // tslint:disable-next-line:max-line-length
                 console.debug(`Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}.`);

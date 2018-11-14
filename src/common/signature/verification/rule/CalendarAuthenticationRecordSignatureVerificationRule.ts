@@ -1,4 +1,5 @@
-import {HexCoder, X509} from 'gt-js-common';
+import {ASCIIConverter, HexCoder, X509} from 'gt-js-common';
+import {asn1, pki} from 'node-forge';
 import {CertificateRecord} from '../../../publication/CertificateRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarAuthenticationRecord} from '../../CalendarAuthenticationRecord';
@@ -30,12 +31,25 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
         }
 
         const signatureData: SignatureData = calendarAuthenticationRecord.getSignatureData();
+        switch (signatureData.getSignatureType()) {
+            case '1.2.840.113549.1.1.11':
+                break;
+            case '1.2.840.113549.1.7.2':
+                throw new Error('Not implemented');
+            default:
+                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02);
+        }
+
         const certificateRecord: CertificateRecord | null = publicationsFile
             .findCertificateById(signatureData.getCertificateId());
 
         if (certificateRecord === null) {
             // tslint:disable-next-line:max-line-length
             throw new KsiVerificationError(`No certificate found in publications file with id: ${HexCoder.encode(signatureData.getCertificateId())}.`);
+        }
+
+        if (!X509.isCertificateValidDuring(certificateRecord.getX509Certificate(), signature.getAggregationTime())) {
+            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03);
         }
 
         const signedBytes: Uint8Array = calendarAuthenticationRecord.getPublicationData().encode();
@@ -47,6 +61,6 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
             console.debug(error);
         }
 
-        return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03);
+        return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02);
     }
 }

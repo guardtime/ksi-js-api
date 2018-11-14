@@ -1,14 +1,12 @@
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash} from 'gt-js-common';
+import {Base32Coder, CRC32, DataHash, UnsignedLongCoder} from 'gt-js-common';
 import {PUBLICATION_DATA_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
-import Base32Coder from 'gt-js-common/lib/coders/Base32Coder';
-import CRC32 from 'gt-js-common/lib/crc/CRC32';
-import UnsignedLongCoder from 'gt-js-common/lib/coders/UnsignedLongCoder';
+import {compareTypedArray} from '../util/Array';
 
 /**
  * Publication Data TLV object
@@ -41,13 +39,17 @@ export class PublicationData extends CompositeTag {
             throw new TlvError('Publication string base 32 decode failed.');
         }
 
-        if (JSON.stringify(CRC32.create(bytesWithCrc32.slice(0, -4))) !== JSON.stringify(bytesWithCrc32.slice(-4))) {
-            throw new TlvError('Publication string CRC 32 check failed.');
+        const calculatedCrc32: Uint8Array = UnsignedLongCoder.encode(CRC32.create(bytesWithCrc32.slice(0, -4)));
+        const messageCrc32: Uint8Array = bytesWithCrc32.slice(-4);
+
+        if (!compareTypedArray(calculatedCrc32, messageCrc32)) {
+            // tslint:disable-next-line:max-line-length
+            throw new TlvError(`Publication string CRC 32 check failed. Calculated: ${JSON.stringify(calculatedCrc32)}; From Message: ${JSON.stringify(messageCrc32)}`);
         }
 
         return PublicationData.CREATE(
-            UnsignedLongCoder.decode(bytesWithCrc32, 0, bytesWithCrc32.length - 12),
-            new DataHash(bytesWithCrc32.slice(0, 8))
+            UnsignedLongCoder.decode(bytesWithCrc32, 0, 8),
+            new DataHash(bytesWithCrc32.slice(8, -4))
         );
     }
 
@@ -70,12 +72,12 @@ export class PublicationData extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {
             throw new TlvError('Exactly one publication time must exist in publication data.');
         }
 
-        if (tagCount[PUBLICATION_DATA_CONSTANTS.PublicationHashTagType] !== 1) {
+        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType) !== 1) {
             throw new TlvError('Exactly one publication hash must exist in publication data.');
         }
     }

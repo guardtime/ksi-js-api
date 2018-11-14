@@ -6,6 +6,7 @@ import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
 import {VerificationRule} from '../VerificationRule';
+import {compareArrayEquals, compareTypedArray} from '../../../util/Array';
 
 /**
  * This rule verifies that aggregation hash chain index and RFC3161 record chain index match.
@@ -24,11 +25,9 @@ export class Rfc3161RecordChainIndexRule extends VerificationRule {
         const rfc3161ChainIndex: bigInteger.BigInteger[] = rfc3161Record.getChainIndex();
         const aggregationChainIndex: bigInteger.BigInteger[] = aggregationHashChains[0].getChainIndex();
 
-        const rfc3161ChainIndexJson: string = JSON.stringify(rfc3161ChainIndex);
-        const aggregationChainIndexJson: string = JSON.stringify(aggregationChainIndex);
-        if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
+        if (!compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
             // tslint:disable-next-line:max-line-length
-            console.debug(`Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index ${rfc3161ChainIndexJson} and RFC3161 chain index is ${aggregationChainIndexJson}.`);
+            console.debug(`Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index ${JSON.stringify(rfc3161ChainIndex)} and RFC3161 chain index is ${JSON.stringify(aggregationChainIndex)}.`);
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12);
         }

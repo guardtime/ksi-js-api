@@ -52,9 +52,9 @@ export class InternalVerificationPolicy extends VerificationPolicy {
                                                     .onSuccess(new SignaturePublicationRecordPublicationTimeRule() // Int-07
                                                         .onSuccess(new SignaturePublicationRecordPublicationHashRule())) // Int-09
                                                     // No publication record
-                                                    .onNa(new SuccessResultRule())))))
-                        // No calendar hash chain
-                        .onNa(new SuccessResultRule()))));
+                                                    .onNa(new SuccessResultRule()))))
+                                // No calendar hash chain
+                                .onNa(new SuccessResultRule())))));
     }
 
     private static verifyInput(): VerificationRule {

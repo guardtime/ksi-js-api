@@ -1,5 +1,6 @@
 import {TLV_CONSTANTS} from '../Constants';
 import {TlvError} from './TlvError';
+import {compareTypedArray} from '../util/Array';
 
 /**
  * TLV objects base class
@@ -41,7 +42,7 @@ export class TlvTag {
         return !(x.id !== y.id
             || x.forwardFlag !== y.forwardFlag
             || x.nonCriticalFlag !== y.nonCriticalFlag
-            || JSON.stringify(x.getValueBytes()) !== JSON.stringify(y.getValueBytes()));
+            || compareTypedArray(x.getValueBytes(), y.getValueBytes()));
     }
 
     public encode(): Uint8Array {

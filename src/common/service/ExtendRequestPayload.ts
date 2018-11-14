@@ -1,6 +1,6 @@
 import {BigInteger} from 'big-integer';
 import {EXTEND_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
@@ -51,16 +51,16 @@ export class ExtendRequestPayload extends PduPayload {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
             throw new TlvError('Exactly one request id must exist in extend request payload.');
         }
 
-        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType] !== 1) {
+        if (tagCount.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType) !== 1) {
             throw new TlvError('Exactly one aggregation time must exist in extend request payload.');
         }
 
-        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType] > 1) {
+        if (tagCount.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType) > 1) {
             throw new TlvError('Only one publication time is allowed in extend request payload.');
         }
     }

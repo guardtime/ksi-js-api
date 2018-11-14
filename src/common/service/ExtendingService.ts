@@ -37,7 +37,7 @@ export class ExtendingService {
 
     public async extend(aggregationTime: BigInteger, publicationTime: BigInteger | null = null): Promise<CalendarHashChain> {
         const header: PduHeader = PduHeader.CREATE_FROM_LOGIN_ID(this.extendingServiceCredentials.getLoginId());
-        const requestId: BigInteger = pseudoRandomLong();
+        const requestId: BigInteger = this.generateRequestId();
         const requestPayload: ExtendRequestPayload = ExtendRequestPayload.CREATE(requestId, aggregationTime, publicationTime);
         const requestPdu: ExtendRequestPdu = await ExtendRequestPdu.CREATE(header, requestPayload,
                                                                            this.extendingServiceCredentials.getHmacAlgorithm(),
@@ -93,5 +93,9 @@ export class ExtendingService {
         }
 
         return ExtendingService.processPayload(currentExtendPayload);
+    }
+
+    protected generateRequestId(): BigInteger {
+        return pseudoRandomLong();
     }
 }

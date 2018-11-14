@@ -1,5 +1,5 @@
 import {CERTIFICATE_RECORD_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {RawTag} from '../parser/RawTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
@@ -40,12 +40,12 @@ export class CertificateRecord extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType) !== 1) {
             throw new TlvError('Exactly one certificate id must exist in certificate record.');
         }
 
-        if (tagCount[CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType] !== 1) {
+        if (tagCount.getCount(CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType) !== 1) {
             throw new TlvError('Exactly one certificate must exist in certificate record.');
         }
     }

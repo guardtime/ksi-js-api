@@ -1,5 +1,5 @@
 import {AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
@@ -45,20 +45,20 @@ export class AggregatorConfigResponsePayload extends PduPayload {
         }
     }
 
-    protected validate(tagCount: ITlvCount): void {
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType] > 1) {
+    protected validate(tagCount: ICount): void {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType) > 1) {
             throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');
         }
 
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType) > 1) {
             throw new TlvError('Only one aggregation algorithm tag is allowed in aggregator config response payload.');
         }
 
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType) > 1) {
             throw new TlvError('Only one aggregation period tag is allowed in aggregator config response payload.');
         }
 
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType) > 1) {
             throw new TlvError('Only one max requests tag is allowed in aggregator config response payload.');
         }
     }

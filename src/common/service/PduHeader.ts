@@ -1,5 +1,5 @@
 import {PDU_HEADER_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
@@ -41,16 +41,16 @@ export class PduHeader extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(PDU_HEADER_CONSTANTS.LoginIdTagType) !== 1) {
             throw new TlvError('Exactly one login id must exist in PDU header.');
         }
 
-        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
+        if (tagCount.getCount(PDU_HEADER_CONSTANTS.InstanceIdTagType) > 1) {
             throw new TlvError('Only one instance id is allowed in PDU header.');
         }
 
-        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
+        if (tagCount.getCount(PDU_HEADER_CONSTANTS.MessageIdTagType) > 1) {
             throw new TlvError('Only one message id is allowed in PDU header.');
         }
     }

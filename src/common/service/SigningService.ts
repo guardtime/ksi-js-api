@@ -37,7 +37,7 @@ export class SigningService {
 
     public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
         const header: PduHeader = PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
-        const requestId: BigInteger = pseudoRandomLong();
+        const requestId: BigInteger = this.generateRequestId();
         const requestPayload: AggregationRequestPayload = AggregationRequestPayload.CREATE(requestId, hash, level);
 
         const requestPdu: AggregationRequestPdu = await AggregationRequestPdu.CREATE(header, requestPayload,
@@ -94,5 +94,9 @@ export class SigningService {
         }
 
         return SigningService.processPayload(currentAggregationPayload);
+    }
+
+    protected generateRequestId(): BigInteger {
+        return pseudoRandomLong();
     }
 }

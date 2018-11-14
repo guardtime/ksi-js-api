@@ -25,7 +25,7 @@ export class SignaturePublicationRecordPublicationHashRule extends VerificationR
             throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
         }
 
-        return !publicationRecord.getPublicationHash().equals(calendarHashChain.calculateOutputHash())
+        return !publicationRecord.getPublicationHash().equals(await calendarHashChain.calculateOutputHash())
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }

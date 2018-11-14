@@ -1,5 +1,5 @@
 import {CALENDAR_HASH_CHAIN_CONSTANTS, EXTEND_RESPONSE_PAYLOAD_CONSTANTS} from '../Constants';
-import {ITlvCount} from '../parser/CompositeTag';
+import {ICount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
@@ -38,14 +38,14 @@ export class ExtendResponsePayload extends RequestResponsePayload {
         }
     }
 
-    protected validate(tagCount: ITlvCount): void {
+    protected validate(tagCount: ICount): void {
         super.validate(tagCount);
 
-        if (tagCount[EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
+        if (tagCount.getCount(EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType) > 1) {
             throw new TlvError('Only one calendar last time is allowed in extend response payload.');
         }
 
-        if (this.getStatus().eq(0) && tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] !== 1) {
+        if (this.getStatus().eq(0) && tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one calendar hash chain must exist in extend response payload.');
         }
     }

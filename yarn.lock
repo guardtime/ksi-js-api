@@ -30,15 +30,21 @@
   version "23.3.8"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.8.tgz#56b07c0c3d7c8a6c47abb4f785cab648c6eafd01"
 
-"@types/node-forge@^0.7.5", "@types/node-forge@^0.7.6":
+"@types/node-forge@^0.7.5":
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-0.7.7.tgz#2d9d2156a913bd7abadfa28f5813d801ea0b1595"
+  dependencies:
+    "@types/node" "*"
+
+"@types/node-forge@^0.7.6":
   version "0.7.6"
   resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-0.7.6.tgz#7d8c894f3ecdc61c82e76d60f9f66e766d1e48a9"
   dependencies:
     "@types/node" "*"
 
 "@types/node@*":
-  version "10.12.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.0.tgz#ea6dcbddbc5b584c83f06c60e82736d8fbb0c235"
+  version "10.12.7"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.7.tgz#195808b2d4b2e7c33e75e7d9b24aeee88f94660d"
 
 "@webassemblyjs/ast@1.7.10":
   version "1.7.10"
@@ -2263,7 +2269,7 @@ growly@^1.3.0:
 
 "gt-js-common@git+ssh://git@github.com:guardtime/gt-js-common.git#typescript":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:guardtime/gt-js-common.git#368eb940cf7e55c4138a79efccbb39458a6aedf0"
+  resolved "git+ssh://git@github.com:guardtime/gt-js-common.git#4603a80b946022a99f7cb5e8f853a77af472467d"
   dependencies:
     "@types/base64-js" "^1.2.5"
     "@types/node-forge" "^0.7.5"

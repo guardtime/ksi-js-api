@@ -1,7 +1,7 @@
 import {BigInteger} from 'big-integer';
 import {DataHash, DataHasher, HashAlgorithm} from 'gt-js-common';
 import {RFC_3161_RECORD_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {RawTag} from '../parser/RawTag';
@@ -123,8 +123,8 @@ export class Rfc3161Record extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType) !== 1) {
             throw new TlvError('Exactly one aggregation time must exist in RFC#3161 record.');
         }
 
@@ -132,19 +132,19 @@ export class Rfc3161Record extends CompositeTag {
             throw new TlvError('Chain indexes must exist in RFC#3161 record.');
         }
 
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.InputHashTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.InputHashTagType) !== 1) {
             throw new TlvError('Exactly one input hash must exist in RFC#3161 record.');
         }
 
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoPrefixTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TstInfoPrefixTagType) !== 1) {
             throw new TlvError('Exactly one tstInfo prefix must exist in RFC#3161 record.');
         }
 
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoSuffixTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TstInfoSuffixTagType) !== 1) {
             throw new TlvError('Exactly one tstInfo suffix must exist in RFC#3161 record.');
         }
 
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoAlgorithmTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TstInfoAlgorithmTagType) !== 1) {
             throw new TlvError('Exactly one tstInfo algorithm must exist in RFC#3161 record.');
         }
 
@@ -152,15 +152,15 @@ export class Rfc3161Record extends CompositeTag {
             throw new TlvError('Invalid tstInfo algorithm value in RFC#3161 record.');
         }
 
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesPrefixTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.SignedAttributesPrefixTagType) !== 1) {
             throw new TlvError('Exactly one signed attributes prefix must exist in RFC#3161 record.');
         }
 
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesSuffixTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.SignedAttributesSuffixTagType) !== 1) {
             throw new TlvError('Exactly one signed attributes suffix must exist in RFC#3161 record.');
         }
 
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType) !== 1) {
             throw new TlvError('Exactly one signed attributes algorithm must exist in RFC#3161 record.');
         }
 

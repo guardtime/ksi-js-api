@@ -1,6 +1,6 @@
 import {BigInteger} from 'big-integer';
 import {PDU_PAYLOAD_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
@@ -37,12 +37,12 @@ export abstract class ResponsePayload extends PduPayload {
         }
     }
 
-    protected validate(tagCount: ITlvCount): void {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.StatusTagType] !== 1) {
+    protected validate(tagCount: ICount): void {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.StatusTagType) !== 1) {
             throw new TlvError('Exactly one status code must exist in response payload.');
         }
 
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType] > 1) {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType) > 1) {
             throw new TlvError('Only one error message is allowed in response payload.');
         }
     }

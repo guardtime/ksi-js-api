@@ -2,7 +2,7 @@ import bigInteger, {BigInteger} from 'big-integer';
 
 import {DataHash, DataHasher, HashAlgorithm} from 'gt-js-common';
 import {CALENDAR_HASH_CHAIN_CONSTANTS, LinkDirection} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {TlvError} from '../parser/TlvError';
@@ -171,16 +171,16 @@ export class CalendarHashChain extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType) !== 1) {
             throw new TlvError('Exactly one publication time must exist in calendar hash chain.');
         }
 
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.AggregationTimeTagType] > 1) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) > 1) {
             throw new TlvError('Only one aggregation time is allowed in calendar hash chain.');
         }
 
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType] !== 1) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType) !== 1) {
             throw new TlvError('Exactly one input hash must exist in calendar hash chain.');
         }
 

@@ -1,6 +1,6 @@
 import {BigInteger} from 'big-integer';
 import {PDU_PAYLOAD_CONSTANTS} from '../Constants';
-import {ITlvCount} from '../parser/CompositeTag';
+import {ICount} from '../parser/CompositeTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
@@ -29,10 +29,10 @@ export abstract class RequestResponsePayload extends ResponsePayload {
         }
     }
 
-    protected validate(tagCount: ITlvCount): void {
+    protected validate(tagCount: ICount): void {
         super.validate(tagCount);
 
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
             throw new TlvError('Exactly one request id must exist in response payload.');
         }
     }

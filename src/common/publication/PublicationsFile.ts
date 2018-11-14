@@ -1,6 +1,6 @@
 import {BigInteger} from 'big-integer';
 import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATIONS_FILE_CONSTANTS, PUBLICATIONS_FILE_HEADER_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {RawTag} from '../parser/RawTag';
 import {TlvOutputStream} from '../parser/TlvOutputStream';
 import {TlvTag} from '../parser/TlvTag';
@@ -8,6 +8,7 @@ import {CertificateRecord} from './CertificateRecord';
 import {PublicationRecord} from './PublicationRecord';
 import {PublicationsFileError} from './PublicationsFileError';
 import {PublicationsFileHeader} from './PublicationsFileHeader';
+import {compareTypedArray} from '../util/Array';
 
 /**
  * Publications File TLV object
@@ -37,9 +38,8 @@ export class PublicationsFile extends CompositeTag {
 
     // TODO: Check input param
     public findCertificateById(certificateId: Uint8Array): CertificateRecord | null {
-        const certificateIdString: string = JSON.stringify(certificateId);
         for (const certificateRecord of this.certificateRecordList) {
-            if (certificateIdString === JSON.stringify(certificateRecord.getCertificateId())) {
+            if (compareTypedArray(certificateId, certificateRecord.getCertificateId())) {
                 return certificateRecord;
             }
         }
@@ -128,12 +128,12 @@ export class PublicationsFile extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType) !== 1) {
             throw new PublicationsFileError('Exactly one publications file header must exist in publications file.');
         }
 
-        if (tagCount[PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType] !== 1) {
+        if (tagCount.getCount(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType) !== 1) {
             throw new PublicationsFileError('Exactly one signature must exist in publications file.');
         }
 

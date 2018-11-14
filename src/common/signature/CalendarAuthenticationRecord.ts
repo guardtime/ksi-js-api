@@ -1,5 +1,5 @@
 import {PUBLICATION_DATA_CONSTANTS, SIGNATURE_DATA_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationData} from '../publication/PublicationData';
@@ -40,12 +40,12 @@ export class CalendarAuthenticationRecord extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[PUBLICATION_DATA_CONSTANTS.TagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one publication data must exist in calendar authentication record.');
         }
 
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.TagType] !== 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one signature data must exist in calendar authentication record.');
         }
     }

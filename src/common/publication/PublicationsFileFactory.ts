@@ -1,4 +1,5 @@
 import {RawTag} from '../parser/RawTag';
+import {compareTypedArray} from '../util/Array';
 import {PublicationsFile} from './PublicationsFile';
 import {PublicationsFileError} from './PublicationsFileError';
 
@@ -8,8 +9,8 @@ import {PublicationsFileError} from './PublicationsFileError';
 export class PublicationsFileFactory {
 
     public create(publicationFileBytes: Uint8Array): PublicationsFile {
-        if (JSON.stringify(publicationFileBytes.slice(0, PublicationsFile.FileBeginningMagicBytes.length)) !==
-            JSON.stringify(PublicationsFile.FileBeginningMagicBytes)) {
+        const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
+        if (!compareTypedArray(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {
             throw new PublicationsFileError(
                 'Publications file header is incorrect. Invalid publications file magic bytes.');
         }

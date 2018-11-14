@@ -2,7 +2,7 @@ import bigInteger, {BigInteger} from 'big-integer';
 import {DataHash, DataHasher, HashAlgorithm, UnsignedLongCoder} from 'gt-js-common';
 import {util} from 'node-forge';
 import {AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
 import {IntegerTag} from '../parser/IntegerTag';
 import {RawTag} from '../parser/RawTag';
@@ -68,20 +68,20 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType) !== 1) {
             throw new TlvError('Exactly one client id must exist in aggregation hash chain link metadata.');
         }
 
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType) > 1) {
             throw new TlvError('Only one machine id is allowed in aggregation hash chain link metadata.');
         }
 
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType) > 1) {
             throw new TlvError('Only one sequence number is allowed in aggregation hash chain link metadata.');
         }
 
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType) > 1) {
             throw new TlvError('Only one request time is allowed in aggregation hash chain link metadata.');
         }
     }
@@ -205,14 +205,14 @@ export class AggregationHashChainLink extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType] > 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType) > 1) {
             throw new TlvError('Only one LevelCorrection value is allowed in aggregation hash chain link.');
         }
 
-        if (((tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType] || 0) +
-            (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId] || 0) +
-            (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType] || 0)) !== 1) {
+        if (((tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType) || 0) +
+            (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId) || 0) +
+            (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType) || 0)) !== 1) {
 
             throw new TlvError('Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.');
         }
@@ -362,8 +362,8 @@ export class AggregationHashChain extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) !== 1) {
             throw new TlvError('Exactly one aggregation time must exist in aggregation hash chain.');
         }
 
@@ -371,15 +371,15 @@ export class AggregationHashChain extends CompositeTag {
             throw new TlvError('Chain index is missing in aggregation hash chain.');
         }
 
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType) > 1) {
             throw new TlvError('Only one input data value is allowed in aggregation hash chain.');
         }
 
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType] !== 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType) !== 1) {
             throw new TlvError('Exactly one input hash must exist in aggregation hash chain.');
         }
 
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType] !== 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType) !== 1) {
             throw new TlvError('Exactly one algorithm must exist in aggregation hash chain.');
         }
 

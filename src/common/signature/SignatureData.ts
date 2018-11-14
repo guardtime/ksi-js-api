@@ -1,5 +1,5 @@
 import {SIGNATURE_DATA_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {RawTag} from '../parser/RawTag';
 import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
@@ -22,6 +22,10 @@ export class SignatureData extends CompositeTag {
         this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
+    }
+
+    public getSignatureType(): string {
+        return this.signatureType.getValue();
     }
 
     public getCertificateId(): Uint8Array {
@@ -47,20 +51,20 @@ export class SignatureData extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType) !== 1) {
             throw new TlvError('Exactly one signature type must exist in signature data.');
         }
 
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.SignatureValueTagType] !== 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType) !== 1) {
             throw new TlvError('Exactly one signature value must exist in signature data.');
         }
 
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.CertificateIdTagType] !== 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType) !== 1) {
             throw new TlvError('Exactly one certificate id must exist in signature data.');
         }
 
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType] > 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType) > 1) {
             throw new TlvError('Only one certificate repository uri is allowed in signature data.');
         }
     }

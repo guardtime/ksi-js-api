@@ -8,6 +8,7 @@ import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
 import {VerificationRule} from '../VerificationRule';
+import {compareTypedArray} from '../../../util/Array';
 
 /**
  * Rule verifies if all metadata tags in aggregation hash chains are valid.
@@ -64,9 +65,8 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);
                     }
 
-                    const valueBytesString: string = JSON.stringify(paddingTag.getValueBytes());
-                    if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
-                        && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
+                    if (!compareTypedArray(paddingTag.getValueBytes(), AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
+                        && !compareTypedArray(paddingTag.getValueBytes(), AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
                         console.debug(`Metadata with padding may not be trusted. Unknown padding value. Metadata: ${metadata}.`);
 
                         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11);

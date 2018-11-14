@@ -1,7 +1,7 @@
 import bigInteger from 'big-integer';
 import {DataHash} from 'gt-js-common';
 import {PUBLICATION_DATA_CONSTANTS, PUBLICATION_RECORD_CONSTANTS} from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {StringTag} from '../parser/StringTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
@@ -68,8 +68,8 @@ export class PublicationRecord extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
-        if (tagCount[PUBLICATION_DATA_CONSTANTS.TagType] !== 1) {
+    private validate(tagCount: ICount): void {
+        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one publication data must exist in publication record.');
         }
     }

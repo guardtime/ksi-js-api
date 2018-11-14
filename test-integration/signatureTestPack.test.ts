@@ -2,6 +2,7 @@ import bigInteger, {BigInteger} from 'big-integer';
 import {CastingContext} from 'csv-parse';
 // tslint:disable-next-line:import-name
 import parseCsv from 'csv-parse/lib/sync';
+import {EventEmitter} from 'events';
 import fs from 'fs';
 import HexCoder from 'gt-js-common/lib/coders/HexCoder';
 import DataHash from 'gt-js-common/lib/hash/DataHash';
@@ -17,6 +18,12 @@ import {
 } from '../src/common/main';
 import {TlvInputStream} from '../src/common/parser/TlvInputStream';
 import {PublicationData} from '../src/common/publication/PublicationData';
+import {PublicationsFile} from '../src/common/publication/PublicationsFile';
+import {IExtendingServiceProtocol} from '../src/common/service/IExtendingServiceProtocol';
+import {IPublicationsFileServiceProtocol} from '../src/common/service/IPublicationsFileServiceProtocol';
+import {IServiceCredentials} from '../src/common/service/IServiceCredentials';
+import {ISigningServiceProtocol} from '../src/common/service/ISigningServiceProtocol';
+import {KsiRequestBase} from '../src/common/service/KsiRequestBase';
 import {KsiSignature} from '../src/common/signature/KsiSignature';
 import {CalendarBasedVerificationPolicy} from '../src/common/signature/verification/policy/CalendarBasedVerificationPolicy';
 import {InternalVerificationPolicy} from '../src/common/signature/verification/policy/InternalVerificationPolicy';
@@ -24,7 +31,7 @@ import {VerificationPolicy} from '../src/common/signature/verification/policy/Ve
 import {VerificationError} from '../src/common/signature/verification/VerificationError';
 import {VerificationResult} from '../src/common/signature/verification/VerificationResult';
 import {ExtendingServiceProtocol, PublicationsFileServiceProtocol, SigningServiceProtocol} from '../src/nodejs/main';
-import {PublicationsFile} from '../src/common/publication/PublicationsFile';
+import {KsiRequest} from '../src/nodejs/service/KsiRequest';
 
 const config: { testDirectory: null | string; ksiService: null | KsiService; publicationsFile: PublicationsFile | null } = {
     publicationsFile: null,
@@ -53,60 +60,17 @@ type SignatureTestRow = {
 
 type CsvCastTypes = string | BigInteger | DataHash | PublicationData | number | boolean | null;
 
-// private static IVerificationContext GetVerificationContext(TestingRow testingRow, IKsiSignature signature, string testDataDir, bool setUserPublication = false)
-// {
-//     IPublicationsFile publicationsFile = null;
-//     IKsiService service;
-//
-//     if (!setUserPublication)
-//     {
-//         publicationsFile = GetPublicationsFile(string.IsNullOrEmpty(testingRow.PublicationsFilePath) ? null : testDataDir + testingRow.PublicationsFilePath,
-//             string.IsNullOrEmpty(testingRow.CertFilePath) ? null : testDataDir + testingRow.CertFilePath);
-//     }
-//
-//     if (string.IsNullOrEmpty(testingRow.ResourceFile))
-//     {
-//         service = IntegrationTests.GetHttpKsiService();
-//     }
-//     else
-//     {
-//         TestKsiServiceProtocol protocol = new TestKsiServiceProtocol
-//         {
-//             RequestResult = File.ReadAllBytes(Path.Combine(TestSetup.LocalPath, testDataDir + testingRow.ResourceFile))
-//         };
-//         service =
-//             new TestKsiService(
-//                 protocol,
-//                 new ServiceCredentials(Properties.Settings.Default.HttpSigningServiceUser, Properties.Settings.Default.HttpSigningServicePass,
-//                     TestUtil.GetHashAlgorithm(Properties.Settings.Default.HttpSigningServiceHmacAlgorithm)),
-//                 protocol,
-//                 new ServiceCredentials(Properties.Settings.Default.HttpExtendingServiceUser, Properties.Settings.Default.HttpExtendingServicePass,
-//                     TestUtil.GetHashAlgorithm(Properties.Settings.Default.HttpExtendingServiceHmacAlgorithm)),
-//                 protocol,
-//                 new PublicationsFileFactory(
-//                     new PkiTrustStoreProvider(new X509Store(StoreName.Root),
-//                         CryptoTestFactory.CreateCertificateSubjectRdnSelector("E=publications@guardtime.com"))), 1, PduVersion.v2);
-//     }
-//
-//     return new VerificationContext(signature)
-//     {
-//         DocumentHash = testingRow.InputHash,
-//             UserPublication = setUserPublication ? testingRow.PublicationData : null,
-//             IsExtendingAllowed = testingRow.IsExtendingAllowed,
-//             KsiService = service,
-//             PublicationsFile = publicationsFile,
-//             DocumentHashLevel = testingRow.InputHashLevel
-//     };
-// }
-
 /**
  * Signature Test Pack for shared tests over all SDK-s
  */
 describe.each(
     [
-        path.join(__dirname, './resources/signature-test-pack/internal-policy-signatures/internal-policy-results.csv')
+        path.join(__dirname, './resources/signature-test-pack/internal-policy-signatures/internal-policy-results.csv'),
+        path.join(__dirname, './resources/signature-test-pack/invalid-signatures/invalid-signature-results.csv'),
+        path.join(__dirname, './resources/signature-test-pack/policy-verification-signatures/policy-verification-results.csv'),
+        path.join(__dirname, './resources/signature-test-pack/valid-signatures/signature-results.csv')
     ]
-)('Signature Test Pack', (resultFile: string): void => {
+)('Signature Test Pack: %s', (resultFile: string): void => {
     beforeAll(() => {
         config.ksiService = new KsiService(
             new SigningService(
@@ -165,9 +129,14 @@ describe.each(
                 }
             }
         ))('Test row nr. %#', (row: SignatureTestRow) => {
-            console.log(JSON.stringify(row, null, '  '));
+        console.debug(`
+SignatureFile: ${row.signatureFile}
+ActionName:    ${row.actionName}
+Error Code:    ${row.errorCode}
+Error Message: ${row.errorMessage}
+Row index:     ${row.rowIndex}`);
 
-            return testSignature(row, path.dirname(resultFile));
+        return testSignature(row, path.dirname(resultFile));
     });
 
 });
@@ -219,20 +188,72 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
         if (!row.publicationsFilePath) {
             verificationContext.setPublicationsFile(config.publicationsFile);
         } else {
-            verificationContext.setPublicationsFile(new PublicationsFileFactory().create(fs.readFileSync(row.publicationsFilePath)));
+            verificationContext.setPublicationsFile(
+                new PublicationsFileFactory().create(
+                    new Uint8Array(fs.readFileSync(path.join(testBasePath, row.publicationsFilePath)))));
         }
     }
 
     if (row.resourceFile) {
-        return;
+        verificationContext.setKsiService(
+            new KsiService(
+                new SigningService(
+                    new TestServiceProtocol(fs.readFileSync(path.join(testBasePath, row.resourceFile))),
+                    new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY)
+                ),
+                new TestExtendingService(
+                    new TestServiceProtocol(fs.readFileSync(path.join(testBasePath, row.resourceFile))),
+                    new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY),
+                    bigInteger(1)
+                ),
+                new PublicationsFileService(
+                    new TestServiceProtocol(fs.readFileSync(path.join(testBasePath, row.resourceFile))),
+                    new PublicationsFileFactory()
+                )
+            )
+        );
     } else {
         verificationContext.setKsiService(config.ksiService);
     }
 
-    // GetVerificationContext(testingRow, signature, testDataDir, testingRow.ActionName == "userPublication")
-
+    console.debug(verificationContext.getSignature().toString());
     const result: VerificationResult = await policy.verify(verificationContext);
     const verificationError: VerificationError | null = result.getVerificationError();
-    console.log(result.toString());
+    console.debug(result.toString());
     expect(verificationError ? verificationError.code : null).toEqual(row.errorCode || null);
+}
+
+class TestServiceProtocol implements ISigningServiceProtocol, IExtendingServiceProtocol, IPublicationsFileServiceProtocol {
+    private readonly resultBytes: Uint8Array;
+
+    constructor(resultBytes: Uint8Array) {
+        this.resultBytes = resultBytes;
+    }
+
+    public extend(requestBytes: Uint8Array): KsiRequestBase {
+        return new KsiRequest(Promise.resolve(this.resultBytes), new EventEmitter());
+    }
+
+    public getPublicationsFile(): Promise<Uint8Array> {
+        return Promise.resolve(this.resultBytes);
+    }
+
+    public sign(requestBytes: Uint8Array): KsiRequestBase {
+        return new KsiRequest(Promise.resolve(this.resultBytes), new EventEmitter());
+    }
+}
+
+class TestExtendingService extends ExtendingService {
+    private requestId: BigInteger;
+
+    constructor(extendingServiceProtocol: IExtendingServiceProtocol,
+                extendingServiceCredentials: IServiceCredentials,
+                requestId: BigInteger) {
+        super(extendingServiceProtocol, extendingServiceCredentials);
+        this.requestId = requestId;
+    }
+
+    protected generateRequestId(): BigInteger {
+        return this.requestId;
+    }
 }

@@ -4,8 +4,24 @@ import {TlvInputStream} from './TlvInputStream';
 import {TlvOutputStream} from './TlvOutputStream';
 import {TlvTag} from './TlvTag';
 
-export interface ITlvCount {
-    [key: number]: number;
+export interface ICount {
+    getCount(id: number): number;
+}
+
+class ElementCounter implements ICount {
+    private counts: {[key: number]: number} = {};
+
+    public getCount(id: number): number {
+        return this.counts[id] || 0;
+    }
+
+    public addCount(id: number): void {
+        if (!this.counts.hasOwnProperty(id)) {
+            this.counts[id] = 0;
+        }
+
+        this.counts[id] += 1;
+    }
 }
 
 /**
@@ -14,7 +30,7 @@ export interface ITlvCount {
 export abstract class CompositeTag extends TlvTag {
 
     public value: TlvTag[] = [];
-    private readonly tlvCount: ITlvCount = {};
+    private readonly elementCounter: ElementCounter = new ElementCounter();
 
     protected constructor(tlvTag: TlvTag) {
         super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
@@ -72,18 +88,14 @@ export abstract class CompositeTag extends TlvTag {
             const tlvTag: TlvTag = createFunc(stream.readTag(), position);
             this.value.push(tlvTag);
 
-            if (!this.tlvCount.hasOwnProperty(tlvTag.id)) {
-                this.tlvCount[tlvTag.id] = 0;
-            }
-
-            this.tlvCount[tlvTag.id] += 1;
+            this.elementCounter.addCount(tlvTag.id);
             position += 1;
         }
 
-        Object.freeze(this.tlvCount);
+        Object.freeze(this.elementCounter);
     }
 
-    protected validateValue(validate: (tlvCount: ITlvCount) => void): void {
-        validate(this.tlvCount);
+    protected validateValue(validate: (tlvCount: ICount) => void): void {
+        validate(this.elementCounter);
     }
 }

@@ -7,7 +7,7 @@ import {
     KSI_SIGNATURE_CONSTANTS,
     RFC_3161_RECORD_CONSTANTS
 } from '../Constants';
-import {CompositeTag, ITlvCount} from '../parser/CompositeTag';
+import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvInputStream} from '../parser/TlvInputStream';
 import {TlvOutputStream} from '../parser/TlvOutputStream';
@@ -145,29 +145,30 @@ export class KsiSignature extends CompositeTag {
         }
     }
 
-    private validate(tagCount: ITlvCount): void {
+    private validate(tagCount: ICount): void {
         if (this.aggregationHashChains.length === 0) {
             throw new TlvError('Aggregation hash chains must exist in KSI signature.');
         }
 
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one calendar hash chain is allowed in KSI signature.');
         }
 
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] === 0 && (tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] !== 0 ||
-            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] !== 0)) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) === 0
+            && (tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) !== 0
+                || tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) !== 0)) {
             throw new TlvError('No publication record or calendar authentication record is ' +
                 'allowed in KSI signature if there is no calendar hash chain.');
         }
 
-        if ((tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] === 1 &&
-            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] === 1) ||
-            tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] > 1 ||
-            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] > 1) {
+        if ((tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) === 1 &&
+            tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) === 1) ||
+            tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) > 1 ||
+            tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one from publication record or calendar authentication record is allowed in KSI signature.');
         }
 
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one RFC 3161 record is allowed in KSI signature.');
         }
     }

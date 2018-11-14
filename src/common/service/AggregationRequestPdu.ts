@@ -4,7 +4,7 @@ import {
     AGGREGATION_REQUEST_PDU_CONSTANTS,
     AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS
 } from '../Constants';
-import {ITlvCount} from '../parser/CompositeTag';
+import {ICount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';
 import {TlvTag} from '../parser/TlvTag';
 import {AggregationRequestPayload} from './AggregationRequestPayload';
@@ -46,10 +46,10 @@ export class AggregationRequestPdu extends Pdu {
         }
     }
 
-    protected validate(tagCount: ITlvCount): void {
+    protected validate(tagCount: ICount): void {
         super.validate(tagCount);
 
-        if (tagCount[AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one aggregator config request payload is allowed in PDU.');
         }
     }

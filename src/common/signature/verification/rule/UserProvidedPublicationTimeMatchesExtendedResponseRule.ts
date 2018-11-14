@@ -21,11 +21,15 @@ export class UserProvidedPublicationTimeMatchesExtendedResponseRule extends Veri
         const extendedCalendarHashChain: CalendarHashChain =
             await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
 
+        if (extendedCalendarHashChain === null) {
+            throw new KsiVerificationError('Invalid extended calendar hash chain: null.');
+        }
+
         if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02);
         }
 
-        return signature.getAggregationTime().equals(extendedCalendarHashChain.calculateRegistrationTime())
+        return !signature.getAggregationTime().equals(await extendedCalendarHashChain.calculateRegistrationTime())
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
