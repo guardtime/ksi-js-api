@@ -42,7 +42,7 @@ export class TlvTag {
         return !(x.id !== y.id
             || x.forwardFlag !== y.forwardFlag
             || x.nonCriticalFlag !== y.nonCriticalFlag
-            || compareTypedArray(x.getValueBytes(), y.getValueBytes()));
+            || !compareTypedArray(x.getValueBytes(), y.getValueBytes()));
     }
 
     public encode(): Uint8Array {
