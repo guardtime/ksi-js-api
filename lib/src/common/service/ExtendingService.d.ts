@@ -12,4 +12,5 @@ export declare class ExtendingService {
     constructor(extendingServiceProtocol: IExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials);
     private static processPayload;
     extend(aggregationTime: BigInteger, publicationTime?: BigInteger | null): Promise<CalendarHashChain>;
+    protected generateRequestId(): BigInteger;
 }

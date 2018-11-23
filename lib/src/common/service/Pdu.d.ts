@@ -1,5 +1,5 @@
 import { HashAlgorithm } from 'gt-js-common';
-import { CompositeTag, ITlvCount } from '../parser/CompositeTag';
+import { CompositeTag, ICount } from '../parser/CompositeTag';
 import { TlvTag } from '../parser/TlvTag';
 import { ErrorPayload } from './ErrorPayload';
 import { PduHeader } from './PduHeader';
@@ -17,5 +17,5 @@ export declare abstract class Pdu extends CompositeTag {
     getErrorPayload(): ErrorPayload | null;
     getPayloads(): PduPayload[];
     protected parseChild(tlvTag: TlvTag): TlvTag;
-    protected validate(tagCount: ITlvCount): void;
+    protected validate(tagCount: ICount): void;
 }

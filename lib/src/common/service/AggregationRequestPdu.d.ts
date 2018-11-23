@@ -1,5 +1,5 @@
 import { HashAlgorithm } from 'gt-js-common';
-import { ITlvCount } from '../parser/CompositeTag';
+import { ICount } from '../parser/CompositeTag';
 import { TlvTag } from '../parser/TlvTag';
 import { AggregationRequestPayload } from './AggregationRequestPayload';
 import { Pdu } from './Pdu';
@@ -12,5 +12,5 @@ export declare class AggregationRequestPdu extends Pdu {
     constructor(tlvTag: TlvTag);
     static CREATE(header: PduHeader, payload: AggregationRequestPayload, algorithm: HashAlgorithm, key: Uint8Array): Promise<AggregationRequestPdu>;
     protected parseChild(tlvTag: TlvTag): TlvTag;
-    protected validate(tagCount: ITlvCount): void;
+    protected validate(tagCount: ICount): void;
 }

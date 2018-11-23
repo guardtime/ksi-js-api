@@ -1,4 +1,4 @@
-import { ITlvCount } from '../parser/CompositeTag';
+import { ICount } from '../parser/CompositeTag';
 import { TlvTag } from '../parser/TlvTag';
 import { Pdu } from './Pdu';
 /**
@@ -8,5 +8,5 @@ export declare class ExtendResponsePdu extends Pdu {
     private extenderConfigResponse;
     constructor(tlvTag: TlvTag);
     protected parseChild(tlvTag: TlvTag): TlvTag;
-    protected validate(tagCount: ITlvCount): void;
+    protected validate(tagCount: ICount): void;
 }

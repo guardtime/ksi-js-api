@@ -13,4 +13,5 @@ export declare class SigningService {
     constructor(signingServiceProtocol: ISigningServiceProtocol, signingServiceCredentials: IServiceCredentials);
     private static processPayload;
     sign(hash: DataHash, level?: BigInteger): Promise<KsiSignature>;
+    protected generateRequestId(): BigInteger;
 }

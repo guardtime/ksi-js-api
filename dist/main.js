@@ -50010,7 +50010,37 @@ var LinkDirection;
     LinkDirection[LinkDirection["Right"] = 8] = "Right";
 })(LinkDirection || (LinkDirection = {}));
 
+// CONCATENATED MODULE: ./src/common/util/Array.ts
+/**
+ * Compare typed arrays
+ * @param arr1 Typed array 1
+ * @param arr2 Typed array 2
+ */
+function compareTypedArray(arr1, arr2) {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+    for (var i = 0; i < arr1.length; i += 1) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+function compareArrayEquals(arr1, arr2) {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+    for (var i = 0; i < arr1.length; i += 1) {
+        if (!arr1[i].equals(arr2[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // CONCATENATED MODULE: ./src/common/parser/TlvTag.ts
+
 
 
 /**
@@ -50044,7 +50074,7 @@ var TlvTag_TlvTag = /** @class */ (function () {
         return !(x.id !== y.id
             || x.forwardFlag !== y.forwardFlag
             || x.nonCriticalFlag !== y.nonCriticalFlag
-            || JSON.stringify(x.getValueBytes()) !== JSON.stringify(y.getValueBytes()));
+            || !compareTypedArray(x.getValueBytes(), y.getValueBytes()));
     };
     TlvTag.prototype.encode = function () {
         if (this.id > TLV_CONSTANTS.MaxType) {
@@ -50188,6 +50218,21 @@ var CompositeTag_extends = (undefined && undefined.__extends) || (function () {
 
 
 
+var ElementCounter = /** @class */ (function () {
+    function ElementCounter() {
+        this.counts = {};
+    }
+    ElementCounter.prototype.getCount = function (id) {
+        return this.counts[id] || 0;
+    };
+    ElementCounter.prototype.addCount = function (id) {
+        if (!this.counts.hasOwnProperty(id)) {
+            this.counts[id] = 0;
+        }
+        this.counts[id] += 1;
+    };
+    return ElementCounter;
+}());
 /**
  * Composite TLV object
  */
@@ -50196,7 +50241,7 @@ var CompositeTag_CompositeTag = /** @class */ (function (_super) {
     function CompositeTag(tlvTag) {
         var _this = _super.call(this, tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag) || this;
         _this.value = [];
-        _this.tlvCount = {};
+        _this.elementCounter = new ElementCounter();
         return _this;
     }
     CompositeTag.CREATE_FROM_LIST = function (id, nonCriticalFlag, forwardFlag, value, tlv16BitFlag) {
@@ -50241,16 +50286,13 @@ var CompositeTag_CompositeTag = /** @class */ (function (_super) {
         while (stream.getPosition() < stream.getLength()) {
             var tlvTag = createFunc(stream.readTag(), position);
             this.value.push(tlvTag);
-            if (!this.tlvCount.hasOwnProperty(tlvTag.id)) {
-                this.tlvCount[tlvTag.id] = 0;
-            }
-            this.tlvCount[tlvTag.id] += 1;
+            this.elementCounter.addCount(tlvTag.id);
             position += 1;
         }
-        Object.freeze(this.tlvCount);
+        Object.freeze(this.elementCounter);
     };
     CompositeTag.prototype.validateValue = function (validate) {
-        validate(this.tlvCount);
+        validate(this.elementCounter);
     };
     return CompositeTag;
 }(TlvTag_TlvTag));
@@ -51135,8 +51177,6 @@ var PublicationData_extends = (undefined && undefined.__extends) || (function ()
 
 
 
-
-
 /**
  * Publication Data TLV object
  */
@@ -51161,11 +51201,13 @@ var PublicationData_PublicationData = /** @class */ (function (_super) {
         if (bytesWithCrc32.length < 13) {
             throw new TlvError('Publication string base 32 decode failed.');
         }
-        console.log('TEST', bytesWithCrc32.slice(0, -4), bytesWithCrc32.slice(-4), CRC32_CRC32.create(bytesWithCrc32.slice(0, -4)));
-        if (JSON.stringify(CRC32_CRC32.create(bytesWithCrc32.slice(0, -4))) !== JSON.stringify(bytesWithCrc32.slice(-4))) {
-            throw new TlvError('Publication string CRC 32 check failed.');
+        var calculatedCrc32 = UnsignedLongCoder_UnsignedLongCoder.encode(CRC32_CRC32.create(bytesWithCrc32.slice(0, -4)));
+        var messageCrc32 = bytesWithCrc32.slice(-4);
+        if (!compareTypedArray(calculatedCrc32, messageCrc32)) {
+            // tslint:disable-next-line:max-line-length
+            throw new TlvError("Publication string CRC 32 check failed. Calculated: " + JSON.stringify(calculatedCrc32) + "; From Message: " + JSON.stringify(messageCrc32));
         }
-        return PublicationData.CREATE(UnsignedLongCoder_UnsignedLongCoder.decode(bytesWithCrc32, 0, bytesWithCrc32.length - 12), new DataHash_DataHash(bytesWithCrc32.slice(0, 8)));
+        return PublicationData.CREATE(UnsignedLongCoder_UnsignedLongCoder.decode(bytesWithCrc32, 0, 8), new DataHash_DataHash(bytesWithCrc32.slice(8, -4)));
     };
     PublicationData.prototype.getPublicationHash = function () {
         return this.publicationHash.getValue();
@@ -51183,11 +51225,12 @@ var PublicationData_PublicationData = /** @class */ (function (_super) {
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     PublicationData.prototype.validate = function (tagCount) {
-        if (tagCount[PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType] !== 1) {
+        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {
             throw new TlvError('Exactly one publication time must exist in publication data.');
         }
-        if (tagCount[PUBLICATION_DATA_CONSTANTS.PublicationHashTagType] !== 1) {
+        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType) !== 1) {
             throw new TlvError('Exactly one publication hash must exist in publication data.');
         }
     };
@@ -51263,8 +51306,9 @@ var PublicationRecord_PublicationRecord = /** @class */ (function (_super) {
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     PublicationRecord.prototype.validate = function (tagCount) {
-        if (tagCount[PUBLICATION_DATA_CONSTANTS.TagType] !== 1) {
+        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one publication data must exist in publication record.');
         }
     };
@@ -51403,17 +51447,18 @@ var AggregationHashChain_AggregationHashChainLinkMetaData = /** @class */ (funct
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     AggregationHashChainLinkMetaData.prototype.validate = function (tagCount) {
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType] !== 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType) !== 1) {
             throw new TlvError('Exactly one client id must exist in aggregation hash chain link metadata.');
         }
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType) > 1) {
             throw new TlvError('Only one machine id is allowed in aggregation hash chain link metadata.');
         }
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType) > 1) {
             throw new TlvError('Only one sequence number is allowed in aggregation hash chain link metadata.');
         }
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType) > 1) {
             throw new TlvError('Only one request time is allowed in aggregation hash chain link metadata.');
         }
     };
@@ -51512,13 +51557,14 @@ var AggregationHashChain_AggregationHashChainLink = /** @class */ (function (_su
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     AggregationHashChainLink.prototype.validate = function (tagCount) {
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType) > 1) {
             throw new TlvError('Only one LevelCorrection value is allowed in aggregation hash chain link.');
         }
-        if (((tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType] || 0) +
-            (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId] || 0) +
-            (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType] || 0)) !== 1) {
+        if (((tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType) || 0) +
+            (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId) || 0) +
+            (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType) || 0)) !== 1) {
             throw new TlvError('Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.');
         }
     };
@@ -51666,19 +51712,19 @@ var AggregationHashChain_AggregationHashChain = /** @class */ (function (_super)
         }
     };
     AggregationHashChain.prototype.validate = function (tagCount) {
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType] !== 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) !== 1) {
             throw new TlvError('Exactly one aggregation time must exist in aggregation hash chain.');
         }
         if (this.chainIndexes.length === 0) {
             throw new TlvError('Chain index is missing in aggregation hash chain.');
         }
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType) > 1) {
             throw new TlvError('Only one input data value is allowed in aggregation hash chain.');
         }
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType] !== 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType) !== 1) {
             throw new TlvError('Exactly one input hash must exist in aggregation hash chain.');
         }
-        if (tagCount[AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType] !== 1) {
+        if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType) !== 1) {
             throw new TlvError('Exactly one algorithm must exist in aggregation hash chain.');
         }
         if (this.chainLinks.length === 0) {
@@ -51720,6 +51766,9 @@ var SignatureData_SignatureData = /** @class */ (function (_super) {
         Object.freeze(_this);
         return _this;
     }
+    SignatureData.prototype.getSignatureType = function () {
+        return this.signatureType.getValue();
+    };
     SignatureData.prototype.getCertificateId = function () {
         return this.certificateId.getValue();
     };
@@ -51740,17 +51789,18 @@ var SignatureData_SignatureData = /** @class */ (function (_super) {
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     SignatureData.prototype.validate = function (tagCount) {
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType] !== 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType) !== 1) {
             throw new TlvError('Exactly one signature type must exist in signature data.');
         }
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.SignatureValueTagType] !== 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType) !== 1) {
             throw new TlvError('Exactly one signature value must exist in signature data.');
         }
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.CertificateIdTagType] !== 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType) !== 1) {
             throw new TlvError('Exactly one certificate id must exist in signature data.');
         }
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType] > 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType) > 1) {
             throw new TlvError('Only one certificate repository uri is allowed in signature data.');
         }
     };
@@ -51805,11 +51855,12 @@ var CalendarAuthenticationRecord_CalendarAuthenticationRecord = /** @class */ (f
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     CalendarAuthenticationRecord.prototype.validate = function (tagCount) {
-        if (tagCount[PUBLICATION_DATA_CONSTANTS.TagType] !== 1) {
+        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one publication data must exist in calendar authentication record.');
         }
-        if (tagCount[SIGNATURE_DATA_CONSTANTS.TagType] !== 1) {
+        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one signature data must exist in calendar authentication record.');
         }
     };
@@ -52040,13 +52091,13 @@ var CalendarHashChain_CalendarHashChain = /** @class */ (function (_super) {
         }
     };
     CalendarHashChain.prototype.validate = function (tagCount) {
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType] !== 1) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType) !== 1) {
             throw new TlvError('Exactly one publication time must exist in calendar hash chain.');
         }
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.AggregationTimeTagType] > 1) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) > 1) {
             throw new TlvError('Only one aggregation time is allowed in calendar hash chain.');
         }
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType] !== 1) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType) !== 1) {
             throw new TlvError('Exactly one input hash must exist in calendar hash chain.');
         }
         if (this.chainLinks.length === 0) {
@@ -52211,34 +52262,34 @@ var Rfc3161Record_Rfc3161Record = /** @class */ (function (_super) {
         }
     };
     Rfc3161Record.prototype.validate = function (tagCount) {
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType) !== 1) {
             throw new TlvError('Exactly one aggregation time must exist in RFC#3161 record.');
         }
         if (this.chainIndexes.length === 0) {
             throw new TlvError('Chain indexes must exist in RFC#3161 record.');
         }
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.InputHashTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.InputHashTagType) !== 1) {
             throw new TlvError('Exactly one input hash must exist in RFC#3161 record.');
         }
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoPrefixTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TstInfoPrefixTagType) !== 1) {
             throw new TlvError('Exactly one tstInfo prefix must exist in RFC#3161 record.');
         }
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoSuffixTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TstInfoSuffixTagType) !== 1) {
             throw new TlvError('Exactly one tstInfo suffix must exist in RFC#3161 record.');
         }
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.TstInfoAlgorithmTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TstInfoAlgorithmTagType) !== 1) {
             throw new TlvError('Exactly one tstInfo algorithm must exist in RFC#3161 record.');
         }
         if (this.tstInfoAlgorithm === null) {
             throw new TlvError('Invalid tstInfo algorithm value in RFC#3161 record.');
         }
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesPrefixTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.SignedAttributesPrefixTagType) !== 1) {
             throw new TlvError('Exactly one signed attributes prefix must exist in RFC#3161 record.');
         }
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesSuffixTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.SignedAttributesSuffixTagType) !== 1) {
             throw new TlvError('Exactly one signed attributes suffix must exist in RFC#3161 record.');
         }
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType] !== 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType) !== 1) {
             throw new TlvError('Exactly one signed attributes algorithm must exist in RFC#3161 record.');
         }
         if (this.signedAttributesAlgorithm === null) {
@@ -52434,21 +52485,22 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
         if (this.aggregationHashChains.length === 0) {
             throw new TlvError('Aggregation hash chains must exist in KSI signature.');
         }
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one calendar hash chain is allowed in KSI signature.');
         }
-        if (tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] === 0 && (tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] !== 0 ||
-            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] !== 0)) {
+        if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) === 0
+            && (tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) !== 0
+                || tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) !== 0)) {
             throw new TlvError('No publication record or calendar authentication record is ' +
                 'allowed in KSI signature if there is no calendar hash chain.');
         }
-        if ((tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] === 1 &&
-            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] === 1) ||
-            tagCount[KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType] > 1 ||
-            tagCount[CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType] > 1) {
+        if ((tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) === 1 &&
+            tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) === 1) ||
+            tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) > 1 ||
+            tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one from publication record or calendar authentication record is allowed in KSI signature.');
         }
-        if (tagCount[RFC_3161_RECORD_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one RFC 3161 record is allowed in KSI signature.');
         }
     };
@@ -52609,6 +52661,9 @@ var VerificationError = /** @class */ (function () {
 
 
 // CONCATENATED MODULE: ./src/common/signature/verification/VerificationResult.ts
+/**
+ * Verification result for KSI signature
+ */
 
 var VerificationResultCode;
 (function (VerificationResultCode) {
@@ -53076,6 +53131,7 @@ var AggregationHashChainIndexSuccessorRule_generator = (undefined && undefined._
 
 
 
+
 /**
  * This rule checks that chain index of a aggregation hash chain is successor to it's parent aggregation hash chain index.
  */
@@ -53086,17 +53142,16 @@ var AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRul
     }
     AggregationHashChainIndexSuccessorRule.prototype.verify = function (context) {
         return AggregationHashChainIndexSuccessorRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChains, parentChainIndex, chainIndex, _i, aggregationHashChains_1, chain;
+            var signature, aggregationHashChains, parentChainIndex, _i, aggregationHashChains_1, chain, chainIndex;
             return AggregationHashChainIndexSuccessorRule_generator(this, function (_a) {
                 signature = context.getSignature();
                 aggregationHashChains = signature.getAggregationHashChains();
                 parentChainIndex = null;
-                chainIndex = null;
                 for (_i = 0, aggregationHashChains_1 = aggregationHashChains; _i < aggregationHashChains_1.length; _i++) {
                     chain = aggregationHashChains_1[_i];
                     chainIndex = chain.getChainIndex();
                     if (parentChainIndex !== null && (parentChainIndex.length <= chainIndex.length
-                        || !JSON.stringify(parentChainIndex).startsWith(JSON.stringify(chainIndex).slice(0, -1)))) {
+                        || !compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Chain index is not the successor to the parent aggregation hash chain index. Chain index: " + chainIndex + "; Parent chain index: " + parentChainIndex + ".");
                         return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
@@ -53104,7 +53159,8 @@ var AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRul
                     parentChainIndex = chainIndex;
                 }
                 if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
-                    console.debug("Highest aggregation hash chain index length is not 1. Chain index: " + chainIndex + ".");
+                    // tslint:disable-next-line:max-line-length
+                    console.debug("Highest aggregation hash chain index length is not 1. Chain index: " + aggregationHashChains[aggregationHashChains.length - 1].getChainIndex() + ".");
                     return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -53170,6 +53226,7 @@ var AggregationHashChainMetadataRule_generator = (undefined && undefined.__gener
 
 
 
+
 /**
  * Rule verifies if all metadata tags in aggregation hash chains are valid.
  */
@@ -53180,7 +53237,7 @@ var AggregationHashChainMetadataRule_AggregationHashChainMetadataRule = /** @cla
     }
     AggregationHashChainMetadataRule.prototype.verify = function (context) {
         return AggregationHashChainMetadataRule_awaiter(this, void 0, void 0, function () {
-            var signature, aggregationHashChains, _i, aggregationHashChains_1, chain, _a, _b, link, metadata, paddingTag, metadataBytes, hashAlgorithmId, hashAlgorithm, valueBytesString, stream;
+            var signature, aggregationHashChains, _i, aggregationHashChains_1, chain, _a, _b, link, metadata, paddingTag, metadataBytes, hashAlgorithmId, hashAlgorithm, stream;
             return AggregationHashChainMetadataRule_generator(this, function (_c) {
                 signature = context.getSignature();
                 aggregationHashChains = signature.getAggregationHashChains();
@@ -53222,9 +53279,8 @@ var AggregationHashChainMetadataRule_AggregationHashChainMetadataRule = /** @cla
                                 console.debug("Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: " + metadata + ".");
                                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
-                            valueBytesString = JSON.stringify(paddingTag.getValueBytes());
-                            if (valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
-                                && valueBytesString !== JSON.stringify(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
+                            if (!compareTypedArray(paddingTag.getValueBytes(), AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
+                                && !compareTypedArray(paddingTag.getValueBytes(), AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
                                 console.debug("Metadata with padding may not be trusted. Unknown padding value. Metadata: " + metadata + ".");
                                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
                             }
@@ -54537,6 +54593,7 @@ var Rfc3161RecordChainIndexRule_generator = (undefined && undefined.__generator)
 
 
 
+
 /**
  * This rule verifies that aggregation hash chain index and RFC3161 record chain index match.
  * If RFC3161 record is not present then VerificationResultCode.Ok is returned.
@@ -54548,7 +54605,7 @@ var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (fun
     }
     Rfc3161RecordChainIndexRule.prototype.verify = function (context) {
         return Rfc3161RecordChainIndexRule_awaiter(this, void 0, void 0, function () {
-            var signature, rfc3161Record, aggregationHashChains, rfc3161ChainIndex, aggregationChainIndex, rfc3161ChainIndexJson, aggregationChainIndexJson;
+            var signature, rfc3161Record, aggregationHashChains, rfc3161ChainIndex, aggregationChainIndex;
             return Rfc3161RecordChainIndexRule_generator(this, function (_a) {
                 signature = context.getSignature();
                 rfc3161Record = signature.getRfc3161Record();
@@ -54558,11 +54615,9 @@ var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (fun
                 aggregationHashChains = signature.getAggregationHashChains();
                 rfc3161ChainIndex = rfc3161Record.getChainIndex();
                 aggregationChainIndex = aggregationHashChains[0].getChainIndex();
-                rfc3161ChainIndexJson = JSON.stringify(rfc3161ChainIndex);
-                aggregationChainIndexJson = JSON.stringify(aggregationChainIndex);
-                if (rfc3161ChainIndexJson !== aggregationChainIndexJson) {
+                if (!compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
                     // tslint:disable-next-line:max-line-length
-                    console.debug("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + rfc3161ChainIndexJson + " and RFC3161 chain index is " + aggregationChainIndexJson + ".");
+                    console.debug("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + JSON.stringify(rfc3161ChainIndex) + " and RFC3161 chain index is " + JSON.stringify(aggregationChainIndex) + ".");
                     return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54976,20 +55031,25 @@ var SignaturePublicationRecordPublicationHashRule_SignaturePublicationRecordPubl
     }
     SignaturePublicationRecordPublicationHashRule.prototype.verify = function (context) {
         return SignaturePublicationRecordPublicationHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, publicationRecord, calendarHashChain;
-            return SignaturePublicationRecordPublicationHashRule_generator(this, function (_a) {
-                signature = context.getSignature();
-                publicationRecord = signature.getPublicationRecord();
-                if (publicationRecord === null) {
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+            var signature, publicationRecord, calendarHashChain, _a, _b;
+            return SignaturePublicationRecordPublicationHashRule_generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        signature = context.getSignature();
+                        publicationRecord = signature.getPublicationRecord();
+                        if (publicationRecord === null) {
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        }
+                        calendarHashChain = signature.getCalendarHashChain();
+                        if (calendarHashChain === null) {
+                            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                        }
+                        _b = (_a = publicationRecord.getPublicationHash()).equals;
+                        return [4 /*yield*/, calendarHashChain.calculateOutputHash()];
+                    case 1: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
+                            : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
-                calendarHashChain = signature.getCalendarHashChain();
-                if (calendarHashChain === null) {
-                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
-                }
-                return [2 /*return*/, !publicationRecord.getPublicationHash().equals(calendarHashChain.calculateOutputHash())
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
-                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
     };
@@ -55141,7 +55201,7 @@ var SuccessResultRule_SuccessResultRule = /** @class */ (function (_super) {
     function SuccessResultRule() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    SuccessResultRule.prototype.verify = function (context) {
+    SuccessResultRule.prototype.verify = function () {
         return SuccessResultRule_awaiter(this, void 0, void 0, function () {
             return SuccessResultRule_generator(this, function (_a) {
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -55312,9 +55372,9 @@ var InternalVerificationPolicy_InternalVerificationPolicy = /** @class */ (funct
             .onSuccess(new SignaturePublicationRecordPublicationTimeRule_SignaturePublicationRecordPublicationTimeRule() // Int-07
             .onSuccess(new SignaturePublicationRecordPublicationHashRule_SignaturePublicationRecordPublicationHashRule())) // Int-09
             // No publication record
-            .onNa(new SuccessResultRule_SuccessResultRule())))))
+            .onNa(new SuccessResultRule_SuccessResultRule()))))
             // No calendar hash chain
-            .onNa(new SuccessResultRule_SuccessResultRule())))) || this;
+            .onNa(new SuccessResultRule_SuccessResultRule()))))) || this;
     }
     InternalVerificationPolicy.verifyInput = function () {
         return new VerificationPolicy_VerificationPolicy(new InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule() // Gen-04
@@ -56266,8 +56326,11 @@ var UserProvidedPublicationHashMatchesExtendedResponseRule_UserProvidedPublicati
                         return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
                     case 1:
                         extendedCalendarHashChain = _a.sent();
+                        if (extendedCalendarHashChain === null) {
+                            throw new KsiVerificationError('Invalid extended calendar hash chain: null.');
+                        }
                         return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
-                    case 2: return [2 /*return*/, (_a.sent()).equals(userPublication.getPublicationHash())
+                    case 2: return [2 /*return*/, !(_a.sent()).equals(userPublication.getPublicationHash())
                             ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
@@ -56341,9 +56404,9 @@ var UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicati
     }
     UserProvidedPublicationTimeMatchesExtendedResponseRule.prototype.verify = function (context) {
         return UserProvidedPublicationTimeMatchesExtendedResponseRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, extendedCalendarHashChain;
-            return UserProvidedPublicationTimeMatchesExtendedResponseRule_generator(this, function (_a) {
-                switch (_a.label) {
+            var signature, userPublication, extendedCalendarHashChain, _a, _b;
+            return UserProvidedPublicationTimeMatchesExtendedResponseRule_generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         signature = context.getSignature();
                         userPublication = context.getUserPublication();
@@ -56352,13 +56415,18 @@ var UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicati
                         }
                         return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
                     case 1:
-                        extendedCalendarHashChain = _a.sent();
+                        extendedCalendarHashChain = _c.sent();
+                        if (extendedCalendarHashChain === null) {
+                            throw new KsiVerificationError('Invalid extended calendar hash chain: null.');
+                        }
                         if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
                             return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
                         }
-                        return [2 /*return*/, signature.getAggregationTime().equals(extendedCalendarHashChain.calculateRegistrationTime())
-                                ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
-                                : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
+                        _b = (_a = signature.getAggregationTime()).equals;
+                        return [4 /*yield*/, extendedCalendarHashChain.calculateRegistrationTime()];
+                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                            : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
         });
@@ -56766,6 +56834,12 @@ class X509_X509 {
         const hashOfData = hashData(cert, signedData).value;
         return cert.publicKey.verify(ASCIIConverter.ToString(hashOfData), ASCIIConverter.ToString(signature));
     }
+    static isCertificateValidDuring(certificateBytes, time) {
+        const cert = convertToForgeCert(certificateBytes);
+        console.log(cert);
+        return !(time.lt(new Date(cert.validity.notBefore).getTime() / 1000)
+            || time.gt(new Date(cert.validity.notAfter).getTime() / 1000));
+    }
 }
 /**
  * Hashes the signed data for the verification process.
@@ -56880,11 +56954,22 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                     throw new KsiVerificationError('Invalid publications file in context: null.');
                 }
                 signatureData = calendarAuthenticationRecord.getSignatureData();
+                switch (signatureData.getSignatureType()) {
+                    case '1.2.840.113549.1.1.11':
+                        break;
+                    case '1.2.840.113549.1.7.2':
+                        throw new Error('Not implemented');
+                    default:
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02)];
+                }
                 certificateRecord = publicationsFile
                     .findCertificateById(signatureData.getCertificateId());
                 if (certificateRecord === null) {
                     // tslint:disable-next-line:max-line-length
                     throw new KsiVerificationError("No certificate found in publications file with id: " + HexCoder_HexCoder.encode(signatureData.getCertificateId()) + ".");
+                }
+                if (!X509_X509.isCertificateValidDuring(certificateRecord.getX509Certificate(), signature.getAggregationTime())) {
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03)];
                 }
                 signedBytes = calendarAuthenticationRecord.getPublicationData().encode();
                 try {
@@ -56895,7 +56980,7 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                 catch (error) {
                     console.debug(error);
                 }
-                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02)];
             });
         });
     };
@@ -57238,14 +57323,15 @@ var AggregationRequestPayload_AggregationRequestPayload = /** @class */ (functio
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     AggregationRequestPayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
             throw new TlvError('Exactly one request id must exist in aggregation request payload.');
         }
-        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType] !== 1) {
+        if (tagCount.getCount(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType) !== 1) {
             throw new TlvError('Exactly one request hash must exist in aggregation request payload.');
         }
-        if (tagCount[AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType] > 1) {
+        if (tagCount.getCount(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType) > 1) {
             throw new TlvError('Only one request level is allowed in aggregation request payload.');
         }
     };
@@ -57380,10 +57466,10 @@ var ResponsePayload_ResponsePayload = /** @class */ (function (_super) {
         }
     };
     ResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.StatusTagType] !== 1) {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.StatusTagType) !== 1) {
             throw new TlvError('Exactly one status code must exist in response payload.');
         }
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType] > 1) {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType) > 1) {
             throw new TlvError('Only one error message is allowed in response payload.');
         }
     };
@@ -57466,14 +57552,15 @@ var PduHeader_PduHeader = /** @class */ (function (_super) {
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     PduHeader.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_HEADER_CONSTANTS.LoginIdTagType] !== 1) {
+        if (tagCount.getCount(PDU_HEADER_CONSTANTS.LoginIdTagType) !== 1) {
             throw new TlvError('Exactly one login id must exist in PDU header.');
         }
-        if (tagCount[PDU_HEADER_CONSTANTS.InstanceIdTagType] > 1) {
+        if (tagCount.getCount(PDU_HEADER_CONSTANTS.InstanceIdTagType) > 1) {
             throw new TlvError('Only one instance id is allowed in PDU header.');
         }
-        if (tagCount[PDU_HEADER_CONSTANTS.MessageIdTagType] > 1) {
+        if (tagCount.getCount(PDU_HEADER_CONSTANTS.MessageIdTagType) > 1) {
             throw new TlvError('Only one message id is allowed in PDU header.');
         }
     };
@@ -57592,13 +57679,13 @@ var Pdu_Pdu = /** @class */ (function (_super) {
         if (this.payloads.length === 0) {
             throw new TlvError('Payloads are missing in PDU.');
         }
-        if (tagCount[PDU_HEADER_CONSTANTS.TagType] !== 1) {
+        if (tagCount.getCount(PDU_HEADER_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one header must exist in PDU.');
         }
         if (this.value[0] !== this.header) {
             throw new TlvError('Header must be the first element in PDU.');
         }
-        if (tagCount[PDU_CONSTANTS.MacTagType] !== 1) {
+        if (tagCount.getCount(PDU_CONSTANTS.MacTagType) !== 1) {
             throw new TlvError('Exactly one MAC must exist in PDU.');
         }
         if (this.value[this.value.length - 1] !== this.hmac) {
@@ -57702,7 +57789,7 @@ var AggregationRequestPdu_AggregationRequestPdu = /** @class */ (function (_supe
     };
     AggregationRequestPdu.prototype.validate = function (tagCount) {
         _super.prototype.validate.call(this, tagCount);
-        if (tagCount[AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one aggregator config request payload is allowed in PDU.');
         }
     };
@@ -57776,7 +57863,7 @@ var RequestResponsePayload_RequestResponsePayload = /** @class */ (function (_su
     };
     RequestResponsePayload.prototype.validate = function (tagCount) {
         _super.prototype.validate.call(this, tagCount);
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
             throw new TlvError('Exactly one request id must exist in response payload.');
         }
     };
@@ -57835,7 +57922,7 @@ var AggregationResponsePayload_AggregationResponsePayload = /** @class */ (funct
     };
     AggregationResponsePayload.prototype.validate = function (tagCount) {
         _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one extender config request payload is allowed in PDU.');
         }
     };
@@ -57894,17 +57981,18 @@ var AggregatorConfigResponsePayload_AggregatorConfigResponsePayload = /** @class
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     AggregatorConfigResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType) > 1) {
             throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');
         }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType) > 1) {
             throw new TlvError('Only one aggregation algorithm tag is allowed in aggregator config response payload.');
         }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType) > 1) {
             throw new TlvError('Only one aggregation period tag is allowed in aggregator config response payload.');
         }
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType) > 1) {
             throw new TlvError('Only one max requests tag is allowed in aggregator config response payload.');
         }
     };
@@ -57963,7 +58051,7 @@ var AggregationResponsePdu_AggregationResponsePdu = /** @class */ (function (_su
     };
     AggregationResponsePdu.prototype.validate = function (tagCount) {
         _super.prototype.validate.call(this, tagCount);
-        if (tagCount[AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one aggregator config response payload is allowed in PDU.');
         }
     };
@@ -58040,7 +58128,7 @@ var SigningService_SigningService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
-                        requestId = pseudoRandomLong();
+                        requestId = this.generateRequestId();
                         requestPayload = AggregationRequestPayload_AggregationRequestPayload.CREATE(requestId, hash, level);
                         return [4 /*yield*/, AggregationRequestPdu_AggregationRequestPdu.CREATE(header, requestPayload, this.signingServiceCredentials.getHmacAlgorithm(), this.signingServiceCredentials.getLoginKey())];
                     case 1:
@@ -58092,6 +58180,10 @@ var SigningService_SigningService = /** @class */ (function () {
                 }
             });
         });
+    };
+    // noinspection JSMethodCanBeStatic
+    SigningService.prototype.generateRequestId = function () {
+        return pseudoRandomLong();
     };
     return SigningService;
 }());
@@ -58151,14 +58243,15 @@ var ExtendRequestPayload_ExtendRequestPayload = /** @class */ (function (_super)
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     ExtendRequestPayload.prototype.validate = function (tagCount) {
-        if (tagCount[PDU_PAYLOAD_CONSTANTS.RequestIdTagType] !== 1) {
+        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
             throw new TlvError('Exactly one request id must exist in extend request payload.');
         }
-        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType] !== 1) {
+        if (tagCount.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType) !== 1) {
             throw new TlvError('Exactly one aggregation time must exist in extend request payload.');
         }
-        if (tagCount[EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType] > 1) {
+        if (tagCount.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType) > 1) {
             throw new TlvError('Only one publication time is allowed in extend request payload.');
         }
     };
@@ -58286,7 +58379,7 @@ var ExtendRequestPdu_ExtendRequestPdu = /** @class */ (function (_super) {
     };
     ExtendRequestPdu.prototype.validate = function (tagCount) {
         _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one extender config request payload is allowed in PDU.');
         }
     };
@@ -58343,14 +58436,15 @@ var ExtenderConfigResponsePayload_ExtenderConfigResponsePayload = /** @class */ 
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     ExtenderConfigResponsePayload.prototype.validate = function (tagCount) {
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType] > 1) {
+        if (tagCount.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType) > 1) {
             throw new TlvError('Only one max requests tag is allowed in extender config response payload.');
         }
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType] > 1) {
+        if (tagCount.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType) > 1) {
             throw new TlvError('Only one calendar first time tag is allowed in extender config response payload.');
         }
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
+        if (tagCount.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType) > 1) {
             throw new TlvError('Only one calendar last time tag is allowed in extender config response payload.');
         }
     };
@@ -58431,10 +58525,10 @@ var ExtendResponsePayload_ExtendResponsePayload = /** @class */ (function (_supe
     };
     ExtendResponsePayload.prototype.validate = function (tagCount) {
         _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType] > 1) {
+        if (tagCount.getCount(EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType) > 1) {
             throw new TlvError('Only one calendar last time is allowed in extend response payload.');
         }
-        if (this.getStatus().eq(0) && tagCount[CALENDAR_HASH_CHAIN_CONSTANTS.TagType] !== 1) {
+        if (this.getStatus().eq(0) && tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one calendar hash chain must exist in extend response payload.');
         }
     };
@@ -58493,7 +58587,7 @@ var ExtendResponsePdu_ExtendResponsePdu = /** @class */ (function (_super) {
     };
     ExtendResponsePdu.prototype.validate = function (tagCount) {
         _super.prototype.validate.call(this, tagCount);
-        if (tagCount[EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType] > 1) {
+        if (tagCount.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType) > 1) {
             throw new TlvError('Only one extender config response payload is allowed in PDU.');
         }
     };
@@ -58568,7 +58662,7 @@ var ExtendingService_ExtendingService = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         header = PduHeader_PduHeader.CREATE_FROM_LOGIN_ID(this.extendingServiceCredentials.getLoginId());
-                        requestId = pseudoRandomLong();
+                        requestId = this.generateRequestId();
                         requestPayload = ExtendRequestPayload_ExtendRequestPayload.CREATE(requestId, aggregationTime, publicationTime);
                         return [4 /*yield*/, ExtendRequestPdu_ExtendRequestPdu.CREATE(header, requestPayload, this.extendingServiceCredentials.getHmacAlgorithm(), this.extendingServiceCredentials.getLoginKey())];
                     case 1:
@@ -58620,6 +58714,9 @@ var ExtendingService_ExtendingService = /** @class */ (function () {
                 }
             });
         });
+    };
+    ExtendingService.prototype.generateRequestId = function () {
+        return pseudoRandomLong();
     };
     return ExtendingService;
 }());
@@ -58757,11 +58854,12 @@ var CertificateRecord_CertificateRecord = /** @class */ (function (_super) {
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     CertificateRecord.prototype.validate = function (tagCount) {
-        if (tagCount[CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType] !== 1) {
+        if (tagCount.getCount(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType) !== 1) {
             throw new TlvError('Exactly one certificate id must exist in certificate record.');
         }
-        if (tagCount[CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType] !== 1) {
+        if (tagCount.getCount(CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType) !== 1) {
             throw new TlvError('Exactly one certificate must exist in certificate record.');
         }
     };
@@ -58851,14 +58949,15 @@ var PublicationsFileHeader_PublicationsFileHeader = /** @class */ (function (_su
                 return CompositeTag_CompositeTag.parseTlvTag(tlvTag);
         }
     };
+    // noinspection JSMethodCanBeStatic
     PublicationsFileHeader.prototype.validate = function (tagCount) {
-        if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType] !== 1) {
+        if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType) !== 1) {
             throw new TlvError('Exactly one version must exist in publications file header.');
         }
-        if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType] !== 1) {
+        if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType) !== 1) {
             throw new TlvError('Exactly one creation time must exist in publications file header.');
         }
-        if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType] > 1) {
+        if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType) > 1) {
             throw new TlvError('Only one repository uri is allowed in publications file header.');
         }
     };
@@ -58880,6 +58979,7 @@ var PublicationsFile_extends = (undefined && undefined.__extends) || (function (
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+
 
 
 
@@ -58915,10 +59015,9 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
     });
     // TODO: Check input param
     PublicationsFile.prototype.findCertificateById = function (certificateId) {
-        var certificateIdString = JSON.stringify(certificateId);
         for (var _i = 0, _a = this.certificateRecordList; _i < _a.length; _i++) {
             var certificateRecord = _a[_i];
-            if (certificateIdString === JSON.stringify(certificateRecord.getCertificateId())) {
+            if (compareTypedArray(certificateId, certificateRecord.getCertificateId())) {
                 return certificateRecord;
             }
         }
@@ -58993,10 +59092,10 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
         }
     };
     PublicationsFile.prototype.validate = function (tagCount) {
-        if (tagCount[PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType] !== 1) {
+        if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType) !== 1) {
             throw new PublicationsFileError('Exactly one publications file header must exist in publications file.');
         }
-        if (tagCount[PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType] !== 1) {
+        if (tagCount.getCount(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType) !== 1) {
             throw new PublicationsFileError('Exactly one signature must exist in publications file.');
         }
         if (this.headerIndex !== 0) {
@@ -59019,15 +59118,17 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
 
 
 
+
 /**
  * Publications file factory for publications file creation from byte array
  */
 var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function () {
     function PublicationsFileFactory() {
     }
+    // noinspection JSMethodCanBeStatic
     PublicationsFileFactory.prototype.create = function (publicationFileBytes) {
-        if (JSON.stringify(publicationFileBytes.slice(0, PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length)) !==
-            JSON.stringify(PublicationsFile_PublicationsFile.FileBeginningMagicBytes)) {
+        var beginningMagicBytes = PublicationsFile_PublicationsFile.FileBeginningMagicBytes;
+        if (!compareTypedArray(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {
             throw new PublicationsFileError('Publications file header is incorrect. Invalid publications file magic bytes.');
         }
         // TODO: Verification

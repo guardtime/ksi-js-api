@@ -1,6 +1,3 @@
-/**
- * Verification result for KSI signature
- */
 import { VerificationError } from './VerificationError';
 export declare enum VerificationResultCode {
     OK = 0,

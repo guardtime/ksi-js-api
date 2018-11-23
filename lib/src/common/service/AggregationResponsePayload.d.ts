@@ -1,4 +1,4 @@
-import { ITlvCount } from '../parser/CompositeTag';
+import { ICount } from '../parser/CompositeTag';
 import { TlvTag } from '../parser/TlvTag';
 import { RequestResponsePayload } from './RequestResponsePayload';
 /**
@@ -8,5 +8,5 @@ export declare class AggregationResponsePayload extends RequestResponsePayload {
     constructor(tlvTag: TlvTag);
     getSignatureTags(): TlvTag[];
     protected parseChild(tlvTag: TlvTag): TlvTag;
-    protected validate(tagCount: ITlvCount): void;
+    protected validate(tagCount: ICount): void;
 }

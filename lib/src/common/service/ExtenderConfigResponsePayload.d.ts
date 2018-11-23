@@ -1,4 +1,4 @@
-import { ITlvCount } from '../parser/CompositeTag';
+import { ICount } from '../parser/CompositeTag';
 import { TlvTag } from '../parser/TlvTag';
 import { PduPayload } from './PduPayload';
 /**
@@ -11,5 +11,5 @@ export declare class ExtenderConfigResponsePayload extends PduPayload {
     private calendarLastTime;
     constructor(tlvTag: TlvTag);
     protected parseChild(tlvTag: TlvTag): TlvTag;
-    protected validate(tagCount: ITlvCount): void;
+    protected validate(tagCount: ICount): void;
 }

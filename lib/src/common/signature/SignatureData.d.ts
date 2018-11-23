@@ -9,6 +9,7 @@ export declare class SignatureData extends CompositeTag {
     private signatureType;
     private signatureValue;
     constructor(tlvTag: TlvTag);
+    getSignatureType(): string;
     getCertificateId(): Uint8Array;
     getSignatureValue(): Uint8Array;
     private parseChild;
