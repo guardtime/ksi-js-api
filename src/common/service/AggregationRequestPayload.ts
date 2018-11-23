@@ -51,6 +51,7 @@ export class AggregationRequestPayload extends CompositeTag {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     private validate(tagCount: ICount): void {
         if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
             throw new TlvError('Exactly one request id must exist in aggregation request payload.');

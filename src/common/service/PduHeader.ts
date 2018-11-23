@@ -41,6 +41,7 @@ export class PduHeader extends CompositeTag {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     private validate(tagCount: ICount): void {
         if (tagCount.getCount(PDU_HEADER_CONSTANTS.LoginIdTagType) !== 1) {
             throw new TlvError('Exactly one login id must exist in PDU header.');

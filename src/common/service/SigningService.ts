@@ -96,6 +96,7 @@ export class SigningService {
         return SigningService.processPayload(currentAggregationPayload);
     }
 
+    // noinspection JSMethodCanBeStatic
     protected generateRequestId(): BigInteger {
         return pseudoRandomLong();
     }

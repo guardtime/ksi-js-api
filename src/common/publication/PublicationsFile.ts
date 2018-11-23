@@ -4,11 +4,11 @@ import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {RawTag} from '../parser/RawTag';
 import {TlvOutputStream} from '../parser/TlvOutputStream';
 import {TlvTag} from '../parser/TlvTag';
+import {compareTypedArray} from '../util/Array';
 import {CertificateRecord} from './CertificateRecord';
 import {PublicationRecord} from './PublicationRecord';
 import {PublicationsFileError} from './PublicationsFileError';
 import {PublicationsFileHeader} from './PublicationsFileHeader';
-import {compareTypedArray} from '../util/Array';
 
 /**
  * Publications File TLV object

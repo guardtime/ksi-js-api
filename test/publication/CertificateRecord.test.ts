@@ -25,7 +25,6 @@ describe('CertificateRecord', () => {
         ]);
 
         expect(() => {
-            // @ts-ignore
             return new CertificateRecord(tlvTag);
         }).toThrow('Exactly one certificate id must exist in certificate record.');
     });
@@ -36,7 +35,6 @@ describe('CertificateRecord', () => {
         ]);
 
         expect(() => {
-            // @ts-ignore
             return new CertificateRecord(tlvTag);
         }).toThrow('Exactly one certificate must exist in certificate record.');
     });
@@ -49,7 +47,6 @@ describe('CertificateRecord', () => {
         ]);
 
         expect(() => {
-            // @ts-ignore
             return new CertificateRecord(tlvTag);
         }).toThrow('Exactly one certificate id must exist in certificate record.');
     });
@@ -62,7 +59,6 @@ describe('CertificateRecord', () => {
         ]);
 
         expect(() => {
-            // @ts-ignore
             return new CertificateRecord(tlvTag);
         }).toThrow('Exactly one certificate must exist in certificate record.');
     });

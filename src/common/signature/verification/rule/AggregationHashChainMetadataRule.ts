@@ -2,13 +2,13 @@ import {HashAlgorithm} from 'gt-js-common';
 import {AGGREGATION_HASH_CHAIN_CONSTANTS} from '../../../Constants';
 import {RawTag} from '../../../parser/RawTag';
 import {TlvOutputStream} from '../../../parser/TlvOutputStream';
+import {compareTypedArray} from '../../../util/Array';
 import {AggregationHashChain, AggregationHashChainLinkMetaData} from '../../AggregationHashChain';
 import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
 import {VerificationRule} from '../VerificationRule';
-import {compareTypedArray} from '../../../util/Array';
 
 /**
  * Rule verifies if all metadata tags in aggregation hash chains are valid.

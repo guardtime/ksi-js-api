@@ -10,7 +10,6 @@ import {RawTag} from '../../src/common/parser/RawTag';
 import {StringTag} from '../../src/common/parser/StringTag';
 import {TlvTag} from '../../src/common/parser/TlvTag';
 import {PublicationData} from '../../src/common/publication/PublicationData';
-import {AggregationHashChain} from '../../src/common/signature/AggregationHashChain';
 import {CalendarAuthenticationRecord} from '../../src/common/signature/CalendarAuthenticationRecord';
 import {SignatureData} from '../../src/common/signature/SignatureData';
 

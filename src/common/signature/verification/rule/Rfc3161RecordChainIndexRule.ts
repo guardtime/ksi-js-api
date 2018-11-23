@@ -1,4 +1,5 @@
 import bigInteger from 'big-integer';
+import {compareArrayEquals} from '../../../util/Array';
 import {AggregationHashChain} from '../../AggregationHashChain';
 import {KsiSignature} from '../../KsiSignature';
 import {Rfc3161Record} from '../../Rfc3161Record';
@@ -6,7 +7,6 @@ import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
 import {VerificationRule} from '../VerificationRule';
-import {compareArrayEquals, compareTypedArray} from '../../../util/Array';
 
 /**
  * This rule verifies that aggregation hash chain index and RFC3161 record chain index match.

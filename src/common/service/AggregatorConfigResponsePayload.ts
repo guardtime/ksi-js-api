@@ -45,6 +45,7 @@ export class AggregatorConfigResponsePayload extends PduPayload {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     protected validate(tagCount: ICount): void {
         if (tagCount.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType) > 1) {
             throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');

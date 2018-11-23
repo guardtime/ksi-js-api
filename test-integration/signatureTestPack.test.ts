@@ -230,7 +230,7 @@ class TestServiceProtocol implements ISigningServiceProtocol, IExtendingServiceP
         this.resultBytes = resultBytes;
     }
 
-    public extend(requestBytes: Uint8Array): KsiRequestBase {
+    public extend(): KsiRequestBase {
         return new KsiRequest(Promise.resolve(this.resultBytes), new EventEmitter());
     }
 
@@ -238,13 +238,13 @@ class TestServiceProtocol implements ISigningServiceProtocol, IExtendingServiceP
         return Promise.resolve(this.resultBytes);
     }
 
-    public sign(requestBytes: Uint8Array): KsiRequestBase {
+    public sign(): KsiRequestBase {
         return new KsiRequest(Promise.resolve(this.resultBytes), new EventEmitter());
     }
 }
 
 class TestExtendingService extends ExtendingService {
-    private requestId: BigInteger;
+    private readonly requestId: BigInteger;
 
     constructor(extendingServiceProtocol: IExtendingServiceProtocol,
                 extendingServiceCredentials: IServiceCredentials,

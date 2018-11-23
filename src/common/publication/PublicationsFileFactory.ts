@@ -8,6 +8,7 @@ import {PublicationsFileError} from './PublicationsFileError';
  */
 export class PublicationsFileFactory {
 
+    // noinspection JSMethodCanBeStatic
     public create(publicationFileBytes: Uint8Array): PublicationsFile {
         const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
         if (!compareTypedArray(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {

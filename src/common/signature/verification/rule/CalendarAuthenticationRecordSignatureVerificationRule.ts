@@ -1,5 +1,4 @@
-import {ASCIIConverter, HexCoder, X509} from 'gt-js-common';
-import {asn1, pki} from 'node-forge';
+import {HexCoder, X509} from 'gt-js-common';
 import {CertificateRecord} from '../../../publication/CertificateRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarAuthenticationRecord} from '../../CalendarAuthenticationRecord';

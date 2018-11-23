@@ -40,6 +40,7 @@ export class CalendarAuthenticationRecord extends CompositeTag {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     private validate(tagCount: ICount): void {
         if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
             throw new TlvError('Exactly one publication data must exist in calendar authentication record.');

@@ -48,6 +48,7 @@ export class PublicationsFileHeader extends CompositeTag {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     private validate(tagCount: ICount): void {
         if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType) !== 1) {
             throw new TlvError('Exactly one version must exist in publications file header.');

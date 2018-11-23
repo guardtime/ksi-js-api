@@ -1,8 +1,8 @@
 /**
  * Verification result for KSI signature
  */
-import {VerificationError} from './VerificationError';
 import {tabPrefix} from 'gt-js-common';
+import {VerificationError} from './VerificationError';
 
 export enum VerificationResultCode {
   OK, FAIL, NA

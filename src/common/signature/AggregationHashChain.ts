@@ -68,6 +68,7 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     private validate(tagCount: ICount): void {
         if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType) !== 1) {
             throw new TlvError('Exactly one client id must exist in aggregation hash chain link metadata.');
@@ -205,6 +206,7 @@ export class AggregationHashChainLink extends CompositeTag {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     private validate(tagCount: ICount): void {
         if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType) > 1) {
             throw new TlvError('Only one LevelCorrection value is allowed in aggregation hash chain link.');

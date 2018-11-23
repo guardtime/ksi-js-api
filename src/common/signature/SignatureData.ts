@@ -51,6 +51,7 @@ export class SignatureData extends CompositeTag {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     private validate(tagCount: ICount): void {
         if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType) !== 1) {
             throw new TlvError('Exactly one signature type must exist in signature data.');

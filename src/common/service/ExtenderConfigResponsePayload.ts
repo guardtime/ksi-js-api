@@ -42,6 +42,7 @@ export class ExtenderConfigResponsePayload extends PduPayload {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     protected validate(tagCount: ICount): void {
         if (tagCount.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType) > 1) {
             throw new TlvError('Only one max requests tag is allowed in extender config response payload.');

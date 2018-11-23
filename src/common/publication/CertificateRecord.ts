@@ -40,6 +40,7 @@ export class CertificateRecord extends CompositeTag {
         }
     }
 
+    // noinspection JSMethodCanBeStatic
     private validate(tagCount: ICount): void {
         if (tagCount.getCount(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType) !== 1) {
             throw new TlvError('Exactly one certificate id must exist in certificate record.');

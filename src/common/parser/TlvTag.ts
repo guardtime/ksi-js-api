@@ -1,6 +1,6 @@
 import {TLV_CONSTANTS} from '../Constants';
-import {TlvError} from './TlvError';
 import {compareTypedArray} from '../util/Array';
+import {TlvError} from './TlvError';
 
 /**
  * TLV objects base class
