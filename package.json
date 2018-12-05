@@ -6,8 +6,8 @@
   "browser": "./dist/main.js",
   "types": "./lib/nodejs/main.d.ts",
   "scripts": {
-    "test": "jest --testPathPattern=^test/.*$",
-    "integration-test": "jest --testPathPattern=^test-integration/.*$",
+    "test": "jest test/",
+    "integration-test": "jest test-integration/",
     "build": "rimraf lib && tsc -t ES6 -d  && webpack",
     "browser:dev": "webpack-dev-server"
   },
