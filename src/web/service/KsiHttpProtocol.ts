@@ -13,7 +13,7 @@ export class KsiHttpProtocol {
             method: 'POST',
             body: requestBytes,
             headers: new Headers({
-                'Content-Type': 'text/plain',
+                'Content-Type': 'application/ksi-request',
                 'Content-Length': requestBytes.length.toString()
             }),
             signal: abortController.signal
