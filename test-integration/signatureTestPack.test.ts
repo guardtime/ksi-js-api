@@ -92,7 +92,7 @@ describe.each(
     });
 
     it.each(
-        parseCsv(fs.readFileSync(resultFile).toString(), {
+        (<SignatureTestRow[]>parseCsv(fs.readFileSync(resultFile).toString(), {
                 delimiter: ';',
                 columns: (): boolean | string[] => {
                     return [
@@ -128,7 +128,7 @@ describe.each(
                     }
                 }
             }
-        ))('Test row nr. %#', (row: SignatureTestRow) => {
+        )).map((row: SignatureTestRow)  => [path.basename(row.signatureFile), row]))('%s', (filename: string, row: SignatureTestRow) => {
         console.debug(`
 SignatureFile: ${row.signatureFile}
 ActionName:    ${row.actionName}
