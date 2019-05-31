@@ -52784,21 +52784,11 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
             valueBytes.unshift(0);
         }
         var linkBits = [];
-        for (var _i = 0, _a = this.getAggregationHashChains(); _i < _a.length; _i++) {
-            var chain = _a[_i];
-            for (var _b = 0, _c = chain.getChainLinks(); _b < _c.length; _b++) {
-                var link = _c[_b];
-                if (link.getDirection() === LinkDirection.Left) {
-                    linkBits.unshift(0);
-                }
-                else if (link.getDirection() === LinkDirection.Right) {
-                    linkBits.unshift(1);
-                }
-                else {
-                    throw new Error('Invalid link direction!');
-                }
-            }
-        }
+        this.getAggregationHashChains().forEach(function (chain) {
+            chain.getChainLinks().forEach(function (link) {
+                linkBits.unshift(link.getDirection() === LinkDirection.Left ? 0 : 1);
+            });
+        });
         linkBits.unshift(1);
         while (linkBits.length % 8 !== 0) {
             linkBits.unshift(0);
@@ -52807,8 +52797,7 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
             valueBytes.push((linkBits[i] << 7) + (linkBits[i + 1] << 6) + (linkBits[i + 2] << 5) + (linkBits[i + 3] << 4)
                 + (linkBits[i + 4] << 3) + (linkBits[i + 5] << 2) + (linkBits[i + 6] << 1) + linkBits[i + 7]);
         }
-        console.log(v3_default()(valueBytes, new Array(16)));
-        return '';
+        return v3_default()(valueBytes, Array(16));
     };
     KsiSignature.prototype.extend = function (calendarHashChain, publicationRecord) {
         var stream = new TlvOutputStream();
