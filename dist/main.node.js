@@ -82,7 +82,7 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 54);
+/******/ 	return __webpack_require__(__webpack_require__.s = 58);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -116,7 +116,7 @@ module.exports = {
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-var baseN = __webpack_require__(45);
+var baseN = __webpack_require__(46);
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -4417,7 +4417,7 @@ if (true) {
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(44)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(45)(module)))
 
 /***/ }),
 /* 3 */
@@ -7313,6 +7313,12 @@ _IN('1.3.6.1.5.5.7.3.8', 'timeStamping');
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports) {
+
+module.exports = require("crypto");
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7546,12 +7552,6 @@ function ltrim(str) {
   return str.replace(/^\s+/, '');
 }
 
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-module.exports = require("crypto");
 
 /***/ }),
 /* 10 */
@@ -24690,30 +24690,30 @@ function _update(s, w, bytes) {
  */
 module.exports = __webpack_require__(0);
 __webpack_require__(6);
-__webpack_require__(46);
+__webpack_require__(47);
 __webpack_require__(4);
 __webpack_require__(18);
 __webpack_require__(36);
 __webpack_require__(14);
-__webpack_require__(48);
-__webpack_require__(11);
 __webpack_require__(49);
-__webpack_require__(38);
+__webpack_require__(11);
 __webpack_require__(50);
+__webpack_require__(38);
+__webpack_require__(51);
 __webpack_require__(35);
 __webpack_require__(20);
-__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(31);
 __webpack_require__(33);
-__webpack_require__(51);
+__webpack_require__(52);
 __webpack_require__(26);
 __webpack_require__(32);
 __webpack_require__(29);
 __webpack_require__(22);
 __webpack_require__(3);
 __webpack_require__(30);
-__webpack_require__(52);
 __webpack_require__(53);
+__webpack_require__(54);
 __webpack_require__(25);
 __webpack_require__(1);
 
@@ -28850,7 +28850,7 @@ var pkcs5 = forge.pkcs5 = forge.pkcs5 || {};
 
 var crypto;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript) {
-  crypto = __webpack_require__(9);
+  crypto = __webpack_require__(8);
 }
 
 /**
@@ -29163,9 +29163,9 @@ __webpack_require__(6);
 __webpack_require__(4);
 __webpack_require__(14);
 __webpack_require__(5);
-__webpack_require__(47);
+__webpack_require__(48);
 __webpack_require__(7);
-__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(22);
 __webpack_require__(15);
 __webpack_require__(1);
@@ -33960,7 +33960,7 @@ var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(11);
 __webpack_require__(19);
-__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(26);
 __webpack_require__(3);
 __webpack_require__(12);
@@ -38011,7 +38011,7 @@ var forge = __webpack_require__(0);
 __webpack_require__(4);
 __webpack_require__(7);
 __webpack_require__(27);
-__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(20);
 __webpack_require__(33);
 __webpack_require__(22);
@@ -38133,7 +38133,7 @@ __webpack_require__(14);
 __webpack_require__(5);
 __webpack_require__(7);
 __webpack_require__(20);
-__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(3);
 __webpack_require__(30);
 __webpack_require__(15);
@@ -39486,7 +39486,7 @@ __webpack_require__(1);
 var _crypto = null;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript &&
   !process.versions['node-webkit']) {
-  _crypto = __webpack_require__(9);
+  _crypto = __webpack_require__(8);
 }
 
 /* PRNG API */
@@ -43426,26 +43426,35 @@ forge.log.consoleLogger = sConsoleLogger;
 
 /***/ }),
 /* 39 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = require("http");
+var v35 = __webpack_require__(55);
+var md5 = __webpack_require__(57);
+
+module.exports = v35('v3', 0x30, md5);
 
 /***/ }),
 /* 40 */
 /***/ (function(module, exports) {
 
-module.exports = require("https");
+module.exports = require("http");
 
 /***/ }),
 /* 41 */
 /***/ (function(module, exports) {
 
+module.exports = require("https");
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports) {
+
 module.exports = require("url");
 
 /***/ }),
-/* 42 */,
 /* 43 */,
-/* 44 */
+/* 44 */,
+/* 45 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -43473,7 +43482,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports) {
 
 /**
@@ -43665,7 +43674,7 @@ function _encodeWithByteBuffer(input, alphabet) {
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43955,7 +43964,7 @@ function compareMacs(key, mac1, mac2) {
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43973,7 +43982,7 @@ forge.mgf.mgf1 = forge.mgf1;
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44975,7 +44984,7 @@ function M(o, a, b) {
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45149,7 +45158,7 @@ function _createKDF(kdf, md, counterStart, digestLength) {
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45168,7 +45177,7 @@ __webpack_require__(37);
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45194,7 +45203,7 @@ __webpack_require__(6);
 __webpack_require__(4);
 __webpack_require__(14);
 __webpack_require__(7);
-__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(34);
 __webpack_require__(3);
 __webpack_require__(1);
@@ -46431,7 +46440,7 @@ function _decryptContent(msg) {
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46673,7 +46682,7 @@ function _sha1() {
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47404,7 +47413,132 @@ forge.task.createCondition = function() {
 
 
 /***/ }),
-/* 54 */
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var bytesToUuid = __webpack_require__(56);
+
+function uuidToBytes(uuid) {
+  // Note: We assume we're being passed a valid uuid string
+  var bytes = [];
+  uuid.replace(/[a-fA-F0-9]{2}/g, function(hex) {
+    bytes.push(parseInt(hex, 16));
+  });
+
+  return bytes;
+}
+
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str)); // UTF8 escape
+  var bytes = new Array(str.length);
+  for (var i = 0; i < str.length; i++) {
+    bytes[i] = str.charCodeAt(i);
+  }
+  return bytes;
+}
+
+module.exports = function(name, version, hashfunc) {
+  var generateUUID = function(value, namespace, buf, offset) {
+    var off = buf && offset || 0;
+
+    if (typeof(value) == 'string') value = stringToBytes(value);
+    if (typeof(namespace) == 'string') namespace = uuidToBytes(namespace);
+
+    if (!Array.isArray(value)) throw TypeError('value must be an array of bytes');
+    if (!Array.isArray(namespace) || namespace.length !== 16) throw TypeError('namespace must be uuid string or an Array of 16 byte values');
+
+    // Per 4.3
+    var bytes = hashfunc(namespace.concat(value));
+    bytes[6] = (bytes[6] & 0x0f) | version;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    if (buf) {
+      for (var idx = 0; idx < 16; ++idx) {
+        buf[off+idx] = bytes[idx];
+      }
+    }
+
+    return buf || bytesToUuid(bytes);
+  };
+
+  // Function#name is not settable on some platforms (#270)
+  try {
+    generateUUID.name = name;
+  } catch (err) {
+  }
+
+  // Pre-defined namespaces, per Appendix C
+  generateUUID.DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+  generateUUID.URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+
+  return generateUUID;
+};
+
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports) {
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+  return ([bth[buf[i++]], bth[buf[i++]], 
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]]]).join('');
+}
+
+module.exports = bytesToUuid;
+
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var crypto = __webpack_require__(8);
+
+function md5(bytes) {
+  if (typeof Buffer.from === 'function') {
+    // Modern Buffer API
+    if (Array.isArray(bytes)) {
+      bytes = Buffer.from(bytes);
+    } else if (typeof bytes === 'string') {
+      bytes = Buffer.from(bytes, 'utf8');
+    }
+  } else {
+    // Pre-v4 Buffer API
+    if (Array.isArray(bytes)) {
+      bytes = new Buffer(bytes);
+    } else if (typeof bytes === 'string') {
+      bytes = new Buffer(bytes, 'utf8');
+    }
+  }
+
+  return crypto.createHash('md5').update(bytes).digest();
+}
+
+module.exports = md5;
+
+
+/***/ }),
+/* 58 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -48572,7 +48706,7 @@ var StringTag_StringTag = /** @class */ (function (_super) {
 
 
 // EXTERNAL MODULE: external "crypto"
-var external_crypto_ = __webpack_require__(9);
+var external_crypto_ = __webpack_require__(8);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/NodeHasher.js
 
@@ -48705,6 +48839,10 @@ class Base64Coder_Base64Coder {
         return Base64Coder_Base64Coder.encode(ASCIIConverter.ToBytes(byteString));
     }
 }
+
+// EXTERNAL MODULE: ./node_modules/uuid/v3.js
+var v3 = __webpack_require__(39);
+var v3_default = /*#__PURE__*/__webpack_require__.n(v3);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base32Coder.js
 class Base32Coder {
@@ -49996,6 +50134,9 @@ var KsiSignature_generator = (undefined && undefined.__generator) || function (t
 };
 
 
+// @ts-ignore
+// tslint:disable-next-line:no-submodule-imports import-name
+
 
 
 
@@ -50090,6 +50231,38 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
     };
     KsiSignature.prototype.isExtended = function () {
         return this.publicationRecord != null;
+    };
+    KsiSignature.prototype.getUuid = function () {
+        var valueBytes = Array.from(UnsignedLongCoder_UnsignedLongCoder.encode(this.getAggregationTime()));
+        while (valueBytes.length % 8 !== 0) {
+            valueBytes.unshift(0);
+        }
+        var linkBits = [];
+        for (var _i = 0, _a = this.getAggregationHashChains(); _i < _a.length; _i++) {
+            var chain = _a[_i];
+            for (var _b = 0, _c = chain.getChainLinks(); _b < _c.length; _b++) {
+                var link = _c[_b];
+                if (link.getDirection() === LinkDirection.Left) {
+                    linkBits.unshift(0);
+                }
+                else if (link.getDirection() === LinkDirection.Right) {
+                    linkBits.unshift(1);
+                }
+                else {
+                    throw new Error('Invalid link direction!');
+                }
+            }
+        }
+        linkBits.unshift(1);
+        while (linkBits.length % 8 !== 0) {
+            linkBits.unshift(0);
+        }
+        for (var i = 0; i < linkBits.length; i += 8) {
+            valueBytes.push((linkBits[i] << 7) + (linkBits[i + 1] << 6) + (linkBits[i + 2] << 5) + (linkBits[i + 3] << 4)
+                + (linkBits[i + 4] << 3) + (linkBits[i + 5] << 2) + (linkBits[i + 6] << 1) + linkBits[i + 7]);
+        }
+        console.log(v3_default()(valueBytes, new Array(16)));
+        return '';
     };
     KsiSignature.prototype.extend = function (calendarHashChain, publicationRecord) {
         var stream = new TlvOutputStream();
@@ -56822,13 +56995,13 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
 var external_events_ = __webpack_require__(17);
 
 // EXTERNAL MODULE: external "http"
-var external_http_ = __webpack_require__(39);
+var external_http_ = __webpack_require__(40);
 
 // EXTERNAL MODULE: external "https"
-var external_https_ = __webpack_require__(40);
+var external_https_ = __webpack_require__(41);
 
 // EXTERNAL MODULE: external "url"
-var external_url_ = __webpack_require__(41);
+var external_url_ = __webpack_require__(42);
 
 // CONCATENATED MODULE: ./src/common/service/KsiRequestBase.ts
 var KsiRequestBase_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {

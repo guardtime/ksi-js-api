@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 57);
+/******/ 	return __webpack_require__(__webpack_require__.s = 61);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -125,7 +125,7 @@ module.exports = {
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-var baseN = __webpack_require__(48);
+var baseN = __webpack_require__(49);
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -4427,7 +4427,7 @@ if (true) {
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(44)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(45)(module)))
 
 /***/ }),
 /* 3 */
@@ -24221,8 +24221,8 @@ hmac.create = function() {
 
 
 var base64 = __webpack_require__(18)
-var ieee754 = __webpack_require__(46)
-var isArray = __webpack_require__(47)
+var ieee754 = __webpack_require__(47)
+var isArray = __webpack_require__(48)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -26492,30 +26492,30 @@ function _update(s, w, bytes) {
  */
 module.exports = __webpack_require__(0);
 __webpack_require__(6);
-__webpack_require__(49);
+__webpack_require__(50);
 __webpack_require__(4);
 __webpack_require__(19);
 __webpack_require__(39);
 __webpack_require__(15);
-__webpack_require__(51);
-__webpack_require__(11);
 __webpack_require__(52);
-__webpack_require__(41);
+__webpack_require__(11);
 __webpack_require__(53);
+__webpack_require__(41);
+__webpack_require__(54);
 __webpack_require__(38);
 __webpack_require__(22);
 __webpack_require__(8);
 __webpack_require__(34);
 __webpack_require__(36);
-__webpack_require__(54);
+__webpack_require__(55);
 __webpack_require__(28);
 __webpack_require__(35);
 __webpack_require__(32);
 __webpack_require__(24);
 __webpack_require__(3);
 __webpack_require__(33);
-__webpack_require__(55);
 __webpack_require__(56);
+__webpack_require__(57);
 __webpack_require__(27);
 __webpack_require__(1);
 
@@ -31334,7 +31334,7 @@ __webpack_require__(6);
 __webpack_require__(4);
 __webpack_require__(15);
 __webpack_require__(5);
-__webpack_require__(50);
+__webpack_require__(51);
 __webpack_require__(7);
 __webpack_require__(8);
 __webpack_require__(24);
@@ -34797,7 +34797,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(45);
+__webpack_require__(46);
 // On some exotic environments, it's not clear which object `setimmediate` was
 // able to install onto.  Search each possibility in the same order as the
 // `setimmediate` library.
@@ -45515,9 +45515,18 @@ forge.log.consoleLogger = sConsoleLogger;
 
 
 /***/ }),
-/* 42 */,
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var v35 = __webpack_require__(58);
+var md5 = __webpack_require__(60);
+
+module.exports = v35('v3', 0x30, md5);
+
+/***/ }),
 /* 43 */,
-/* 44 */
+/* 44 */,
+/* 45 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -45545,7 +45554,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -45738,7 +45747,7 @@ module.exports = function(module) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20), __webpack_require__(14)))
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -45828,7 +45837,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -45839,7 +45848,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -46032,7 +46041,7 @@ function _encodeWithByteBuffer(input, alphabet) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46322,7 +46331,7 @@ function compareMacs(key, mac1, mac2) {
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46340,7 +46349,7 @@ forge.mgf.mgf1 = forge.mgf1;
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -47343,7 +47352,7 @@ function M(o, a, b) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47517,7 +47526,7 @@ function _createKDF(kdf, md, counterStart, digestLength) {
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -47536,7 +47545,7 @@ __webpack_require__(40);
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -48799,7 +48808,7 @@ function _decryptContent(msg) {
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -49041,7 +49050,7 @@ function _sha1() {
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -49772,7 +49781,323 @@ forge.task.createCondition = function() {
 
 
 /***/ }),
-/* 57 */
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var bytesToUuid = __webpack_require__(59);
+
+function uuidToBytes(uuid) {
+  // Note: We assume we're being passed a valid uuid string
+  var bytes = [];
+  uuid.replace(/[a-fA-F0-9]{2}/g, function(hex) {
+    bytes.push(parseInt(hex, 16));
+  });
+
+  return bytes;
+}
+
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str)); // UTF8 escape
+  var bytes = new Array(str.length);
+  for (var i = 0; i < str.length; i++) {
+    bytes[i] = str.charCodeAt(i);
+  }
+  return bytes;
+}
+
+module.exports = function(name, version, hashfunc) {
+  var generateUUID = function(value, namespace, buf, offset) {
+    var off = buf && offset || 0;
+
+    if (typeof(value) == 'string') value = stringToBytes(value);
+    if (typeof(namespace) == 'string') namespace = uuidToBytes(namespace);
+
+    if (!Array.isArray(value)) throw TypeError('value must be an array of bytes');
+    if (!Array.isArray(namespace) || namespace.length !== 16) throw TypeError('namespace must be uuid string or an Array of 16 byte values');
+
+    // Per 4.3
+    var bytes = hashfunc(namespace.concat(value));
+    bytes[6] = (bytes[6] & 0x0f) | version;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    if (buf) {
+      for (var idx = 0; idx < 16; ++idx) {
+        buf[off+idx] = bytes[idx];
+      }
+    }
+
+    return buf || bytesToUuid(bytes);
+  };
+
+  // Function#name is not settable on some platforms (#270)
+  try {
+    generateUUID.name = name;
+  } catch (err) {
+  }
+
+  // Pre-defined namespaces, per Appendix C
+  generateUUID.DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+  generateUUID.URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+
+  return generateUUID;
+};
+
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports) {
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+  return ([bth[buf[i++]], bth[buf[i++]], 
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]], '-',
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]],
+	bth[buf[i++]], bth[buf[i++]]]).join('');
+}
+
+module.exports = bytesToUuid;
+
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*
+ * Browser-compatible JavaScript MD5
+ *
+ * Modification of JavaScript MD5
+ * https://github.com/blueimp/JavaScript-MD5
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ *
+ * Based on
+ * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
+ * Digest Algorithm, as defined in RFC 1321.
+ * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
+ * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+ * Distributed under the BSD License
+ * See http://pajhome.org.uk/crypt/md5 for more info.
+ */
+
+
+
+function md5(bytes) {
+  if (typeof(bytes) == 'string') {
+    var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+    bytes = new Array(msg.length);
+    for (var i = 0; i < msg.length; i++) bytes[i] = msg.charCodeAt(i);
+  }
+
+  return md5ToHexEncodedArray(
+    wordsToMd5(
+      bytesToWords(bytes)
+      , bytes.length * 8)
+  );
+}
+
+
+/*
+* Convert an array of little-endian words to an array of bytes
+*/
+function md5ToHexEncodedArray(input) {
+  var i;
+  var x;
+  var output = [];
+  var length32 = input.length * 32;
+  var hexTab = '0123456789abcdef';
+  var hex;
+
+  for (i = 0; i < length32; i += 8) {
+    x = (input[i >> 5] >>> (i % 32)) & 0xFF;
+
+    hex = parseInt(hexTab.charAt((x >>> 4) & 0x0F) + hexTab.charAt(x & 0x0F), 16);
+
+    output.push(hex);
+  }
+  return output;
+}
+
+/*
+* Calculate the MD5 of an array of little-endian words, and a bit length.
+*/
+function wordsToMd5(x, len) {
+  /* append padding */
+  x[len >> 5] |= 0x80 << (len % 32);
+  x[(((len + 64) >>> 9) << 4) + 14] = len;
+
+  var i;
+  var olda;
+  var oldb;
+  var oldc;
+  var oldd;
+  var a = 1732584193;
+  var b = -271733879;
+  var c = -1732584194;
+
+  var d = 271733878;
+
+  for (i = 0; i < x.length; i += 16) {
+    olda = a;
+    oldb = b;
+    oldc = c;
+    oldd = d;
+
+    a = md5ff(a, b, c, d, x[i], 7, -680876936);
+    d = md5ff(d, a, b, c, x[i + 1], 12, -389564586);
+    c = md5ff(c, d, a, b, x[i + 2], 17, 606105819);
+    b = md5ff(b, c, d, a, x[i + 3], 22, -1044525330);
+    a = md5ff(a, b, c, d, x[i + 4], 7, -176418897);
+    d = md5ff(d, a, b, c, x[i + 5], 12, 1200080426);
+    c = md5ff(c, d, a, b, x[i + 6], 17, -1473231341);
+    b = md5ff(b, c, d, a, x[i + 7], 22, -45705983);
+    a = md5ff(a, b, c, d, x[i + 8], 7, 1770035416);
+    d = md5ff(d, a, b, c, x[i + 9], 12, -1958414417);
+    c = md5ff(c, d, a, b, x[i + 10], 17, -42063);
+    b = md5ff(b, c, d, a, x[i + 11], 22, -1990404162);
+    a = md5ff(a, b, c, d, x[i + 12], 7, 1804603682);
+    d = md5ff(d, a, b, c, x[i + 13], 12, -40341101);
+    c = md5ff(c, d, a, b, x[i + 14], 17, -1502002290);
+    b = md5ff(b, c, d, a, x[i + 15], 22, 1236535329);
+
+    a = md5gg(a, b, c, d, x[i + 1], 5, -165796510);
+    d = md5gg(d, a, b, c, x[i + 6], 9, -1069501632);
+    c = md5gg(c, d, a, b, x[i + 11], 14, 643717713);
+    b = md5gg(b, c, d, a, x[i], 20, -373897302);
+    a = md5gg(a, b, c, d, x[i + 5], 5, -701558691);
+    d = md5gg(d, a, b, c, x[i + 10], 9, 38016083);
+    c = md5gg(c, d, a, b, x[i + 15], 14, -660478335);
+    b = md5gg(b, c, d, a, x[i + 4], 20, -405537848);
+    a = md5gg(a, b, c, d, x[i + 9], 5, 568446438);
+    d = md5gg(d, a, b, c, x[i + 14], 9, -1019803690);
+    c = md5gg(c, d, a, b, x[i + 3], 14, -187363961);
+    b = md5gg(b, c, d, a, x[i + 8], 20, 1163531501);
+    a = md5gg(a, b, c, d, x[i + 13], 5, -1444681467);
+    d = md5gg(d, a, b, c, x[i + 2], 9, -51403784);
+    c = md5gg(c, d, a, b, x[i + 7], 14, 1735328473);
+    b = md5gg(b, c, d, a, x[i + 12], 20, -1926607734);
+
+    a = md5hh(a, b, c, d, x[i + 5], 4, -378558);
+    d = md5hh(d, a, b, c, x[i + 8], 11, -2022574463);
+    c = md5hh(c, d, a, b, x[i + 11], 16, 1839030562);
+    b = md5hh(b, c, d, a, x[i + 14], 23, -35309556);
+    a = md5hh(a, b, c, d, x[i + 1], 4, -1530992060);
+    d = md5hh(d, a, b, c, x[i + 4], 11, 1272893353);
+    c = md5hh(c, d, a, b, x[i + 7], 16, -155497632);
+    b = md5hh(b, c, d, a, x[i + 10], 23, -1094730640);
+    a = md5hh(a, b, c, d, x[i + 13], 4, 681279174);
+    d = md5hh(d, a, b, c, x[i], 11, -358537222);
+    c = md5hh(c, d, a, b, x[i + 3], 16, -722521979);
+    b = md5hh(b, c, d, a, x[i + 6], 23, 76029189);
+    a = md5hh(a, b, c, d, x[i + 9], 4, -640364487);
+    d = md5hh(d, a, b, c, x[i + 12], 11, -421815835);
+    c = md5hh(c, d, a, b, x[i + 15], 16, 530742520);
+    b = md5hh(b, c, d, a, x[i + 2], 23, -995338651);
+
+    a = md5ii(a, b, c, d, x[i], 6, -198630844);
+    d = md5ii(d, a, b, c, x[i + 7], 10, 1126891415);
+    c = md5ii(c, d, a, b, x[i + 14], 15, -1416354905);
+    b = md5ii(b, c, d, a, x[i + 5], 21, -57434055);
+    a = md5ii(a, b, c, d, x[i + 12], 6, 1700485571);
+    d = md5ii(d, a, b, c, x[i + 3], 10, -1894986606);
+    c = md5ii(c, d, a, b, x[i + 10], 15, -1051523);
+    b = md5ii(b, c, d, a, x[i + 1], 21, -2054922799);
+    a = md5ii(a, b, c, d, x[i + 8], 6, 1873313359);
+    d = md5ii(d, a, b, c, x[i + 15], 10, -30611744);
+    c = md5ii(c, d, a, b, x[i + 6], 15, -1560198380);
+    b = md5ii(b, c, d, a, x[i + 13], 21, 1309151649);
+    a = md5ii(a, b, c, d, x[i + 4], 6, -145523070);
+    d = md5ii(d, a, b, c, x[i + 11], 10, -1120210379);
+    c = md5ii(c, d, a, b, x[i + 2], 15, 718787259);
+    b = md5ii(b, c, d, a, x[i + 9], 21, -343485551);
+
+    a = safeAdd(a, olda);
+    b = safeAdd(b, oldb);
+    c = safeAdd(c, oldc);
+    d = safeAdd(d, oldd);
+  }
+  return [a, b, c, d];
+}
+
+/*
+* Convert an array bytes to an array of little-endian words
+* Characters >255 have their high-byte silently ignored.
+*/
+function bytesToWords(input) {
+  var i;
+  var output = [];
+  output[(input.length >> 2) - 1] = undefined;
+  for (i = 0; i < output.length; i += 1) {
+    output[i] = 0;
+  }
+  var length8 = input.length * 8;
+  for (i = 0; i < length8; i += 8) {
+    output[i >> 5] |= (input[(i / 8)] & 0xFF) << (i % 32);
+  }
+
+  return output;
+}
+
+/*
+* Add integers, wrapping at 2^32. This uses 16-bit operations internally
+* to work around bugs in some JS interpreters.
+*/
+function safeAdd(x, y) {
+  var lsw = (x & 0xFFFF) + (y & 0xFFFF);
+  var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+  return (msw << 16) | (lsw & 0xFFFF);
+}
+
+/*
+* Bitwise rotate a 32-bit number to the left.
+*/
+function bitRotateLeft(num, cnt) {
+  return (num << cnt) | (num >>> (32 - cnt));
+}
+
+/*
+* These functions implement the four basic operations the algorithm uses.
+*/
+function md5cmn(q, a, b, x, s, t) {
+  return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b);
+}
+function md5ff(a, b, c, d, x, s, t) {
+  return md5cmn((b & c) | ((~b) & d), a, b, x, s, t);
+}
+function md5gg(a, b, c, d, x, s, t) {
+  return md5cmn((b & d) | (c & (~d)), a, b, x, s, t);
+}
+function md5hh(a, b, c, d, x, s, t) {
+  return md5cmn(b ^ c ^ d, a, b, x, s, t);
+}
+function md5ii(a, b, c, d, x, s, t) {
+  return md5cmn(c ^ (b | (~d)), a, b, x, s, t);
+}
+
+module.exports = md5;
+
+
+/***/ }),
+/* 61 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -51060,6 +51385,10 @@ class Base64Coder_Base64Coder {
         return Base64Coder_Base64Coder.encode(ASCIIConverter.ToBytes(byteString));
     }
 }
+
+// EXTERNAL MODULE: ./node_modules/uuid/v3.js
+var v3 = __webpack_require__(42);
+var v3_default = /*#__PURE__*/__webpack_require__.n(v3);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base32Coder.js
 class Base32Coder {
@@ -52351,6 +52680,9 @@ var KsiSignature_generator = (undefined && undefined.__generator) || function (t
 };
 
 
+// @ts-ignore
+// tslint:disable-next-line:no-submodule-imports import-name
+
 
 
 
@@ -52445,6 +52777,38 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
     };
     KsiSignature.prototype.isExtended = function () {
         return this.publicationRecord != null;
+    };
+    KsiSignature.prototype.getUuid = function () {
+        var valueBytes = Array.from(UnsignedLongCoder_UnsignedLongCoder.encode(this.getAggregationTime()));
+        while (valueBytes.length % 8 !== 0) {
+            valueBytes.unshift(0);
+        }
+        var linkBits = [];
+        for (var _i = 0, _a = this.getAggregationHashChains(); _i < _a.length; _i++) {
+            var chain = _a[_i];
+            for (var _b = 0, _c = chain.getChainLinks(); _b < _c.length; _b++) {
+                var link = _c[_b];
+                if (link.getDirection() === LinkDirection.Left) {
+                    linkBits.unshift(0);
+                }
+                else if (link.getDirection() === LinkDirection.Right) {
+                    linkBits.unshift(1);
+                }
+                else {
+                    throw new Error('Invalid link direction!');
+                }
+            }
+        }
+        linkBits.unshift(1);
+        while (linkBits.length % 8 !== 0) {
+            linkBits.unshift(0);
+        }
+        for (var i = 0; i < linkBits.length; i += 8) {
+            valueBytes.push((linkBits[i] << 7) + (linkBits[i + 1] << 6) + (linkBits[i + 2] << 5) + (linkBits[i + 3] << 4)
+                + (linkBits[i + 4] << 3) + (linkBits[i + 5] << 2) + (linkBits[i + 6] << 1) + linkBits[i + 7]);
+        }
+        console.log(v3_default()(valueBytes, new Array(16)));
+        return '';
     };
     KsiSignature.prototype.extend = function (calendarHashChain, publicationRecord) {
         var stream = new TlvOutputStream();
