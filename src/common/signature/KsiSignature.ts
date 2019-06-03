@@ -110,10 +110,7 @@ export class KsiSignature extends CompositeTag {
     }
 
     public getUuid(): string {
-        const valueBytes: number[] = Array.from(UnsignedLongCoder.encode(this.getAggregationTime()));
-        while (valueBytes.length % 8 !== 0) {
-            valueBytes.unshift(0);
-        }
+        const valueBytes: number[] = Array.from(UnsignedLongCoder.encodeWithPadding(this.getAggregationTime()));
 
         const linkBits: number[] = [];
         this.getAggregationHashChains().forEach((chain: AggregationHashChain) => {

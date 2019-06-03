@@ -82,7 +82,7 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 58);
+/******/ 	return __webpack_require__(__webpack_require__.s = 57);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -116,7 +116,7 @@ module.exports = {
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-var baseN = __webpack_require__(46);
+var baseN = __webpack_require__(45);
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -3101,11 +3101,13 @@ util.estimateCores = function(options, callback) {
         LOG_BASE = 7,
         MAX_INT = 9007199254740992,
         MAX_INT_ARR = smallToArray(MAX_INT),
-        LOG_MAX_INT = Math.log(MAX_INT);
+        DEFAULT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
 
-    function Integer(v, radix) {
+    var supportsNativeBigInt = typeof BigInt === "function";
+
+    function Integer(v, radix, alphabet, caseSensitive) {
         if (typeof v === "undefined") return Integer[0];
-        if (typeof radix !== "undefined") return +radix === 10 ? parseValue(v) : parseBase(v, radix);
+        if (typeof radix !== "undefined") return +radix === 10 && !alphabet ? parseValue(v) : parseBase(v, radix, alphabet, caseSensitive);
         return parseValue(v);
     }
 
@@ -3122,6 +3124,11 @@ util.estimateCores = function(options, callback) {
         this.isSmall = true;
     }
     SmallInteger.prototype = Object.create(Integer.prototype);
+
+    function NativeBigInt(value) {
+        this.value = value;
+    }
+    NativeBigInt.prototype = Object.create(Integer.prototype);
 
     function isPrecise(n) {
         return -MAX_INT < n && n < MAX_INT;
@@ -3241,6 +3248,11 @@ util.estimateCores = function(options, callback) {
     };
     SmallInteger.prototype.plus = SmallInteger.prototype.add;
 
+    NativeBigInt.prototype.add = function (v) {
+        return new NativeBigInt(this.value + parseValue(v).value);
+    }
+    NativeBigInt.prototype.plus = NativeBigInt.prototype.add;
+
     function subtract(a, b) { // assumes a and b are arrays with a >= b
         var a_l = a.length,
             b_l = b.length,
@@ -3333,6 +3345,11 @@ util.estimateCores = function(options, callback) {
     };
     SmallInteger.prototype.minus = SmallInteger.prototype.subtract;
 
+    NativeBigInt.prototype.subtract = function (v) {
+        return new NativeBigInt(this.value - parseValue(v).value);
+    }
+    NativeBigInt.prototype.minus = NativeBigInt.prototype.subtract;
+
     BigInteger.prototype.negate = function () {
         return new BigInteger(this.value, !this.sign);
     };
@@ -3342,6 +3359,9 @@ util.estimateCores = function(options, callback) {
         small.sign = !sign;
         return small;
     };
+    NativeBigInt.prototype.negate = function () {
+        return new NativeBigInt(-this.value);
+    }
 
     BigInteger.prototype.abs = function () {
         return new BigInteger(this.value, false);
@@ -3349,6 +3369,10 @@ util.estimateCores = function(options, callback) {
     SmallInteger.prototype.abs = function () {
         return new SmallInteger(Math.abs(this.value));
     };
+    NativeBigInt.prototype.abs = function () {
+        return new NativeBigInt(this.value >= 0 ? this.value : -this.value);
+    }
+
 
     function multiplyLong(a, b) {
         var a_l = a.length,
@@ -3466,6 +3490,11 @@ util.estimateCores = function(options, callback) {
     };
     SmallInteger.prototype.times = SmallInteger.prototype.multiply;
 
+    NativeBigInt.prototype.multiply = function (v) {
+        return new NativeBigInt(this.value * parseValue(v).value);
+    }
+    NativeBigInt.prototype.times = NativeBigInt.prototype.multiply;
+
     function square(a) {
         //console.assert(2 * BASE * BASE < MAX_INT);
         var l = a.length,
@@ -3496,6 +3525,10 @@ util.estimateCores = function(options, callback) {
         if (isPrecise(value)) return new SmallInteger(value);
         return new BigInteger(square(smallToArray(Math.abs(this.value))), false);
     };
+
+    NativeBigInt.prototype.square = function (v) {
+        return new NativeBigInt(this.value * this.value);
+    }
 
     function divMod1(a, b) { // Left over from previous version. Performs faster than divMod2 on smaller input sizes.
         var a_l = a.length,
@@ -3606,6 +3639,9 @@ util.estimateCores = function(options, callback) {
 
     function divModAny(self, v) {
         var value, n = parseValue(v);
+        if (supportsNativeBigInt) {
+            return [new NativeBigInt(self.value / n.value), new NativeBigInt(self.value % n.value)];
+        }
         var a = self.value, b = n.value;
         var quotient;
         if (b === 0) throw new Error("Cannot divide by zero");
@@ -3663,15 +3699,22 @@ util.estimateCores = function(options, callback) {
             remainder: result[1]
         };
     };
-    SmallInteger.prototype.divmod = BigInteger.prototype.divmod;
+    NativeBigInt.prototype.divmod = SmallInteger.prototype.divmod = BigInteger.prototype.divmod;
+
 
     BigInteger.prototype.divide = function (v) {
         return divModAny(this, v)[0];
+    };
+    NativeBigInt.prototype.over = NativeBigInt.prototype.divide = function (v) {
+        return new NativeBigInt(this.value / parseValue(v).value);
     };
     SmallInteger.prototype.over = SmallInteger.prototype.divide = BigInteger.prototype.over = BigInteger.prototype.divide;
 
     BigInteger.prototype.mod = function (v) {
         return divModAny(this, v)[1];
+    };
+    NativeBigInt.prototype.mod = NativeBigInt.prototype.remainder = function (v) {
+        return new NativeBigInt(this.value % parseValue(v).value);
     };
     SmallInteger.prototype.remainder = SmallInteger.prototype.mod = BigInteger.prototype.remainder = BigInteger.prototype.mod;
 
@@ -3707,6 +3750,29 @@ util.estimateCores = function(options, callback) {
     };
     SmallInteger.prototype.pow = BigInteger.prototype.pow;
 
+    NativeBigInt.prototype.pow = function (v) {
+        var n = parseValue(v);
+        var a = this.value, b = n.value;
+        var _0 = BigInt(0), _1 = BigInt(1), _2 = BigInt(2);
+        if (b === _0) return Integer[1];
+        if (a === _0) return Integer[0];
+        if (a === _1) return Integer[1];
+        if (a === BigInt(-1)) return n.isEven() ? Integer[1] : Integer[-1];
+        if (n.isNegative()) return new NativeBigInt(_0);
+        var x = this;
+        var y = Integer[1];
+        while (true) {
+            if ((b & _1) === _1) {
+                y = y.times(x);
+                --b;
+            }
+            if (b === _0) break;
+            b /= _2;
+            x = x.square();
+        }
+        return y;
+    }
+
     BigInteger.prototype.modPow = function (exp, mod) {
         exp = parseValue(exp);
         mod = parseValue(mod);
@@ -3721,7 +3787,7 @@ util.estimateCores = function(options, callback) {
         }
         return r;
     };
-    SmallInteger.prototype.modPow = BigInteger.prototype.modPow;
+    NativeBigInt.prototype.modPow = SmallInteger.prototype.modPow = BigInteger.prototype.modPow;
 
     function compareAbs(a, b) {
         if (a.length !== b.length) {
@@ -3750,6 +3816,13 @@ util.estimateCores = function(options, callback) {
         }
         return -1;
     };
+    NativeBigInt.prototype.compareAbs = function (v) {
+        var a = this.value;
+        var b = parseValue(v).value;
+        a = a >= 0 ? a : -a;
+        b = b >= 0 ? b : -b;
+        return a === b ? 0 : a > b ? 1 : -1;
+    }
 
     BigInteger.prototype.compare = function (v) {
         // See discussion about comparison with Infinity:
@@ -3795,35 +3868,48 @@ util.estimateCores = function(options, callback) {
     };
     SmallInteger.prototype.compareTo = SmallInteger.prototype.compare;
 
+    NativeBigInt.prototype.compare = function (v) {
+        if (v === Infinity) {
+            return -1;
+        }
+        if (v === -Infinity) {
+            return 1;
+        }
+        var a = this.value;
+        var b = parseValue(v).value;
+        return a === b ? 0 : a > b ? 1 : -1;
+    }
+    NativeBigInt.prototype.compareTo = NativeBigInt.prototype.compare;
+
     BigInteger.prototype.equals = function (v) {
         return this.compare(v) === 0;
     };
-    SmallInteger.prototype.eq = SmallInteger.prototype.equals = BigInteger.prototype.eq = BigInteger.prototype.equals;
+    NativeBigInt.prototype.eq = NativeBigInt.prototype.equals = SmallInteger.prototype.eq = SmallInteger.prototype.equals = BigInteger.prototype.eq = BigInteger.prototype.equals;
 
     BigInteger.prototype.notEquals = function (v) {
         return this.compare(v) !== 0;
     };
-    SmallInteger.prototype.neq = SmallInteger.prototype.notEquals = BigInteger.prototype.neq = BigInteger.prototype.notEquals;
+    NativeBigInt.prototype.neq = NativeBigInt.prototype.notEquals = SmallInteger.prototype.neq = SmallInteger.prototype.notEquals = BigInteger.prototype.neq = BigInteger.prototype.notEquals;
 
     BigInteger.prototype.greater = function (v) {
         return this.compare(v) > 0;
     };
-    SmallInteger.prototype.gt = SmallInteger.prototype.greater = BigInteger.prototype.gt = BigInteger.prototype.greater;
+    NativeBigInt.prototype.gt = NativeBigInt.prototype.greater = SmallInteger.prototype.gt = SmallInteger.prototype.greater = BigInteger.prototype.gt = BigInteger.prototype.greater;
 
     BigInteger.prototype.lesser = function (v) {
         return this.compare(v) < 0;
     };
-    SmallInteger.prototype.lt = SmallInteger.prototype.lesser = BigInteger.prototype.lt = BigInteger.prototype.lesser;
+    NativeBigInt.prototype.lt = NativeBigInt.prototype.lesser = SmallInteger.prototype.lt = SmallInteger.prototype.lesser = BigInteger.prototype.lt = BigInteger.prototype.lesser;
 
     BigInteger.prototype.greaterOrEquals = function (v) {
         return this.compare(v) >= 0;
     };
-    SmallInteger.prototype.geq = SmallInteger.prototype.greaterOrEquals = BigInteger.prototype.geq = BigInteger.prototype.greaterOrEquals;
+    NativeBigInt.prototype.geq = NativeBigInt.prototype.greaterOrEquals = SmallInteger.prototype.geq = SmallInteger.prototype.greaterOrEquals = BigInteger.prototype.geq = BigInteger.prototype.greaterOrEquals;
 
     BigInteger.prototype.lesserOrEquals = function (v) {
         return this.compare(v) <= 0;
     };
-    SmallInteger.prototype.leq = SmallInteger.prototype.lesserOrEquals = BigInteger.prototype.leq = BigInteger.prototype.lesserOrEquals;
+    NativeBigInt.prototype.leq = NativeBigInt.prototype.lesserOrEquals = SmallInteger.prototype.leq = SmallInteger.prototype.lesserOrEquals = BigInteger.prototype.leq = BigInteger.prototype.lesserOrEquals;
 
     BigInteger.prototype.isEven = function () {
         return (this.value[0] & 1) === 0;
@@ -3831,6 +3917,9 @@ util.estimateCores = function(options, callback) {
     SmallInteger.prototype.isEven = function () {
         return (this.value & 1) === 0;
     };
+    NativeBigInt.prototype.isEven = function () {
+        return (this.value & BigInt(1)) === BigInt(0);
+    }
 
     BigInteger.prototype.isOdd = function () {
         return (this.value[0] & 1) === 1;
@@ -3838,6 +3927,9 @@ util.estimateCores = function(options, callback) {
     SmallInteger.prototype.isOdd = function () {
         return (this.value & 1) === 1;
     };
+    NativeBigInt.prototype.isOdd = function () {
+        return (this.value & BigInt(1)) === BigInt(1);
+    }
 
     BigInteger.prototype.isPositive = function () {
         return !this.sign;
@@ -3845,6 +3937,7 @@ util.estimateCores = function(options, callback) {
     SmallInteger.prototype.isPositive = function () {
         return this.value > 0;
     };
+    NativeBigInt.prototype.isPositive = SmallInteger.prototype.isPositive;
 
     BigInteger.prototype.isNegative = function () {
         return this.sign;
@@ -3852,6 +3945,7 @@ util.estimateCores = function(options, callback) {
     SmallInteger.prototype.isNegative = function () {
         return this.value < 0;
     };
+    NativeBigInt.prototype.isNegative = SmallInteger.prototype.isNegative;
 
     BigInteger.prototype.isUnit = function () {
         return false;
@@ -3859,6 +3953,9 @@ util.estimateCores = function(options, callback) {
     SmallInteger.prototype.isUnit = function () {
         return Math.abs(this.value) === 1;
     };
+    NativeBigInt.prototype.isUnit = function () {
+        return this.abs().value === BigInt(1);
+    }
 
     BigInteger.prototype.isZero = function () {
         return false;
@@ -3866,15 +3963,18 @@ util.estimateCores = function(options, callback) {
     SmallInteger.prototype.isZero = function () {
         return this.value === 0;
     };
+    NativeBigInt.prototype.isZero = function () {
+        return this.value === BigInt(0);
+    }
+
     BigInteger.prototype.isDivisibleBy = function (v) {
         var n = parseValue(v);
-        var value = n.value;
-        if (value === 0) return false;
-        if (value === 1) return true;
-        if (value === 2) return this.isEven();
-        return this.mod(n).equals(Integer[0]);
+        if (n.isZero()) return false;
+        if (n.isUnit()) return true;
+        if (n.compareAbs(2) === 0) return this.isEven();
+        return this.mod(n).isZero();
     };
-    SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
+    NativeBigInt.prototype.isDivisibleBy = SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
 
     function isBasicPrime(v) {
         var n = v.abs();
@@ -3884,43 +3984,43 @@ util.estimateCores = function(options, callback) {
         if (n.lesser(49)) return true;
         // we don't know if it's prime: let the other functions figure it out
     }
-    
+
     function millerRabinTest(n, a) {
         var nPrev = n.prev(),
             b = nPrev,
             r = 0,
             d, t, i, x;
         while (b.isEven()) b = b.divide(2), r++;
-        next : for (i = 0; i < a.length; i++) {
+        next: for (i = 0; i < a.length; i++) {
             if (n.lesser(a[i])) continue;
             x = bigInt(a[i]).modPow(b, n);
-            if (x.equals(Integer[1]) || x.equals(nPrev)) continue;
+            if (x.isUnit() || x.equals(nPrev)) continue;
             for (d = r - 1; d != 0; d--) {
                 x = x.square().mod(n);
-                if (x.isUnit()) return false;    
+                if (x.isUnit()) return false;
                 if (x.equals(nPrev)) continue next;
             }
             return false;
         }
         return true;
     }
-    
-// Set "strict" to true to force GRH-supported lower bound of 2*log(N)^2
+
+    // Set "strict" to true to force GRH-supported lower bound of 2*log(N)^2
     BigInteger.prototype.isPrime = function (strict) {
         var isPrime = isBasicPrime(this);
         if (isPrime !== undefined) return isPrime;
         var n = this.abs();
         var bits = n.bitLength();
-        if(bits <= 64)
-            return millerRabinTest(n, [2, 325, 9375, 28178, 450775, 9780504, 1795265022]);
-        var logN = Math.log(2) * bits;
+        if (bits <= 64)
+            return millerRabinTest(n, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]);
+        var logN = Math.log(2) * bits.toJSNumber();
         var t = Math.ceil((strict === true) ? (2 * Math.pow(logN, 2)) : logN);
         for (var a = [], i = 0; i < t; i++) {
             a.push(bigInt(i + 2));
         }
         return millerRabinTest(n, a);
     };
-    SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
+    NativeBigInt.prototype.isPrime = SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
 
     BigInteger.prototype.isProbablePrime = function (iterations) {
         var isPrime = isBasicPrime(this);
@@ -3932,11 +4032,11 @@ util.estimateCores = function(options, callback) {
         }
         return millerRabinTest(n, a);
     };
-    SmallInteger.prototype.isProbablePrime = BigInteger.prototype.isProbablePrime;
+    NativeBigInt.prototype.isProbablePrime = SmallInteger.prototype.isProbablePrime = BigInteger.prototype.isProbablePrime;
 
     BigInteger.prototype.modInv = function (n) {
         var t = bigInt.zero, newT = bigInt.one, r = parseValue(n), newR = this.abs(), q, lastT, lastR;
-        while (!newR.equals(bigInt.zero)) {
+        while (!newR.isZero()) {
             q = r.divide(newR);
             lastT = t;
             lastR = r;
@@ -3945,7 +4045,7 @@ util.estimateCores = function(options, callback) {
             newT = lastT.subtract(q.multiply(newT));
             newR = lastR.subtract(q.multiply(newR));
         }
-        if (!r.equals(1)) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
+        if (!r.isUnit()) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
         if (t.compare(0) === -1) {
             t = t.add(n);
         }
@@ -3955,7 +4055,7 @@ util.estimateCores = function(options, callback) {
         return t;
     };
 
-    SmallInteger.prototype.modInv = BigInteger.prototype.modInv;
+    NativeBigInt.prototype.modInv = SmallInteger.prototype.modInv = BigInteger.prototype.modInv;
 
     BigInteger.prototype.next = function () {
         var value = this.value;
@@ -3969,6 +4069,9 @@ util.estimateCores = function(options, callback) {
         if (value + 1 < MAX_INT) return new SmallInteger(value + 1);
         return new BigInteger(MAX_INT_ARR, false);
     };
+    NativeBigInt.prototype.next = function () {
+        return new NativeBigInt(this.value + BigInt(1));
+    }
 
     BigInteger.prototype.prev = function () {
         var value = this.value;
@@ -3982,21 +4085,23 @@ util.estimateCores = function(options, callback) {
         if (value - 1 > -MAX_INT) return new SmallInteger(value - 1);
         return new BigInteger(MAX_INT_ARR, true);
     };
+    NativeBigInt.prototype.prev = function () {
+        return new NativeBigInt(this.value - BigInt(1));
+    }
 
     var powersOfTwo = [1];
     while (2 * powersOfTwo[powersOfTwo.length - 1] <= BASE) powersOfTwo.push(2 * powersOfTwo[powersOfTwo.length - 1]);
     var powers2Length = powersOfTwo.length, highestPower2 = powersOfTwo[powers2Length - 1];
 
     function shift_isSmall(n) {
-        return ((typeof n === "number" || typeof n === "string") && +Math.abs(n) <= BASE) ||
-            (n instanceof BigInteger && n.value.length <= 1);
+        return Math.abs(n) <= BASE;
     }
 
-    BigInteger.prototype.shiftLeft = function (n) {
+    BigInteger.prototype.shiftLeft = function (v) {
+        var n = parseValue(v).toJSNumber();
         if (!shift_isSmall(n)) {
             throw new Error(String(n) + " is too large for shifting.");
         }
-        n = +n;
         if (n < 0) return this.shiftRight(-n);
         var result = this;
         if (result.isZero()) return result;
@@ -4006,14 +4111,14 @@ util.estimateCores = function(options, callback) {
         }
         return result.multiply(powersOfTwo[n]);
     };
-    SmallInteger.prototype.shiftLeft = BigInteger.prototype.shiftLeft;
+    NativeBigInt.prototype.shiftLeft = SmallInteger.prototype.shiftLeft = BigInteger.prototype.shiftLeft;
 
-    BigInteger.prototype.shiftRight = function (n) {
+    BigInteger.prototype.shiftRight = function (v) {
         var remQuo;
+        var n = parseValue(v).toJSNumber();
         if (!shift_isSmall(n)) {
             throw new Error(String(n) + " is too large for shifting.");
         }
-        n = +n;
         if (n < 0) return this.shiftLeft(-n);
         var result = this;
         while (n >= powers2Length) {
@@ -4025,7 +4130,7 @@ util.estimateCores = function(options, callback) {
         remQuo = divModAny(result, powersOfTwo[n]);
         return remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
     };
-    SmallInteger.prototype.shiftRight = BigInteger.prototype.shiftRight;
+    NativeBigInt.prototype.shiftRight = SmallInteger.prototype.shiftRight = BigInteger.prototype.shiftRight;
 
     function bitwise(x, y, fn) {
         y = parseValue(y);
@@ -4062,28 +4167,31 @@ util.estimateCores = function(options, callback) {
     BigInteger.prototype.not = function () {
         return this.negate().prev();
     };
-    SmallInteger.prototype.not = BigInteger.prototype.not;
+    NativeBigInt.prototype.not = SmallInteger.prototype.not = BigInteger.prototype.not;
 
     BigInteger.prototype.and = function (n) {
         return bitwise(this, n, function (a, b) { return a & b; });
     };
-    SmallInteger.prototype.and = BigInteger.prototype.and;
+    NativeBigInt.prototype.and = SmallInteger.prototype.and = BigInteger.prototype.and;
 
     BigInteger.prototype.or = function (n) {
         return bitwise(this, n, function (a, b) { return a | b; });
     };
-    SmallInteger.prototype.or = BigInteger.prototype.or;
+    NativeBigInt.prototype.or = SmallInteger.prototype.or = BigInteger.prototype.or;
 
     BigInteger.prototype.xor = function (n) {
         return bitwise(this, n, function (a, b) { return a ^ b; });
     };
-    SmallInteger.prototype.xor = BigInteger.prototype.xor;
+    NativeBigInt.prototype.xor = SmallInteger.prototype.xor = BigInteger.prototype.xor;
 
     var LOBMASK_I = 1 << 30, LOBMASK_BI = (BASE & -BASE) * (BASE & -BASE) | LOBMASK_I;
     function roughLOB(n) { // get lowestOneBit (rough)
         // SmallInteger: return Min(lowestOneBit(n), 1 << 30)
         // BigInteger: return Min(lowestOneBit(n), 1 << 14) [BASE=1e7]
-        var v = n.value, x = typeof v === "number" ? v | LOBMASK_I : v[0] + v[1] * BASE | LOBMASK_BI;
+        var v = n.value,
+            x = typeof v === "number" ? v | LOBMASK_I :
+                typeof v === "bigint" ? v | BigInt(LOBMASK_I) :
+                    v[0] + v[1] * BASE | LOBMASK_BI;
         return x & -x;
     }
 
@@ -4108,7 +4216,7 @@ util.estimateCores = function(options, callback) {
         }
         return bigInt(integerLogarithm(n, bigInt(2)).e).add(bigInt(1));
     }
-    SmallInteger.prototype.bitLength = BigInteger.prototype.bitLength;
+    NativeBigInt.prototype.bitLength = SmallInteger.prototype.bitLength = BigInteger.prototype.bitLength;
 
     function max(a, b) {
         a = parseValue(a);
@@ -4128,7 +4236,7 @@ util.estimateCores = function(options, callback) {
         if (b.isZero()) return a;
         var c = Integer[1], d, t;
         while (a.isEven() && b.isEven()) {
-            d = Math.min(roughLOB(a), roughLOB(b));
+            d = min(roughLOB(a), roughLOB(b));
             a = a.divide(d);
             b = b.divide(d);
             c = c.multiply(d);
@@ -4158,53 +4266,50 @@ util.estimateCores = function(options, callback) {
         var low = min(a, b), high = max(a, b);
         var range = high.subtract(low).add(1);
         if (range.isSmall) return low.add(Math.floor(Math.random() * range));
-        var length = range.value.length - 1;
+        var digits = toBase(range, BASE).value;
         var result = [], restricted = true;
-        for (var i = length; i >= 0; i--) {
-            var top = restricted ? range.value[i] : BASE;
+        for (var i = 0; i < digits.length; i++) {
+            var top = restricted ? digits[i] : BASE;
             var digit = truncate(Math.random() * top);
-            result.unshift(digit);
+            result.push(digit);
             if (digit < top) restricted = false;
         }
-        result = arrayToSmall(result);
-        return low.add(typeof result === "number" ? new SmallInteger(result) : new BigInteger(result, false));
+        return low.add(Integer.fromArray(result, BASE, false));
     }
-    var parseBase = function (text, base) {
+
+    var parseBase = function (text, base, alphabet, caseSensitive) {
+        alphabet = alphabet || DEFAULT_ALPHABET;
+        text = String(text);
+        if (!caseSensitive) {
+            text = text.toLowerCase();
+            alphabet = alphabet.toLowerCase();
+        }
         var length = text.length;
         var i;
         var absBase = Math.abs(base);
-        for (var i = 0; i < length; i++) {
-            var c = text[i].toLowerCase();
+        var alphabetValues = {};
+        for (i = 0; i < alphabet.length; i++) {
+            alphabetValues[alphabet[i]] = i;
+        }
+        for (i = 0; i < length; i++) {
+            var c = text[i];
             if (c === "-") continue;
-            if (/[a-z0-9]/.test(c)) {
-                if (/[0-9]/.test(c) && +c >= absBase) {
+            if (c in alphabetValues) {
+                if (alphabetValues[c] >= absBase) {
                     if (c === "1" && absBase === 1) continue;
                     throw new Error(c + " is not a valid digit in base " + base + ".");
-                } else if (c.charCodeAt(0) - 87 >= absBase) {
-                    throw new Error(c + " is not a valid digit in base " + base + ".");
                 }
-            }
-        }
-        if (2 <= base && base <= 36) {
-            if (length <= LOG_MAX_INT / Math.log(base)) {
-                var result = parseInt(text, base);
-                if (isNaN(result)) {
-                    throw new Error(c + " is not a valid digit in base " + base + ".");
-                }
-                return new SmallInteger(parseInt(text, base));
             }
         }
         base = parseValue(base);
         var digits = [];
         var isNegative = text[0] === "-";
         for (i = isNegative ? 1 : 0; i < text.length; i++) {
-            var c = text[i].toLowerCase(),
-                charCode = c.charCodeAt(0);
-            if (48 <= charCode && charCode <= 57) digits.push(parseValue(c));
-            else if (97 <= charCode && charCode <= 122) digits.push(parseValue(c.charCodeAt(0) - 87));
+            var c = text[i];
+            if (c in alphabetValues) digits.push(parseValue(alphabetValues[c]));
             else if (c === "<") {
                 var start = i;
-                do { i++; } while (text[i] !== ">");
+                do { i++; } while (text[i] !== ">" && i < text.length);
                 digits.push(parseValue(text.slice(start + 1, i)));
             }
             else throw new Error(c + " is not a valid character");
@@ -4221,9 +4326,10 @@ util.estimateCores = function(options, callback) {
         return isNegative ? val.negate() : val;
     }
 
-    function stringify(digit) {
-        if (digit <= 35) {
-            return "0123456789abcdefghijklmnopqrstuvwxyz".charAt(digit);
+    function stringify(digit, alphabet) {
+        alphabet = alphabet || DEFAULT_ALPHABET;
+        if (digit < alphabet.length) {
+            return alphabet[digit];
         }
         return "<" + digit + ">";
     }
@@ -4238,13 +4344,13 @@ util.estimateCores = function(options, callback) {
             if (n.isZero()) return { value: [0], isNegative: false };
             if (n.isNegative())
                 return {
-                    value: [].concat.apply([], Array.apply(null, Array(-n))
+                    value: [].concat.apply([], Array.apply(null, Array(-n.toJSNumber()))
                         .map(Array.prototype.valueOf, [1, 0])
                     ),
                     isNegative: false
                 };
 
-            var arr = Array.apply(null, Array(+n - 1))
+            var arr = Array.apply(null, Array(n.toJSNumber() - 1))
                 .map(Array.prototype.valueOf, [0, 1]);
             arr.unshift([1]);
             return {
@@ -4258,11 +4364,11 @@ util.estimateCores = function(options, callback) {
             neg = true;
             n = n.abs();
         }
-        if (base.equals(1)) {
+        if (base.isUnit()) {
             if (n.isZero()) return { value: [0], isNegative: false };
 
             return {
-                value: Array.apply(null, Array(+n))
+                value: Array.apply(null, Array(n.toJSNumber()))
                     .map(Number.prototype.valueOf, 1),
                 isNegative: neg
             };
@@ -4283,9 +4389,11 @@ util.estimateCores = function(options, callback) {
         return { value: out.reverse(), isNegative: neg };
     }
 
-    function toBaseString(n, base) {
+    function toBaseString(n, base, alphabet) {
         var arr = toBase(n, base);
-        return (arr.isNegative ? "-" : "") + arr.value.map(stringify).join('');
+        return (arr.isNegative ? "-" : "") + arr.value.map(function (x) {
+            return stringify(x, alphabet);
+        }).join('');
     }
 
     BigInteger.prototype.toArray = function (radix) {
@@ -4296,9 +4404,13 @@ util.estimateCores = function(options, callback) {
         return toBase(this, radix);
     };
 
-    BigInteger.prototype.toString = function (radix) {
+    NativeBigInt.prototype.toArray = function (radix) {
+        return toBase(this, radix);
+    };
+
+    BigInteger.prototype.toString = function (radix, alphabet) {
         if (radix === undefined) radix = 10;
-        if (radix !== 10) return toBaseString(this, radix);
+        if (radix !== 10) return toBaseString(this, radix, alphabet);
         var v = this.value, l = v.length, str = String(v[--l]), zeros = "0000000", digit;
         while (--l >= 0) {
             digit = String(v[l]);
@@ -4308,12 +4420,15 @@ util.estimateCores = function(options, callback) {
         return sign + str;
     };
 
-    SmallInteger.prototype.toString = function (radix) {
+    SmallInteger.prototype.toString = function (radix, alphabet) {
         if (radix === undefined) radix = 10;
-        if (radix != 10) return toBaseString(this, radix);
+        if (radix != 10) return toBaseString(this, radix, alphabet);
         return String(this.value);
     };
-    BigInteger.prototype.toJSON = SmallInteger.prototype.toJSON = function () { return this.toString(); }
+
+    NativeBigInt.prototype.toString = SmallInteger.prototype.toString;
+
+    NativeBigInt.prototype.toJSON = BigInteger.prototype.toJSON = SmallInteger.prototype.toJSON = function () { return this.toString(); }
 
     BigInteger.prototype.valueOf = function () {
         return parseInt(this.toString(), 10);
@@ -4324,12 +4439,15 @@ util.estimateCores = function(options, callback) {
         return this.value;
     };
     SmallInteger.prototype.toJSNumber = SmallInteger.prototype.valueOf;
+    NativeBigInt.prototype.valueOf = NativeBigInt.prototype.toJSNumber = function () {
+        return parseInt(this.toString(), 10);
+    }
 
     function parseStringValue(v) {
         if (isPrecise(+v)) {
             var x = +v;
             if (x === truncate(x))
-                return new SmallInteger(x);
+                return supportsNativeBigInt ? new NativeBigInt(BigInt(x)) : new SmallInteger(x);
             throw new Error("Invalid integer: " + v);
         }
         var sign = v[0] === "-";
@@ -4353,6 +4471,9 @@ util.estimateCores = function(options, callback) {
         }
         var isValid = /^([0-9][0-9]*)$/.test(v);
         if (!isValid) throw new Error("Invalid integer: " + v);
+        if (supportsNativeBigInt) {
+            return new NativeBigInt(BigInt(sign ? "-" + v : v));
+        }
         var r = [], max = v.length, l = LOG_BASE, min = max - l;
         while (max > 0) {
             r.push(+v.slice(min, max));
@@ -4365,6 +4486,9 @@ util.estimateCores = function(options, callback) {
     }
 
     function parseNumberValue(v) {
+        if (supportsNativeBigInt) {
+            return new NativeBigInt(BigInt(v));
+        }
         if (isPrecise(v)) {
             if (v !== truncate(v)) throw new Error(v + " is not an integer.");
             return new SmallInteger(v);
@@ -4379,12 +4503,15 @@ util.estimateCores = function(options, callback) {
         if (typeof v === "string") {
             return parseStringValue(v);
         }
+        if (typeof v === "bigint") {
+            return new NativeBigInt(v);
+        }
         return v;
     }
     // Pre-define numbers in range [-999,999]
     for (var i = 0; i < 1000; i++) {
-        Integer[i] = new SmallInteger(i);
-        if (i > 0) Integer[-i] = new SmallInteger(-i);
+        Integer[i] = parseValue(i);
+        if (i > 0) Integer[-i] = parseValue(-i);
     }
     // Backwards compatibility
     Integer.one = Integer[1];
@@ -4394,7 +4521,7 @@ util.estimateCores = function(options, callback) {
     Integer.min = min;
     Integer.gcd = gcd;
     Integer.lcm = lcm;
-    Integer.isInstance = function (x) { return x instanceof BigInteger || x instanceof SmallInteger; };
+    Integer.isInstance = function (x) { return x instanceof BigInteger || x instanceof SmallInteger || x instanceof NativeBigInt; };
     Integer.randBetween = randBetween;
 
     Integer.fromArray = function (digits, base, isNegative) {
@@ -4417,10 +4544,11 @@ if (true) {
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(45)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(44)(module)))
 
 /***/ }),
-/* 3 */
+/* 3 */,
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4439,9 +4567,9 @@ if (true) {
  * Copyright (c) 2009-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
-__webpack_require__(28);
+__webpack_require__(7);
 __webpack_require__(29);
+__webpack_require__(30);
 __webpack_require__(1);
 
 (function() {
@@ -4617,7 +4745,7 @@ module.exports = forge.random;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4757,7 +4885,7 @@ module.exports = forge.random;
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(7);
+__webpack_require__(8);
 
 /* ASN.1 API */
 var asn1 = module.exports = forge.asn1 = forge.asn1 || {};
@@ -6031,7 +6159,7 @@ asn1.prettyPrint = function(obj, level, indentation) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6048,7 +6176,7 @@ forge.md.algorithms = forge.md.algorithms || {};
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6069,8 +6197,8 @@ forge.md.algorithms = forge.md.algorithms || {};
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(18);
-__webpack_require__(24);
+__webpack_require__(19);
+__webpack_require__(25);
 __webpack_require__(1);
 
 /* AES API */
@@ -7145,7 +7273,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7312,13 +7440,13 @@ _IN('1.3.6.1.5.5.7.3.8', 'timeStamping');
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
 module.exports = require("crypto");
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7554,7 +7682,7 @@ function ltrim(str) {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -24201,7 +24329,7 @@ hmac.create = function() {
 });
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -24214,7 +24342,7 @@ hmac.create = function() {
  * Copyright (c) 2010-2012 Digital Bazaar, Inc. All rights reserved.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(6);
 __webpack_require__(1);
 
 /* HMAC API */
@@ -24353,7 +24481,7 @@ hmac.create = function() {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -24364,7 +24492,7 @@ hmac.create = function() {
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(6);
 __webpack_require__(1);
 
 var sha1 = module.exports = forge.sha1 = forge.sha1 || {};
@@ -24678,7 +24806,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -24689,37 +24817,37 @@ function _update(s, w, bytes) {
  * Copyright 2011-2016 Digital Bazaar, Inc.
  */
 module.exports = __webpack_require__(0);
-__webpack_require__(6);
-__webpack_require__(47);
-__webpack_require__(4);
-__webpack_require__(18);
-__webpack_require__(36);
-__webpack_require__(14);
+__webpack_require__(7);
+__webpack_require__(46);
+__webpack_require__(5);
+__webpack_require__(19);
+__webpack_require__(37);
+__webpack_require__(15);
+__webpack_require__(48);
+__webpack_require__(12);
 __webpack_require__(49);
-__webpack_require__(11);
+__webpack_require__(39);
 __webpack_require__(50);
-__webpack_require__(38);
-__webpack_require__(51);
-__webpack_require__(35);
-__webpack_require__(20);
-__webpack_require__(9);
-__webpack_require__(31);
-__webpack_require__(33);
-__webpack_require__(52);
-__webpack_require__(26);
+__webpack_require__(36);
+__webpack_require__(21);
+__webpack_require__(10);
 __webpack_require__(32);
-__webpack_require__(29);
-__webpack_require__(22);
-__webpack_require__(3);
+__webpack_require__(34);
+__webpack_require__(51);
+__webpack_require__(27);
+__webpack_require__(33);
 __webpack_require__(30);
+__webpack_require__(23);
+__webpack_require__(4);
+__webpack_require__(31);
+__webpack_require__(52);
 __webpack_require__(53);
-__webpack_require__(54);
-__webpack_require__(25);
+__webpack_require__(26);
 __webpack_require__(1);
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -24753,8 +24881,8 @@ __webpack_require__(1);
  * Copyright (c) 2012-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(18);
-__webpack_require__(24);
+__webpack_require__(19);
+__webpack_require__(25);
 __webpack_require__(1);
 
 /* DES API */
@@ -25220,7 +25348,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -25287,12 +25415,12 @@ function _createCipher(options) {
  * The OID for the RSA key algorithm is: 1.2.840.113549.1.1.1
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
-__webpack_require__(16);
-__webpack_require__(7);
-__webpack_require__(31);
+__webpack_require__(5);
+__webpack_require__(17);
+__webpack_require__(8);
 __webpack_require__(32);
-__webpack_require__(3);
+__webpack_require__(33);
+__webpack_require__(4);
 __webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
@@ -27022,7 +27150,7 @@ function _base64ToBigInt(b64) {
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright (c) 2005  Tom Wu
@@ -28292,13 +28420,13 @@ BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 module.exports = require("events");
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -28534,7 +28662,7 @@ BlockCipher.prototype.finish = function(pad) {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -28545,7 +28673,7 @@ BlockCipher.prototype.finish = function(pad) {
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(6);
 __webpack_require__(1);
 
 var md5 = module.exports = forge.md5 = forge.md5 || {};
@@ -28829,7 +28957,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -28842,15 +28970,15 @@ function _update(s, w, bytes) {
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(11);
-__webpack_require__(5);
+__webpack_require__(12);
+__webpack_require__(6);
 __webpack_require__(1);
 
 var pkcs5 = forge.pkcs5 = forge.pkcs5 || {};
 
 var crypto;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript) {
-  crypto = __webpack_require__(8);
+  crypto = __webpack_require__(9);
 }
 
 /**
@@ -29046,7 +29174,7 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -29159,15 +29287,15 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
  * }
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
-__webpack_require__(4);
-__webpack_require__(14);
-__webpack_require__(5);
-__webpack_require__(48);
 __webpack_require__(7);
-__webpack_require__(9);
-__webpack_require__(22);
+__webpack_require__(5);
 __webpack_require__(15);
+__webpack_require__(6);
+__webpack_require__(47);
+__webpack_require__(8);
+__webpack_require__(10);
+__webpack_require__(23);
+__webpack_require__(16);
 __webpack_require__(1);
 
 // shortcut for asn.1 API
@@ -32323,7 +32451,7 @@ pki.verifyCertificateChain = function(caStore, chain, verify) {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -32334,7 +32462,7 @@ pki.verifyCertificateChain = function(caStore, chain, verify) {
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 var forge = __webpack_require__(0);
-__webpack_require__(3);
+__webpack_require__(4);
 __webpack_require__(1);
 
 // shortcut for PSS API
@@ -32570,7 +32698,7 @@ pss.create = function(options) {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32728,7 +32856,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -33721,7 +33849,7 @@ function from64To32(num) {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -33957,13 +34085,13 @@ function from64To32(num) {
  * timing signal.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
-__webpack_require__(11);
-__webpack_require__(19);
-__webpack_require__(9);
-__webpack_require__(26);
-__webpack_require__(3);
+__webpack_require__(5);
 __webpack_require__(12);
+__webpack_require__(20);
+__webpack_require__(10);
+__webpack_require__(27);
+__webpack_require__(4);
+__webpack_require__(13);
 __webpack_require__(1);
 
 /**
@@ -37996,7 +38124,7 @@ forge.tls.createConnection = tls.createConnection;
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -38008,16 +38136,16 @@ forge.tls.createConnection = tls.createConnection;
  * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
-__webpack_require__(7);
-__webpack_require__(27);
-__webpack_require__(9);
-__webpack_require__(20);
-__webpack_require__(33);
-__webpack_require__(22);
-__webpack_require__(15);
-__webpack_require__(1);
+__webpack_require__(5);
+__webpack_require__(8);
+__webpack_require__(28);
+__webpack_require__(10);
 __webpack_require__(21);
+__webpack_require__(34);
+__webpack_require__(23);
+__webpack_require__(16);
+__webpack_require__(1);
+__webpack_require__(22);
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
@@ -38104,7 +38232,7 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -38127,16 +38255,16 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
  * EncryptedData ::= OCTET STRING
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
-__webpack_require__(4);
-__webpack_require__(14);
-__webpack_require__(5);
 __webpack_require__(7);
-__webpack_require__(20);
-__webpack_require__(9);
-__webpack_require__(3);
-__webpack_require__(30);
+__webpack_require__(5);
 __webpack_require__(15);
+__webpack_require__(6);
+__webpack_require__(8);
+__webpack_require__(21);
+__webpack_require__(10);
+__webpack_require__(4);
+__webpack_require__(31);
+__webpack_require__(16);
 __webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
@@ -39133,7 +39261,7 @@ function createPbkdf2Params(salt, countBytes, dkLen, prfAlgorithm) {
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -39146,7 +39274,7 @@ function createPbkdf2Params(salt, countBytes, dkLen, prfAlgorithm) {
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(6);
 __webpack_require__(1);
 
 var sha256 = module.exports = forge.sha256 = forge.sha256 || {};
@@ -39466,7 +39594,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -39486,7 +39614,7 @@ __webpack_require__(1);
 var _crypto = null;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript &&
   !process.versions['node-webkit']) {
-  _crypto = __webpack_require__(8);
+  _crypto = __webpack_require__(9);
 }
 
 /* PRNG API */
@@ -39892,7 +40020,7 @@ prng.create = function(plugin) {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40308,7 +40436,7 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40358,8 +40486,8 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(3);
-__webpack_require__(12);
+__webpack_require__(4);
+__webpack_require__(13);
 
 // shortcut for PKCS#1 API
 var pkcs1 = module.exports = forge.pkcs1 = forge.pkcs1 || {};
@@ -40590,7 +40718,7 @@ function rsa_mgf1(seed, maskLength, hash) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40602,8 +40730,8 @@ function rsa_mgf1(seed, maskLength, hash) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(16);
-__webpack_require__(3);
+__webpack_require__(17);
+__webpack_require__(4);
 
 (function() {
 
@@ -40893,7 +41021,7 @@ function getMillerRabinTests(bits) {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -40992,16 +41120,16 @@ function getMillerRabinTests(bits) {
  * }
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
-__webpack_require__(11);
-__webpack_require__(7);
-__webpack_require__(34);
-__webpack_require__(27);
-__webpack_require__(3);
-__webpack_require__(15);
+__webpack_require__(5);
 __webpack_require__(12);
+__webpack_require__(8);
+__webpack_require__(35);
+__webpack_require__(28);
+__webpack_require__(4);
+__webpack_require__(16);
+__webpack_require__(13);
 __webpack_require__(1);
-__webpack_require__(21);
+__webpack_require__(22);
 
 // shortcut for asn.1 & PKI API
 var asn1 = forge.asn1;
@@ -41973,7 +42101,7 @@ p12.generateKey = forge.pbe.generatePkcs12Key;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42086,7 +42214,7 @@ p12.generateKey = forge.pbe.generatePkcs12Key;
  * EncryptedKey ::= OCTET STRING
  */
 var forge = __webpack_require__(0);
-__webpack_require__(4);
+__webpack_require__(5);
 __webpack_require__(1);
 
 // shortcut for ASN.1 API
@@ -42388,7 +42516,7 @@ p7v.recipientInfoValidator = {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42451,7 +42579,7 @@ mgf1.create = function(md) {
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42535,7 +42663,7 @@ forge.debug.clear = function(cat, name) {
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -42551,7 +42679,7 @@ forge.debug.clear = function(cat, name) {
  * Copyright (c) 2014-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(5);
+__webpack_require__(6);
 __webpack_require__(1);
 
 var sha512 = module.exports = forge.sha512 = forge.sha512 || {};
@@ -43102,7 +43230,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43425,36 +43553,34 @@ forge.log.consoleLogger = sConsoleLogger;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var v35 = __webpack_require__(55);
-var md5 = __webpack_require__(57);
+var v35 = __webpack_require__(54);
+var md5 = __webpack_require__(56);
 
 module.exports = v35('v3', 0x30, md5);
-
-/***/ }),
-/* 40 */
-/***/ (function(module, exports) {
-
-module.exports = require("http");
 
 /***/ }),
 /* 41 */
 /***/ (function(module, exports) {
 
-module.exports = require("https");
+module.exports = require("http");
 
 /***/ }),
 /* 42 */
 /***/ (function(module, exports) {
 
+module.exports = require("https");
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports) {
+
 module.exports = require("url");
 
 /***/ }),
-/* 43 */,
-/* 44 */,
-/* 45 */
+/* 44 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -43482,7 +43608,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports) {
 
 /**
@@ -43674,7 +43800,7 @@ function _encodeWithByteBuffer(input, alphabet) {
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43686,8 +43812,8 @@ function _encodeWithByteBuffer(input, alphabet) {
  *
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
-__webpack_require__(25);
+__webpack_require__(7);
+__webpack_require__(26);
 
 var tls = module.exports = forge.tls;
 
@@ -43964,7 +44090,7 @@ function compareMacs(key, mac1, mac2) {
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43975,14 +44101,14 @@ function compareMacs(key, mac1, mac2) {
  * Copyright 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 var forge = __webpack_require__(0);
-__webpack_require__(35);
+__webpack_require__(36);
 
 module.exports = forge.mgf = forge.mgf || {};
 forge.mgf.mgf1 = forge.mgf1;
 
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -43996,9 +44122,9 @@ forge.mgf.mgf1 = forge.mgf1;
  * https://github.com/dchest/tweetnacl-js
  */
 var forge = __webpack_require__(0);
-__webpack_require__(16);
-__webpack_require__(3);
-__webpack_require__(37);
+__webpack_require__(17);
+__webpack_require__(4);
+__webpack_require__(38);
 __webpack_require__(1);
 
 if(typeof BigInteger === 'undefined') {
@@ -44984,7 +45110,7 @@ function M(o, a, b) {
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -44998,8 +45124,8 @@ function M(o, a, b) {
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(3);
-__webpack_require__(16);
+__webpack_require__(4);
+__webpack_require__(17);
 
 module.exports = forge.kem = forge.kem || {};
 
@@ -45158,7 +45284,7 @@ function _createKDF(kdf, md, counterStart, digestLength) {
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45168,16 +45294,16 @@ function _createKDF(kdf, md, counterStart, digestLength) {
  *
  * Copyright 2011-2017 Digital Bazaar, Inc.
  */
-module.exports = __webpack_require__(5);
+module.exports = __webpack_require__(6);
 
-__webpack_require__(19);
-__webpack_require__(12);
-__webpack_require__(28);
-__webpack_require__(37);
+__webpack_require__(20);
+__webpack_require__(13);
+__webpack_require__(29);
+__webpack_require__(38);
 
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -45199,15 +45325,15 @@ __webpack_require__(37);
  * PKCS standards like PKCS #12.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
-__webpack_require__(4);
-__webpack_require__(14);
 __webpack_require__(7);
-__webpack_require__(9);
-__webpack_require__(34);
-__webpack_require__(3);
+__webpack_require__(5);
+__webpack_require__(15);
+__webpack_require__(8);
+__webpack_require__(10);
+__webpack_require__(35);
+__webpack_require__(4);
 __webpack_require__(1);
-__webpack_require__(21);
+__webpack_require__(22);
 
 // shortcut for ASN.1 API
 var asn1 = forge.asn1;
@@ -46440,7 +46566,7 @@ function _decryptContent(msg) {
 
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46454,10 +46580,10 @@ function _decryptContent(msg) {
  * @author https://github.com/shellac
  */
 var forge = __webpack_require__(0);
-__webpack_require__(6);
-__webpack_require__(11);
-__webpack_require__(19);
+__webpack_require__(7);
 __webpack_require__(12);
+__webpack_require__(20);
+__webpack_require__(13);
 __webpack_require__(1);
 
 var ssh = module.exports = forge.ssh = forge.ssh || {};
@@ -46682,7 +46808,7 @@ function _sha1() {
 
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46695,8 +46821,8 @@ function _sha1() {
  * Copyright (c) 2009-2013 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(36);
-__webpack_require__(38);
+__webpack_require__(37);
+__webpack_require__(39);
 __webpack_require__(1);
 
 // logging category
@@ -47413,10 +47539,10 @@ forge.task.createCondition = function() {
 
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var bytesToUuid = __webpack_require__(56);
+var bytesToUuid = __webpack_require__(55);
 
 function uuidToBytes(uuid) {
   // Note: We assume we're being passed a valid uuid string
@@ -47476,7 +47602,7 @@ module.exports = function(name, version, hashfunc) {
 
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports) {
 
 /**
@@ -47506,13 +47632,13 @@ module.exports = bytesToUuid;
 
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var crypto = __webpack_require__(8);
+var crypto = __webpack_require__(9);
 
 function md5(bytes) {
   if (typeof Buffer.from === 'function') {
@@ -47538,7 +47664,7 @@ module.exports = md5;
 
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -47573,7 +47699,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -47972,7 +48098,7 @@ var CompositeTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -48458,7 +48584,7 @@ var ImprintTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -48547,6 +48673,12 @@ class UnsignedLongCoder_UnsignedLongCoder {
         }
         return new Uint8Array(result);
     }
+    static encodeWithPadding(value) {
+        const encodedValue = UnsignedLongCoder_UnsignedLongCoder.encode(value);
+        const result = new Uint8Array(8);
+        result.set(encodedValue, 8 - encodedValue.length);
+        return result;
+    }
 }
 
 // CONCATENATED MODULE: ./src/common/parser/IntegerTag.ts
@@ -48556,7 +48688,7 @@ var IntegerTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -48606,7 +48738,7 @@ var RawTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -48645,7 +48777,7 @@ var RawTag_RawTag = /** @class */ (function (_super) {
 
 
 // EXTERNAL MODULE: ./node_modules/node-forge/lib/index.js
-var lib = __webpack_require__(13);
+var lib = __webpack_require__(14);
 
 // CONCATENATED MODULE: ./src/common/parser/StringTag.ts
 var StringTag_extends = (undefined && undefined.__extends) || (function () {
@@ -48654,7 +48786,7 @@ var StringTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -48706,7 +48838,7 @@ var StringTag_StringTag = /** @class */ (function (_super) {
 
 
 // EXTERNAL MODULE: external "crypto"
-var external_crypto_ = __webpack_require__(8);
+var external_crypto_ = __webpack_require__(9);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/NodeHasher.js
 
@@ -48794,33 +48926,8 @@ class DataHasher_DataHasher {
     }
 }
 
-// CONCATENATED MODULE: ./node_modules/gt-js-common/lib/main.mjs
-// Crypto package
-
-
-
-// Coders
-
-
-
-
-// CRC32
-
-// String utils
-
-
-// Math
-
-// Hash package
-
-
-
-
-// Models
-
-
 // EXTERNAL MODULE: ./node_modules/base64-js/index.js
-var base64_js = __webpack_require__(23);
+var base64_js = __webpack_require__(24);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base64Coder.js
 
@@ -48841,7 +48948,7 @@ class Base64Coder_Base64Coder {
 }
 
 // EXTERNAL MODULE: ./node_modules/uuid/v3.js
-var v3 = __webpack_require__(39);
+var v3 = __webpack_require__(40);
 var v3_default = /*#__PURE__*/__webpack_require__.n(v3);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base32Coder.js
@@ -48946,7 +49053,7 @@ var PublicationData_extends = (undefined && undefined.__extends) || (function ()
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -49028,7 +49135,7 @@ var PublicationRecord_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -49130,7 +49237,7 @@ var AggregationHashChain_extends = (undefined && undefined.__extends) || (functi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -49525,7 +49632,7 @@ var SignatureData_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -49598,7 +49705,7 @@ var CalendarAuthenticationRecord_extends = (undefined && undefined.__extends) ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -49658,7 +49765,7 @@ var CalendarHashChain_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -49898,7 +50005,7 @@ var Rfc3161Record_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -50090,7 +50197,7 @@ var KsiSignature_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -50233,10 +50340,7 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
         return this.publicationRecord != null;
     };
     KsiSignature.prototype.getUuid = function () {
-        var valueBytes = Array.from(UnsignedLongCoder_UnsignedLongCoder.encode(this.getAggregationTime()));
-        while (valueBytes.length % 8 !== 0) {
-            valueBytes.unshift(0);
-        }
+        var valueBytes = Array.from(UnsignedLongCoder_UnsignedLongCoder.encodeWithPadding(this.getAggregationTime()));
         var linkBits = [];
         this.getAggregationHashChains().forEach(function (chain) {
             chain.getChainLinks().forEach(function (link) {
@@ -50532,7 +50636,7 @@ var KsiVerificationError_extends = (undefined && undefined.__extends) || (functi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -50638,7 +50742,7 @@ var UserProvidedPublicationExistenceRule_extends = (undefined && undefined.__ext
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -50711,7 +50815,7 @@ var AggregationHashChainAlgorithmDeprecatedRule_extends = (undefined && undefine
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -50793,7 +50897,7 @@ var AggregationHashChainConsistencyRule_extends = (undefined && undefined.__exte
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -50893,7 +50997,7 @@ var AggregationHashChainIndexSuccessorRule_extends = (undefined && undefined.__e
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -50985,7 +51089,7 @@ var AggregationHashChainMetadataRule_extends = (undefined && undefined.__extends
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51115,7 +51219,7 @@ var AggregationHashChainShapeRule_extends = (undefined && undefined.__extends) |
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51200,7 +51304,7 @@ var AggregationHashChainTimeConsistencyRule_extends = (undefined && undefined.__
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51287,7 +51391,7 @@ var CalendarAuthenticationRecordAggregationHashRule_extends = (undefined && unde
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51377,7 +51481,7 @@ var CalendarAuthenticationRecordExistenceRule_extends = (undefined && undefined.
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51450,7 +51554,7 @@ var CalendarAuthenticationRecordPublicationTimeRule_extends = (undefined && unde
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51535,7 +51639,7 @@ var CalendarHashChainAggregationTimeRule_extends = (undefined && undefined.__ext
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51616,7 +51720,7 @@ var CalendarHashChainAlgorithmObsoleteRule_extends = (undefined && undefined.__e
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51706,7 +51810,7 @@ var CalendarHashChainExistenceRule_extends = (undefined && undefined.__extends) 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51779,7 +51883,7 @@ var CalendarHashChainInputHashVerificationRule_extends = (undefined && undefined
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51863,7 +51967,7 @@ var CalendarHashChainRegistrationTimeRule_extends = (undefined && undefined.__ex
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -51943,7 +52047,7 @@ var DocumentHashLevelVerificationRule_extends = (undefined && undefined.__extend
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52024,7 +52128,7 @@ var DocumentHashVerificationRule_extends = (undefined && undefined.__extends) ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52108,7 +52212,7 @@ var InputHashAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52188,7 +52292,7 @@ var InputHashAlgorithmVerificationRule_extends = (undefined && undefined.__exten
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52272,7 +52376,7 @@ var Rfc3161RecordAggregationTimeRule_extends = (undefined && undefined.__extends
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52355,7 +52459,7 @@ var Rfc3161RecordChainIndexRule_extends = (undefined && undefined.__extends) || 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52442,7 +52546,7 @@ var Rfc3161RecordHashAlgorithmDeprecatedRule_extends = (undefined && undefined._
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52532,7 +52636,7 @@ var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_extends = (undefined && undef
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52617,7 +52721,7 @@ var Rfc3161RecordOutputHashVerificationRule_extends = (undefined && undefined.__
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52708,7 +52812,7 @@ var SignaturePublicationRecordExistenceRule_extends = (undefined && undefined.__
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52781,7 +52885,7 @@ var SignaturePublicationRecordPublicationHashRule_extends = (undefined && undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52871,7 +52975,7 @@ var SignaturePublicationRecordPublicationTimeRule_extends = (undefined && undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -52956,7 +53060,7 @@ var SuccessResultRule_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53026,7 +53130,7 @@ var VerificationPolicy_extends = (undefined && undefined.__extends) || (function
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53121,7 +53225,7 @@ var InternalVerificationPolicy_extends = (undefined && undefined.__extends) || (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53221,7 +53325,7 @@ var CalendarHashChainAlgorithmDeprecatedRule_extends = (undefined && undefined._
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53305,7 +53409,7 @@ var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_extends = (undefine
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53407,7 +53511,7 @@ var ExtendingPermittedVerificationRule_extends = (undefined && undefined.__exten
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53480,7 +53584,7 @@ var PublicationsFileExtendedSignatureInputHashRule_extends = (undefined && undef
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53573,7 +53677,7 @@ var PublicationsFilePublicationHashMatchesExtenderResponseRule_extends = (undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53664,7 +53768,7 @@ var PublicationsFilePublicationTimeMatchesExtenderResponseRule_extends = (undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53758,7 +53862,7 @@ var PublicationsFileSignaturePublicationMatchRule_extends = (undefined && undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53849,7 +53953,7 @@ var PublicationsFileVerificationPolicy_extends = (undefined && undefined.__exten
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53897,7 +54001,7 @@ var UserProvidedPublicationCreationTimeVerificationRule_extends = (undefined && 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -53978,7 +54082,7 @@ var UserProvidedPublicationExtendedSignatureInputHashRule_extends = (undefined &
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54066,7 +54170,7 @@ var UserProvidedPublicationHashMatchesExtendedResponseRule_extends = (undefined 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54155,7 +54259,7 @@ var UserProvidedPublicationTimeMatchesExtendedResponseRule_extends = (undefined 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54249,7 +54353,7 @@ var UserProvidedPublicationVerificationRule_extends = (undefined && undefined.__
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54338,7 +54442,7 @@ var UserProvidedPublicationBasedVerificationPolicy_extends = (undefined && undef
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54388,7 +54492,7 @@ var PublicationBasedVerificationPolicy_extends = (undefined && undefined.__exten
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54536,7 +54640,7 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
 
 
 // EXTERNAL MODULE: ./node_modules/gt-js-common/node_modules/node-forge/dist/forge.gt.js
-var forge_gt = __webpack_require__(10);
+var forge_gt = __webpack_require__(11);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/hash/SyncDataHasher.js
 
@@ -54690,7 +54794,7 @@ var CalendarAuthenticationRecordSignatureVerificationRule_extends = (undefined &
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54802,7 +54906,7 @@ var CertificateExistenceRule_extends = (undefined && undefined.__extends) || (fu
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54888,7 +54992,7 @@ var KeyBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54932,7 +55036,7 @@ var DefaultVerificationPolicy_extends = (undefined && undefined.__extends) || (f
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -54962,7 +55066,7 @@ var KsiServiceError_extends = (undefined && undefined.__extends) || (function ()
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55082,7 +55186,7 @@ var AggregationRequestPayload_extends = (undefined && undefined.__extends) || (f
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55153,7 +55257,7 @@ var PduPayload_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55180,7 +55284,7 @@ var AggregatorConfigRequestPayload_extends = (undefined && undefined.__extends) 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55241,7 +55345,7 @@ var ResponsePayload_extends = (undefined && undefined.__extends) || (function ()
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55299,7 +55403,7 @@ var ErrorPayload_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55326,7 +55430,7 @@ var PduHeader_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55390,7 +55494,7 @@ var Pdu_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55518,7 +55622,7 @@ var AggregationRequestPdu_extends = (undefined && undefined.__extends) || (funct
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55619,7 +55723,7 @@ var AggregationErrorPayload_extends = (undefined && undefined.__extends) || (fun
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55646,7 +55750,7 @@ var RequestResponsePayload_extends = (undefined && undefined.__extends) || (func
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55693,7 +55797,7 @@ var AggregationResponsePayload_extends = (undefined && undefined.__extends) || (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55752,7 +55856,7 @@ var AggregatorConfigResponsePayload_extends = (undefined && undefined.__extends)
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -55822,7 +55926,7 @@ var AggregationResponsePdu_extends = (undefined && undefined.__extends) || (func
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56011,7 +56115,7 @@ var ExtendRequestPayload_extends = (undefined && undefined.__extends) || (functi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56081,7 +56185,7 @@ var ExtenderConfigRequestPayload_extends = (undefined && undefined.__extends) ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56108,7 +56212,7 @@ var ExtendRequestPdu_extends = (undefined && undefined.__extends) || (function (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56209,7 +56313,7 @@ var ExtenderConfigResponsePayload_extends = (undefined && undefined.__extends) |
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56274,7 +56378,7 @@ var ExtendErrorPayload_extends = (undefined && undefined.__extends) || (function
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56301,7 +56405,7 @@ var ExtendResponsePayload_extends = (undefined && undefined.__extends) || (funct
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56358,7 +56462,7 @@ var ExtendResponsePdu_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56630,7 +56734,7 @@ var CertificateRecord_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56689,7 +56793,7 @@ var PublicationsFileError_extends = (undefined && undefined.__extends) || (funct
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56718,7 +56822,7 @@ var PublicationsFileHeader_extends = (undefined && undefined.__extends) || (func
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56787,7 +56891,7 @@ var PublicationsFile_extends = (undefined && undefined.__extends) || (function (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -56981,16 +57085,16 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
 
 
 // EXTERNAL MODULE: external "events"
-var external_events_ = __webpack_require__(17);
+var external_events_ = __webpack_require__(18);
 
 // EXTERNAL MODULE: external "http"
-var external_http_ = __webpack_require__(40);
+var external_http_ = __webpack_require__(41);
 
 // EXTERNAL MODULE: external "https"
-var external_https_ = __webpack_require__(41);
+var external_https_ = __webpack_require__(42);
 
 // EXTERNAL MODULE: external "url"
-var external_url_ = __webpack_require__(42);
+var external_url_ = __webpack_require__(43);
 
 // CONCATENATED MODULE: ./src/common/service/KsiRequestBase.ts
 var KsiRequestBase_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -57053,7 +57157,7 @@ var KsiRequest_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -57176,7 +57280,7 @@ var SigningServiceProtocol_extends = (undefined && undefined.__extends) || (func
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -57209,7 +57313,7 @@ var ExtendingServiceProtocol_extends = (undefined && undefined.__extends) || (fu
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -57242,7 +57346,7 @@ var PublicationsFileServiceProtocol_extends = (undefined && undefined.__extends)
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }

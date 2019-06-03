@@ -1,6 +1,6 @@
 {
   "name": "ksi-js-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "main": "./dist/main.node.js",
   "browser": "./dist/main.js",
@@ -42,7 +42,7 @@
   "peerDependencies": {
     "big-integer": "^1.6.36",
     "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#typescript",
-    "node-forge": "^0.7.6",
+    "node-forge": "git+ssh://git@github.com/guardtime/forge.git",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
