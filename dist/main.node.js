@@ -54747,7 +54747,6 @@ class X509_X509 {
     }
     static isCertificateValidDuring(certificateBytes, time) {
         const cert = convertToForgeCert(certificateBytes);
-        console.log(cert);
         return !(time.lt(new Date(cert.validity.notBefore).getTime() / 1000)
             || time.gt(new Date(cert.validity.notAfter).getTime() / 1000));
     }
