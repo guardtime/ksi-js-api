@@ -125,8 +125,15 @@ export class KsiSignature extends CompositeTag {
         }
 
         for (let i: number = 0; i < linkBits.length; i += 8) {
-            valueBytes.push((linkBits[i] << 7) + (linkBits[i + 1] << 6) + (linkBits[i + 2] << 5) + (linkBits[i + 3] << 4)
-                                + (linkBits[i + 4] << 3) + (linkBits[i + 5] << 2) + (linkBits[i + 6] << 1) + linkBits[i + 7]);
+            valueBytes.push(
+                (linkBits[i] << 7)
+                + (linkBits[i + 1] << 6)
+                + (linkBits[i + 2] << 5)
+                + (linkBits[i + 3] << 4)
+                + (linkBits[i + 4] << 3)
+                + (linkBits[i + 5] << 2)
+                + (linkBits[i + 6] << 1)
+                + linkBits[i + 7]);
         }
 
         return uuid(valueBytes, Array(16));
