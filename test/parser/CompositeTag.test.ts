@@ -32,6 +32,9 @@ describe('CompositeTag', () => {
     });
 });
 
+/**
+ * Test Composite TLV object
+ */
 class TestCompositeTag extends CompositeTag {
 
     constructor(tlvTag: TlvTag) {

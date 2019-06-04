@@ -1,6 +1,3 @@
-/**
- * Verification Rule for KSI Signature
- */
 import {LinkDirection} from '../../Constants';
 import {ImprintTag} from '../../parser/ImprintTag';
 import {CalendarHashChain} from '../CalendarHashChain';
@@ -9,6 +6,9 @@ import {KsiVerificationError} from './KsiVerificationError';
 import {VerificationContext} from './VerificationContext';
 import {VerificationResult, VerificationResultCode} from './VerificationResult';
 
+/**
+ * Verification Rule for KSI Signature
+ */
 export abstract class VerificationRule {
     private readonly ruleName: string = this.constructor.name;
     private onSuccessRule: VerificationRule | null = null;

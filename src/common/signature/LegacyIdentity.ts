@@ -2,7 +2,7 @@ import {BigInteger} from 'big-integer';
 import {IKsiIdentity} from './IKsiIdentity';
 
 /**
- *
+ * Legacy version of identity
  */
 export class LegacyIdentity implements IKsiIdentity {
     private readonly clientId: string;

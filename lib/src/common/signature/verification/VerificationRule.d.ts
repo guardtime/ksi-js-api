@@ -3,6 +3,9 @@ import { CalendarHashChain } from '../CalendarHashChain';
 import { KsiSignature } from '../KsiSignature';
 import { VerificationContext } from './VerificationContext';
 import { VerificationResult, VerificationResultCode } from './VerificationResult';
+/**
+ * Verification Rule for KSI Signature
+ */
 export declare abstract class VerificationRule {
     private readonly ruleName;
     private onSuccessRule;

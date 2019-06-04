@@ -1,0 +1,2 @@
+# v1.0.1
+* Add KsiSignature.getUuid() which calculates UUID from signature.

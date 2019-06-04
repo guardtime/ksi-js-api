@@ -1,10 +1,14 @@
 import bigInteger, {BigInteger} from 'big-integer';
-import {Base64Coder, DataHash} from 'gt-js-common';
+import {Base64Coder, DataHash, UnsignedLongCoder} from 'gt-js-common';
+// @ts-ignore
+// tslint:disable-next-line:no-submodule-imports import-name
+import uuid from 'uuid/v3';
 import {
     AGGREGATION_HASH_CHAIN_CONSTANTS,
     CALENDAR_AUTHENTICATION_RECORD_CONSTANTS,
     CALENDAR_HASH_CHAIN_CONSTANTS,
     KSI_SIGNATURE_CONSTANTS,
+    LinkDirection,
     RFC_3161_RECORD_CONSTANTS
 } from '../Constants';
 import {CompositeTag, ICount} from '../parser/CompositeTag';
@@ -14,7 +18,7 @@ import {TlvOutputStream} from '../parser/TlvOutputStream';
 import {TlvTag} from '../parser/TlvTag';
 import {PublicationRecord} from '../publication/PublicationRecord';
 import {AggregationResponsePayload} from '../service/AggregationResponsePayload';
-import {AggregationHashChain, AggregationHashResult} from './AggregationHashChain';
+import {AggregationHashChain, AggregationHashChainLink, AggregationHashResult} from './AggregationHashChain';
 import {CalendarAuthenticationRecord} from './CalendarAuthenticationRecord';
 import {CalendarHashChain} from './CalendarHashChain';
 import {IKsiIdentity} from './IKsiIdentity';
@@ -105,6 +109,36 @@ export class KsiSignature extends CompositeTag {
         return this.publicationRecord != null;
     }
 
+    public getUuid(): string {
+        const valueBytes: number[] = Array.from(UnsignedLongCoder.encodeWithPadding(this.getAggregationTime()));
+
+        const linkBits: number[] = [];
+        this.getAggregationHashChains().forEach((chain: AggregationHashChain) => {
+            chain.getChainLinks().forEach((link: AggregationHashChainLink) => {
+                linkBits.unshift(link.getDirection() === LinkDirection.Left ? 0 : 1);
+            });
+        });
+
+        linkBits.unshift(1);
+        while (linkBits.length % 8 !== 0) {
+            linkBits.unshift(0);
+        }
+
+        for (let i: number = 0; i < linkBits.length; i += 8) {
+            valueBytes.push(
+                (linkBits[i] << 7)
+                + (linkBits[i + 1] << 6)
+                + (linkBits[i + 2] << 5)
+                + (linkBits[i + 3] << 4)
+                + (linkBits[i + 4] << 3)
+                + (linkBits[i + 5] << 2)
+                + (linkBits[i + 6] << 1)
+                + linkBits[i + 7]);
+        }
+
+        return uuid(valueBytes, Array(16));
+    }
+
     public extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord): KsiSignature {
         const stream: TlvOutputStream = new TlvOutputStream();
 
@@ -158,7 +192,7 @@ export class KsiSignature extends CompositeTag {
             && (tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) !== 0
                 || tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) !== 0)) {
             throw new TlvError('No publication record or calendar authentication record is ' +
-                'allowed in KSI signature if there is no calendar hash chain.');
+                                   'allowed in KSI signature if there is no calendar hash chain.');
         }
 
         if ((tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) === 1 &&

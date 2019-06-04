@@ -34,6 +34,7 @@ export declare class KsiSignature extends CompositeTag {
     getCalendarAuthenticationRecord(): CalendarAuthenticationRecord | null;
     getIdentity(): IKsiIdentity[];
     isExtended(): boolean;
+    getUuid(): string;
     extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord): KsiSignature;
     private parseChild;
     private validate;

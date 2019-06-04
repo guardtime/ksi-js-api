@@ -1,6 +1,6 @@
 # KSI JavaScript SDK
 
-## Insallation
+## Installation
 ```html
 <script src="dist/main.js"></script>
 ```
@@ -8,6 +8,57 @@ Using npm:
 ```shell
 npm install "git+ssh://git@github.com:guardtime/ksi-js-api.git"
 ```
+
+## Development
+Install system dependencies:
+
+1. [Node](https://nodejs.org/en/download/current/) for development.
+2. [Yarn](https://yarnpkg.com/en/docs/install) for package management.
+
+Setup project:
+```shell
+git clone git@github.com:guardtime/ksi-js-api.git
+cd ksi-js-api
+yarn install
+```
+Add KSI gateway configuration:
+```shell
+cat << EOF > config/ksi-config.js
+const CONFIG = {
+    AGGREGATION_URL: 'http://tryout.guardtime.net:8080/gt-signingservice',
+    EXTENDER_URL: 'http://tryout-extender.guardtime.net:8081/gt-extendingservice',
+    LOGIN_ID: 'CHANGE_ME_KSI_GATEWAY_USERNAME',
+    LOGIN_KEY: new Uint8Array([0, 0, 0, 0, 0]),
+    PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin'
+};
+
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = CONFIG;
+}
+EOF
+```
+
+Building project:
+```shell
+yarn build
+```
+
+Open development server:
+```shell
+yarn browser:dev
+```
+
+Running tests in node:
+```
+yarn test
+```
+
+Running integration tests in node:
+```
+yarn integration-test
+```
+
+## Example usage
 In Node.js:
 ```js
 const fs = require('fs');
@@ -67,53 +118,4 @@ fs.readFile('../web/sig.ksig', (_, data) => {
         console.log(err);
     });
 });
-```
-
-## Development
-Install system dependencies:
-
-1. [Node](https://nodejs.org/en/download/current/) for development.
-2. [Yarn](https://yarnpkg.com/en/docs/install) for package management.
-
-Setup project:
-```shell
-git clone git@github.com:guardtime/ksi-js-api.git
-cd ksi-js-api
-yarn install
-```
-Add KSI gateway configuration:
-```shell
-cat << EOF > config/ksi-config.js
-const CONFIG = {
-    AGGREGATION_URL: 'http://tryout.guardtime.net:8080/gt-signingservice',
-    EXTENDER_URL: 'http://tryout-extender.guardtime.net:8081/gt-extendingservice',
-    LOGIN_ID: 'CHANGE_ME_KSI_GATEWAY_USERNAME',
-    LOGIN_KEY: new Uint8Array([0, 0, 0, 0, 0]),
-    PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin'
-};
-
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = CONFIG;
-}
-EOF
-```
-
-Building project:
-```shell
-yarn build
-```
-
-Open development server:
-```shell
-yarn browser:dev
-```
-
-Running tests in node:
-```
-yarn test
-```
-
-Running integration tests in node:
-```
-yarn integration-test
 ```

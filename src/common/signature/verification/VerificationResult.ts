@@ -1,6 +1,3 @@
-/**
- * Verification result for KSI signature
- */
 import {tabPrefix} from 'gt-js-common';
 import {VerificationError} from './VerificationError';
 
@@ -8,6 +5,9 @@ export enum VerificationResultCode {
   OK, FAIL, NA
 }
 
+/**
+ * Verification result for KSI signature
+ */
 export class VerificationResult {
 
     private readonly ruleName: string;
