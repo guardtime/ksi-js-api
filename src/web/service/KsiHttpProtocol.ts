@@ -1,3 +1,5 @@
+import {KsiServiceError} from '../../common/service/KsiServiceError';
+
 /**
  * Http protocol for requests
  */
@@ -18,6 +20,10 @@ export class KsiHttpProtocol {
             }),
             signal: abortController.signal
         });
+
+        if (!response.ok) {
+            throw new KsiServiceError(`Request failed. Error code: ${response.status}. Error message: ${response.statusText}`);
+        }
 
         if (abortController.signal.aborted) {
             return null;

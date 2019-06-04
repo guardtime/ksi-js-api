@@ -223,6 +223,9 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
     expect(verificationError ? verificationError.code : null).toEqual(row.errorCode || null);
 }
 
+/**
+ * Test service protocol for mocking queries to server
+ */
 class TestServiceProtocol implements ISigningServiceProtocol, IExtendingServiceProtocol, IPublicationsFileServiceProtocol {
     private readonly resultBytes: Uint8Array;
 
@@ -243,6 +246,9 @@ class TestServiceProtocol implements ISigningServiceProtocol, IExtendingServiceP
     }
 }
 
+/**
+ * Test extending service to mock request id
+ */
 class TestExtendingService extends ExtendingService {
     private readonly requestId: BigInteger;
 

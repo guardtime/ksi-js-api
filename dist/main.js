@@ -50669,6 +50669,9 @@ var CompositeTag_extends = (undefined && undefined.__extends) || (function () {
 
 
 
+/**
+ * Counter for elements in composite TLV
+ */
 var ElementCounter = /** @class */ (function () {
     function ElementCounter() {
         this.counts = {};
@@ -51754,7 +51757,7 @@ var PublicationRecord_PublicationRecord = /** @class */ (function (_super) {
 
 // CONCATENATED MODULE: ./src/common/signature/LegacyIdentity.ts
 /**
- *
+ * Legacy version of identity
  */
 var LegacyIdentity = /** @class */ (function () {
     function LegacyIdentity(clientId) {
@@ -53124,9 +53127,6 @@ var VerificationError = /** @class */ (function () {
 
 
 // CONCATENATED MODULE: ./src/common/signature/verification/VerificationResult.ts
-/**
- * Verification result for KSI signature
- */
 
 var VerificationResultCode;
 (function (VerificationResultCode) {
@@ -53134,6 +53134,9 @@ var VerificationResultCode;
     VerificationResultCode[VerificationResultCode["FAIL"] = 1] = "FAIL";
     VerificationResultCode[VerificationResultCode["NA"] = 2] = "NA";
 })(VerificationResultCode || (VerificationResultCode = {}));
+/**
+ * Verification result for KSI signature
+ */
 var VerificationResult_VerificationResult = /** @class */ (function () {
     function VerificationResult(ruleName, resultCode, verificationError, childResults) {
         if (verificationError === void 0) { verificationError = null; }
@@ -53211,12 +53214,12 @@ var KsiVerificationError = /** @class */ (function (_super) {
 
 
 // CONCATENATED MODULE: ./src/common/signature/verification/VerificationRule.ts
+
+
+
 /**
  * Verification Rule for KSI Signature
  */
-
-
-
 var VerificationRule_VerificationRule = /** @class */ (function () {
     function VerificationRule(ruleName) {
         if (ruleName === void 0) { ruleName = null; }
@@ -57107,11 +57110,11 @@ var VerificationContext_generator = (undefined && undefined.__generator) || func
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+
+
 /**
  * Verification context for KSI signature
  */
-
-
 var VerificationContext_VerificationContext = /** @class */ (function () {
     function VerificationContext(signature) {
         this.ksiService = null;
@@ -59663,10 +59666,11 @@ var KsiHttpProtocol_generator = (undefined && undefined.__generator) || function
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+
 /**
  * Http protocol for requests
  */
-var KsiHttpProtocol = /** @class */ (function () {
+var KsiHttpProtocol_KsiHttpProtocol = /** @class */ (function () {
     function KsiHttpProtocol(url) {
         this.url = url;
     }
@@ -59686,6 +59690,9 @@ var KsiHttpProtocol = /** @class */ (function () {
                         })];
                     case 1:
                         response = _b.sent();
+                        if (!response.ok) {
+                            throw new KsiServiceError("Request failed. Error code: " + response.status + ". Error message: " + response.statusText);
+                        }
                         if (abortController.signal.aborted) {
                             return [2 /*return*/, null];
                         }
@@ -59837,7 +59844,7 @@ var SigningServiceProtocol_SigningServiceProtocol = /** @class */ (function (_su
         return new KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
     };
     return SigningServiceProtocol;
-}(KsiHttpProtocol));
+}(KsiHttpProtocol_KsiHttpProtocol));
 
 
 // CONCATENATED MODULE: ./src/web/service/ExtendingServiceProtocol.ts
@@ -59869,7 +59876,7 @@ var ExtendingServiceProtocol_ExtendingServiceProtocol = /** @class */ (function 
         return new KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
     };
     return ExtendingServiceProtocol;
-}(KsiHttpProtocol));
+}(KsiHttpProtocol_KsiHttpProtocol));
 
 
 // CONCATENATED MODULE: ./src/web/service/PublicationsFileServiceProtocol.ts
@@ -59938,7 +59945,7 @@ var PublicationsFileServiceProtocol = /** @class */ (function (_super) {
         });
     };
     return PublicationsFileServiceProtocol;
-}(KsiHttpProtocol));
+}(KsiHttpProtocol_KsiHttpProtocol));
 
 
 // CONCATENATED MODULE: ./src/web/main.ts

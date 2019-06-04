@@ -1,6 +1,3 @@
-/**
- * Verification context for KSI signature
- */
 import { BigInteger } from 'big-integer';
 import { DataHash } from 'gt-js-common';
 import { PublicationData } from '../../publication/PublicationData';
@@ -8,6 +5,9 @@ import { PublicationsFile } from '../../publication/PublicationsFile';
 import { KsiService } from '../../service/KsiService';
 import { CalendarHashChain } from '../CalendarHashChain';
 import { KsiSignature } from '../KsiSignature';
+/**
+ * Verification context for KSI signature
+ */
 export declare class VerificationContext {
     private ksiService;
     private readonly ksiSignature;

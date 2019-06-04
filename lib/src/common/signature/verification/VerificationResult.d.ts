@@ -4,6 +4,9 @@ export declare enum VerificationResultCode {
     FAIL = 1,
     NA = 2
 }
+/**
+ * Verification result for KSI signature
+ */
 export declare class VerificationResult {
     private readonly ruleName;
     private readonly childResults;

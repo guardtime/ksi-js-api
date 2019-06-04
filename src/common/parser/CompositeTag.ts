@@ -8,6 +8,9 @@ export interface ICount {
     getCount(id: number): number;
 }
 
+/**
+ * Counter for elements in composite TLV
+ */
 class ElementCounter implements ICount {
     private counts: {[key: number]: number} = {};
 
