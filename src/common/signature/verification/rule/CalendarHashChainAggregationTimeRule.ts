@@ -22,7 +22,7 @@ export class CalendarHashChainAggregationTimeRule extends VerificationRule {
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
 
         return aggregationHashChains[aggregationHashChains.length - 1].getAggregationTime().neq(calendarHashChain.getAggregationTime())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

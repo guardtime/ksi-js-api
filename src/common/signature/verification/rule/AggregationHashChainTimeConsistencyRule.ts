@@ -25,7 +25,7 @@ export class AggregationHashChainTimeConsistencyRule extends VerificationRule {
                 // tslint:disable-next-line:max-line-length
                 console.debug(`Previous aggregation hash chain aggregation time ${time} does not match current aggregation time ${chain.getAggregationTime()}.`);
 
-                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02);
+                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02());
             }
 
         }

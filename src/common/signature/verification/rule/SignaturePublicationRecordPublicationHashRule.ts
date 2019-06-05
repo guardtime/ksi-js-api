@@ -22,11 +22,14 @@ export class SignaturePublicationRecordPublicationHashRule extends VerificationR
 
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
         if (calendarHashChain === null) {
-            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.')));
         }
 
         return !publicationRecord.getPublicationHash().equals(await calendarHashChain.calculateOutputHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

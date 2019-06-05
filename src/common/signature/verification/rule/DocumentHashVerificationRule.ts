@@ -23,7 +23,7 @@ export class DocumentHashVerificationRule extends VerificationRule {
         if (!documentHash.equals(inputHash)) {
             console.debug(`Invalid document hash. Expected ${documentHash}, found ${inputHash}.`);
 
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01);
+            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01());
         }
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

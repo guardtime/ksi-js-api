@@ -13,18 +13,24 @@ export class UserProvidedPublicationHashMatchesExtendedResponseRule extends Veri
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const userPublication: PublicationData | null = context.getUserPublication();
         if (userPublication === null) {
-            throw new KsiVerificationError('Invalid user publication in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')));
         }
 
-        const extendedCalendarHashChain: CalendarHashChain =
-            await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
-
-        if (extendedCalendarHashChain === null) {
-            throw new KsiVerificationError('Invalid extended calendar hash chain: null.');
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
         }
 
         return !(await extendedCalendarHashChain.calculateOutputHash()).equals(userPublication.getPublicationHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

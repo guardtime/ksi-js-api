@@ -15,21 +15,35 @@ export class PublicationsFilePublicationHashMatchesExtenderResponseRule extends 
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
         if (publicationsFile === null) {
-            throw new KsiVerificationError('Invalid publications file in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.')));
         }
 
         const signature: KsiSignature = context.getSignature();
         const publicationRecord: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
 
         if (publicationRecord == null) {
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02);
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                // tslint:disable-next-line:max-line-length
+                VerificationError.GEN_02(new KsiVerificationError(`No publication record found after given time in publications file: ${signature.getAggregationTime()}.`)));
         }
 
-        const extendedCalendarHashChain: CalendarHashChain =
-            await context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = await context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
+        }
 
         return !(await extendedCalendarHashChain.calculateOutputHash()).equals(publicationRecord.getPublicationHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

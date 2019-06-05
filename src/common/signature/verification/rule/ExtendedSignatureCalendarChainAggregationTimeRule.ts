@@ -1,4 +1,5 @@
 import bigInteger from 'big-integer';
+import {KsiServiceError} from '../../../service/KsiServiceError';
 import {AggregationHashChain} from '../../AggregationHashChain';
 import {CalendarHashChain} from '../../CalendarHashChain';
 import {KsiSignature} from '../../KsiSignature';
@@ -17,19 +18,23 @@ export class ExtendedSignatureCalendarChainAggregationTimeRule extends Verificat
         const signature: KsiSignature = context.getSignature();
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
 
-        const extendedCalendarHashChain: CalendarHashChain = calendarHashChain == null
-            ? await context.getExtendedLatestCalendarHashChain()
-            : await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
-
-        if (extendedCalendarHashChain === null) {
-            throw new KsiVerificationError('Received invalid extended calendar hash chain from context extension function: null.');
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = calendarHashChain == null
+                ? await context.getExtendedLatestCalendarHashChain()
+                : await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
         }
 
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
         const aggregationTime: bigInteger.BigInteger = aggregationHashChains[aggregationHashChains.length - 1].getAggregationTime();
 
         return !aggregationTime.equals(extendedCalendarHashChain.getAggregationTime())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_03)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_03())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

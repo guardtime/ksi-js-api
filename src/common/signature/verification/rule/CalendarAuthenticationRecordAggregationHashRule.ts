@@ -22,12 +22,16 @@ export class CalendarAuthenticationRecordAggregationHashRule extends Verificatio
 
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
         if (calendarHashChain === null) {
-            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(
+                    new KsiVerificationError('Calendar hash chain is missing from signature.')));
         }
 
         return !(await calendarHashChain.calculateOutputHash())
             .equals(calendarAuthenticationRecord.getPublicationData().getPublicationHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

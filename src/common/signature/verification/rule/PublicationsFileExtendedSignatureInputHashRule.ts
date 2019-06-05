@@ -16,20 +16,33 @@ export class PublicationsFileExtendedSignatureInputHashRule extends Verification
         const signature: KsiSignature = context.getSignature();
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
         if (publicationsFile === null) {
-            throw new KsiVerificationError('Invalid publications file in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('Publications file is missing from context.')));
         }
 
         const publicationRecord: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
         if (publicationRecord == null) {
-            // tslint:disable-next-line:max-line-length
-            throw new KsiVerificationError(`No publication record found after given time in publications file: ${signature.getAggregationTime()}.`);
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                // tslint:disable-next-line:max-line-length
+                VerificationError.GEN_02(new KsiVerificationError(`No publication record found after given time in publications file: ${signature.getAggregationTime()}.`)));
         }
 
-        const extendedCalendarHashChain: CalendarHashChain =
-            await context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = await context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
+        }
 
         return !extendedCalendarHashChain.getInputHash().equals(await signature.getLastAggregationHashChainRootHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

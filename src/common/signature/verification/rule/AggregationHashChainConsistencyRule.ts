@@ -25,7 +25,7 @@ export class AggregationHashChainConsistencyRule extends VerificationRule {
                 // tslint:disable-next-line:max-line-length
                 console.debug(`Aggregation hash chains not consistent. Aggregation hash chain input hash ${chain.getInputHash()} does not match previous aggregation hash chain output hash ${chainHashResult.hash}.`);
 
-                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01);
+                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01());
             }
 
             chainHashResult = await chain.getOutputHash(chainHashResult);

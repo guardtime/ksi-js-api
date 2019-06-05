@@ -19,7 +19,7 @@ export class CalendarHashChainInputHashVerificationRule extends VerificationRule
         }
 
         return !(await signature.getLastAggregationHashChainRootHash()).equals(calendarHashChain.getInputHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }
