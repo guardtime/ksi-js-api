@@ -15,14 +15,24 @@ export class UserProvidedPublicationExtendedSignatureInputHashRule extends Verif
         const signature: KsiSignature = context.getSignature();
         const userPublication: PublicationData | null = context.getUserPublication();
         if (userPublication === null) {
-            throw new KsiVerificationError('Invalid user publication in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')));
         }
 
-        const extendedCalendarHashChain: CalendarHashChain =
-            await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
+        }
 
         return !extendedCalendarHashChain.getInputHash().equals(await signature.getLastAggregationHashChainRootHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

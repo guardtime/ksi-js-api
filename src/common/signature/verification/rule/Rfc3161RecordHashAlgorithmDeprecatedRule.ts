@@ -24,7 +24,7 @@ export class Rfc3161RecordHashAlgorithmDeprecatedRule extends VerificationRule {
             // tslint:disable-next-line:max-line-length
             console.debug(`Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: ${rfc3161Record.getTstInfoAlgorithm().name}; Aggregation time: ${rfc3161Record.getAggregationTime()}.`);
 
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14);
+            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14());
         }
 
         if (rfc3161Record.getSignedAttributesAlgorithm() != null
@@ -33,7 +33,7 @@ export class Rfc3161RecordHashAlgorithmDeprecatedRule extends VerificationRule {
             // tslint:disable-next-line:max-line-length
             console.debug(`Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: ${rfc3161Record.getSignedAttributesAlgorithm().name}; Aggregation time: ${rfc3161Record.getAggregationTime()}.`);
 
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14);
+            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14());
         }
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

@@ -14,27 +14,34 @@ export class PublicationsFileSignaturePublicationMatchRule extends VerificationR
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
         if (publicationsFile === null) {
-            throw new KsiVerificationError('Invalid publications file in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.')));
         }
 
         const signature: KsiSignature = context.getSignature();
         const publicationRecord: PublicationRecord | null = signature.getPublicationRecord();
         if (publicationRecord == null) {
-            throw new KsiVerificationError(`Publication record is missing from KSI signature.`);
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('Publications record is missing from signature.')));
         }
 
         const publicationRecordInPublicationFile: PublicationRecord | null = publicationsFile
             .getNearestPublicationRecord(publicationRecord.getPublicationTime());
 
-        // TODO: Check if it should fail
         if (publicationRecordInPublicationFile === null
             || publicationRecordInPublicationFile.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
-
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02);
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('Publications file publication record is missing.')));
         }
 
         return !publicationRecordInPublicationFile.getPublicationHash().equals(publicationRecord.getPublicationHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_05)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_05())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

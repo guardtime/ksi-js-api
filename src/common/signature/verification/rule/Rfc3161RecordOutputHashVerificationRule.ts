@@ -25,7 +25,7 @@ export class Rfc3161RecordOutputHashVerificationRule extends VerificationRule {
             .digest();
 
         return !inputHash.equals(aggregationHashChainInputHash)
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

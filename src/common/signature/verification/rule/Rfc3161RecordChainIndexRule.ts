@@ -29,7 +29,7 @@ export class Rfc3161RecordChainIndexRule extends VerificationRule {
             // tslint:disable-next-line:max-line-length
             console.debug(`Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index ${JSON.stringify(rfc3161ChainIndex)} and RFC3161 chain index is ${JSON.stringify(aggregationChainIndex)}.`);
 
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12);
+            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12());
         }
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

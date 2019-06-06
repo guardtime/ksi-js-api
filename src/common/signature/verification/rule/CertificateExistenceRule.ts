@@ -17,19 +17,26 @@ export class CertificateExistenceRule extends VerificationRule {
         const calendarAuthenticationRecord: CalendarAuthenticationRecord | null = signature.getCalendarAuthenticationRecord();
 
         if (calendarAuthenticationRecord == null) {
-            // TODO: Should it return NA?
-            throw new KsiVerificationError('Invalid calendar authentication record: null');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(
+                    new KsiVerificationError('Calendar authentication record is missing.')));
         }
 
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
         if (publicationsFile === null) {
-            throw new KsiVerificationError('Invalid publications file in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(
+                    new KsiVerificationError('Publications file is missing from context.')));
         }
 
         const signatureData: SignatureData = calendarAuthenticationRecord.getSignatureData();
 
         return publicationsFile.findCertificateById(signatureData.getCertificateId()) === null
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_01)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_01())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

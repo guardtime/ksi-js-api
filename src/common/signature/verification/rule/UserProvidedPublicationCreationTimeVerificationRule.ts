@@ -15,13 +15,19 @@ export class UserProvidedPublicationCreationTimeVerificationRule extends Verific
         const userPublication: PublicationData | null = context.getUserPublication();
 
         if (userPublication == null) {
-            throw new KsiVerificationError('Invalid user publication in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')));
         }
 
         const userPublicationTime: BigInteger = userPublication.getPublicationTime();
 
         return aggregationTime.geq(userPublicationTime)
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+            ? new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('User publication is created before signature.')))
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

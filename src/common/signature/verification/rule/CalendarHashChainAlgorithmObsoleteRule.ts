@@ -28,7 +28,7 @@ export class CalendarHashChainAlgorithmObsoleteRule extends VerificationRule {
                 // tslint:disable-next-line:max-line-length
                 console.debug(`Calendar hash chain contains obsolete aggregation algorithm at publication time. Algorithm: ${link.getValue().hashAlgorithm.name}; Publication time: ${calendarHashChain.getPublicationTime()}.`);
 
-                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16);
+                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16());
             }
         }
 

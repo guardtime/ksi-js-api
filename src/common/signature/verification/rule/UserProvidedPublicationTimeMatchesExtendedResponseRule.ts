@@ -15,22 +15,28 @@ export class UserProvidedPublicationTimeMatchesExtendedResponseRule extends Veri
         const signature: KsiSignature = context.getSignature();
         const userPublication: PublicationData | null = context.getUserPublication();
         if (userPublication === null) {
-            throw new KsiVerificationError('Invalid user publication in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')));
         }
 
-        const extendedCalendarHashChain: CalendarHashChain =
-            await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
-
-        if (extendedCalendarHashChain === null) {
-            throw new KsiVerificationError('Invalid extended calendar hash chain: null.');
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
         }
 
         if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02);
+            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02());
         }
 
         return !signature.getAggregationTime().equals(await extendedCalendarHashChain.calculateRegistrationTime())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }
