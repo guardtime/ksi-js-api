@@ -2,6 +2,7 @@ import {PublicationsFileService} from '../src/common/main';
 import {PublicationsFileFactory} from '../src/common/publication/PublicationsFileFactory';
 import {PublicationsFileServiceProtocol} from '../src/nodejs/service/PublicationsFileServiceProtocol';
 var forge = require('node-forge');
+import {ASCIIConverter} from 'gt-js-common';
 
 const CONFIG = {
     PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin'
@@ -16,17 +17,41 @@ test('example pub file receiving', (done) => {
 
     pubFileService.getPublicationsFile()
         .then(pubFile => {
-            var b64encoded = btoa(String.fromCharCode.apply(null, pubFile.getSignatureValue()));
-            var utf8encoded = String.fromCharCode.apply(null, pubFile.getSignatureValue());
+            // Ksi-java-sdk'st sisse imporditud muutuja TestUtil.loadBytes(CMS_SIGNATURE_OK) mis on CMSSignature klassis cmsSignature nimeline sisend
+            var importedBytes = new Uint8Array([48, -128, 6, 9, 42, -122, 72, -122, -9, 13, 1, 7, 2, -96, -128, 48, -128, 2, 1, 1, 49, 15, 48, 13, 6, 9, 96, -122, 72, 1, 101, 3, 4, 2, 1, 5, 0, 48, -128, 6, 9, 42, -122, 72, -122, -9, 13, 1, 7, 1, 0, 0, -96, -128, 48, -126, 3, -107, 48, -126, 2, 125, -96, 3, 2, 1, 2, 2, 9, 0, -43, 95, -117, 4, -88, -104, 24, -112, 48, 13, 6, 9, 42, -122, 72, -122, -9, 13, 1, 1, 5, 5, 0, 48, 97, 49, 11, 48, 9, 6, 3, 85, 4, 6, 19, 2, 69, 69, 49, 16, 48, 14, 6, 3, 85, 4, 7, 12, 7, 84, 97, 108, 108, 105, 110, 110, 49, 21, 48, 19, 6, 3, 85, 4, 10, 12, 12, 71, 117, 97, 114, 100, 116, 105, 109, 101, 32, 65, 83, 49, 41, 48, 39, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 1, 22, 26, 112, 117, 98, 108, 105, 99, 97, 116, 105, 111, 110, 115, 64, 103, 117, 97, 114, 100, 116, 105, 109, 101, 46, 99, 111, 109, 48, 30, 23, 13, 49, 52, 48, 52, 48, 57, 49, 51, 51, 53, 48, 56, 90, 23, 13, 49, 53, 48, 52, 48, 57, 49, 51, 51, 53, 48, 56, 90, 48, 97, 49, 11, 48, 9, 6, 3, 85, 4, 6, 19, 2, 69, 69, 49, 16, 48, 14, 6, 3, 85, 4, 7, 12, 7, 84, 97, 108, 108, 105, 110, 110, 49, 21, 48, 19, 6, 3, 85, 4, 10, 12, 12, 71, 117, 97, 114, 100, 116, 105, 109, 101, 32, 65, 83, 49, 41, 48, 39, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 1, 22, 26, 112, 117, 98, 108, 105, 99, 97, 116, 105, 111, 110, 115, 64, 103, 117, 97, 114, 100, 116, 105, 109, 101, 46, 99, 111, 109, 48, -126, 1, 34, 48, 13, 6, 9, 42, -122, 72, -122, -9, 13, 1, 1, 1, 5, 0, 3, -126, 1, 15, 0, 48, -126, 1, 10, 2, -126, 1, 1, 0, -68, 13, -1, -103, -2, 115, -66, -18, -26, 98, -117, -73, 120, 90, 121, -101, 56, 16, 100, -45, 126, -8, -109, -92, -48, 39, -74, -123, 53, -60, 81, 119, -102, -127, 51, 29, 4, 77, -11, -96, -107, -54, -108, -50, 123, -107, 55, -87, -7, 69, 85, 25, 88, -125, 86, -104, -124, 88, -75, -112, -45, -116, -79, 86, -96, 67, 52, 94, 124, 25, 18, -82, -29, -64, 52, 74, 79, 104, 97, 80, -88, -127, -60, -124, -117, 74, 2, -113, -49, -8, 47, -98, 0, -85, -103, 115, 25, -81, 4, 3, -39, 43, -41, 99, -50, -66, 20, 13, 107, -117, 5, 102, 20, 87, 79, -16, -64, 54, 12, 37, -108, 99, -58, -95, -81, 38, -64, -96, -38, 37, -52, 89, 82, 118, -84, -13, 115, -75, 2, 51, 101, 9, 99, -119, 69, 31, -8, 54, 89, -19, 67, 52, -15, 101, -31, -8, -36, 104, 7, 60, -114, -36, 65, -11, -79, -102, 65, 105, 121, -44, -100, -70, -40, 85, 114, -54, -121, -23, -106, -90, 111, 4, 4, -74, 37, -40, 83, 57, -107, -127, 22, 2, 2, 87, -68, 100, 112, 35, 78, -96, -17, -27, -122, 79, 109, -68, 20, 39, -2, 76, 87, 69, 104, -78, 31, 70, 47, -125, 109, -51, -93, -104, -117, -7, -35, -111, 4, -8, -27, 104, -109, 126, 82, 13, -114, 38, 88, 85, -46, -59, 52, -119, 6, -54, 75, -101, 61, 121, -55, -41, 27, 112, 19, -112, -26, -69, 2, 3, 1, 0, 1, -93, 80, 48, 78, 48, 29, 6, 3, 85, 29, 14, 4, 22, 4, 20, 51, -52, 76, 12, -70, 8, -28, -72, -95, -114, -96, 2, -52, 116, -20, -17, 92, 124, -8, 96, 48, 31, 6, 3, 85, 29, 35, 4, 24, 48, 22, -128, 20, 51, -52, 76, 12, -70, 8, -28, -72, -95, -114, -96, 2, -52, 116, -20, -17, 92, 124, -8, 96, 48, 12, 6, 3, 85, 29, 19, 4, 5, 48, 3, 1, 1, -1, 48, 13, 6, 9, 42, -122, 72, -122, -9, 13, 1, 1, 5, 5, 0, 3, -126, 1, 1, 0, 15, 21, 115, 110, 86, -69, -63, 64, 38, 124, -1, 113, -24, 110, -62, 22, 74, -57, 23, 70, -97, -69, -34, 16, -32, -118, 63, 16, -23, 59, -109, -119, 92, -1, 60, -54, 2, -126, 44, 112, 103, -31, 44, 53, -115, 44, 114, 55, -127, 97, 6, 40, -76, -4, -13, 66, 122, -53, 102, -107, 29, 30, 74, -85, -87, -69, -34, -119, -17, 99, -12, -48, 114, -106, 64, -112, -54, -111, 35, -98, -76, -122, -128, -91, -89, -5, -108, 46, 3, 43, 33, -110, -45, -110, 117, -120, -54, 59, 12, 41, -36, 3, 120, 21, 26, -100, -84, 105, -70, -34, -35, -12, 126, 13, -5, -56, 77, 25, 44, 76, 84, 76, 82, 107, 65, -1, -39, 35, -84, -61, -14, 95, 39, 19, -7, -23, 69, 41, -82, -94, 43, -26, 118, 17, -116, 26, 17, -52, -75, 101, 4, 108, -7, -60, 7, 45, 69, -104, -79, -31, -27, 1, -16, 24, 54, -95, 9, -35, 37, -92, 118, 69, -73, -44, -68, 82, -38, -103, -57, -40, -124, 20, 99, -99, 27, 63, -52, -121, 48, 86, 19, 75, 78, 122, -107, 75, -101, -41, -51, 111, 83, 108, -98, 96, 2, -105, 104, 29, -86, 113, -13, 51, 55, -82, 59, -103, -97, 96, 32, 126, -109, 85, -7, -20, -126, 9, 97, -84, -122, -26, -32, 45, 125, 6, 26, -120, 22, 61, 81, -21, 61, 88, 85, -122, -20, 70, 126, 92, 95, 19, 127, -61, -7, 27, 69, 26, 0, 0, 49, -126, 2, 4, 48, -126, 2, 0, 2, 1, 1, 48, 110, 48, 97, 49, 11, 48, 9, 6, 3, 85, 4, 6, 19, 2, 69, 69, 49, 16, 48, 14, 6, 3, 85, 4, 7, 12, 7, 84, 97, 108, 108, 105, 110, 110, 49, 21, 48, 19, 6, 3, 85, 4, 10, 12, 12, 71, 117, 97, 114, 100, 116, 105, 109, 101, 32, 65, 83, 49, 41, 48, 39, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 1, 22, 26, 112, 117, 98, 108, 105, 99, 97, 116, 105, 111, 110, 115, 64, 103, 117, 97, 114, 100, 116, 105, 109, 101, 46, 99, 111, 109, 2, 9, 0, -43, 95, -117, 4, -88, -104, 24, -112, 48, 13, 6, 9, 96, -122, 72, 1, 101, 3, 4, 2, 1, 5, 0, -96, 105, 48, 24, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 3, 49, 11, 6, 9, 42, -122, 72, -122, -9, 13, 1, 7, 1, 48, 28, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 5, 49, 15, 23, 13, 49, 53, 48, 51, 49, 49, 49, 51, 53, 48, 51, 56, 90, 48, 47, 6, 9, 42, -122, 72, -122, -9, 13, 1, 9, 4, 49, 34, 4, 32, -60, -95, 117, 28, -31, -25, 121, -86, 5, 48, 99, 60, 74, -85, 9, 110, -33, -91, 106, -108, 85, -39, 112, 86, -37, -9, -60, -71, 85, -113, -45, -76, 48, 13, 6, 9, 42, -122, 72, -122, -9, 13, 1, 1, 1, 5, 0, 4, -126, 1, 0, 101, 68, -56, -30, 5, -36, 70, 58, 119, -63, 47, 104, 2, 116, -92, 25, -11, -91, -29, -113, 12, 6, 52, 104, 2, -82, 39, -60, 119, 32, -64, 37, 35, -112, 63, -89, -17, -4, 91, 85, 29, -46, -35, 39, -71, 119, 108, 14, 21, -40, 102, -94, -103, 108, -124, -66, 6, -107, 115, -84, -107, -21, 119, 113, 2, -86, -25, 117, -2, 8, -7, 98, 81, 78, -64, -94, 11, -101, 67, 80, 60, -101, -32, -71, -118, -20, -58, -35, -49, -28, 34, 72, 110, -60, -112, -55, 95, -74, -12, -115, -91, 27, 33, -43, -120, 48, 120, 1, -44, 27, -5, 97, 7, 6, -22, -33, 67, 119, -11, 116, -27, -47, 113, -125, 113, 102, -39, 75, 6, 33, 102, 55, -23, 84, 52, -120, -48, -38, 82, -15, -59, -60, -41, -83, -72, -119, 55, 79, -80, -35, 57, -94, -36, 111, -47, -27, 4, -1, -122, -125, 71, -17, -84, 91, -37, 69, -118, -3, -16, -94, -7, -72, 115, -6, 26, 77, 76, 9, -123, 60, -116, 61, 43, 36, -82, 39, -1, 60, 53, -58, -113, -28, -119, 92, -9, 73, 66, 6, -37, -52, -40, -104, 7, 3, 23, -85, 57, 95, -51, 98, 84, 57, 94, 23, -95, -44, -53, 18, 69, -33, -18, 30, 5, 101, 70, -102, -97, 57, 74, 98, 11, 47, -103, 103, -108, -84, -68, 56, -86, 91, 36, -40, 16, 115, 124, -20, 28, -118, 84, 27, 65, -13, -6, 100, 83, 69, 0, 0, 0, 0, 0, 0]);
 
-            var signature = "-----BEGIN PKCS7-----" + utf8encoded + "-----END PKCS7-----";
-            console.log('signature bytes', signature);
-            // console.log(pubFile.getSignedBytes());
-            // console.log(pubFile.getSignatureValue());
-            var bytes = pubFile.getSignatureValue();
-            var obj = forge.asn1.fromDer(Array.from(bytes));
-            var verify = forge.pkcs7.messageFromAsn1(obj).verify();
-            console.log(verify);
+            //Näidis allkiri openssl'iga tehtud
+            var testSignature = "MIID7wYJKoZIhvcNAQcCoIID4DCCA9wCAQExCzAJBgUrDgMCGgUAMD4GCSqGSIb3\n" +
+                "DQEHAaAxBC9UaGlzIG1lc3NhZ2UgY291bGQgb25seSBoYXZlIGJlZW4gc2VudCBi\n" +
+                "eSBtZS4NCqCCAa0wggGpMIIBEgIJAOSSBYx+DVt5MA0GCSqGSIb3DQEBCwUAMBkx\n" +
+                "FzAVBgNVBAMMDlBLQ1MjNyBleGFtcGxlMB4XDTE5MDgwNjA4MTUwMVoXDTE5MDkw\n" +
+                "NTA4MTUwMVowGTEXMBUGA1UEAwwOUEtDUyM3IGV4YW1wbGUwgZ8wDQYJKoZIhvcN\n" +
+                "AQEBBQADgY0AMIGJAoGBALQeYGT5g9LXXmMIPIYyYH8rW9CzXeEpaMZRt99Y7fOI\n" +
+                "TxfIg+H7s/h+A4Xgn6MLzFCZaCdaI+jBIlJLGHD9kcBpUj7be4HuCwCQyTYYYsZF\n" +
+                "o+0DXuREDKsrPRMtz8q3Vv1As9YRkrNBfoNDVaxVLnnXLm/63mkDDxlICgPqVWuX\n" +
+                "AgMBAAEwDQYJKoZIhvcNAQELBQADgYEAUASiZsDdUoeQWGrf6bjzsxTOp1W52hAx\n" +
+                "bpXdUaxzEHwF2UIfOgGYLxnswFRxACYL4AdSgXInNP7JjYWIwg9qQpV9W9V8wNJB\n" +
+                "dp6jk4W1nkg97ZMzCd+bpubn2KYueTrp0H1GNVrLkx/NvK1isV8ny1lFcqsnCIyO\n" +
+                "5fR6DI1OxZIxggHXMIIB0wIBATAmMBkxFzAVBgNVBAMMDlBLQ1MjNyBleGFtcGxl\n" +
+                "AgkA5JIFjH4NW3kwCQYFKw4DAhoFAKCCAQcwGAYJKoZIhvcNAQkDMQsGCSqGSIb3\n" +
+                "DQEHATAcBgkqhkiG9w0BCQUxDxcNMTkwODA2MDgxNjMzWjAjBgkqhkiG9w0BCQQx\n" +
+                "FgQUtCoWIVpMUZ7wlMmr1C1sG0V2hdYwgacGCSqGSIb3DQEJDzGBmTCBljALBglg\n" +
+                "hkgBZQMEASowCAYGKoUDAgIJMAoGCCqFAwcBAQICMAoGCCqFAwcBAQIDMAgGBiqF\n" +
+                "AwICFTALBglghkgBZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3DQMHMA4GCCqG\n" +
+                "SIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIB\n" +
+                "KDANBgkqhkiG9w0BAQEFAASBgGDSAcbUdEVjHsY+wP5qsab9znLADTfnJd/0yREh\n" +
+                "7d+ReKuffSFZvvALlgqnjF+gJbAkKwdLApzb7qLS1jOPj9ecV+oUpY64Cf5uPKcO\n" +
+                "yKt0w3M5voufv1OvEDWRNmLKQ0wasfDqCzb8uMysHxWdtp8Ntx8jokgwNgYTAD40\n" +
+                "wn5j\n";
+            var testBytes = Uint8Array.from(atob(testSignature), c => c.charCodeAt(0));
+
+            var bytes = pubFile.getSignedBytes();
+
+            // allkirja verifitseerimine
+            var byteString = ASCIIConverter.ToString(bytes);
+            var obj = forge.asn1.fromDer(byteString);
+            var verify = forge.pkcs7.messageFromAsn1(obj);
+            // console.log(verify);
             done();
         });
 });
