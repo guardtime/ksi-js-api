@@ -12,5 +12,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Publications file parsing
   - Hash, file signing
 
-[Unreleased]: https://github.com/guardtime/gt-js-common/tree/master
+[Unreleased]: https://github.com/guardtime/ksi-js-api/tree/master
 [1.0.0]: https://github.com/guardtime/ksi-js-api/tree/1.0.0
