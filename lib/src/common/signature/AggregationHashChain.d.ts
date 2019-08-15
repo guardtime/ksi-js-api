@@ -1,5 +1,5 @@
-import { BigInteger } from 'big-integer';
 import { DataHash, HashAlgorithm } from '@guardtime/gt-js-common';
+import { BigInteger } from 'big-integer';
 import { LinkDirection } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';
 import { RawTag } from '../parser/RawTag';
