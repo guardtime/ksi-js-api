@@ -2,6 +2,7 @@ import {HexCoder, X509} from '@guardtime/gt-js-common';
 import {CertificateRecord} from '../../../publication/CertificateRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarAuthenticationRecord} from '../../CalendarAuthenticationRecord';
+import {CalendarHashChain} from '../../CalendarHashChain';
 import {KsiSignature} from '../../KsiSignature';
 import {SignatureData} from '../../SignatureData';
 import {KsiVerificationError} from '../KsiVerificationError';
@@ -26,7 +27,11 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
 
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
         if (publicationsFile === null) {
-            throw new KsiVerificationError('Invalid publications file in context: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(
+                    new KsiVerificationError('Publications file missing from context.')));
         }
 
         const signatureData: SignatureData = calendarAuthenticationRecord.getSignatureData();
@@ -36,19 +41,23 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
             case '1.2.840.113549.1.7.2':
                 throw new Error('Not implemented');
             default:
-                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02);
+                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02());
         }
 
         const certificateRecord: CertificateRecord | null = publicationsFile
             .findCertificateById(signatureData.getCertificateId());
 
         if (certificateRecord === null) {
-            // tslint:disable-next-line:max-line-length
-            throw new KsiVerificationError(`No certificate found in publications file with id: ${HexCoder.encode(signatureData.getCertificateId())}.`);
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(
+                    // tslint:disable-next-line:max-line-length
+                    new KsiVerificationError(`No certificate found in publications file with id: ${HexCoder.encode(signatureData.getCertificateId())}.`)));
         }
 
         if (!X509.isCertificateValidDuring(certificateRecord.getX509Certificate(), signature.getAggregationTime())) {
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03);
+            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03());
         }
 
         const signedBytes: Uint8Array = calendarAuthenticationRecord.getPublicationData().encode();
@@ -60,6 +69,6 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
             console.debug(error);
         }
 
-        return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02);
+        return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02());
     }
 }

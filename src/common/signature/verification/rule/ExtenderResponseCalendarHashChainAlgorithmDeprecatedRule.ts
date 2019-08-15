@@ -2,6 +2,7 @@ import {ImprintTag} from '../../../parser/ImprintTag';
 import {PublicationData} from '../../../publication/PublicationData';
 import {PublicationRecord} from '../../../publication/PublicationRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
+import {KsiServiceError} from '../../../service/KsiServiceError';
 import {CalendarHashChain} from '../../CalendarHashChain';
 import {KsiSignature} from '../../KsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
@@ -24,27 +25,45 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
         } else {
             const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
             if (publicationsFile === null) {
-                throw new KsiVerificationError('Invalid publications file in context: null.');
+                return new VerificationResult(
+                    this.getRuleName(),
+                    VerificationResultCode.NA,
+                    VerificationError.GEN_02(new KsiVerificationError('Publications file is missing from context.')));
             }
 
             const publicationRecord: PublicationRecord | null = publicationsFile
                 .getNearestPublicationRecord(signature.getAggregationTime());
 
             if (publicationRecord === null) {
-                return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02);
+                return new VerificationResult(
+                    this.getRuleName(),
+                    VerificationResultCode.NA,
+                    // tslint:disable-next-line:max-line-length
+                    VerificationError.GEN_02(new KsiVerificationError(`No publication record found after given time in publications file: ${signature.getAggregationTime()}.`)));
             }
 
             publicationData = publicationRecord.getPublicationData();
         }
 
-        const extendedCalendarHashChain: CalendarHashChain =
-            await context.getExtendedCalendarHashChain(publicationData.getPublicationTime());
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = await context.getExtendedCalendarHashChain(publicationData.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
+        }
+
         const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
         if (deprecatedLink !== null) {
             // tslint:disable-next-line:max-line-length
             console.debug(`Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${deprecatedLink.getValue().hashAlgorithm.name}; Publication time: ${publicationData.getPublicationTime()}.`);
 
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02);
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain right link algorithm is deprecated.')));
         }
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

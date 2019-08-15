@@ -1,7 +1,6 @@
 import {DataHash} from '@guardtime/gt-js-common';
 import {CalendarHashChain} from '../../CalendarHashChain';
 import {KsiSignature} from '../../KsiSignature';
-import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';
@@ -14,18 +13,23 @@ export class ExtendedSignatureCalendarChainInputHashRule extends VerificationRul
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
-        const extendedCalendarHashChain: CalendarHashChain = calendarHashChain == null
-            ? await context.getExtendedLatestCalendarHashChain()
-            : await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
 
-        if (extendedCalendarHashChain === null) {
-            throw new KsiVerificationError('Received invalid extended calendar hash chain from context extension function: null.');
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = calendarHashChain == null
+                ? await context.getExtendedLatestCalendarHashChain()
+                : await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
         }
 
         const lastAggregationHashChainRootHash: DataHash = await signature.getLastAggregationHashChainRootHash();
 
         return !lastAggregationHashChainRootHash.equals(extendedCalendarHashChain.getInputHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_02)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_02())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

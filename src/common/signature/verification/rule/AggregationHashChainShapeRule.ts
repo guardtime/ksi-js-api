@@ -23,7 +23,7 @@ export class AggregationHashChainShapeRule extends VerificationRule {
                 // tslint:disable-next-line:max-line-length
                 console.debug(`The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: ${calculatedValue}; Value in chain: ${lastIndexValue}.`);
 
-                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10);
+                return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10());
             }
 
         }

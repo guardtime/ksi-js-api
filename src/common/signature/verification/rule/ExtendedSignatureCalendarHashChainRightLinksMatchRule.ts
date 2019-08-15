@@ -1,3 +1,4 @@
+import {KsiServiceError} from '../../../service/KsiServiceError';
 import {CalendarHashChain} from '../../CalendarHashChain';
 import {KsiSignature} from '../../KsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';
@@ -15,14 +16,24 @@ export class ExtendedSignatureCalendarHashChainRightLinksMatchRule extends Verif
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
 
         if (calendarHashChain === null) {
-            throw new KsiVerificationError('Invalid calendar hash chain: null.');
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.')));
         }
 
-        const extendedCalendarHashChain: CalendarHashChain =
-            await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
+        let extendedCalendarHashChain: CalendarHashChain | null = null;
+        try {
+            extendedCalendarHashChain = await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
+        } catch (e) {
+            return new VerificationResult(
+                this.getRuleName(),
+                VerificationResultCode.NA,
+                VerificationError.GEN_02(e));
+        }
 
         return calendarHashChain.areRightLinksEqual(extendedCalendarHashChain)
             ? new VerificationResult(this.getRuleName(), VerificationResultCode.OK)
-            : new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_04);
+            : new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_04());
     }
 }

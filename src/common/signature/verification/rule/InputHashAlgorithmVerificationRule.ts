@@ -24,7 +24,7 @@ export class InputHashAlgorithmVerificationRule extends VerificationRule {
         if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
             console.debug(`Wrong input hash algorithm. Expected ${documentHash.hashAlgorithm}, found ${inputHash.hashAlgorithm}.`);
 
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04);
+            return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04());
         }
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

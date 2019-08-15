@@ -18,7 +18,7 @@ export class DocumentHashLevelVerificationRule extends VerificationRule {
             : signature.getAggregationHashChains()[0].getChainLinks()[0].getLevelCorrection();
 
         return context.getDocumentHashLevel() > levelCorrection
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

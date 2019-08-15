@@ -19,7 +19,7 @@ export class CalendarHashChainRegistrationTimeRule extends VerificationRule {
         }
 
         return calendarHashChain.getAggregationTime().neq(calendarHashChain.calculateRegistrationTime())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05)
+            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05())
             : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 }

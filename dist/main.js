@@ -52974,6 +52974,35 @@ var KsiSignature_KsiSignature = /** @class */ (function (_super) {
 }(CompositeTag_CompositeTag));
 
 
+// CONCATENATED MODULE: ./src/common/signature/verification/KsiVerificationError.ts
+var KsiVerificationError_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/**
+ * KSI verification error
+ */
+var KsiVerificationError = /** @class */ (function (_super) {
+    KsiVerificationError_extends(KsiVerificationError, _super);
+    function KsiVerificationError(message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = 'KsiVerificationError';
+        Object.setPrototypeOf(_this, KsiVerificationError.prototype);
+        return _this;
+    }
+    return KsiVerificationError;
+}(Error));
+
+
 // CONCATENATED MODULE: ./src/common/signature/verification/VerificationError.ts
 /**
  * Verification error
@@ -52985,143 +53014,209 @@ var VerificationError = /** @class */ (function () {
         Object.freeze(this);
     }
     /**
-     * Returns a string that represents the current object.
-     */
-    VerificationError.prototype.toString = function () {
-        return this.code + ": " + this.message;
-    };
-    /**
      * Wrong document error
      */
-    VerificationError.GEN_01 = new VerificationError('GEN-01', 'Wrong document');
+    VerificationError.GEN_01 = function () {
+        return new VerificationError('GEN-01', 'Wrong document');
+    };
     /**
      * Verification inconclusive error.
      */
-    VerificationError.GEN_02 = new VerificationError('GEN-02', 'Verification inconclusive');
+    VerificationError.GEN_02 = function (error) {
+        return new VerificationError('GEN-02', "Verification inconclusive: " + error);
+    };
     /**
      * Input hash level too large error.
      */
-    VerificationError.GEN_03 = new VerificationError('GEN-03', 'Input hash level too large');
+    VerificationError.GEN_03 = function () {
+        return new VerificationError('GEN-03', 'Input hash level too large');
+    };
     /**
      * Wrong input hash algorithm.
      */
-    VerificationError.GEN_04 = new VerificationError('GEN-04', 'Wrong input hash algorithm');
+    VerificationError.GEN_04 = function () {
+        return new VerificationError('GEN-04', 'Wrong input hash algorithm');
+    };
     /**
      * Inconsistent aggregation hash chains error.
      */
-    VerificationError.INT_01 = new VerificationError('INT-01', 'Inconsistent aggregation hash chains');
+    VerificationError.INT_01 = function () {
+        return new VerificationError('INT-01', 'Inconsistent aggregation hash chains');
+    };
     /**
      *  Inconsistent aggregation hash chain aggregation times error.
      */
-    VerificationError.INT_02 = new VerificationError('INT-02', 'Inconsistent aggregation hash chain aggregation times');
+    VerificationError.INT_02 = function () {
+        return new VerificationError('INT-02', 'Inconsistent aggregation hash chain aggregation times');
+    };
     /**
      * Calendar hash chain input hash mismatch error.
      */
-    VerificationError.INT_03 = new VerificationError('INT-03', 'Calendar hash chain input hash mismatch');
+    VerificationError.INT_03 = function () {
+        return new VerificationError('INT-03', 'Calendar hash chain input hash mismatch');
+    };
     /**
      * Calendar hash chain aggregation time mismatch error.
      */
-    VerificationError.INT_04 = new VerificationError('INT-04', 'Calendar hash chain aggregation time mismatch');
+    VerificationError.INT_04 = function () {
+        return new VerificationError('INT-04', 'Calendar hash chain aggregation time mismatch');
+    };
     /**
      * Calendar hash chain shape inconsistent with aggregation time error.
      */
-    VerificationError.INT_05 = new VerificationError('INT-05', 'Calendar hash chain shape inconsistent with aggregation time');
+    VerificationError.INT_05 = function () {
+        return new VerificationError('INT-05', 'Calendar hash chain shape inconsistent with aggregation time');
+    };
     /**
      * Calendar hash chain time inconsistent with calendar authentication record time error.
      */
-    VerificationError.INT_06 = new VerificationError('INT-06', 'Calendar hash chain time inconsistent with calendar authentication record time');
+    VerificationError.INT_06 = function () {
+        return new VerificationError('INT-06', 'Calendar hash chain time inconsistent with calendar authentication record time');
+    };
     /**
      * Calendar hash chain time inconsistent with publication time error.
      */
-    VerificationError.INT_07 = new VerificationError('INT-07', 'Calendar hash chain time inconsistent with publication time');
+    VerificationError.INT_07 = function () {
+        return new VerificationError('INT-07', 'Calendar hash chain time inconsistent with publication time');
+    };
     /**
      * Calendar hash chain root hash is inconsistent with calendar authentication record input hash error.
      */
-    VerificationError.INT_08 = new VerificationError('INT-08', 'Calendar hash chain root hash is inconsistent with calendar authentication record input hash');
+    VerificationError.INT_08 = function () {
+        return new VerificationError('INT-08', 'Calendar hash chain root hash is inconsistent with calendar authentication record input hash');
+    };
     /**
      * Calendar hash chain root hash is inconsistent with published hash value error.
      */
-    VerificationError.INT_09 = new VerificationError('INT-09', 'Calendar hash chain root hash is inconsistent with published hash value');
+    VerificationError.INT_09 = function () {
+        return new VerificationError('INT-09', 'Calendar hash chain root hash is inconsistent with published hash value');
+    };
     /**
      * Aggregation hash chain chain index mismatch error.
      */
-    VerificationError.INT_10 = new VerificationError('INT-10', 'Aggregation hash chain chain index mismatch');
+    VerificationError.INT_10 = function () {
+        return new VerificationError('INT-10', 'Aggregation hash chain chain index mismatch');
+    };
     /**
      * The meta-data record in the aggregation hash chain may not be trusted error.
      */
-    VerificationError.INT_11 = new VerificationError('INT-11', 'The meta-data record in the aggregation hash chain may not be trusted');
+    VerificationError.INT_11 = function () {
+        return new VerificationError('INT-11', 'The meta-data record in the aggregation hash chain may not be trusted');
+    };
     /**
      * Inconsistent chain indexes error.
      */
-    VerificationError.INT_12 = new VerificationError('INT-12', 'Inconsistent chain indexes');
+    VerificationError.INT_12 = function () {
+        return new VerificationError('INT-12', 'Inconsistent chain indexes');
+    };
     /**
      * Document hash algorithm deprecated at the time of signing.
      */
-    VerificationError.INT_13 = new VerificationError('INT-13', 'Document hash algorithm deprecated at the time of signing');
+    VerificationError.INT_13 = function () {
+        return new VerificationError('INT-13', 'Document hash algorithm deprecated at the time of signing');
+    };
     /**
      *  RFC3161 compatibility record composed of hash algorithms that where deprecated at the time of signing.
      */
-    VerificationError.INT_14 = new VerificationError('INT-14', 'RFC3161 compatibility record composed of hash algorithms that where deprecated at the time of signing');
+    VerificationError.INT_14 = function () {
+        return new VerificationError('INT-14', 'RFC3161 compatibility record composed of hash algorithms that where deprecated at the time of signing');
+    };
     /**
      * Aggregation hash chain uses hash algorithm that was deprecated at the time of signing.
      */
-    VerificationError.INT_15 = new VerificationError('INT-15', 'Aggregation hash chain uses hash algorithm that was deprecated at the time of signing');
+    VerificationError.INT_15 = function () {
+        return new VerificationError('INT-15', 'Aggregation hash chain uses hash algorithm that was deprecated at the time of signing');
+    };
     /**
      * Calendar hash chain hash algorithm was obsolete at publication time.
      */
-    VerificationError.INT_16 = new VerificationError('INT-16', 'Calendar hash chain hash algorithm was obsolete at publication time');
+    VerificationError.INT_16 = function () {
+        return new VerificationError('INT-16', 'Calendar hash chain hash algorithm was obsolete at publication time');
+    };
     /**
      * The RFC3161 compatibility record output hash algorithm was deprecated at the time of signing.
      */
-    VerificationError.INT_17 = new VerificationError('INT-17', 'The RFC3161 compatibility record output hash algorithm was deprecated at the time of signing');
+    VerificationError.INT_17 = function () {
+        return new VerificationError('INT-17', 'The RFC3161 compatibility record output hash algorithm was deprecated at the time of signing');
+    };
     /**
      * Extender response calendar root hash mismatch error.
      */
-    VerificationError.PUB_01 = new VerificationError('PUB-01', 'Extender response calendar root hash mismatch');
+    VerificationError.PUB_01 = function () {
+        return new VerificationError('PUB-01', 'Extender response calendar root hash mismatch');
+    };
     /**
      * Extender response inconsistent error.
      */
-    VerificationError.PUB_02 = new VerificationError('PUB-02', 'Extender response inconsistent');
+    VerificationError.PUB_02 = function () {
+        return new VerificationError('PUB-02', 'Extender response inconsistent');
+    };
     /**
      * Extender response input hash mismatch error.
      */
-    VerificationError.PUB_03 = new VerificationError('PUB-03', 'Extender response input hash mismatch');
+    VerificationError.PUB_03 = function () {
+        return new VerificationError('PUB-03', 'Extender response input hash mismatch');
+    };
     /**
      * Publication record hash and user provided publication hash mismatch error.
      */
-    VerificationError.PUB_04 = new VerificationError('PUB-04', 'Publication record hash and user provided publication hash mismatch');
+    VerificationError.PUB_04 = function () {
+        return new VerificationError('PUB-04', 'Publication record hash and user provided publication hash mismatch');
+    };
     /**
      * Publication record hash and publications file publication hash mismatch error.
      */
-    VerificationError.PUB_05 = new VerificationError('PUB-05', 'Publication record hash and publications file publication hash mismatch');
+    VerificationError.PUB_05 = function () {
+        return new VerificationError('PUB-05', 'Publication record hash and publications file publication hash mismatch');
+    };
     /**
      * Certificate not found error.
      */
-    VerificationError.KEY_01 = new VerificationError('KEY-01', 'Certificate not found');
+    VerificationError.KEY_01 = function () {
+        return new VerificationError('KEY-01', 'Certificate not found');
+    };
     /**
      * PKI signature not verified with certificate error.
      */
-    VerificationError.KEY_02 = new VerificationError('KEY-02', 'PKI signature not verified with certificate');
+    VerificationError.KEY_02 = function () {
+        return new VerificationError('KEY-02', 'PKI signature not verified with certificate');
+    };
     /**
      * Signing certificate not valid at aggregation time error.
      */
-    VerificationError.KEY_03 = new VerificationError('KEY-03', 'Signing certificate not valid at aggregation time');
+    VerificationError.KEY_03 = function () {
+        return new VerificationError('KEY-03', 'Signing certificate not valid at aggregation time');
+    };
     /**
      * Calendar root hash mismatch error between signature and calendar database chain.
      */
-    VerificationError.CAL_01 = new VerificationError('CAL-01', 'Calendar root hash mismatch between signature and calendar database chain');
+    VerificationError.CAL_01 = function () {
+        return new VerificationError('CAL-01', 'Calendar root hash mismatch between signature and calendar database chain');
+    };
     /**
      * Aggregation hash chain root hash and calendar database hash chain input hash mismatch error.
      */
-    VerificationError.CAL_02 = new VerificationError('CAL-02', 'Aggregation hash chain root hash and calendar database hash chain input hash mismatch');
+    VerificationError.CAL_02 = function () {
+        return new VerificationError('CAL-02', 'Aggregation hash chain root hash and calendar database hash chain input hash mismatch');
+    };
     /**
      * Aggregation time mismatch error.
      */
-    VerificationError.CAL_03 = new VerificationError('CAL-03', 'Aggregation time mismatch');
+    VerificationError.CAL_03 = function () {
+        return new VerificationError('CAL-03', 'Aggregation time mismatch');
+    };
     /**
      * Calendar hash chain right links are inconsistent error.
      */
-    VerificationError.CAL_04 = new VerificationError('CAL-04', 'Calendar hash chain right links are inconsistent');
+    VerificationError.CAL_04 = function () {
+        return new VerificationError('CAL-04', 'Calendar hash chain right links are inconsistent');
+    };
+    /**
+     * Returns a string that represents the current object.
+     */
+    VerificationError.prototype.toString = function () {
+        return "[" + this.code + "] " + this.message;
+    };
     return VerificationError;
 }());
 
@@ -53182,35 +53277,6 @@ var VerificationResult_VerificationResult = /** @class */ (function () {
     };
     return VerificationResult;
 }());
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/KsiVerificationError.ts
-var KsiVerificationError_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-/**
- * KSI verification error
- */
-var KsiVerificationError = /** @class */ (function (_super) {
-    KsiVerificationError_extends(KsiVerificationError, _super);
-    function KsiVerificationError(message) {
-        var _this = _super.call(this, message) || this;
-        _this.name = 'KsiVerificationError';
-        Object.setPrototypeOf(_this, KsiVerificationError.prototype);
-        return _this;
-    }
-    return KsiVerificationError;
-}(Error));
 
 
 // CONCATENATED MODULE: ./src/common/signature/verification/VerificationRule.ts
@@ -53342,6 +53408,7 @@ var UserProvidedPublicationExistenceRule_generator = (undefined && undefined.__g
 
 
 
+
 /**
  * Rule checks that user has provided a publication.
  */
@@ -53354,7 +53421,7 @@ var UserProvidedPublicationExistenceRule_UserProvidedPublicationExistenceRule = 
         return UserProvidedPublicationExistenceRule_awaiter(this, void 0, void 0, function () {
             return UserProvidedPublicationExistenceRule_generator(this, function (_a) {
                 return [2 /*return*/, context.getUserPublication() === null
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')))
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -53434,7 +53501,7 @@ var AggregationHashChainAlgorithmDeprecatedRule_AggregationHashChainAlgorithmDep
                     if (chain.getAggregationAlgorithm().isDeprecated(chain.getAggregationTime().valueOf())) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: " + chain.getAggregationAlgorithm().name + "; Aggregation time: " + chain.getAggregationTime() + ".s");
-                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15())];
                     }
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -53527,7 +53594,7 @@ var AggregationHashChainConsistencyRule_AggregationHashChainConsistencyRule = /*
                         if (!chain.getInputHash().equals(chainHashResult.hash)) {
                             // tslint:disable-next-line:max-line-length
                             console.debug("Aggregation hash chains not consistent. Aggregation hash chain input hash " + chain.getInputHash() + " does not match previous aggregation hash chain output hash " + chainHashResult.hash + ".");
-                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01())];
                         }
                         return [4 /*yield*/, chain.getOutputHash(chainHashResult)];
                     case 2:
@@ -53620,14 +53687,14 @@ var AggregationHashChainIndexSuccessorRule_AggregationHashChainIndexSuccessorRul
                         || !compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Chain index is not the successor to the parent aggregation hash chain index. Chain index: " + chainIndex + "; Parent chain index: " + parentChainIndex + ".");
-                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12())];
                     }
                     parentChainIndex = chainIndex;
                 }
                 if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Highest aggregation hash chain index length is not 1. Chain index: " + aggregationHashChains[aggregationHashChains.length - 1].getChainIndex() + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12())];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -53728,33 +53795,33 @@ var AggregationHashChainMetadataRule_AggregationHashChainMetadataRule = /** @cla
                             hashAlgorithm = HashAlgorithm_HashAlgorithm.getById(hashAlgorithmId);
                             if (hashAlgorithm !== null && hashAlgorithm.length === metadataBytes.length - 1) {
                                 console.debug("Metadata without padding may not be trusted. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11())];
                             }
                         }
                         else {
                             if (metadata.value.indexOf(paddingTag) !== 0) {
                                 console.debug("Metadata with padding may not be trusted. Padding is not the first element. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11())];
                             }
                             if (paddingTag.tlv16BitFlag) {
                                 console.debug("Metadata with padding may not be trusted. Padding is not TLV8. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11())];
                             }
                             if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
                                 // tslint:disable-next-line:max-line-length
                                 console.debug("Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11())];
                             }
                             if (!compareTypedArray(paddingTag.getValueBytes(), AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven)
                                 && !compareTypedArray(paddingTag.getValueBytes(), AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd)) {
                                 console.debug("Metadata with padding may not be trusted. Unknown padding value. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11())];
                             }
                             stream = new TlvOutputStream();
                             stream.writeTag(metadata);
                             if (stream.getData().length % 2 !== 0) {
                                 console.debug("Metadata with padding may not be trusted. Invalid padding value. Metadata: " + metadata + ".");
-                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11())];
                             }
                         }
                     }
@@ -53841,7 +53908,7 @@ var AggregationHashChainShapeRule_AggregationHashChainShapeRule = /** @class */ 
                     if (!lastIndexValue.eq(calculatedValue)) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: " + calculatedValue + "; Value in chain: " + lastIndexValue + ".");
-                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10())];
                     }
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -53928,7 +53995,7 @@ var AggregationHashChainTimeConsistencyRule_AggregationHashChainTimeConsistencyR
                     if (!chain.getAggregationTime().equals(time)) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Previous aggregation hash chain aggregation time " + time + " does not match current aggregation time " + chain.getAggregationTime() + ".");
-                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02())];
                     }
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54014,12 +54081,12 @@ var CalendarAuthenticationRecordAggregationHashRule_CalendarAuthenticationRecord
                         }
                         calendarHashChain = signature.getCalendarHashChain();
                         if (calendarHashChain === null) {
-                            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.')))];
                         }
                         return [4 /*yield*/, calendarHashChain.calculateOutputHash()];
                     case 1: return [2 /*return*/, !(_a.sent())
                             .equals(calendarAuthenticationRecord.getPublicationData().getPublicationHash())
-                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08)
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08())
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -54081,6 +54148,7 @@ var CalendarAuthenticationRecordExistenceRule_generator = (undefined && undefine
 
 
 
+
 /**
  * Rule verifies that KSI signature contains calendar authentication record.
  */
@@ -54093,7 +54161,7 @@ var CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExiste
         return CalendarAuthenticationRecordExistenceRule_awaiter(this, void 0, void 0, function () {
             return CalendarAuthenticationRecordExistenceRule_generator(this, function (_a) {
                 return [2 /*return*/, context.getSignature().getCalendarAuthenticationRecord() === null
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar authentication record is missing from signature.')))
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -54175,10 +54243,10 @@ var CalendarAuthenticationRecordPublicationTimeRule_CalendarAuthenticationRecord
                 }
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
-                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.')))];
                 }
                 return [2 /*return*/, calendarHashChain.getPublicationTime().neq(calendarAuthenticationRecord.getPublicationData().getPublicationTime())
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_06)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_06())
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -54259,7 +54327,7 @@ var CalendarHashChainAggregationTimeRule_CalendarHashChainAggregationTimeRule = 
                 }
                 aggregationHashChains = signature.getAggregationHashChains();
                 return [2 /*return*/, aggregationHashChains[aggregationHashChains.length - 1].getAggregationTime().neq(calendarHashChain.getAggregationTime())
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_04())
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -54347,7 +54415,7 @@ var CalendarHashChainAlgorithmObsoleteRule_CalendarHashChainAlgorithmObsoleteRul
                     if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
                         // tslint:disable-next-line:max-line-length
                         console.debug("Calendar hash chain contains obsolete aggregation algorithm at publication time. Algorithm: " + link.getValue().hashAlgorithm.name + "; Publication time: " + calendarHashChain.getPublicationTime() + ".");
-                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_16())];
                     }
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
@@ -54410,6 +54478,7 @@ var CalendarHashChainExistenceRule_generator = (undefined && undefined.__generat
 
 
 
+
 /**
  * Rule for checking if KSI signature contains calendar hash chain. Used for key-based and publication-based verification policies.
  */
@@ -54422,7 +54491,7 @@ var CalendarHashChainExistenceRule_CalendarHashChainExistenceRule = /** @class *
         return CalendarHashChainExistenceRule_awaiter(this, void 0, void 0, function () {
             return CalendarHashChainExistenceRule_generator(this, function (_a) {
                 return [2 /*return*/, context.getSignature().getCalendarHashChain() === null
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing.')))
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -54505,7 +54574,7 @@ var CalendarHashChainInputHashVerificationRule_CalendarHashChainInputHashVerific
                         }
                         return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
                     case 1: return [2 /*return*/, !(_a.sent()).equals(calendarHashChain.getInputHash())
-                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03)
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_03())
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -54586,7 +54655,7 @@ var CalendarHashChainRegistrationTimeRule_CalendarHashChainRegistrationTimeRule 
                     return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
                 return [2 /*return*/, calendarHashChain.getAggregationTime().neq(calendarHashChain.calculateRegistrationTime())
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_05())
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -54667,7 +54736,7 @@ var DocumentHashLevelVerificationRule_DocumentHashLevelVerificationRule = /** @c
                     ? BigInteger_default()(0)
                     : signature.getAggregationHashChains()[0].getChainLinks()[0].getLevelCorrection();
                 return [2 /*return*/, context.getDocumentHashLevel() > levelCorrection
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03())
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -54750,7 +54819,7 @@ var DocumentHashVerificationRule_DocumentHashVerificationRule = /** @class */ (f
                 inputHash = signature.getInputHash();
                 if (!documentHash.equals(inputHash)) {
                     console.debug("Invalid document hash. Expected " + documentHash + ", found " + inputHash + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01())];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -54830,7 +54899,7 @@ var InputHashAlgorithmDeprecatedRule_InputHashAlgorithmDeprecatedRule = /** @cla
                 if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Input hash algorithm was deprecated at aggregation time. Algorithm: " + inputHash.hashAlgorithm.name + "; Aggregation time: " + signature.getAggregationTime() + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13())];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -54914,7 +54983,7 @@ var InputHashAlgorithmVerificationRule_InputHashAlgorithmVerificationRule = /** 
                 inputHash = signature.getInputHash();
                 if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
                     console.debug("Wrong input hash algorithm. Expected " + documentHash.hashAlgorithm + ", found " + inputHash.hashAlgorithm + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_04())];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -54997,7 +55066,7 @@ var Rfc3161RecordAggregationTimeRule_Rfc3161RecordAggregationTimeRule = /** @cla
                 aggregationHashChains = signature.getAggregationHashChains();
                 if (!aggregationHashChains[0].getAggregationTime().equals(rfc3161Record.getAggregationTime())) {
                     console.debug("Aggregation hash chain aggregation time and RFC 3161 aggregation time mismatch.");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02())];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -55084,7 +55153,7 @@ var Rfc3161RecordChainIndexRule_Rfc3161RecordChainIndexRule = /** @class */ (fun
                 if (!compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index " + JSON.stringify(rfc3161ChainIndex) + " and RFC3161 chain index is " + JSON.stringify(aggregationChainIndex) + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12())];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -55168,13 +55237,13 @@ var Rfc3161RecordHashAlgorithmDeprecatedRule_Rfc3161RecordHashAlgorithmDeprecate
                     && rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getTstInfoAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime() + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14())];
                 }
                 if (rfc3161Record.getSignedAttributesAlgorithm() != null
                     && rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: " + rfc3161Record.getSignedAttributesAlgorithm().name + "; Aggregation time: " + rfc3161Record.getAggregationTime() + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_14())];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -55259,7 +55328,7 @@ var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_Rfc3161RecordOutputHashAlgori
                 if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: " + hashAlgorithm + "; Aggregation time: " + aggregationTime + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17())];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -55350,7 +55419,7 @@ var Rfc3161RecordOutputHashVerificationRule_Rfc3161RecordOutputHashVerificationR
                     case 2:
                         inputHash = _c.sent();
                         return [2 /*return*/, !inputHash.equals(aggregationHashChainInputHash)
-                                ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01)
+                                ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01())
                                 : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -55412,6 +55481,7 @@ var SignaturePublicationRecordExistenceRule_generator = (undefined && undefined.
 
 
 
+
 /**
  * Rule checks if KSI signature contains publication record.
  */
@@ -55424,7 +55494,7 @@ var SignaturePublicationRecordExistenceRule_SignaturePublicationRecordExistenceR
         return SignaturePublicationRecordExistenceRule_awaiter(this, void 0, void 0, function () {
             return SignaturePublicationRecordExistenceRule_generator(this, function (_a) {
                 return [2 /*return*/, context.getSignature().getPublicationRecord() === null
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications record is missing from signature.')))
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -55508,12 +55578,12 @@ var SignaturePublicationRecordPublicationHashRule_SignaturePublicationRecordPubl
                         }
                         calendarHashChain = signature.getCalendarHashChain();
                         if (calendarHashChain === null) {
-                            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.')))];
                         }
                         _b = (_a = publicationRecord.getPublicationHash()).equals;
                         return [4 /*yield*/, calendarHashChain.calculateOutputHash()];
                     case 1: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
-                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09)
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_09())
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -55596,10 +55666,10 @@ var SignaturePublicationRecordPublicationTimeRule_SignaturePublicationRecordPubl
                 }
                 calendarHashChain = signature.getCalendarHashChain();
                 if (calendarHashChain === null) {
-                    throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.')))];
                 }
                 return [2 /*return*/, publicationRecord.getPublicationTime().neq(calendarHashChain.getPublicationTime())
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_07)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_07())
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -55925,6 +55995,7 @@ var CalendarHashChainAlgorithmDeprecatedRule_generator = (undefined && undefined
 
 
 
+
 /**
  * Verifies that calendar hash chain right link hash algorithms were not deprecated at the publication time.
  * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
@@ -55947,7 +56018,7 @@ var CalendarHashChainAlgorithmDeprecatedRule_CalendarHashChainAlgorithmDeprecate
                 if (deprecatedLink !== null) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + "; Publication time: " + calendarHashChain.getPublicationTime() + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain right links has deprecated links.')))];
                 }
                 return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
@@ -56020,7 +56091,7 @@ var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCal
     }
     ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule.prototype.verify = function (context) {
         return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, publicationData, publicationsFile, publicationRecord, extendedCalendarHashChain, deprecatedLink;
+            var signature, userPublication, publicationData, publicationsFile, publicationRecord, extendedCalendarHashChain, e_1, deprecatedLink;
             return ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -56032,23 +56103,34 @@ var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_ExtenderResponseCal
                         else {
                             publicationsFile = context.getPublicationsFile();
                             if (publicationsFile === null) {
-                                throw new KsiVerificationError('Invalid publications file in context: null.');
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications file is missing from context.')))];
                             }
                             publicationRecord = publicationsFile
                                 .getNearestPublicationRecord(signature.getAggregationTime());
                             if (publicationRecord === null) {
-                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, 
+                                    // tslint:disable-next-line:max-line-length
+                                    VerificationError.GEN_02(new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".")))];
                             }
                             publicationData = publicationRecord.getPublicationData();
                         }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationData.getPublicationTime())];
+                        extendedCalendarHashChain = null;
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationData.getPublicationTime())];
+                    case 2:
                         extendedCalendarHashChain = _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e_1))];
+                    case 4:
                         deprecatedLink = VerificationRule_VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
                         if (deprecatedLink !== null) {
                             // tslint:disable-next-line:max-line-length
                             console.debug("Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: " + deprecatedLink.getValue().hashAlgorithm.name + "; Publication time: " + publicationData.getPublicationTime() + ".");
-                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain right link algorithm is deprecated.')))];
                         }
                         return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
@@ -56111,6 +56193,7 @@ var ExtendingPermittedVerificationRule_generator = (undefined && undefined.__gen
 
 
 
+
 /**
  * Rule checks that extending is permitted by user.
  */
@@ -56124,7 +56207,7 @@ var ExtendingPermittedVerificationRule_ExtendingPermittedVerificationRule = /** 
             return ExtendingPermittedVerificationRule_generator(this, function (_a) {
                 return [2 /*return*/, context.isExtendingAllowed()
                         ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)
-                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                        : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Extending is not allowed.')))];
             });
         });
     };
@@ -56195,27 +56278,37 @@ var PublicationsFileExtendedSignatureInputHashRule_PublicationsFileExtendedSigna
     }
     PublicationsFileExtendedSignatureInputHashRule.prototype.verify = function (context) {
         return PublicationsFileExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, publicationsFile, publicationRecord, extendedCalendarHashChain, _a, _b;
+            var signature, publicationsFile, publicationRecord, extendedCalendarHashChain, e_1, _a, _b;
             return PublicationsFileExtendedSignatureInputHashRule_generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
                         signature = context.getSignature();
                         publicationsFile = context.getPublicationsFile();
                         if (publicationsFile === null) {
-                            throw new KsiVerificationError('Invalid publications file in context: null.');
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications file is missing from context.')))];
                         }
                         publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
                         if (publicationRecord == null) {
-                            // tslint:disable-next-line:max-line-length
-                            throw new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".");
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, 
+                                // tslint:disable-next-line:max-line-length
+                                VerificationError.GEN_02(new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".")))];
                         }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                        extendedCalendarHashChain = null;
+                        _c.label = 1;
                     case 1:
+                        _c.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 2:
                         extendedCalendarHashChain = _c.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _c.sent();
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e_1))];
+                    case 4:
                         _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
                         return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
-                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
-                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                    case 5: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03())
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -56288,25 +56381,35 @@ var PublicationsFilePublicationHashMatchesExtenderResponseRule_PublicationsFileP
     }
     PublicationsFilePublicationHashMatchesExtenderResponseRule.prototype.verify = function (context) {
         return PublicationsFilePublicationHashMatchesExtenderResponseRule_awaiter(this, void 0, void 0, function () {
-            var publicationsFile, signature, publicationRecord, extendedCalendarHashChain;
+            var publicationsFile, signature, publicationRecord, extendedCalendarHashChain, e_1;
             return PublicationsFilePublicationHashMatchesExtenderResponseRule_generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         publicationsFile = context.getPublicationsFile();
                         if (publicationsFile === null) {
-                            throw new KsiVerificationError('Invalid publications file in context: null.');
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.')))];
                         }
                         signature = context.getSignature();
                         publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
                         if (publicationRecord == null) {
-                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, 
+                                // tslint:disable-next-line:max-line-length
+                                VerificationError.GEN_02(new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".")))];
                         }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                        extendedCalendarHashChain = null;
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 2:
                         extendedCalendarHashChain = _a.sent();
-                        return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
-                    case 2: return [2 /*return*/, !(_a.sent()).equals(publicationRecord.getPublicationHash())
-                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e_1))];
+                    case 4: return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
+                    case 5: return [2 /*return*/, !(_a.sent()).equals(publicationRecord.getPublicationHash())
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01())
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -56379,28 +56482,38 @@ var PublicationsFilePublicationTimeMatchesExtenderResponseRule_PublicationsFileP
     }
     PublicationsFilePublicationTimeMatchesExtenderResponseRule.prototype.verify = function (context) {
         return PublicationsFilePublicationTimeMatchesExtenderResponseRule_awaiter(this, void 0, void 0, function () {
-            var publicationsFile, signature, publicationRecord, extendedCalendarHashChain;
+            var publicationsFile, signature, publicationRecord, extendedCalendarHashChain, e_1;
             return PublicationsFilePublicationTimeMatchesExtenderResponseRule_generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         publicationsFile = context.getPublicationsFile();
                         if (publicationsFile === null) {
-                            throw new KsiVerificationError('Invalid publications file in context: null.');
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.')))];
                         }
                         signature = context.getSignature();
                         publicationRecord = publicationsFile.getNearestPublicationRecord(signature.getAggregationTime());
                         if (publicationRecord == null) {
-                            // tslint:disable-next-line:max-line-length
-                            throw new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".");
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, 
+                                // tslint:disable-next-line:max-line-length
+                                VerificationError.GEN_02(new KsiVerificationError("No publication record found after given time in publications file: " + signature.getAggregationTime() + ".")))];
                         }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                        extendedCalendarHashChain = null;
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime())];
+                    case 2:
                         extendedCalendarHashChain = _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e_1))];
+                    case 4:
                         if (publicationRecord.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02())];
                         }
                         return [2 /*return*/, signature.getAggregationTime().neq(extendedCalendarHashChain.calculateRegistrationTime())
-                                ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                                ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02())
                                 : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -56477,22 +56590,21 @@ var PublicationsFileSignaturePublicationMatchRule_PublicationsFileSignaturePubli
             return PublicationsFileSignaturePublicationMatchRule_generator(this, function (_a) {
                 publicationsFile = context.getPublicationsFile();
                 if (publicationsFile === null) {
-                    throw new KsiVerificationError('Invalid publications file in context: null.');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.')))];
                 }
                 signature = context.getSignature();
                 publicationRecord = signature.getPublicationRecord();
                 if (publicationRecord == null) {
-                    throw new KsiVerificationError("Publication record is missing from KSI signature.");
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications record is missing from signature.')))];
                 }
                 publicationRecordInPublicationFile = publicationsFile
                     .getNearestPublicationRecord(publicationRecord.getPublicationTime());
-                // TODO: Check if it should fail
                 if (publicationRecordInPublicationFile === null
                     || publicationRecordInPublicationFile.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications file publication record is missing.')))];
                 }
                 return [2 /*return*/, !publicationRecordInPublicationFile.getPublicationHash().equals(publicationRecord.getPublicationHash())
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_05)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_05())
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -56617,11 +56729,11 @@ var UserProvidedPublicationCreationTimeVerificationRule_UserProvidedPublicationC
                 aggregationTime = context.getSignature().getAggregationTime();
                 userPublication = context.getUserPublication();
                 if (userPublication == null) {
-                    throw new KsiVerificationError('Invalid user publication in context: null.');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')))];
                 }
                 userPublicationTime = userPublication.getPublicationTime();
                 return [2 /*return*/, aggregationTime.geq(userPublicationTime)
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('User publication is created before signature.')))
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -56693,22 +56805,31 @@ var UserProvidedPublicationExtendedSignatureInputHashRule_UserProvidedPublicatio
     }
     UserProvidedPublicationExtendedSignatureInputHashRule.prototype.verify = function (context) {
         return UserProvidedPublicationExtendedSignatureInputHashRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, extendedCalendarHashChain, _a, _b;
+            var signature, userPublication, extendedCalendarHashChain, e_1, _a, _b;
             return UserProvidedPublicationExtendedSignatureInputHashRule_generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
                         signature = context.getSignature();
                         userPublication = context.getUserPublication();
                         if (userPublication === null) {
-                            throw new KsiVerificationError('Invalid user publication in context: null.');
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')))];
                         }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                        extendedCalendarHashChain = null;
+                        _c.label = 1;
                     case 1:
+                        _c.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 2:
                         extendedCalendarHashChain = _c.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _c.sent();
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e_1))];
+                    case 4:
                         _b = (_a = extendedCalendarHashChain.getInputHash()).equals;
                         return [4 /*yield*/, signature.getLastAggregationHashChainRootHash()];
-                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
-                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03)
+                    case 5: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_03())
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -56781,23 +56902,28 @@ var UserProvidedPublicationHashMatchesExtendedResponseRule_UserProvidedPublicati
     }
     UserProvidedPublicationHashMatchesExtendedResponseRule.prototype.verify = function (context) {
         return UserProvidedPublicationHashMatchesExtendedResponseRule_awaiter(this, void 0, void 0, function () {
-            var userPublication, extendedCalendarHashChain;
+            var userPublication, extendedCalendarHashChain, e_1;
             return UserProvidedPublicationHashMatchesExtendedResponseRule_generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         userPublication = context.getUserPublication();
                         if (userPublication === null) {
-                            throw new KsiVerificationError('Invalid user publication in context: null.');
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')))];
                         }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                        extendedCalendarHashChain = null;
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 2:
                         extendedCalendarHashChain = _a.sent();
-                        if (extendedCalendarHashChain === null) {
-                            throw new KsiVerificationError('Invalid extended calendar hash chain: null.');
-                        }
-                        return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
-                    case 2: return [2 /*return*/, !(_a.sent()).equals(userPublication.getPublicationHash())
-                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01)
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e_1))];
+                    case 4: return [4 /*yield*/, extendedCalendarHashChain.calculateOutputHash()];
+                    case 5: return [2 /*return*/, !(_a.sent()).equals(userPublication.getPublicationHash())
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_01())
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -56870,28 +56996,34 @@ var UserProvidedPublicationTimeMatchesExtendedResponseRule_UserProvidedPublicati
     }
     UserProvidedPublicationTimeMatchesExtendedResponseRule.prototype.verify = function (context) {
         return UserProvidedPublicationTimeMatchesExtendedResponseRule_awaiter(this, void 0, void 0, function () {
-            var signature, userPublication, extendedCalendarHashChain, _a, _b;
+            var signature, userPublication, extendedCalendarHashChain, e_1, _a, _b;
             return UserProvidedPublicationTimeMatchesExtendedResponseRule_generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
                         signature = context.getSignature();
                         userPublication = context.getUserPublication();
                         if (userPublication === null) {
-                            throw new KsiVerificationError('Invalid user publication in context: null.');
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')))];
                         }
-                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                        extendedCalendarHashChain = null;
+                        _c.label = 1;
                     case 1:
+                        _c.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, context.getExtendedCalendarHashChain(userPublication.getPublicationTime())];
+                    case 2:
                         extendedCalendarHashChain = _c.sent();
-                        if (extendedCalendarHashChain === null) {
-                            throw new KsiVerificationError('Invalid extended calendar hash chain: null.');
-                        }
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _c.sent();
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e_1))];
+                    case 4:
                         if (userPublication.getPublicationTime().neq(extendedCalendarHashChain.getPublicationTime())) {
-                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)];
+                            return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02())];
                         }
                         _b = (_a = signature.getAggregationTime()).equals;
                         return [4 /*yield*/, extendedCalendarHashChain.calculateRegistrationTime()];
-                    case 2: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
-                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02)
+                    case 5: return [2 /*return*/, !_b.apply(_a, [_c.sent()])
+                            ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_02())
                             : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
                 }
             });
@@ -56969,19 +57101,21 @@ var UserProvidedPublicationVerificationRule_UserProvidedPublicationVerificationR
                 signature = context.getSignature();
                 userPublication = context.getUserPublication();
                 if (userPublication === null) {
-                    throw new KsiVerificationError('Invalid user publication in context: null.');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.')))];
                 }
                 publicationRecord = signature.getPublicationRecord();
                 if (publicationRecord === null) {
-                    throw new KsiVerificationError('Invalid publication record in signature: null.');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications record is missing from signature.')))];
                 }
                 if (userPublication.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
                     // tslint:disable-next-line:max-line-length
                     console.debug("User provided publication time does not equal to signature publication time. User provided publication time: " + userPublication.getPublicationTime() + "; Signature publication time: " + publicationRecord.getPublicationTime() + ".");
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, 
+                        // tslint:disable-next-line:max-line-length
+                        VerificationError.GEN_02(new KsiVerificationError('User publication publication time is not equal to signature publication time.')))];
                 }
                 return [2 /*return*/, !userPublication.getPublicationHash().equals(publicationRecord.getPublicationHash())
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_04)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.PUB_04())
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
@@ -57416,7 +57550,7 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                 }
                 publicationsFile = context.getPublicationsFile();
                 if (publicationsFile === null) {
-                    throw new KsiVerificationError('Invalid publications file in context: null.');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.')))];
                 }
                 signatureData = calendarAuthenticationRecord.getSignatureData();
                 switch (signatureData.getSignatureType()) {
@@ -57425,16 +57559,17 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                     case '1.2.840.113549.1.7.2':
                         throw new Error('Not implemented');
                     default:
-                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02)];
+                        return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02())];
                 }
                 certificateRecord = publicationsFile
                     .findCertificateById(signatureData.getCertificateId());
                 if (certificateRecord === null) {
-                    // tslint:disable-next-line:max-line-length
-                    throw new KsiVerificationError("No certificate found in publications file with id: " + HexCoder_HexCoder.encode(signatureData.getCertificateId()) + ".");
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(
+                        // tslint:disable-next-line:max-line-length
+                        new KsiVerificationError("No certificate found in publications file with id: " + HexCoder_HexCoder.encode(signatureData.getCertificateId()) + ".")))];
                 }
                 if (!X509_X509.isCertificateValidDuring(certificateRecord.getX509Certificate(), signature.getAggregationTime())) {
-                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03)];
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03())];
                 }
                 signedBytes = calendarAuthenticationRecord.getPublicationData().encode();
                 try {
@@ -57445,7 +57580,7 @@ var CalendarAuthenticationRecordSignatureVerificationRule_CalendarAuthentication
                 catch (error) {
                     console.debug(error);
                 }
-                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02)];
+                return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02())];
             });
         });
     };
@@ -57521,16 +57656,15 @@ var CertificateExistenceRule_CertificateExistenceRule = /** @class */ (function 
                 signature = context.getSignature();
                 calendarAuthenticationRecord = signature.getCalendarAuthenticationRecord();
                 if (calendarAuthenticationRecord == null) {
-                    // TODO: Should it return NA?
-                    throw new KsiVerificationError('Invalid calendar authentication record: null');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Calendar authentication record is missing.')))];
                 }
                 publicationsFile = context.getPublicationsFile();
                 if (publicationsFile === null) {
-                    throw new KsiVerificationError('Invalid publications file in context: null.');
+                    return [2 /*return*/, new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(new KsiVerificationError('Publications file is missing from context.')))];
                 }
                 signatureData = calendarAuthenticationRecord.getSignatureData();
                 return [2 /*return*/, publicationsFile.findCertificateById(signatureData.getCertificateId()) === null
-                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_01)
+                        ? new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_01())
                         : new VerificationResult_VerificationResult(this.getRuleName(), VerificationResultCode.OK)];
             });
         });
