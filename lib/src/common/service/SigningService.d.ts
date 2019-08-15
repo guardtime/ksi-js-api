@@ -1,5 +1,5 @@
-import { BigInteger } from 'big-integer';
 import { DataHash } from '@guardtime/gt-js-common';
+import { BigInteger } from 'big-integer';
 import { KsiSignature } from '../signature/KsiSignature';
 import { IServiceCredentials } from './IServiceCredentials';
 import { ISigningServiceProtocol } from './ISigningServiceProtocol';
