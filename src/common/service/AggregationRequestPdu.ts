@@ -1,4 +1,4 @@
-import {HashAlgorithm} from 'gt-js-common';
+import {HashAlgorithm} from '@guardtime/gt-js-common';
 import {
     AGGREGATION_REQUEST_PAYLOAD_CONSTANTS,
     AGGREGATION_REQUEST_PDU_CONSTANTS,

@@ -1,10 +1,7 @@
+import {DataHash, HashAlgorithm} from '@guardtime/gt-js-common';
 import bigInteger from 'big-integer';
-import {DataHash, HashAlgorithm} from 'gt-js-common';
 
-import {
-    CALENDAR_AUTHENTICATION_RECORD_CONSTANTS,
-    SIGNATURE_DATA_CONSTANTS
-} from '../../src/common/Constants';
+import {CALENDAR_AUTHENTICATION_RECORD_CONSTANTS, SIGNATURE_DATA_CONSTANTS} from '../../src/common/Constants';
 import {CompositeTag} from '../../src/common/parser/CompositeTag';
 import {RawTag} from '../../src/common/parser/RawTag';
 import {StringTag} from '../../src/common/parser/StringTag';

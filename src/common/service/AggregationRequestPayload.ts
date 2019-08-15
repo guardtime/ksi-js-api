@@ -1,5 +1,5 @@
+import {DataHash} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash} from 'gt-js-common';
 import {AGGREGATION_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS} from '../Constants';
 import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';

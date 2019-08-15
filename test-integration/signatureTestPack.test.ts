@@ -1,20 +1,25 @@
+// tslint:disable-next-line:no-submodule-imports
+import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
+// tslint:disable-next-line:no-submodule-imports
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import bigInteger, {BigInteger} from 'big-integer';
 import {CastingContext} from 'csv-parse';
 // tslint:disable-next-line:import-name
 import parseCsv from 'csv-parse/lib/sync';
 import {EventEmitter} from 'events';
 import fs from 'fs';
-import HexCoder from 'gt-js-common/lib/coders/HexCoder';
-import DataHash from 'gt-js-common/lib/hash/DataHash';
 import * as path from 'path';
 import ksiConfig from '../config/ksi-config';
 import {
     ExtendingService,
     KeyBasedVerificationPolicy,
     KsiService,
-    PublicationBasedVerificationPolicy, PublicationsFileFactory, PublicationsFileService,
+    PublicationBasedVerificationPolicy,
+    PublicationsFileFactory,
+    PublicationsFileService,
     ServiceCredentials,
-    SigningService, VerificationContext
+    SigningService,
+    VerificationContext
 } from '../src/common/main';
 import {TlvInputStream} from '../src/common/parser/TlvInputStream';
 import {PublicationData} from '../src/common/publication/PublicationData';

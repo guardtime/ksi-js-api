@@ -1,4 +1,4 @@
-import {util} from 'node-forge';
+import {Utf8Converter} from '@guardtime/gt-js-common';
 import {TlvError} from './TlvError';
 import {TlvTag} from './TlvTag';
 
@@ -20,12 +20,12 @@ export class StringTag extends TlvTag {
         }
 
         super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag);
-        this.value = util.text.utf8.decode(valueBytes.slice(0, -1));
+        this.value = Utf8Converter.ToString(valueBytes.slice(0, -1));
         Object.freeze(this);
     }
 
     public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: string): StringTag {
-        return new StringTag(new TlvTag(id, nonCriticalFlag, forwardFlag, util.text.utf8.encode(`${value}\0`)));
+        return new StringTag(new TlvTag(id, nonCriticalFlag, forwardFlag, Utf8Converter.ToBytes(`${value}\0`)));
     }
 
     public getValue(): string {

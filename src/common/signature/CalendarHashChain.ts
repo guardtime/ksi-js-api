@@ -1,6 +1,6 @@
 import bigInteger, {BigInteger} from 'big-integer';
 
-import {DataHash, DataHasher, HashAlgorithm} from 'gt-js-common';
+import {DataHash, DataHasher, HashAlgorithm} from '@guardtime/gt-js-common';
 import {CALENDAR_HASH_CHAIN_CONSTANTS, LinkDirection} from '../Constants';
 import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';

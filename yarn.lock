@@ -18,6 +18,17 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
+"@guardtime/gt-js-common@1.1.2":
+  version "1.1.2"
+  resolved "http://maven.ee.guardtime.com:8081/nexus/content/repositories/npm/@guardtime/gt-js-common/-/gt-js-common-1.1.2.tgz#5e7ba027cb54183b675bf9405d5a0591b8381b1a"
+  integrity sha512-m4fi2mKyFM+bVgHSfsg3PY+QfMJYXWzaNW8CFM5mrBfzF6am9/LljSpGhr8r0Nv92bucwu6J/PrE9XXdDqcaCw==
+  dependencies:
+    "@types/base64-js" "^1.2.5"
+    "@types/node-forge" "^0.8.4"
+    base64-js "^1.3.0"
+    big-integer "^1.6.36"
+    node-forge "^0.8.5"
+
 "@types/base64-js@^1.2.5":
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/@types/base64-js/-/base64-js-1.2.5.tgz#582b2476169a6cba460a214d476c744441d873d5"
@@ -54,10 +65,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/node-forge@^0.7.5", "@types/node-forge@^0.7.6":
-  version "0.7.12"
-  resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-0.7.12.tgz#24b0bbbbc2c8163379e976a8fd27c7950a271cbc"
-  integrity sha512-cLUoHEUZvAW6bX1mAwi2n1DHcwZ0fSzpmKiMf0AVK2sN4wQhy+IkHdHLGNq8I1/2ePsjraEpKRPlJ3eYMy0iVg==
+"@types/node-forge@^0.8.4":
+  version "0.8.6"
+  resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-0.8.6.tgz#5d13614e865ccf31f44856d0dda2cb0a288032aa"
+  integrity sha512-m2G+ipvx+1+BU4LrwrHcEGDk1MnioEVxTnCrkFsKT+BdDl/8OD3WbtspPFj3osnix9fzDIfy2O9p/AFyH3fTzg==
   dependencies:
     "@types/node" "*"
 
@@ -2664,16 +2675,6 @@ growly@^1.3.0:
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
-"gt-js-common@git+ssh://git@github.com:guardtime/gt-js-common.git#typescript":
-  version "1.0.0"
-  resolved "git+ssh://git@github.com:guardtime/gt-js-common.git#84ee8c8d47bf3432e144a23331d089d97c613988"
-  dependencies:
-    "@types/base64-js" "^1.2.5"
-    "@types/node-forge" "^0.7.5"
-    base64-js "^1.3.0"
-    big-integer "^1.6.36"
-    node-forge "git+ssh://git@github.com/guardtime/forge.git"
-
 handle-thing@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-2.0.0.tgz#0e039695ff50c93fc288557d696f3c1dc6776754"
@@ -4303,14 +4304,10 @@ node-forge@0.7.5:
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.7.5.tgz#6c152c345ce11c52f465c2abd957e8639cd674df"
   integrity sha512-MmbQJ2MTESTjt3Gi/3yG1wGpIMhUfcIypUCGtTizFR9IiccFwxSpfp0vtIZlkFclEqERemxfnSdZEMR9VqqEFQ==
 
-node-forge@^0.7.6:
-  version "0.7.6"
-  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.7.6.tgz#fdf3b418aee1f94f0ef642cd63486c77ca9724ac"
-  integrity sha512-sol30LUpz1jQFBjOKwbjxijiE3b6pjd74YwfD0fJOKPjF+fONKb2Yg8rYgS6+bK6VDl+/wfr4IYpC7jDzLUIfw==
-
-"node-forge@git+ssh://git@github.com/guardtime/forge.git":
-  version "0.7.7-dev"
-  resolved "git+ssh://git@github.com/guardtime/forge.git#e6da157084aac7846cd4fd90eb7df46ccbdf6e3e"
+node-forge@^0.8.5:
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.8.5.tgz#57906f07614dc72762c84cef442f427c0e1b86ee"
+  integrity sha512-vFMQIWt+J/7FLNyKouZ9TazT74PRV3wgv9UT4cRjC8BffxFbKXkgIWR42URCPSnHm/QDz6BOlb2Q0U4+VQT67Q==
 
 node-int64@^0.4.0:
   version "0.4.0"

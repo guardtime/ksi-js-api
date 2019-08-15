@@ -1,4 +1,4 @@
-import {HashAlgorithm} from 'gt-js-common';
+import {HashAlgorithm} from '@guardtime/gt-js-common';
 import {EXTEND_REQUEST_PAYLOAD_CONSTANTS, EXTEND_REQUEST_PDU_CONSTANTS, EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS} from '../Constants';
 import {ICount} from '../parser/CompositeTag';
 import {TlvError} from '../parser/TlvError';

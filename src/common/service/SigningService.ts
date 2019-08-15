@@ -1,5 +1,5 @@
+import {DataHash, pseudoRandomLong} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash, pseudoRandomLong} from 'gt-js-common';
 import {TlvInputStream} from '../parser/TlvInputStream';
 import {KsiSignature} from '../signature/KsiSignature';
 import {AggregationRequestPayload} from './AggregationRequestPayload';

@@ -1,4 +1,4 @@
-import {DataHash} from 'gt-js-common';
+import {DataHash} from '@guardtime/gt-js-common';
 import {CalendarHashChain} from '../../CalendarHashChain';
 import {KsiSignature} from '../../KsiSignature';
 import {KsiVerificationError} from '../KsiVerificationError';

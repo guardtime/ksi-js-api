@@ -1,5 +1,5 @@
+import {HashAlgorithm} from '@guardtime/gt-js-common';
 import {BigInteger} from 'big-integer';
-import {HashAlgorithm} from 'gt-js-common';
 import {AggregationHashChain} from '../../AggregationHashChain';
 import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';

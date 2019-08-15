@@ -1,5 +1,5 @@
+import {DataHash, DataHasher, HashAlgorithm} from '@guardtime/gt-js-common';
 import {BigInteger} from 'big-integer';
-import {DataHash, DataHasher, HashAlgorithm} from 'gt-js-common';
 import {RFC_3161_RECORD_CONSTANTS} from '../Constants';
 import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';

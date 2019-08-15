@@ -1,5 +1,5 @@
+import {Base64Coder, DataHash, UnsignedLongCoder} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
-import {Base64Coder, DataHash, UnsignedLongCoder} from 'gt-js-common';
 // @ts-ignore
 // tslint:disable-next-line:no-submodule-imports import-name
 import uuid from 'uuid/v3';

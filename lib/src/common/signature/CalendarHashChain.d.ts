@@ -1,5 +1,5 @@
 import bigInteger, { BigInteger } from 'big-integer';
-import { DataHash } from 'gt-js-common';
+import { DataHash } from '@guardtime/gt-js-common';
 import { CompositeTag } from '../parser/CompositeTag';
 import { ImprintTag } from '../parser/ImprintTag';
 import { TlvTag } from '../parser/TlvTag';

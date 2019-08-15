@@ -1,11 +1,7 @@
+import {DataHash, HashAlgorithm} from '@guardtime/gt-js-common';
 import bigInteger from 'big-integer';
-import {DataHash, HashAlgorithm} from 'gt-js-common';
 
-import {
-    CERTIFICATE_RECORD_CONSTANTS,
-    PUBLICATIONS_FILE_CONSTANTS,
-    PUBLICATIONS_FILE_HEADER_CONSTANTS
-} from '../../src/common/Constants';
+import {CERTIFICATE_RECORD_CONSTANTS, PUBLICATIONS_FILE_CONSTANTS, PUBLICATIONS_FILE_HEADER_CONSTANTS} from '../../src/common/Constants';
 import {CompositeTag} from '../../src/common/parser/CompositeTag';
 import {IntegerTag} from '../../src/common/parser/IntegerTag';
 import {RawTag} from '../../src/common/parser/RawTag';

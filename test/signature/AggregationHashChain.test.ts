@@ -1,5 +1,5 @@
+import {DataHash, HashAlgorithm, HexCoder} from '@guardtime/gt-js-common';
 import bigInteger from 'big-integer';
-import {DataHash, HashAlgorithm, HexCoder} from 'gt-js-common';
 
 import {AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection} from '../../src/common/Constants';
 import {CompositeTag} from '../../src/common/parser/CompositeTag';

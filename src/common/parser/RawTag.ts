@@ -1,4 +1,4 @@
-import {HexCoder} from 'gt-js-common';
+import {HexCoder} from '@guardtime/gt-js-common';
 import {TlvTag} from './TlvTag';
 
 /**

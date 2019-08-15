@@ -1,4 +1,4 @@
-import {HexCoder} from 'gt-js-common';
+import {HexCoder} from '@guardtime/gt-js-common';
 import {TlvError} from '../../src/common/parser/TlvError';
 import {TlvInputStream} from '../../src/common/parser/TlvInputStream';
 import {TlvTag} from '../../src/common/parser/TlvTag';

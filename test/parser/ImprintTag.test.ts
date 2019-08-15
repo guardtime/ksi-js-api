@@ -1,4 +1,4 @@
-import {DataHash, HashAlgorithm} from 'gt-js-common';
+import {DataHash, HashAlgorithm} from '@guardtime/gt-js-common';
 import {ImprintTag} from '../../src/common/parser/ImprintTag';
 import {TlvTag} from '../../src/common/parser/TlvTag';
 
