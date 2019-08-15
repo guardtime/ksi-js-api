@@ -1,5 +1,5 @@
+import {Base32Coder, CRC32, DataHash, UnsignedLongCoder} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
-import {Base32Coder, CRC32, DataHash, UnsignedLongCoder} from 'gt-js-common';
 import {PUBLICATION_DATA_CONSTANTS} from '../Constants';
 import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';

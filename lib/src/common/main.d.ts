@@ -10,7 +10,7 @@ export { TlvError } from '../common/parser/TlvError';
 export { TlvInputStream } from '../common/parser/TlvInputStream';
 export { TlvOutputStream } from '../common/parser/TlvOutputStream';
 export { default as BigInteger } from 'big-integer';
-export { DataHash, HashAlgorithm, DataHasher } from 'gt-js-common';
+export { DataHash, HashAlgorithm, DataHasher } from '@guardtime/gt-js-common';
 export { KsiSignature } from '../common/signature/KsiSignature';
 export { PublicationBasedVerificationPolicy } from '../common/signature/verification/policy/PublicationBasedVerificationPolicy';
 export { VerificationContext } from '../common/signature/verification/VerificationContext';

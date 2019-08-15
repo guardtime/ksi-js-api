@@ -1,4 +1,4 @@
-import {DataHash} from 'gt-js-common';
+import {DataHash} from '@guardtime/gt-js-common';
 import {KsiSignature} from '../../KsiSignature';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';

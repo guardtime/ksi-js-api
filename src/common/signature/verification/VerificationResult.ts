@@ -1,4 +1,4 @@
-import {tabPrefix} from 'gt-js-common';
+import {tabPrefix} from '@guardtime/gt-js-common';
 import {VerificationError} from './VerificationError';
 
 export enum VerificationResultCode {

@@ -1,4 +1,4 @@
-import { HashAlgorithm } from 'gt-js-common';
+import { HashAlgorithm } from '@guardtime/gt-js-common';
 import { CompositeTag, ICount } from '../parser/CompositeTag';
 import { TlvTag } from '../parser/TlvTag';
 import { ErrorPayload } from './ErrorPayload';

@@ -1,5 +1,5 @@
 import { BigInteger } from 'big-integer';
-import { DataHash } from 'gt-js-common';
+import { DataHash } from '@guardtime/gt-js-common';
 import { PublicationData } from '../../publication/PublicationData';
 import { PublicationsFile } from '../../publication/PublicationsFile';
 import { KsiService } from '../../service/KsiService';

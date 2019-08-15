@@ -1,5 +1,5 @@
+import {DataHash} from '@guardtime/gt-js-common';
 import bigInteger from 'big-integer';
-import {DataHash} from 'gt-js-common';
 import {PUBLICATION_DATA_CONSTANTS, PUBLICATION_RECORD_CONSTANTS} from '../Constants';
 import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {StringTag} from '../parser/StringTag';

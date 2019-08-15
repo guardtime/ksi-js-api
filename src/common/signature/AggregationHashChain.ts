@@ -1,6 +1,5 @@
+import {DataHash, DataHasher, HashAlgorithm, UnsignedLongCoder, Utf8Converter} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash, DataHasher, HashAlgorithm, UnsignedLongCoder} from 'gt-js-common';
-import {util} from 'node-forge';
 import {AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection} from '../Constants';
 import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';
@@ -151,7 +150,7 @@ export class AggregationHashChainLink extends CompositeTag {
             }
         }
 
-        return util.text.utf8.decode(bytes.slice(3, idStringLength + 3));
+        return Utf8Converter.ToString(bytes.slice(3, idStringLength + 3));
     }
 
     public getLevelCorrection(): BigInteger {

@@ -1,4 +1,4 @@
-import {HashAlgorithm} from 'gt-js-common';
+import {HashAlgorithm} from '@guardtime/gt-js-common';
 import {AGGREGATION_HASH_CHAIN_CONSTANTS} from '../../../Constants';
 import {RawTag} from '../../../parser/RawTag';
 import {TlvOutputStream} from '../../../parser/TlvOutputStream';

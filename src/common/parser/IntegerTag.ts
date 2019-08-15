@@ -1,5 +1,5 @@
+import {UnsignedLongCoder} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
-import {UnsignedLongCoder} from 'gt-js-common';
 import {TlvTag} from './TlvTag';
 
 /**

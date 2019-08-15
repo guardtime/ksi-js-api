@@ -1,5 +1,5 @@
+import {DataHash} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash} from 'gt-js-common';
 import {PublicationsFile} from '../publication/PublicationsFile';
 import {CalendarHashChain} from '../signature/CalendarHashChain';
 import {KsiSignature} from '../signature/KsiSignature';

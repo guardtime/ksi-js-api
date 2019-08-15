@@ -1,4 +1,4 @@
-import {HexCoder, X509} from 'gt-js-common';
+import {HexCoder, X509} from '@guardtime/gt-js-common';
 import {CertificateRecord} from '../../../publication/CertificateRecord';
 import {PublicationsFile} from '../../../publication/PublicationsFile';
 import {CalendarAuthenticationRecord} from '../../CalendarAuthenticationRecord';

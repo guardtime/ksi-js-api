@@ -1,5 +1,5 @@
+import {pseudoRandomLong} from '@guardtime/gt-js-common';
 import {BigInteger} from 'big-integer';
-import {pseudoRandomLong} from 'gt-js-common';
 import {TlvInputStream} from '../parser/TlvInputStream';
 import {CalendarHashChain} from '../signature/CalendarHashChain';
 import {ErrorPayload} from './ErrorPayload';

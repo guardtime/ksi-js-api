@@ -1,8 +1,6 @@
-import {DataHash} from 'gt-js-common';
-import {KsiServiceError} from '../../../service/KsiServiceError';
+import {DataHash} from '@guardtime/gt-js-common';
 import {CalendarHashChain} from '../../CalendarHashChain';
 import {KsiSignature} from '../../KsiSignature';
-import {KsiVerificationError} from '../KsiVerificationError';
 import {VerificationContext} from '../VerificationContext';
 import {VerificationError} from '../VerificationError';
 import {VerificationResult, VerificationResultCode} from '../VerificationResult';

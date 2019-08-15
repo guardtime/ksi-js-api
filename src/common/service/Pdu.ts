@@ -1,4 +1,4 @@
-import {DataHash, HashAlgorithm, HMAC} from 'gt-js-common';
+import {DataHash, HashAlgorithm, HMAC} from '@guardtime/gt-js-common';
 import {PDU_CONSTANTS, PDU_HEADER_CONSTANTS} from '../Constants';
 import {CompositeTag, ICount} from '../parser/CompositeTag';
 import {ImprintTag} from '../parser/ImprintTag';

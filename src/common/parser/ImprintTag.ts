@@ -1,4 +1,4 @@
-import {DataHash} from 'gt-js-common';
+import {DataHash} from '@guardtime/gt-js-common';
 import {TlvTag} from './TlvTag';
 
 /**
