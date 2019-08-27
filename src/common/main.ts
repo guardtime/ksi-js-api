@@ -15,6 +15,7 @@ export {DataHash, HashAlgorithm, DataHasher} from '@guardtime/gt-js-common';
 
 export {KsiSignature} from '../common/signature/KsiSignature';
 export {VerificationContext} from '../common/signature/verification/VerificationContext';
+export {VerificationPolicy} from '../common/signature/verification/policy/VerificationPolicy';
 export {KeyBasedVerificationPolicy} from '../common/signature/verification/policy/KeyBasedVerificationPolicy';
 export {PublicationBasedVerificationPolicy} from '../common/signature/verification/policy/PublicationBasedVerificationPolicy';
 export {PublicationsFileVerificationPolicy} from '../common/signature/verification/policy/PublicationsFileVerificationPolicy';
