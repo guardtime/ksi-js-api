@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 39);
+/******/ 	return __webpack_require__(__webpack_require__.s = 40);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -105,13 +105,11 @@ return /******/ (function(modules) { // webpackBootstrap
         LOG_BASE = 7,
         MAX_INT = 9007199254740992,
         MAX_INT_ARR = smallToArray(MAX_INT),
-        DEFAULT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+        LOG_MAX_INT = Math.log(MAX_INT);
 
-    var supportsNativeBigInt = typeof BigInt === "function";
-
-    function Integer(v, radix, alphabet, caseSensitive) {
+    function Integer(v, radix) {
         if (typeof v === "undefined") return Integer[0];
-        if (typeof radix !== "undefined") return +radix === 10 && !alphabet ? parseValue(v) : parseBase(v, radix, alphabet, caseSensitive);
+        if (typeof radix !== "undefined") return +radix === 10 ? parseValue(v) : parseBase(v, radix);
         return parseValue(v);
     }
 
@@ -128,11 +126,6 @@ return /******/ (function(modules) { // webpackBootstrap
         this.isSmall = true;
     }
     SmallInteger.prototype = Object.create(Integer.prototype);
-
-    function NativeBigInt(value) {
-        this.value = value;
-    }
-    NativeBigInt.prototype = Object.create(Integer.prototype);
 
     function isPrecise(n) {
         return -MAX_INT < n && n < MAX_INT;
@@ -252,11 +245,6 @@ return /******/ (function(modules) { // webpackBootstrap
     };
     SmallInteger.prototype.plus = SmallInteger.prototype.add;
 
-    NativeBigInt.prototype.add = function (v) {
-        return new NativeBigInt(this.value + parseValue(v).value);
-    }
-    NativeBigInt.prototype.plus = NativeBigInt.prototype.add;
-
     function subtract(a, b) { // assumes a and b are arrays with a >= b
         var a_l = a.length,
             b_l = b.length,
@@ -349,11 +337,6 @@ return /******/ (function(modules) { // webpackBootstrap
     };
     SmallInteger.prototype.minus = SmallInteger.prototype.subtract;
 
-    NativeBigInt.prototype.subtract = function (v) {
-        return new NativeBigInt(this.value - parseValue(v).value);
-    }
-    NativeBigInt.prototype.minus = NativeBigInt.prototype.subtract;
-
     BigInteger.prototype.negate = function () {
         return new BigInteger(this.value, !this.sign);
     };
@@ -363,9 +346,6 @@ return /******/ (function(modules) { // webpackBootstrap
         small.sign = !sign;
         return small;
     };
-    NativeBigInt.prototype.negate = function () {
-        return new NativeBigInt(-this.value);
-    }
 
     BigInteger.prototype.abs = function () {
         return new BigInteger(this.value, false);
@@ -373,10 +353,6 @@ return /******/ (function(modules) { // webpackBootstrap
     SmallInteger.prototype.abs = function () {
         return new SmallInteger(Math.abs(this.value));
     };
-    NativeBigInt.prototype.abs = function () {
-        return new NativeBigInt(this.value >= 0 ? this.value : -this.value);
-    }
-
 
     function multiplyLong(a, b) {
         var a_l = a.length,
@@ -494,11 +470,6 @@ return /******/ (function(modules) { // webpackBootstrap
     };
     SmallInteger.prototype.times = SmallInteger.prototype.multiply;
 
-    NativeBigInt.prototype.multiply = function (v) {
-        return new NativeBigInt(this.value * parseValue(v).value);
-    }
-    NativeBigInt.prototype.times = NativeBigInt.prototype.multiply;
-
     function square(a) {
         //console.assert(2 * BASE * BASE < MAX_INT);
         var l = a.length,
@@ -529,10 +500,6 @@ return /******/ (function(modules) { // webpackBootstrap
         if (isPrecise(value)) return new SmallInteger(value);
         return new BigInteger(square(smallToArray(Math.abs(this.value))), false);
     };
-
-    NativeBigInt.prototype.square = function (v) {
-        return new NativeBigInt(this.value * this.value);
-    }
 
     function divMod1(a, b) { // Left over from previous version. Performs faster than divMod2 on smaller input sizes.
         var a_l = a.length,
@@ -643,9 +610,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
     function divModAny(self, v) {
         var value, n = parseValue(v);
-        if (supportsNativeBigInt) {
-            return [new NativeBigInt(self.value / n.value), new NativeBigInt(self.value % n.value)];
-        }
         var a = self.value, b = n.value;
         var quotient;
         if (b === 0) throw new Error("Cannot divide by zero");
@@ -703,22 +667,15 @@ return /******/ (function(modules) { // webpackBootstrap
             remainder: result[1]
         };
     };
-    NativeBigInt.prototype.divmod = SmallInteger.prototype.divmod = BigInteger.prototype.divmod;
-
+    SmallInteger.prototype.divmod = BigInteger.prototype.divmod;
 
     BigInteger.prototype.divide = function (v) {
         return divModAny(this, v)[0];
-    };
-    NativeBigInt.prototype.over = NativeBigInt.prototype.divide = function (v) {
-        return new NativeBigInt(this.value / parseValue(v).value);
     };
     SmallInteger.prototype.over = SmallInteger.prototype.divide = BigInteger.prototype.over = BigInteger.prototype.divide;
 
     BigInteger.prototype.mod = function (v) {
         return divModAny(this, v)[1];
-    };
-    NativeBigInt.prototype.mod = NativeBigInt.prototype.remainder = function (v) {
-        return new NativeBigInt(this.value % parseValue(v).value);
     };
     SmallInteger.prototype.remainder = SmallInteger.prototype.mod = BigInteger.prototype.remainder = BigInteger.prototype.mod;
 
@@ -754,29 +711,6 @@ return /******/ (function(modules) { // webpackBootstrap
     };
     SmallInteger.prototype.pow = BigInteger.prototype.pow;
 
-    NativeBigInt.prototype.pow = function (v) {
-        var n = parseValue(v);
-        var a = this.value, b = n.value;
-        var _0 = BigInt(0), _1 = BigInt(1), _2 = BigInt(2);
-        if (b === _0) return Integer[1];
-        if (a === _0) return Integer[0];
-        if (a === _1) return Integer[1];
-        if (a === BigInt(-1)) return n.isEven() ? Integer[1] : Integer[-1];
-        if (n.isNegative()) return new NativeBigInt(_0);
-        var x = this;
-        var y = Integer[1];
-        while (true) {
-            if ((b & _1) === _1) {
-                y = y.times(x);
-                --b;
-            }
-            if (b === _0) break;
-            b /= _2;
-            x = x.square();
-        }
-        return y;
-    }
-
     BigInteger.prototype.modPow = function (exp, mod) {
         exp = parseValue(exp);
         mod = parseValue(mod);
@@ -791,7 +725,7 @@ return /******/ (function(modules) { // webpackBootstrap
         }
         return r;
     };
-    NativeBigInt.prototype.modPow = SmallInteger.prototype.modPow = BigInteger.prototype.modPow;
+    SmallInteger.prototype.modPow = BigInteger.prototype.modPow;
 
     function compareAbs(a, b) {
         if (a.length !== b.length) {
@@ -820,13 +754,6 @@ return /******/ (function(modules) { // webpackBootstrap
         }
         return -1;
     };
-    NativeBigInt.prototype.compareAbs = function (v) {
-        var a = this.value;
-        var b = parseValue(v).value;
-        a = a >= 0 ? a : -a;
-        b = b >= 0 ? b : -b;
-        return a === b ? 0 : a > b ? 1 : -1;
-    }
 
     BigInteger.prototype.compare = function (v) {
         // See discussion about comparison with Infinity:
@@ -872,48 +799,35 @@ return /******/ (function(modules) { // webpackBootstrap
     };
     SmallInteger.prototype.compareTo = SmallInteger.prototype.compare;
 
-    NativeBigInt.prototype.compare = function (v) {
-        if (v === Infinity) {
-            return -1;
-        }
-        if (v === -Infinity) {
-            return 1;
-        }
-        var a = this.value;
-        var b = parseValue(v).value;
-        return a === b ? 0 : a > b ? 1 : -1;
-    }
-    NativeBigInt.prototype.compareTo = NativeBigInt.prototype.compare;
-
     BigInteger.prototype.equals = function (v) {
         return this.compare(v) === 0;
     };
-    NativeBigInt.prototype.eq = NativeBigInt.prototype.equals = SmallInteger.prototype.eq = SmallInteger.prototype.equals = BigInteger.prototype.eq = BigInteger.prototype.equals;
+    SmallInteger.prototype.eq = SmallInteger.prototype.equals = BigInteger.prototype.eq = BigInteger.prototype.equals;
 
     BigInteger.prototype.notEquals = function (v) {
         return this.compare(v) !== 0;
     };
-    NativeBigInt.prototype.neq = NativeBigInt.prototype.notEquals = SmallInteger.prototype.neq = SmallInteger.prototype.notEquals = BigInteger.prototype.neq = BigInteger.prototype.notEquals;
+    SmallInteger.prototype.neq = SmallInteger.prototype.notEquals = BigInteger.prototype.neq = BigInteger.prototype.notEquals;
 
     BigInteger.prototype.greater = function (v) {
         return this.compare(v) > 0;
     };
-    NativeBigInt.prototype.gt = NativeBigInt.prototype.greater = SmallInteger.prototype.gt = SmallInteger.prototype.greater = BigInteger.prototype.gt = BigInteger.prototype.greater;
+    SmallInteger.prototype.gt = SmallInteger.prototype.greater = BigInteger.prototype.gt = BigInteger.prototype.greater;
 
     BigInteger.prototype.lesser = function (v) {
         return this.compare(v) < 0;
     };
-    NativeBigInt.prototype.lt = NativeBigInt.prototype.lesser = SmallInteger.prototype.lt = SmallInteger.prototype.lesser = BigInteger.prototype.lt = BigInteger.prototype.lesser;
+    SmallInteger.prototype.lt = SmallInteger.prototype.lesser = BigInteger.prototype.lt = BigInteger.prototype.lesser;
 
     BigInteger.prototype.greaterOrEquals = function (v) {
         return this.compare(v) >= 0;
     };
-    NativeBigInt.prototype.geq = NativeBigInt.prototype.greaterOrEquals = SmallInteger.prototype.geq = SmallInteger.prototype.greaterOrEquals = BigInteger.prototype.geq = BigInteger.prototype.greaterOrEquals;
+    SmallInteger.prototype.geq = SmallInteger.prototype.greaterOrEquals = BigInteger.prototype.geq = BigInteger.prototype.greaterOrEquals;
 
     BigInteger.prototype.lesserOrEquals = function (v) {
         return this.compare(v) <= 0;
     };
-    NativeBigInt.prototype.leq = NativeBigInt.prototype.lesserOrEquals = SmallInteger.prototype.leq = SmallInteger.prototype.lesserOrEquals = BigInteger.prototype.leq = BigInteger.prototype.lesserOrEquals;
+    SmallInteger.prototype.leq = SmallInteger.prototype.lesserOrEquals = BigInteger.prototype.leq = BigInteger.prototype.lesserOrEquals;
 
     BigInteger.prototype.isEven = function () {
         return (this.value[0] & 1) === 0;
@@ -921,9 +835,6 @@ return /******/ (function(modules) { // webpackBootstrap
     SmallInteger.prototype.isEven = function () {
         return (this.value & 1) === 0;
     };
-    NativeBigInt.prototype.isEven = function () {
-        return (this.value & BigInt(1)) === BigInt(0);
-    }
 
     BigInteger.prototype.isOdd = function () {
         return (this.value[0] & 1) === 1;
@@ -931,9 +842,6 @@ return /******/ (function(modules) { // webpackBootstrap
     SmallInteger.prototype.isOdd = function () {
         return (this.value & 1) === 1;
     };
-    NativeBigInt.prototype.isOdd = function () {
-        return (this.value & BigInt(1)) === BigInt(1);
-    }
 
     BigInteger.prototype.isPositive = function () {
         return !this.sign;
@@ -941,7 +849,6 @@ return /******/ (function(modules) { // webpackBootstrap
     SmallInteger.prototype.isPositive = function () {
         return this.value > 0;
     };
-    NativeBigInt.prototype.isPositive = SmallInteger.prototype.isPositive;
 
     BigInteger.prototype.isNegative = function () {
         return this.sign;
@@ -949,7 +856,6 @@ return /******/ (function(modules) { // webpackBootstrap
     SmallInteger.prototype.isNegative = function () {
         return this.value < 0;
     };
-    NativeBigInt.prototype.isNegative = SmallInteger.prototype.isNegative;
 
     BigInteger.prototype.isUnit = function () {
         return false;
@@ -957,9 +863,6 @@ return /******/ (function(modules) { // webpackBootstrap
     SmallInteger.prototype.isUnit = function () {
         return Math.abs(this.value) === 1;
     };
-    NativeBigInt.prototype.isUnit = function () {
-        return this.abs().value === BigInt(1);
-    }
 
     BigInteger.prototype.isZero = function () {
         return false;
@@ -967,18 +870,15 @@ return /******/ (function(modules) { // webpackBootstrap
     SmallInteger.prototype.isZero = function () {
         return this.value === 0;
     };
-    NativeBigInt.prototype.isZero = function () {
-        return this.value === BigInt(0);
-    }
-
     BigInteger.prototype.isDivisibleBy = function (v) {
         var n = parseValue(v);
-        if (n.isZero()) return false;
-        if (n.isUnit()) return true;
-        if (n.compareAbs(2) === 0) return this.isEven();
-        return this.mod(n).isZero();
+        var value = n.value;
+        if (value === 0) return false;
+        if (value === 1) return true;
+        if (value === 2) return this.isEven();
+        return this.mod(n).equals(Integer[0]);
     };
-    NativeBigInt.prototype.isDivisibleBy = SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
+    SmallInteger.prototype.isDivisibleBy = BigInteger.prototype.isDivisibleBy;
 
     function isBasicPrime(v) {
         var n = v.abs();
@@ -988,43 +888,43 @@ return /******/ (function(modules) { // webpackBootstrap
         if (n.lesser(49)) return true;
         // we don't know if it's prime: let the other functions figure it out
     }
-
+    
     function millerRabinTest(n, a) {
         var nPrev = n.prev(),
             b = nPrev,
             r = 0,
             d, t, i, x;
         while (b.isEven()) b = b.divide(2), r++;
-        next: for (i = 0; i < a.length; i++) {
+        next : for (i = 0; i < a.length; i++) {
             if (n.lesser(a[i])) continue;
             x = bigInt(a[i]).modPow(b, n);
-            if (x.isUnit() || x.equals(nPrev)) continue;
+            if (x.equals(Integer[1]) || x.equals(nPrev)) continue;
             for (d = r - 1; d != 0; d--) {
                 x = x.square().mod(n);
-                if (x.isUnit()) return false;
+                if (x.isUnit()) return false;    
                 if (x.equals(nPrev)) continue next;
             }
             return false;
         }
         return true;
     }
-
-    // Set "strict" to true to force GRH-supported lower bound of 2*log(N)^2
+    
+// Set "strict" to true to force GRH-supported lower bound of 2*log(N)^2
     BigInteger.prototype.isPrime = function (strict) {
         var isPrime = isBasicPrime(this);
         if (isPrime !== undefined) return isPrime;
         var n = this.abs();
         var bits = n.bitLength();
-        if (bits <= 64)
-            return millerRabinTest(n, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]);
-        var logN = Math.log(2) * bits.toJSNumber();
+        if(bits <= 64)
+            return millerRabinTest(n, [2, 325, 9375, 28178, 450775, 9780504, 1795265022]);
+        var logN = Math.log(2) * bits;
         var t = Math.ceil((strict === true) ? (2 * Math.pow(logN, 2)) : logN);
         for (var a = [], i = 0; i < t; i++) {
             a.push(bigInt(i + 2));
         }
         return millerRabinTest(n, a);
     };
-    NativeBigInt.prototype.isPrime = SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
+    SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
 
     BigInteger.prototype.isProbablePrime = function (iterations) {
         var isPrime = isBasicPrime(this);
@@ -1036,11 +936,11 @@ return /******/ (function(modules) { // webpackBootstrap
         }
         return millerRabinTest(n, a);
     };
-    NativeBigInt.prototype.isProbablePrime = SmallInteger.prototype.isProbablePrime = BigInteger.prototype.isProbablePrime;
+    SmallInteger.prototype.isProbablePrime = BigInteger.prototype.isProbablePrime;
 
     BigInteger.prototype.modInv = function (n) {
         var t = bigInt.zero, newT = bigInt.one, r = parseValue(n), newR = this.abs(), q, lastT, lastR;
-        while (!newR.isZero()) {
+        while (!newR.equals(bigInt.zero)) {
             q = r.divide(newR);
             lastT = t;
             lastR = r;
@@ -1049,7 +949,7 @@ return /******/ (function(modules) { // webpackBootstrap
             newT = lastT.subtract(q.multiply(newT));
             newR = lastR.subtract(q.multiply(newR));
         }
-        if (!r.isUnit()) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
+        if (!r.equals(1)) throw new Error(this.toString() + " and " + n.toString() + " are not co-prime");
         if (t.compare(0) === -1) {
             t = t.add(n);
         }
@@ -1059,7 +959,7 @@ return /******/ (function(modules) { // webpackBootstrap
         return t;
     };
 
-    NativeBigInt.prototype.modInv = SmallInteger.prototype.modInv = BigInteger.prototype.modInv;
+    SmallInteger.prototype.modInv = BigInteger.prototype.modInv;
 
     BigInteger.prototype.next = function () {
         var value = this.value;
@@ -1073,9 +973,6 @@ return /******/ (function(modules) { // webpackBootstrap
         if (value + 1 < MAX_INT) return new SmallInteger(value + 1);
         return new BigInteger(MAX_INT_ARR, false);
     };
-    NativeBigInt.prototype.next = function () {
-        return new NativeBigInt(this.value + BigInt(1));
-    }
 
     BigInteger.prototype.prev = function () {
         var value = this.value;
@@ -1089,23 +986,21 @@ return /******/ (function(modules) { // webpackBootstrap
         if (value - 1 > -MAX_INT) return new SmallInteger(value - 1);
         return new BigInteger(MAX_INT_ARR, true);
     };
-    NativeBigInt.prototype.prev = function () {
-        return new NativeBigInt(this.value - BigInt(1));
-    }
 
     var powersOfTwo = [1];
     while (2 * powersOfTwo[powersOfTwo.length - 1] <= BASE) powersOfTwo.push(2 * powersOfTwo[powersOfTwo.length - 1]);
     var powers2Length = powersOfTwo.length, highestPower2 = powersOfTwo[powers2Length - 1];
 
     function shift_isSmall(n) {
-        return Math.abs(n) <= BASE;
+        return ((typeof n === "number" || typeof n === "string") && +Math.abs(n) <= BASE) ||
+            (n instanceof BigInteger && n.value.length <= 1);
     }
 
-    BigInteger.prototype.shiftLeft = function (v) {
-        var n = parseValue(v).toJSNumber();
+    BigInteger.prototype.shiftLeft = function (n) {
         if (!shift_isSmall(n)) {
             throw new Error(String(n) + " is too large for shifting.");
         }
+        n = +n;
         if (n < 0) return this.shiftRight(-n);
         var result = this;
         if (result.isZero()) return result;
@@ -1115,14 +1010,14 @@ return /******/ (function(modules) { // webpackBootstrap
         }
         return result.multiply(powersOfTwo[n]);
     };
-    NativeBigInt.prototype.shiftLeft = SmallInteger.prototype.shiftLeft = BigInteger.prototype.shiftLeft;
+    SmallInteger.prototype.shiftLeft = BigInteger.prototype.shiftLeft;
 
-    BigInteger.prototype.shiftRight = function (v) {
+    BigInteger.prototype.shiftRight = function (n) {
         var remQuo;
-        var n = parseValue(v).toJSNumber();
         if (!shift_isSmall(n)) {
             throw new Error(String(n) + " is too large for shifting.");
         }
+        n = +n;
         if (n < 0) return this.shiftLeft(-n);
         var result = this;
         while (n >= powers2Length) {
@@ -1134,7 +1029,7 @@ return /******/ (function(modules) { // webpackBootstrap
         remQuo = divModAny(result, powersOfTwo[n]);
         return remQuo[1].isNegative() ? remQuo[0].prev() : remQuo[0];
     };
-    NativeBigInt.prototype.shiftRight = SmallInteger.prototype.shiftRight = BigInteger.prototype.shiftRight;
+    SmallInteger.prototype.shiftRight = BigInteger.prototype.shiftRight;
 
     function bitwise(x, y, fn) {
         y = parseValue(y);
@@ -1171,31 +1066,28 @@ return /******/ (function(modules) { // webpackBootstrap
     BigInteger.prototype.not = function () {
         return this.negate().prev();
     };
-    NativeBigInt.prototype.not = SmallInteger.prototype.not = BigInteger.prototype.not;
+    SmallInteger.prototype.not = BigInteger.prototype.not;
 
     BigInteger.prototype.and = function (n) {
         return bitwise(this, n, function (a, b) { return a & b; });
     };
-    NativeBigInt.prototype.and = SmallInteger.prototype.and = BigInteger.prototype.and;
+    SmallInteger.prototype.and = BigInteger.prototype.and;
 
     BigInteger.prototype.or = function (n) {
         return bitwise(this, n, function (a, b) { return a | b; });
     };
-    NativeBigInt.prototype.or = SmallInteger.prototype.or = BigInteger.prototype.or;
+    SmallInteger.prototype.or = BigInteger.prototype.or;
 
     BigInteger.prototype.xor = function (n) {
         return bitwise(this, n, function (a, b) { return a ^ b; });
     };
-    NativeBigInt.prototype.xor = SmallInteger.prototype.xor = BigInteger.prototype.xor;
+    SmallInteger.prototype.xor = BigInteger.prototype.xor;
 
     var LOBMASK_I = 1 << 30, LOBMASK_BI = (BASE & -BASE) * (BASE & -BASE) | LOBMASK_I;
     function roughLOB(n) { // get lowestOneBit (rough)
         // SmallInteger: return Min(lowestOneBit(n), 1 << 30)
         // BigInteger: return Min(lowestOneBit(n), 1 << 14) [BASE=1e7]
-        var v = n.value,
-            x = typeof v === "number" ? v | LOBMASK_I :
-                typeof v === "bigint" ? v | BigInt(LOBMASK_I) :
-                    v[0] + v[1] * BASE | LOBMASK_BI;
+        var v = n.value, x = typeof v === "number" ? v | LOBMASK_I : v[0] + v[1] * BASE | LOBMASK_BI;
         return x & -x;
     }
 
@@ -1220,7 +1112,7 @@ return /******/ (function(modules) { // webpackBootstrap
         }
         return bigInt(integerLogarithm(n, bigInt(2)).e).add(bigInt(1));
     }
-    NativeBigInt.prototype.bitLength = SmallInteger.prototype.bitLength = BigInteger.prototype.bitLength;
+    SmallInteger.prototype.bitLength = BigInteger.prototype.bitLength;
 
     function max(a, b) {
         a = parseValue(a);
@@ -1240,7 +1132,7 @@ return /******/ (function(modules) { // webpackBootstrap
         if (b.isZero()) return a;
         var c = Integer[1], d, t;
         while (a.isEven() && b.isEven()) {
-            d = min(roughLOB(a), roughLOB(b));
+            d = Math.min(roughLOB(a), roughLOB(b));
             a = a.divide(d);
             b = b.divide(d);
             c = c.multiply(d);
@@ -1270,50 +1162,53 @@ return /******/ (function(modules) { // webpackBootstrap
         var low = min(a, b), high = max(a, b);
         var range = high.subtract(low).add(1);
         if (range.isSmall) return low.add(Math.floor(Math.random() * range));
-        var digits = toBase(range, BASE).value;
+        var length = range.value.length - 1;
         var result = [], restricted = true;
-        for (var i = 0; i < digits.length; i++) {
-            var top = restricted ? digits[i] : BASE;
+        for (var i = length; i >= 0; i--) {
+            var top = restricted ? range.value[i] : BASE;
             var digit = truncate(Math.random() * top);
-            result.push(digit);
+            result.unshift(digit);
             if (digit < top) restricted = false;
         }
-        return low.add(Integer.fromArray(result, BASE, false));
+        result = arrayToSmall(result);
+        return low.add(typeof result === "number" ? new SmallInteger(result) : new BigInteger(result, false));
     }
-
-    var parseBase = function (text, base, alphabet, caseSensitive) {
-        alphabet = alphabet || DEFAULT_ALPHABET;
-        text = String(text);
-        if (!caseSensitive) {
-            text = text.toLowerCase();
-            alphabet = alphabet.toLowerCase();
-        }
+    var parseBase = function (text, base) {
         var length = text.length;
         var i;
         var absBase = Math.abs(base);
-        var alphabetValues = {};
-        for (i = 0; i < alphabet.length; i++) {
-            alphabetValues[alphabet[i]] = i;
-        }
-        for (i = 0; i < length; i++) {
-            var c = text[i];
+        for (var i = 0; i < length; i++) {
+            var c = text[i].toLowerCase();
             if (c === "-") continue;
-            if (c in alphabetValues) {
-                if (alphabetValues[c] >= absBase) {
+            if (/[a-z0-9]/.test(c)) {
+                if (/[0-9]/.test(c) && +c >= absBase) {
                     if (c === "1" && absBase === 1) continue;
                     throw new Error(c + " is not a valid digit in base " + base + ".");
+                } else if (c.charCodeAt(0) - 87 >= absBase) {
+                    throw new Error(c + " is not a valid digit in base " + base + ".");
                 }
+            }
+        }
+        if (2 <= base && base <= 36) {
+            if (length <= LOG_MAX_INT / Math.log(base)) {
+                var result = parseInt(text, base);
+                if (isNaN(result)) {
+                    throw new Error(c + " is not a valid digit in base " + base + ".");
+                }
+                return new SmallInteger(parseInt(text, base));
             }
         }
         base = parseValue(base);
         var digits = [];
         var isNegative = text[0] === "-";
         for (i = isNegative ? 1 : 0; i < text.length; i++) {
-            var c = text[i];
-            if (c in alphabetValues) digits.push(parseValue(alphabetValues[c]));
+            var c = text[i].toLowerCase(),
+                charCode = c.charCodeAt(0);
+            if (48 <= charCode && charCode <= 57) digits.push(parseValue(c));
+            else if (97 <= charCode && charCode <= 122) digits.push(parseValue(c.charCodeAt(0) - 87));
             else if (c === "<") {
                 var start = i;
-                do { i++; } while (text[i] !== ">" && i < text.length);
+                do { i++; } while (text[i] !== ">");
                 digits.push(parseValue(text.slice(start + 1, i)));
             }
             else throw new Error(c + " is not a valid character");
@@ -1330,10 +1225,9 @@ return /******/ (function(modules) { // webpackBootstrap
         return isNegative ? val.negate() : val;
     }
 
-    function stringify(digit, alphabet) {
-        alphabet = alphabet || DEFAULT_ALPHABET;
-        if (digit < alphabet.length) {
-            return alphabet[digit];
+    function stringify(digit) {
+        if (digit <= 35) {
+            return "0123456789abcdefghijklmnopqrstuvwxyz".charAt(digit);
         }
         return "<" + digit + ">";
     }
@@ -1348,13 +1242,13 @@ return /******/ (function(modules) { // webpackBootstrap
             if (n.isZero()) return { value: [0], isNegative: false };
             if (n.isNegative())
                 return {
-                    value: [].concat.apply([], Array.apply(null, Array(-n.toJSNumber()))
+                    value: [].concat.apply([], Array.apply(null, Array(-n))
                         .map(Array.prototype.valueOf, [1, 0])
                     ),
                     isNegative: false
                 };
 
-            var arr = Array.apply(null, Array(n.toJSNumber() - 1))
+            var arr = Array.apply(null, Array(+n - 1))
                 .map(Array.prototype.valueOf, [0, 1]);
             arr.unshift([1]);
             return {
@@ -1368,11 +1262,11 @@ return /******/ (function(modules) { // webpackBootstrap
             neg = true;
             n = n.abs();
         }
-        if (base.isUnit()) {
+        if (base.equals(1)) {
             if (n.isZero()) return { value: [0], isNegative: false };
 
             return {
-                value: Array.apply(null, Array(n.toJSNumber()))
+                value: Array.apply(null, Array(+n))
                     .map(Number.prototype.valueOf, 1),
                 isNegative: neg
             };
@@ -1393,11 +1287,9 @@ return /******/ (function(modules) { // webpackBootstrap
         return { value: out.reverse(), isNegative: neg };
     }
 
-    function toBaseString(n, base, alphabet) {
+    function toBaseString(n, base) {
         var arr = toBase(n, base);
-        return (arr.isNegative ? "-" : "") + arr.value.map(function (x) {
-            return stringify(x, alphabet);
-        }).join('');
+        return (arr.isNegative ? "-" : "") + arr.value.map(stringify).join('');
     }
 
     BigInteger.prototype.toArray = function (radix) {
@@ -1408,13 +1300,9 @@ return /******/ (function(modules) { // webpackBootstrap
         return toBase(this, radix);
     };
 
-    NativeBigInt.prototype.toArray = function (radix) {
-        return toBase(this, radix);
-    };
-
-    BigInteger.prototype.toString = function (radix, alphabet) {
+    BigInteger.prototype.toString = function (radix) {
         if (radix === undefined) radix = 10;
-        if (radix !== 10) return toBaseString(this, radix, alphabet);
+        if (radix !== 10) return toBaseString(this, radix);
         var v = this.value, l = v.length, str = String(v[--l]), zeros = "0000000", digit;
         while (--l >= 0) {
             digit = String(v[l]);
@@ -1424,15 +1312,12 @@ return /******/ (function(modules) { // webpackBootstrap
         return sign + str;
     };
 
-    SmallInteger.prototype.toString = function (radix, alphabet) {
+    SmallInteger.prototype.toString = function (radix) {
         if (radix === undefined) radix = 10;
-        if (radix != 10) return toBaseString(this, radix, alphabet);
+        if (radix != 10) return toBaseString(this, radix);
         return String(this.value);
     };
-
-    NativeBigInt.prototype.toString = SmallInteger.prototype.toString;
-
-    NativeBigInt.prototype.toJSON = BigInteger.prototype.toJSON = SmallInteger.prototype.toJSON = function () { return this.toString(); }
+    BigInteger.prototype.toJSON = SmallInteger.prototype.toJSON = function () { return this.toString(); }
 
     BigInteger.prototype.valueOf = function () {
         return parseInt(this.toString(), 10);
@@ -1443,15 +1328,12 @@ return /******/ (function(modules) { // webpackBootstrap
         return this.value;
     };
     SmallInteger.prototype.toJSNumber = SmallInteger.prototype.valueOf;
-    NativeBigInt.prototype.valueOf = NativeBigInt.prototype.toJSNumber = function () {
-        return parseInt(this.toString(), 10);
-    }
 
     function parseStringValue(v) {
         if (isPrecise(+v)) {
             var x = +v;
             if (x === truncate(x))
-                return supportsNativeBigInt ? new NativeBigInt(BigInt(x)) : new SmallInteger(x);
+                return new SmallInteger(x);
             throw new Error("Invalid integer: " + v);
         }
         var sign = v[0] === "-";
@@ -1475,9 +1357,6 @@ return /******/ (function(modules) { // webpackBootstrap
         }
         var isValid = /^([0-9][0-9]*)$/.test(v);
         if (!isValid) throw new Error("Invalid integer: " + v);
-        if (supportsNativeBigInt) {
-            return new NativeBigInt(BigInt(sign ? "-" + v : v));
-        }
         var r = [], max = v.length, l = LOG_BASE, min = max - l;
         while (max > 0) {
             r.push(+v.slice(min, max));
@@ -1490,9 +1369,6 @@ return /******/ (function(modules) { // webpackBootstrap
     }
 
     function parseNumberValue(v) {
-        if (supportsNativeBigInt) {
-            return new NativeBigInt(BigInt(v));
-        }
         if (isPrecise(v)) {
             if (v !== truncate(v)) throw new Error(v + " is not an integer.");
             return new SmallInteger(v);
@@ -1507,15 +1383,12 @@ return /******/ (function(modules) { // webpackBootstrap
         if (typeof v === "string") {
             return parseStringValue(v);
         }
-        if (typeof v === "bigint") {
-            return new NativeBigInt(v);
-        }
         return v;
     }
     // Pre-define numbers in range [-999,999]
     for (var i = 0; i < 1000; i++) {
-        Integer[i] = parseValue(i);
-        if (i > 0) Integer[-i] = parseValue(-i);
+        Integer[i] = new SmallInteger(i);
+        if (i > 0) Integer[-i] = new SmallInteger(-i);
     }
     // Backwards compatibility
     Integer.one = Integer[1];
@@ -1525,7 +1398,7 @@ return /******/ (function(modules) { // webpackBootstrap
     Integer.min = min;
     Integer.gcd = gcd;
     Integer.lcm = lcm;
-    Integer.isInstance = function (x) { return x instanceof BigInteger || x instanceof SmallInteger || x instanceof NativeBigInt; };
+    Integer.isInstance = function (x) { return x instanceof BigInteger || x instanceof SmallInteger; };
     Integer.randBetween = randBetween;
 
     Integer.fromArray = function (digits, base, isNegative) {
@@ -1548,7 +1421,7 @@ if (true) {
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(21)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(22)(module)))
 
 /***/ }),
 /* 1 */
@@ -1581,7 +1454,7 @@ module.exports = {
  * Copyright (c) 2010-2018 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(1);
-var baseN = __webpack_require__(26);
+var baseN = __webpack_require__(27);
 
 /* Utilities API */
 var util = module.exports = forge.util = forge.util || {};
@@ -4567,11 +4440,10 @@ util.estimateCores = function(options, callback) {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(9), __webpack_require__(22).setImmediate, __webpack_require__(5), __webpack_require__(11).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(8), __webpack_require__(23).setImmediate, __webpack_require__(4), __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 3 */,
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4588,7 +4460,7 @@ forge.md.algorithms = forge.md.algorithms || {};
 
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports) {
 
 var g;
@@ -4600,7 +4472,7 @@ g = (function() {
 
 try {
 	// This works if eval is allowed (see CSP)
-	g = g || new Function("return this")();
+	g = g || Function("return this")() || (1, eval)("this");
 } catch (e) {
 	// This works if the window reference is available
 	if (typeof window === "object") g = window;
@@ -4614,7 +4486,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4633,9 +4505,9 @@ module.exports = g;
  * Copyright (c) 2009-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(1);
-__webpack_require__(12);
-__webpack_require__(15);
-__webpack_require__(35);
+__webpack_require__(11);
+__webpack_require__(14);
+__webpack_require__(36);
 __webpack_require__(2);
 
 (function() {
@@ -4811,7 +4683,7 @@ module.exports = forge.random;
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4951,7 +4823,7 @@ module.exports = forge.random;
  */
 var forge = __webpack_require__(1);
 __webpack_require__(2);
-__webpack_require__(10);
+__webpack_require__(9);
 
 /* ASN.1 API */
 var asn1 = module.exports = forge.asn1 = forge.asn1 || {};
@@ -6225,7 +6097,7 @@ asn1.prettyPrint = function(obj, level, indentation) {
 
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6296,7 +6168,8 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  for (var i = 0; i < len; i += 4) {
+  var i
+  for (i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |
@@ -6383,7 +6256,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -6573,7 +6446,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -6742,7 +6615,7 @@ _IN('1.3.6.1.5.5.7.3.8', 'timeStamping');
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6756,9 +6629,9 @@ _IN('1.3.6.1.5.5.7.3.8', 'timeStamping');
 
 
 
-var base64 = __webpack_require__(8)
-var ieee754 = __webpack_require__(24)
-var isArray = __webpack_require__(25)
+var base64 = __webpack_require__(7)
+var ieee754 = __webpack_require__(25)
+var isArray = __webpack_require__(26)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -8536,10 +8409,10 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(4)))
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8560,8 +8433,8 @@ function isnan (val) {
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(1);
+__webpack_require__(12);
 __webpack_require__(13);
-__webpack_require__(14);
 __webpack_require__(2);
 
 /* AES API */
@@ -9636,7 +9509,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -9872,7 +9745,7 @@ BlockCipher.prototype.finish = function(pad) {
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10865,7 +10738,7 @@ function from64To32(num) {
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -10878,7 +10751,7 @@ function from64To32(num) {
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(1);
-__webpack_require__(4);
+__webpack_require__(3);
 __webpack_require__(2);
 
 var sha256 = module.exports = forge.sha256 = forge.sha256 || {};
@@ -11198,13 +11071,13 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright (c) 2005  Tom Wu
@@ -12474,7 +12347,7 @@ BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -12485,7 +12358,7 @@ BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
  * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(1);
-__webpack_require__(4);
+__webpack_require__(3);
 __webpack_require__(2);
 
 var sha1 = module.exports = forge.sha1 = forge.sha1 || {};
@@ -12799,16 +12672,16 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var v35 = __webpack_require__(27);
-var md5 = __webpack_require__(29);
+var v35 = __webpack_require__(28);
+var md5 = __webpack_require__(30);
 
 module.exports = v35('v3', 0x30, md5);
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -12921,15 +12794,15 @@ module.exports = v35('v3', 0x30, md5);
  * }
  */
 var forge = __webpack_require__(1);
-__webpack_require__(12);
-__webpack_require__(7);
-__webpack_require__(30);
-__webpack_require__(4);
+__webpack_require__(11);
+__webpack_require__(6);
 __webpack_require__(31);
-__webpack_require__(10);
-__webpack_require__(33);
+__webpack_require__(3);
+__webpack_require__(32);
+__webpack_require__(9);
 __webpack_require__(34);
-__webpack_require__(36);
+__webpack_require__(35);
+__webpack_require__(37);
 __webpack_require__(2);
 
 // shortcut for asn.1 API
@@ -16147,7 +16020,9 @@ pki.verifyCertificateChain = function(caStore, chain, options) {
 
 
 /***/ }),
-/* 21 */
+/* 20 */,
+/* 21 */,
+/* 22 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -16175,7 +16050,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var scope = (typeof global !== "undefined" && global) ||
@@ -16231,7 +16106,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(23);
+__webpack_require__(24);
 // On some exotic environments, it's not clear which object `setimmediate` was
 // able to install onto.  Search each possibility in the same order as the
 // `setimmediate` library.
@@ -16242,10 +16117,10 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(4)))
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -16435,10 +16310,10 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(5), __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(4), __webpack_require__(8)))
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -16528,7 +16403,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -16539,7 +16414,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -16729,13 +16604,13 @@ function _encodeWithByteBuffer(input, alphabet) {
   return output;
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(11).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(10).Buffer))
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var bytesToUuid = __webpack_require__(28);
+var bytesToUuid = __webpack_require__(29);
 
 function uuidToBytes(uuid) {
   // Note: We assume we're being passed a valid uuid string
@@ -16795,7 +16670,7 @@ module.exports = function(name, version, hashfunc) {
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /**
@@ -16825,7 +16700,7 @@ module.exports = bytesToUuid;
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17048,7 +16923,7 @@ module.exports = md5;
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -17083,8 +16958,8 @@ module.exports = md5;
  * Copyright (c) 2012-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(1);
+__webpack_require__(12);
 __webpack_require__(13);
-__webpack_require__(14);
 __webpack_require__(2);
 
 /* DES API */
@@ -17550,7 +17425,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -17561,14 +17436,14 @@ function _createCipher(options) {
  * Copyright 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 var forge = __webpack_require__(1);
-__webpack_require__(32);
+__webpack_require__(33);
 
 module.exports = forge.mgf = forge.mgf || {};
 forge.mgf.mgf1 = forge.mgf1;
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -17631,7 +17506,7 @@ mgf1.create = function(md) {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -17867,7 +17742,7 @@ function ltrim(str) {
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -17878,7 +17753,7 @@ function ltrim(str) {
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 var forge = __webpack_require__(1);
-__webpack_require__(6);
+__webpack_require__(5);
 __webpack_require__(2);
 
 // shortcut for PSS API
@@ -18114,7 +17989,7 @@ pss.create = function(options) {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -18134,7 +18009,7 @@ __webpack_require__(2);
 var _crypto = null;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript &&
   !process.versions['node-webkit']) {
-  _crypto = __webpack_require__(16);
+  _crypto = __webpack_require__(15);
 }
 
 /* PRNG API */
@@ -18537,10 +18412,10 @@ prng.create = function(plugin) {
   return ctx;
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(8)))
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -18607,19 +18482,19 @@ prng.create = function(plugin) {
  * The OID for the RSA key algorithm is: 1.2.840.113549.1.1.1
  */
 var forge = __webpack_require__(1);
-__webpack_require__(7);
-__webpack_require__(17);
-__webpack_require__(10);
-__webpack_require__(37);
-__webpack_require__(38);
 __webpack_require__(6);
+__webpack_require__(16);
+__webpack_require__(9);
+__webpack_require__(38);
+__webpack_require__(39);
+__webpack_require__(5);
 __webpack_require__(2);
 
 if(typeof BigInteger === 'undefined') {
   var BigInteger = forge.jsbn.BigInteger;
 }
 
-var _crypto = forge.util.isNodejs ? __webpack_require__(16) : null;
+var _crypto = forge.util.isNodejs ? __webpack_require__(15) : null;
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
@@ -20404,7 +20279,7 @@ function _base64ToBigInt(b64) {
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -20454,8 +20329,8 @@ function _base64ToBigInt(b64) {
  */
 var forge = __webpack_require__(1);
 __webpack_require__(2);
-__webpack_require__(6);
-__webpack_require__(18);
+__webpack_require__(5);
+__webpack_require__(17);
 
 // shortcut for PKCS#1 API
 var pkcs1 = module.exports = forge.pkcs1 = forge.pkcs1 || {};
@@ -20686,7 +20561,7 @@ function rsa_mgf1(seed, maskLength, hash) {
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -20698,8 +20573,8 @@ function rsa_mgf1(seed, maskLength, hash) {
  */
 var forge = __webpack_require__(1);
 __webpack_require__(2);
-__webpack_require__(17);
-__webpack_require__(6);
+__webpack_require__(16);
+__webpack_require__(5);
 
 (function() {
 
@@ -20989,7 +20864,7 @@ function getMillerRabinTests(bits) {
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -21024,7 +20899,7 @@ var __extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -21423,7 +21298,7 @@ var CompositeTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -21926,7 +21801,7 @@ var ImprintTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22030,7 +21905,7 @@ var IntegerTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22080,7 +21955,7 @@ var RawTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22118,7 +21993,7 @@ var RawTag_RawTag = /** @class */ (function (_super) {
 }(TlvTag_TlvTag));
 
 
-// EXTERNAL MODULE: ./node_modules/node-forge/lib/util.js
+// EXTERNAL MODULE: ./node_modules/@guardtime/gt-js-common/node_modules/node-forge/lib/util.js
 var util = __webpack_require__(2);
 var util_default = /*#__PURE__*/__webpack_require__.n(util);
 
@@ -22157,7 +22032,7 @@ var StringTag_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22284,8 +22159,34 @@ class DataHasher_DataHasher {
     }
 }
 
+// CONCATENATED MODULE: ./node_modules/@guardtime/gt-js-common/lib/main.mjs
+// Crypto package
+
+
+
+// Coders
+
+
+
+
+// CRC32
+
+// String utils
+
+
+
+// Math
+
+// Hash package
+
+
+
+
+// Models
+
+
 // EXTERNAL MODULE: ./node_modules/base64-js/index.js
-var base64_js = __webpack_require__(8);
+var base64_js = __webpack_require__(7);
 
 // CONCATENATED MODULE: ./node_modules/@guardtime/gt-js-common/lib/coders/Base64Coder.js
 
@@ -22306,7 +22207,7 @@ class Base64Coder_Base64Coder {
 }
 
 // EXTERNAL MODULE: ./node_modules/uuid/v3.js
-var v3 = __webpack_require__(19);
+var v3 = __webpack_require__(18);
 var v3_default = /*#__PURE__*/__webpack_require__.n(v3);
 
 // CONCATENATED MODULE: ./node_modules/@guardtime/gt-js-common/lib/coders/Base32Coder.js
@@ -22411,7 +22312,7 @@ var PublicationData_extends = (undefined && undefined.__extends) || (function ()
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22493,7 +22394,7 @@ var PublicationRecord_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22595,7 +22496,7 @@ var AggregationHashChain_extends = (undefined && undefined.__extends) || (functi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -22989,7 +22890,7 @@ var SignatureData_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -23062,7 +22963,7 @@ var CalendarAuthenticationRecord_extends = (undefined && undefined.__extends) ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -23122,7 +23023,7 @@ var CalendarHashChain_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -23362,7 +23263,7 @@ var Rfc3161Record_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -23554,7 +23455,7 @@ var KsiSignature_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -23789,7 +23690,7 @@ var KsiVerificationError_extends = (undefined && undefined.__extends) || (functi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -23929,6 +23830,236 @@ var VerificationContext_VerificationContext = /** @class */ (function () {
     };
     return VerificationContext;
 }());
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/VerificationResult.ts
+
+var VerificationResultCode;
+(function (VerificationResultCode) {
+    VerificationResultCode[VerificationResultCode["OK"] = 0] = "OK";
+    VerificationResultCode[VerificationResultCode["FAIL"] = 1] = "FAIL";
+    VerificationResultCode[VerificationResultCode["NA"] = 2] = "NA";
+})(VerificationResultCode || (VerificationResultCode = {}));
+/**
+ * Verification result for KSI signature
+ */
+var VerificationResult_VerificationResult = /** @class */ (function () {
+    function VerificationResult(ruleName, resultCode, verificationError, childResults) {
+        if (verificationError === void 0) { verificationError = null; }
+        if (childResults === void 0) { childResults = null; }
+        this.childResults = [];
+        this.ruleName = ruleName;
+        this.resultCode = resultCode;
+        this.verificationError = verificationError || null;
+        if (childResults !== null) {
+            this.childResults = childResults.slice();
+        }
+    }
+    VerificationResult.CREATE_FROM_RESULTS = function (ruleName, childResults) {
+        var lastResult = childResults.length > 0
+            ? childResults[childResults.length - 1]
+            : new VerificationResult(ruleName, VerificationResultCode.OK);
+        return new VerificationResult(ruleName, lastResult.resultCode, lastResult.verificationError, childResults);
+    };
+    VerificationResult.prototype.getResultCode = function () {
+        return this.resultCode;
+    };
+    VerificationResult.prototype.getVerificationError = function () {
+        return this.verificationError;
+    };
+    VerificationResult.prototype.getRuleName = function () {
+        return this.ruleName;
+    };
+    VerificationResult.prototype.getChildResults = function () {
+        return this.childResults.slice();
+    };
+    VerificationResult.prototype.toString = function () {
+        var result = "VerificationResult " + this.getRuleName() + " [" + VerificationResultCode[this.getResultCode()] + "]";
+        if (this.childResults.length > 0) {
+            result += ':\n';
+        }
+        for (var i = 0; i < this.childResults.length; i += 1) {
+            result += tabPrefix(this.childResults[i].toString());
+            if (i < (this.childResults.length - 1)) {
+                result += '\n';
+            }
+        }
+        return result;
+    };
+    return VerificationResult;
+}());
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/VerificationRule.ts
+
+
+
+/**
+ * Verification Rule for KSI Signature
+ */
+var VerificationRule_VerificationRule = /** @class */ (function () {
+    function VerificationRule(ruleName) {
+        if (ruleName === void 0) { ruleName = null; }
+        this.ruleName = this.constructor.name;
+        this.onSuccessRule = null;
+        this.onFailureRule = null;
+        this.onNaRule = null;
+        if (ruleName !== null) {
+            this.ruleName = ruleName;
+        }
+    }
+    VerificationRule.getSignature = function (context) {
+        if (!context.getSignature()) {
+            throw new KsiVerificationError('Invalid KSI signature in context: null.');
+        }
+        return context.getSignature();
+    };
+    VerificationRule.getCalendarHashChain = function (signature) {
+        var calendarHashChain = signature.getCalendarHashChain();
+        if (!calendarHashChain) {
+            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
+        }
+        return calendarHashChain;
+    };
+    VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink = function (calendarHashChain) {
+        if (!calendarHashChain) {
+            throw new KsiVerificationError('Invalid calendar hash chain.');
+        }
+        for (var _i = 0, _a = calendarHashChain.getChainLinks(); _i < _a.length; _i++) {
+            var link = _a[_i];
+            if (link.id !== LinkDirection.Left) {
+                continue;
+            }
+            if (link.getValue().hashAlgorithm.isDeprecated(calendarHashChain.getPublicationTime().valueOf())) {
+                return link;
+            }
+        }
+        return null;
+    };
+    VerificationRule.prototype.getRuleName = function () {
+        return this.ruleName;
+    };
+    VerificationRule.prototype.onSuccess = function (rule) {
+        this.onSuccessRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.onFailure = function (rule) {
+        this.onFailureRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.onNa = function (rule) {
+        this.onNaRule = rule;
+        return this;
+    };
+    VerificationRule.prototype.getNextRule = function (resultCode) {
+        switch (resultCode) {
+            case VerificationResultCode.OK:
+                return this.onSuccessRule;
+            case VerificationResultCode.FAIL:
+                return this.onFailureRule;
+            case VerificationResultCode.NA:
+                return this.onNaRule;
+            default:
+                return null;
+        }
+    };
+    return VerificationRule;
+}());
+
+
+// CONCATENATED MODULE: ./src/common/signature/verification/policy/VerificationPolicy.ts
+var VerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var VerificationPolicy_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var VerificationPolicy_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+/**
+ * Verification policy for KSI signature
+ */
+var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
+    VerificationPolicy_extends(VerificationPolicy, _super);
+    function VerificationPolicy(rule, ruleName) {
+        if (ruleName === void 0) { ruleName = null; }
+        var _this = _super.call(this, ruleName) || this;
+        _this.firstRule = rule;
+        return _this;
+    }
+    VerificationPolicy.prototype.verify = function (context) {
+        return VerificationPolicy_awaiter(this, void 0, void 0, function () {
+            var verificationRule, verificationResults, result, error_1;
+            return VerificationPolicy_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        verificationRule = this.firstRule;
+                        verificationResults = [];
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 5, , 6]);
+                        _a.label = 2;
+                    case 2:
+                        if (!(verificationRule !== null)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, verificationRule.verify(context)];
+                    case 3:
+                        result = _a.sent();
+                        verificationResults.push(result);
+                        verificationRule = verificationRule.getNextRule(result.getResultCode());
+                        return [3 /*break*/, 2];
+                    case 4: return [3 /*break*/, 6];
+                    case 5:
+                        error_1 = _a.sent();
+                        throw error_1;
+                    case 6: return [2 /*return*/, VerificationResult_VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), verificationResults)];
+                }
+            });
+        });
+    };
+    return VerificationPolicy;
+}(VerificationRule_VerificationRule));
 
 
 // CONCATENATED MODULE: ./src/common/signature/verification/VerificationError.ts
@@ -24149,141 +24280,6 @@ var VerificationError = /** @class */ (function () {
 }());
 
 
-// CONCATENATED MODULE: ./src/common/signature/verification/VerificationResult.ts
-
-var VerificationResultCode;
-(function (VerificationResultCode) {
-    VerificationResultCode[VerificationResultCode["OK"] = 0] = "OK";
-    VerificationResultCode[VerificationResultCode["FAIL"] = 1] = "FAIL";
-    VerificationResultCode[VerificationResultCode["NA"] = 2] = "NA";
-})(VerificationResultCode || (VerificationResultCode = {}));
-/**
- * Verification result for KSI signature
- */
-var VerificationResult_VerificationResult = /** @class */ (function () {
-    function VerificationResult(ruleName, resultCode, verificationError, childResults) {
-        if (verificationError === void 0) { verificationError = null; }
-        if (childResults === void 0) { childResults = null; }
-        this.childResults = [];
-        this.ruleName = ruleName;
-        this.resultCode = resultCode;
-        this.verificationError = verificationError || null;
-        if (childResults !== null) {
-            this.childResults = childResults.slice();
-        }
-    }
-    VerificationResult.CREATE_FROM_RESULTS = function (ruleName, childResults) {
-        var lastResult = childResults.length > 0
-            ? childResults[childResults.length - 1]
-            : new VerificationResult(ruleName, VerificationResultCode.OK);
-        return new VerificationResult(ruleName, lastResult.resultCode, lastResult.verificationError, childResults);
-    };
-    VerificationResult.prototype.getResultCode = function () {
-        return this.resultCode;
-    };
-    VerificationResult.prototype.getVerificationError = function () {
-        return this.verificationError;
-    };
-    VerificationResult.prototype.getRuleName = function () {
-        return this.ruleName;
-    };
-    VerificationResult.prototype.getChildResults = function () {
-        return this.childResults.slice();
-    };
-    VerificationResult.prototype.toString = function () {
-        var result = "VerificationResult " + this.getRuleName() + " [" + VerificationResultCode[this.getResultCode()] + "]";
-        if (this.childResults.length > 0) {
-            result += ':\n';
-        }
-        for (var i = 0; i < this.childResults.length; i += 1) {
-            result += tabPrefix(this.childResults[i].toString());
-            if (i < (this.childResults.length - 1)) {
-                result += '\n';
-            }
-        }
-        return result;
-    };
-    return VerificationResult;
-}());
-
-
-// CONCATENATED MODULE: ./src/common/signature/verification/VerificationRule.ts
-
-
-
-/**
- * Verification Rule for KSI Signature
- */
-var VerificationRule_VerificationRule = /** @class */ (function () {
-    function VerificationRule(ruleName) {
-        if (ruleName === void 0) { ruleName = null; }
-        this.ruleName = this.constructor.name;
-        this.onSuccessRule = null;
-        this.onFailureRule = null;
-        this.onNaRule = null;
-        if (ruleName !== null) {
-            this.ruleName = ruleName;
-        }
-    }
-    VerificationRule.getSignature = function (context) {
-        if (!context.getSignature()) {
-            throw new KsiVerificationError('Invalid KSI signature in context: null.');
-        }
-        return context.getSignature();
-    };
-    VerificationRule.getCalendarHashChain = function (signature) {
-        var calendarHashChain = signature.getCalendarHashChain();
-        if (!calendarHashChain) {
-            throw new KsiVerificationError('Calendar hash chain is missing from KSI signature.');
-        }
-        return calendarHashChain;
-    };
-    VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink = function (calendarHashChain) {
-        if (!calendarHashChain) {
-            throw new KsiVerificationError('Invalid calendar hash chain.');
-        }
-        for (var _i = 0, _a = calendarHashChain.getChainLinks(); _i < _a.length; _i++) {
-            var link = _a[_i];
-            if (link.id !== LinkDirection.Left) {
-                continue;
-            }
-            if (link.getValue().hashAlgorithm.isDeprecated(calendarHashChain.getPublicationTime().valueOf())) {
-                return link;
-            }
-        }
-        return null;
-    };
-    VerificationRule.prototype.getRuleName = function () {
-        return this.ruleName;
-    };
-    VerificationRule.prototype.onSuccess = function (rule) {
-        this.onSuccessRule = rule;
-        return this;
-    };
-    VerificationRule.prototype.onFailure = function (rule) {
-        this.onFailureRule = rule;
-        return this;
-    };
-    VerificationRule.prototype.onNa = function (rule) {
-        this.onNaRule = rule;
-        return this;
-    };
-    VerificationRule.prototype.getNextRule = function (resultCode) {
-        switch (resultCode) {
-            case VerificationResultCode.OK:
-                return this.onSuccessRule;
-            case VerificationResultCode.FAIL:
-                return this.onFailureRule;
-            case VerificationResultCode.NA:
-                return this.onNaRule;
-            default:
-                return null;
-        }
-    };
-    return VerificationRule;
-}());
-
-
 // CONCATENATED MODULE: ./src/common/signature/verification/rule/CalendarAuthenticationRecordExistenceRule.ts
 var CalendarAuthenticationRecordExistenceRule_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -24291,7 +24287,7 @@ var CalendarAuthenticationRecordExistenceRule_extends = (undefined && undefined.
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24358,22 +24354,22 @@ var CalendarAuthenticationRecordExistenceRule_CalendarAuthenticationRecordExiste
 }(VerificationRule_VerificationRule));
 
 
-// EXTERNAL MODULE: ./node_modules/node-forge/lib/x509.js
-var x509 = __webpack_require__(20);
+// EXTERNAL MODULE: ./node_modules/@guardtime/gt-js-common/node_modules/node-forge/lib/x509.js
+var x509 = __webpack_require__(19);
 var x509_default = /*#__PURE__*/__webpack_require__.n(x509);
 
-// EXTERNAL MODULE: ./node_modules/node-forge/lib/asn1.js
-var asn1 = __webpack_require__(7);
+// EXTERNAL MODULE: ./node_modules/@guardtime/gt-js-common/node_modules/node-forge/lib/asn1.js
+var asn1 = __webpack_require__(6);
 var asn1_default = /*#__PURE__*/__webpack_require__.n(asn1);
 
-// EXTERNAL MODULE: ./node_modules/node-forge/lib/sha256.js
-var sha256 = __webpack_require__(15);
+// EXTERNAL MODULE: ./node_modules/@guardtime/gt-js-common/node_modules/node-forge/lib/sha256.js
+var sha256 = __webpack_require__(14);
 
-// EXTERNAL MODULE: ./node_modules/node-forge/lib/sha1.js
-var sha1 = __webpack_require__(18);
+// EXTERNAL MODULE: ./node_modules/@guardtime/gt-js-common/node_modules/node-forge/lib/sha1.js
+var sha1 = __webpack_require__(17);
 
-// EXTERNAL MODULE: ./node_modules/node-forge/lib/md.js
-var md = __webpack_require__(4);
+// EXTERNAL MODULE: ./node_modules/@guardtime/gt-js-common/node_modules/node-forge/lib/md.js
+var md = __webpack_require__(3);
 var md_default = /*#__PURE__*/__webpack_require__.n(md);
 
 // CONCATENATED MODULE: ./node_modules/@guardtime/gt-js-common/lib/hash/SyncDataHasher.js
@@ -24536,7 +24532,7 @@ var CalendarAuthenticationRecordSignatureVerificationRule_extends = (undefined &
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24649,7 +24645,7 @@ var CalendarHashChainAlgorithmDeprecatedRule_extends = (undefined && undefined._
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24734,7 +24730,7 @@ var CalendarHashChainExistenceRule_extends = (undefined && undefined.__extends) 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24808,7 +24804,7 @@ var CertificateExistenceRule_extends = (undefined && undefined.__extends) || (fu
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24893,7 +24889,7 @@ var AggregationHashChainAlgorithmDeprecatedRule_extends = (undefined && undefine
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -24975,7 +24971,7 @@ var AggregationHashChainConsistencyRule_extends = (undefined && undefined.__exte
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25075,7 +25071,7 @@ var AggregationHashChainIndexSuccessorRule_extends = (undefined && undefined.__e
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25167,7 +25163,7 @@ var AggregationHashChainMetadataRule_extends = (undefined && undefined.__extends
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25297,7 +25293,7 @@ var AggregationHashChainShapeRule_extends = (undefined && undefined.__extends) |
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25382,7 +25378,7 @@ var AggregationHashChainTimeConsistencyRule_extends = (undefined && undefined.__
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25469,7 +25465,7 @@ var CalendarAuthenticationRecordAggregationHashRule_extends = (undefined && unde
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25559,7 +25555,7 @@ var CalendarAuthenticationRecordPublicationTimeRule_extends = (undefined && unde
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25644,7 +25640,7 @@ var CalendarHashChainAggregationTimeRule_extends = (undefined && undefined.__ext
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25725,7 +25721,7 @@ var CalendarHashChainAlgorithmObsoleteRule_extends = (undefined && undefined.__e
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25815,7 +25811,7 @@ var CalendarHashChainInputHashVerificationRule_extends = (undefined && undefined
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25899,7 +25895,7 @@ var CalendarHashChainRegistrationTimeRule_extends = (undefined && undefined.__ex
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -25979,7 +25975,7 @@ var DocumentHashLevelVerificationRule_extends = (undefined && undefined.__extend
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26060,7 +26056,7 @@ var DocumentHashVerificationRule_extends = (undefined && undefined.__extends) ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26144,7 +26140,7 @@ var InputHashAlgorithmDeprecatedRule_extends = (undefined && undefined.__extends
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26224,7 +26220,7 @@ var InputHashAlgorithmVerificationRule_extends = (undefined && undefined.__exten
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26308,7 +26304,7 @@ var Rfc3161RecordAggregationTimeRule_extends = (undefined && undefined.__extends
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26391,7 +26387,7 @@ var Rfc3161RecordChainIndexRule_extends = (undefined && undefined.__extends) || 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26478,7 +26474,7 @@ var Rfc3161RecordHashAlgorithmDeprecatedRule_extends = (undefined && undefined._
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26568,7 +26564,7 @@ var Rfc3161RecordOutputHashAlgorithmDeprecatedRule_extends = (undefined && undef
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26653,7 +26649,7 @@ var Rfc3161RecordOutputHashVerificationRule_extends = (undefined && undefined.__
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26744,7 +26740,7 @@ var SignaturePublicationRecordExistenceRule_extends = (undefined && undefined.__
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26818,7 +26814,7 @@ var SignaturePublicationRecordPublicationHashRule_extends = (undefined && undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26908,7 +26904,7 @@ var SignaturePublicationRecordPublicationTimeRule_extends = (undefined && undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -26993,7 +26989,7 @@ var SuccessResultRule_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27056,101 +27052,6 @@ var SuccessResultRule_SuccessResultRule = /** @class */ (function (_super) {
 }(VerificationRule_VerificationRule));
 
 
-// CONCATENATED MODULE: ./src/common/signature/verification/policy/VerificationPolicy.ts
-var VerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var VerificationPolicy_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var VerificationPolicy_generator = (undefined && undefined.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-
-
-/**
- * Verification policy for KSI signature
- */
-var VerificationPolicy_VerificationPolicy = /** @class */ (function (_super) {
-    VerificationPolicy_extends(VerificationPolicy, _super);
-    function VerificationPolicy(rule, ruleName) {
-        if (ruleName === void 0) { ruleName = null; }
-        var _this = _super.call(this, ruleName) || this;
-        _this.firstRule = rule;
-        return _this;
-    }
-    VerificationPolicy.prototype.verify = function (context) {
-        return VerificationPolicy_awaiter(this, void 0, void 0, function () {
-            var verificationRule, verificationResults, result, error_1;
-            return VerificationPolicy_generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        verificationRule = this.firstRule;
-                        verificationResults = [];
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 5, , 6]);
-                        _a.label = 2;
-                    case 2:
-                        if (!(verificationRule !== null)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, verificationRule.verify(context)];
-                    case 3:
-                        result = _a.sent();
-                        verificationResults.push(result);
-                        verificationRule = verificationRule.getNextRule(result.getResultCode());
-                        return [3 /*break*/, 2];
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
-                        error_1 = _a.sent();
-                        throw error_1;
-                    case 6: return [2 /*return*/, VerificationResult_VerificationResult.CREATE_FROM_RESULTS(this.getRuleName(), verificationResults)];
-                }
-            });
-        });
-    };
-    return VerificationPolicy;
-}(VerificationRule_VerificationRule));
-
-
 // CONCATENATED MODULE: ./src/common/signature/verification/policy/InternalVerificationPolicy.ts
 var InternalVerificationPolicy_extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -27158,7 +27059,7 @@ var InternalVerificationPolicy_extends = (undefined && undefined.__extends) || (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27258,7 +27159,7 @@ var KeyBasedVerificationPolicy_extends = (undefined && undefined.__extends) || (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27302,7 +27203,7 @@ var UserProvidedPublicationExistenceRule_extends = (undefined && undefined.__ext
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27376,7 +27277,7 @@ var ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule_extends = (undefine
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27489,7 +27390,7 @@ var ExtendingPermittedVerificationRule_extends = (undefined && undefined.__exten
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27563,7 +27464,7 @@ var PublicationsFileExtendedSignatureInputHashRule_extends = (undefined && undef
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27666,7 +27567,7 @@ var PublicationsFilePublicationHashMatchesExtenderResponseRule_extends = (undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27767,7 +27668,7 @@ var PublicationsFilePublicationTimeMatchesExtenderResponseRule_extends = (undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27871,7 +27772,7 @@ var PublicationsFileSignaturePublicationMatchRule_extends = (undefined && undefi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -27961,7 +27862,7 @@ var PublicationsFileVerificationPolicy_extends = (undefined && undefined.__exten
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28009,7 +27910,7 @@ var UserProvidedPublicationCreationTimeVerificationRule_extends = (undefined && 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28090,7 +27991,7 @@ var UserProvidedPublicationExtendedSignatureInputHashRule_extends = (undefined &
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28187,7 +28088,7 @@ var UserProvidedPublicationHashMatchesExtendedResponseRule_extends = (undefined 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28281,7 +28182,7 @@ var UserProvidedPublicationTimeMatchesExtendedResponseRule_extends = (undefined 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28381,7 +28282,7 @@ var UserProvidedPublicationVerificationRule_extends = (undefined && undefined.__
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28472,7 +28373,7 @@ var UserProvidedPublicationBasedVerificationPolicy_extends = (undefined && undef
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28522,7 +28423,7 @@ var PublicationBasedVerificationPolicy_extends = (undefined && undefined.__exten
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28556,7 +28457,7 @@ var ExtendedSignatureCalendarChainAggregationTimeRule_extends = (undefined && un
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28657,7 +28558,7 @@ var ExtendedSignatureCalendarChainInputHashRule_extends = (undefined && undefine
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28758,7 +28659,7 @@ var ExtendedSignatureCalendarChainRootHashRule_extends = (undefined && undefined
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28858,7 +28759,7 @@ var ExtendedSignatureCalendarHashChainRightLinksMatchRule_extends = (undefined &
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28952,7 +28853,7 @@ var CalendarBasedVerificationPolicy_extends = (undefined && undefined.__extends)
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -28997,7 +28898,7 @@ var DefaultVerificationPolicy_extends = (undefined && undefined.__extends) || (f
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29027,7 +28928,7 @@ var KsiServiceError_extends = (undefined && undefined.__extends) || (function ()
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29147,7 +29048,7 @@ var AggregationRequestPayload_extends = (undefined && undefined.__extends) || (f
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29218,7 +29119,7 @@ var PduPayload_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29245,7 +29146,7 @@ var AggregatorConfigRequestPayload_extends = (undefined && undefined.__extends) 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29298,7 +29199,7 @@ var ResponsePayload_extends = (undefined && undefined.__extends) || (function ()
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29356,7 +29257,7 @@ var ErrorPayload_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29383,7 +29284,7 @@ var PduHeader_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29447,7 +29348,7 @@ var Pdu_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29575,7 +29476,7 @@ var AggregationRequestPdu_extends = (undefined && undefined.__extends) || (funct
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29676,7 +29577,7 @@ var AggregationErrorPayload_extends = (undefined && undefined.__extends) || (fun
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29703,7 +29604,7 @@ var RequestResponsePayload_extends = (undefined && undefined.__extends) || (func
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29750,7 +29651,7 @@ var AggregationResponsePayload_extends = (undefined && undefined.__extends) || (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29809,7 +29710,7 @@ var AggregatorConfigResponsePayload_extends = (undefined && undefined.__extends)
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -29879,7 +29780,7 @@ var AggregationResponsePdu_extends = (undefined && undefined.__extends) || (func
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30068,7 +29969,7 @@ var ExtendRequestPayload_extends = (undefined && undefined.__extends) || (functi
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30138,7 +30039,7 @@ var ExtenderConfigRequestPayload_extends = (undefined && undefined.__extends) ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30165,7 +30066,7 @@ var ExtendRequestPdu_extends = (undefined && undefined.__extends) || (function (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30266,7 +30167,7 @@ var ExtenderConfigResponsePayload_extends = (undefined && undefined.__extends) |
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30331,7 +30232,7 @@ var ExtendErrorPayload_extends = (undefined && undefined.__extends) || (function
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30358,7 +30259,7 @@ var ExtendResponsePayload_extends = (undefined && undefined.__extends) || (funct
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30415,7 +30316,7 @@ var ExtendResponsePdu_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30687,7 +30588,7 @@ var CertificateRecord_extends = (undefined && undefined.__extends) || (function 
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30746,7 +30647,7 @@ var PublicationsFileError_extends = (undefined && undefined.__extends) || (funct
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30775,7 +30676,7 @@ var PublicationsFileHeader_extends = (undefined && undefined.__extends) || (func
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -30844,7 +30745,7 @@ var PublicationsFile_extends = (undefined && undefined.__extends) || (function (
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -31039,6 +30940,7 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
 
 
 
+
 // CONCATENATED MODULE: ./src/web/service/KsiHttpProtocol.ts
 var KsiHttpProtocol_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -31192,7 +31094,7 @@ var KsiRequest_extends = (undefined && undefined.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -31231,7 +31133,7 @@ var SigningServiceProtocol_extends = (undefined && undefined.__extends) || (func
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -31263,7 +31165,7 @@ var ExtendingServiceProtocol_extends = (undefined && undefined.__extends) || (fu
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -31295,7 +31197,7 @@ var PublicationsFileServiceProtocol_extends = (undefined && undefined.__extends)
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    };
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -31372,6 +31274,7 @@ var PublicationsFileServiceProtocol = /** @class */ (function (_super) {
 /* concated harmony reexport DataHasher */__webpack_require__.d(__webpack_exports__, "DataHasher", function() { return DataHasher_DataHasher; });
 /* concated harmony reexport KsiSignature */__webpack_require__.d(__webpack_exports__, "KsiSignature", function() { return KsiSignature_KsiSignature; });
 /* concated harmony reexport VerificationContext */__webpack_require__.d(__webpack_exports__, "VerificationContext", function() { return VerificationContext_VerificationContext; });
+/* concated harmony reexport VerificationPolicy */__webpack_require__.d(__webpack_exports__, "VerificationPolicy", function() { return VerificationPolicy_VerificationPolicy; });
 /* concated harmony reexport KeyBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "KeyBasedVerificationPolicy", function() { return KeyBasedVerificationPolicy_KeyBasedVerificationPolicy; });
 /* concated harmony reexport PublicationBasedVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationBasedVerificationPolicy", function() { return PublicationBasedVerificationPolicy_PublicationBasedVerificationPolicy; });
 /* concated harmony reexport PublicationsFileVerificationPolicy */__webpack_require__.d(__webpack_exports__, "PublicationsFileVerificationPolicy", function() { return PublicationsFileVerificationPolicy_PublicationsFileVerificationPolicy; });
