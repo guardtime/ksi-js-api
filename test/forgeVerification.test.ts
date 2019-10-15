@@ -4,6 +4,9 @@ import {PublicationsFileServiceProtocol} from '../src/nodejs/service/Publication
 var forge = require('../../forge-pr');
 import {ASCIIConverter} from 'gt-js-common';
 
+// var common = require('../../gt-js-common');
+// var CMSVerification = common.CMSVerification;
+
 const crypto = require('crypto');
 var util = forge.util;
 var asn1 = forge.asn1;
@@ -35,8 +38,7 @@ test('example pub file receiving', (done) => {
             var verified = signature.verify(pki.createCaStore([certificate]));
 
             //testing js-common
-            // var verifiedCommon = CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes());
-            // expect(verifiedCommon).toEqual(true);
+            var verifiedCommon = CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes());
 
 
             var certChain2 =   "-----BEGIN CERTIFICATE-----\n" +
@@ -123,8 +125,24 @@ test('example pub file receiving', (done) => {
 
 
             expect(verified).toEqual(true);
+            expect(verifiedCommon).toEqual(true);
             expect(P7verified).toEqual(true);
 
             done();
         });
 });
+
+class CMSVerification {
+    static verify(signatureValue: Uint8Array, signedBytes: Uint8Array){
+        var signatureValueAscii = ASCIIConverter.ToString(signatureValue);
+        var signatureBuffer = util.createBuffer(signatureValueAscii);
+        var signatureinAsn1 = asn1.fromDer(signatureBuffer);
+        var signature = pkcs7.messageFromAsn1(signatureinAsn1);
+        signature.content = util.createBuffer(signedBytes);
+        // @todo: better way to get a certificate;
+        var certificateRaw = signature.certificates[1];
+        var certificate = pki.certificateToPem(certificateRaw);
+        var verified = signature.verify(pki.createCaStore([certificate]));
+        return verified;
+    }
+}
