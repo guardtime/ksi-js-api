@@ -1,8 +1,8 @@
 import {PublicationsFileService} from '../src/common/main';
 import {PublicationsFileFactory} from '../src/common/publication/PublicationsFileFactory';
 import {PublicationsFileServiceProtocol} from '../src/nodejs/service/PublicationsFileServiceProtocol';
-var forge = require('../../forge-pr');
-import {ASCIIConverter} from 'gt-js-common';
+import forge from 'node-forge';
+import {ASCIIConverter, CMSVerification} from 'gt-js-common';
 
 // var common = require('../../gt-js-common');
 // var CMSVerification = common.CMSVerification;
@@ -38,7 +38,7 @@ test('example pub file receiving', (done) => {
             var verified = signature.verify(pki.createCaStore([certificate]));
 
             //testing js-common
-            var verifiedCommon = CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes());
+            var verifiedCommon = CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes(), [certificate]);
 
 
             var certChain2 =   "-----BEGIN CERTIFICATE-----\n" +
@@ -132,17 +132,17 @@ test('example pub file receiving', (done) => {
         });
 });
 
-class CMSVerification {
-    static verify(signatureValue: Uint8Array, signedBytes: Uint8Array){
-        var signatureValueAscii = ASCIIConverter.ToString(signatureValue);
-        var signatureBuffer = util.createBuffer(signatureValueAscii);
-        var signatureinAsn1 = asn1.fromDer(signatureBuffer);
-        var signature = pkcs7.messageFromAsn1(signatureinAsn1);
-        signature.content = util.createBuffer(signedBytes);
-        // @todo: better way to get a certificate;
-        var certificateRaw = signature.certificates[1];
-        var certificate = pki.certificateToPem(certificateRaw);
-        var verified = signature.verify(pki.createCaStore([certificate]));
-        return verified;
-    }
-}
+// class CMSVerification {
+//     static verify(signatureValue: Uint8Array, signedBytes: Uint8Array){
+//         var signatureValueAscii = ASCIIConverter.ToString(signatureValue);
+//         var signatureBuffer = util.createBuffer(signatureValueAscii);
+//         var signatureinAsn1 = asn1.fromDer(signatureBuffer);
+//         var signature = pkcs7.messageFromAsn1(signatureinAsn1);
+//         signature.content = util.createBuffer(signedBytes);
+//         // @todo: better way to get a certificate;
+//         var certificateRaw = signature.certificates[1];
+//         var certificate = pki.certificateToPem(certificateRaw);
+//         var verified = signature.verify(pki.createCaStore([certificate]));
+//         return verified;
+//     }
+// }

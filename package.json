@@ -41,9 +41,10 @@
   },
   "peerDependencies": {
     "big-integer": "^1.6.36",
-    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#typescript",
-    "node-forge": "git+ssh://git@github.com/guardtime/forge.git",
-    "uuid": "^3.3.2"
+    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#publicationFileSignatureVerify",
+    "node-forge": "git+ssh://git@github.com/roysjosh/forge.git",
+    "uuid": "^3.3.2",
+    "forge-pr": "file:../forge-pr"
   },
   "devDependencies": {
     "@types/csv-parse": "^1.1.11",
@@ -54,9 +55,9 @@
     "babel-preset-env": "^1.7.0",
     "big-integer": "^1.6.36",
     "csv-parse": "^3.2.0",
-    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#typescript",
+    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#publicationFileSignatureVerify",
     "jest": "^23.6.0",
-    "node-forge": "^0.7.6",
+    "node-forge": "git+ssh://git@github.com/roysjosh/forge.git",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.4",
     "ts-loader": "^5.2.2",
@@ -65,6 +66,7 @@
     "typescript": "^3.1.4",
     "webpack": "^4.23.1",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.10"
+    "webpack-dev-server": "^3.1.10",
+    "forge-pr": "file:../forge-pr"
   }
 }
