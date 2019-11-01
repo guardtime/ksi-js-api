@@ -42,7 +42,7 @@
   "peerDependencies": {
     "big-integer": "^1.6.36",
     "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#publicationFileSignatureVerify",
-    "node-forge": "git+ssh://git@github.com/roysjosh/forge.git",
+    "node-forge": "git+ssh://git@github.com:roysjosh/forge.git#ImplementPkcs7Verify",
     "uuid": "^3.3.2",
     "forge-pr": "file:../forge-pr"
   },
@@ -57,7 +57,7 @@
     "csv-parse": "^3.2.0",
     "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#publicationFileSignatureVerify",
     "jest": "^23.6.0",
-    "node-forge": "git+ssh://git@github.com/roysjosh/forge.git",
+    "node-forge": "git+ssh://git@github.com:roysjosh/forge.git#ImplementPkcs7Verify",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.4",
     "ts-loader": "^5.2.2",
