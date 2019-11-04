@@ -13,6 +13,7 @@ export class PublicationBasedVerificationPolicy extends VerificationPolicy {
         super(new InternalVerificationPolicy()
             .onSuccess(new UserProvidedPublicationExistenceRule() // Gen-02
                 .onSuccess(new UserProvidedPublicationBasedVerificationPolicy()) // Gen-02
-                .onNa(new PublicationsFileVerificationPolicy())));
+                .onNa(new PublicationsFileVerificationPolicy())),
+            "PublicationBasedVerificationPolicy");
     }
 }

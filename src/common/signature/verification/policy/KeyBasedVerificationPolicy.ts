@@ -23,6 +23,6 @@ export class KeyBasedVerificationPolicy extends VerificationPolicy {
             verificationRule = new InternalVerificationPolicy().onSuccess(verificationRule);
         }
 
-        super(verificationRule);
+        super(verificationRule, "KeyBasedVerificationPolicy");
     }
 }

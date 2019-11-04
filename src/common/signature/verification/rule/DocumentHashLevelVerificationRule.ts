@@ -11,6 +11,10 @@ import {VerificationRule} from '../VerificationRule';
  * If the level is equal to or less than expected then VerificationResultCode.Ok is returned.
  */
 export class DocumentHashLevelVerificationRule extends VerificationRule {
+    constructor() {
+        super("DocumentHashLevelVerificationRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const levelCorrection: bigInteger.BigInteger = signature.getRfc3161Record() !== null

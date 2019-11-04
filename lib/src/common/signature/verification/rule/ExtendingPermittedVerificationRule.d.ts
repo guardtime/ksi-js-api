@@ -5,5 +5,6 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that extending is permitted by user.
  */
 export declare class ExtendingPermittedVerificationRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

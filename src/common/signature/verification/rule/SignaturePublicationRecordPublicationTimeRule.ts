@@ -12,6 +12,10 @@ import {VerificationRule} from '../VerificationRule';
  * If publication record is missing, VerificationResultCode.Ok is returned.
  */
 export class SignaturePublicationRecordPublicationTimeRule extends VerificationRule {
+    constructor() {
+        super("SignaturePublicationRecordPublicationTimeRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const publicationRecord: PublicationRecord | null = signature.getPublicationRecord();

@@ -6,5 +6,6 @@ import { VerificationRule } from '../VerificationRule';
  * Without calendar authentication record <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export declare class CalendarHashChainAggregationTimeRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

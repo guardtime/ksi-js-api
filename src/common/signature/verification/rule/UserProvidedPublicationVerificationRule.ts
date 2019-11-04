@@ -11,6 +11,10 @@ import {VerificationRule} from '../VerificationRule';
  * Rule checks that user provided publication equals to publication in KSI signature.
  */
 export class UserProvidedPublicationVerificationRule extends VerificationRule {
+    constructor() {
+        super("UserProvidedPublicationVerificationRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const userPublication: PublicationData | null = context.getUserPublication();

@@ -6,5 +6,6 @@ import { VerificationRule } from '../VerificationRule';
  * equals to current aggregation hash chain input hash.
  */
 export declare class AggregationHashChainConsistencyRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

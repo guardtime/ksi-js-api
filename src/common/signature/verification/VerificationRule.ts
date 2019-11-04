@@ -10,15 +10,13 @@ import {VerificationResult, VerificationResultCode} from './VerificationResult';
  * Verification Rule for KSI Signature
  */
 export abstract class VerificationRule {
-    private readonly ruleName: string = this.constructor.name;
     private onSuccessRule: VerificationRule | null = null;
     private onFailureRule: VerificationRule | null = null;
     private onNaRule: VerificationRule | null = null;
+    private readonly ruleName: string;
 
-    protected constructor(ruleName: string | null = null) {
-        if (ruleName !== null) {
-            this.ruleName = ruleName;
-        }
+    protected constructor(ruleName: string) {
+        this.ruleName = ruleName;
     }
 
     protected static getSignature(context: VerificationContext): KsiSignature {

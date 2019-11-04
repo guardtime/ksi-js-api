@@ -6,5 +6,6 @@ import { VerificationRule } from '../VerificationRule';
  * If publication record is missing, VerificationResultCode.Ok is returned.
  */
 export declare class SignaturePublicationRecordPublicationHashRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

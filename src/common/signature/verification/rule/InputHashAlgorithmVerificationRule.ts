@@ -11,6 +11,10 @@ import {VerificationRule} from '../VerificationRule';
  * If input hash is not provided then <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export class InputHashAlgorithmVerificationRule extends VerificationRule {
+    constructor() {
+        super("InputHashAlgorithmVerificationRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const documentHash: DataHash | null = context.getDocumentHash();

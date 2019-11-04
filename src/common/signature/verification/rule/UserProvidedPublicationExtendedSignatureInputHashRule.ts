@@ -11,6 +11,10 @@ import {VerificationRule} from '../VerificationRule';
  * Rule checks that extender response input hash equals to signature aggregation root hash.
  */
 export class UserProvidedPublicationExtendedSignatureInputHashRule extends VerificationRule {
+    constructor() {
+        super("UserProvidedPublicationExtendedSignatureInputHashRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const userPublication: PublicationData | null = context.getUserPublication();

@@ -7,5 +7,6 @@ import { VerificationRule } from '../VerificationRule';
  * does not contain calendar hash chain, VerificationResultCode.Ok is returned.
  */
 export declare class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

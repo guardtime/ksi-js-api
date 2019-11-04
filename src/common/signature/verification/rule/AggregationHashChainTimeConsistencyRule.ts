@@ -11,6 +11,10 @@ import {VerificationRule} from '../VerificationRule';
  * aggregation time equals to current one.
  */
 export class AggregationHashChainTimeConsistencyRule extends VerificationRule {
+    constructor() {
+        super("AggregationHashChainTimeConsistencyRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();

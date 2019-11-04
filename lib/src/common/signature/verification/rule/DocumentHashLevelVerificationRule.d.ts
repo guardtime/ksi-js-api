@@ -7,5 +7,6 @@ import { VerificationRule } from '../VerificationRule';
  * If the level is equal to or less than expected then VerificationResultCode.Ok is returned.
  */
 export declare class DocumentHashLevelVerificationRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

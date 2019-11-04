@@ -6,5 +6,6 @@ import { VerificationRule } from '../VerificationRule';
  * Without calendar authentication record VerificationResultCode.Ok is returned.
  */
 export declare class CalendarAuthenticationRecordAggregationHashRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

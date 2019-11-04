@@ -13,6 +13,10 @@ import {VerificationRule} from '../VerificationRule';
  * does not contain calendar hash chain, VerificationResultCode.Ok is returned.
  */
 export class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule {
+    constructor() {
+        super("ExtendedSignatureCalendarChainRootHashRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();

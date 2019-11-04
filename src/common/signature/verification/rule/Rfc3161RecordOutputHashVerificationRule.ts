@@ -11,6 +11,10 @@ import {VerificationRule} from '../VerificationRule';
  * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export class Rfc3161RecordOutputHashVerificationRule extends VerificationRule {
+    constructor() {
+        super("Rfc3161RecordOutputHashVerificationRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const rfc3161Record: Rfc3161Record | null = signature.getRfc3161Record();

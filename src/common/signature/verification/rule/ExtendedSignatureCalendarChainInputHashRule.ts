@@ -10,6 +10,10 @@ import {VerificationRule} from '../VerificationRule';
  * Extended signature calendar hash chain input hash rule
  */
 export class ExtendedSignatureCalendarChainInputHashRule extends VerificationRule {
+    constructor() {
+        super("ExtendedSignatureCalendarChainInputHashRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();

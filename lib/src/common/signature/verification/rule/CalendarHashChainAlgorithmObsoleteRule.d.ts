@@ -6,5 +6,6 @@ import { VerificationRule } from '../VerificationRule';
  * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
  */
 export declare class CalendarHashChainAlgorithmObsoleteRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

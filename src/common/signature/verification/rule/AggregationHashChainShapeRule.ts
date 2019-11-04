@@ -10,6 +10,10 @@ import {VerificationRule} from '../VerificationRule';
  * Rule checks that shape of the aggregation hash chain matches with chain index.
  */
 export class AggregationHashChainShapeRule extends VerificationRule {
+    constructor() {
+        super("AggregationHashChainShapeRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
