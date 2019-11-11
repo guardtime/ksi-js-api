@@ -10,6 +10,10 @@ import {VerificationRule} from '../VerificationRule';
  * to calendar hash chain aggregation time. If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
  */
 export class CalendarHashChainRegistrationTimeRule extends VerificationRule {
+    constructor() {
+        super("CalendarHashChainRegistrationTimeRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();

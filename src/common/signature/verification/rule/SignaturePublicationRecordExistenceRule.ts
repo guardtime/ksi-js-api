@@ -8,6 +8,10 @@ import {VerificationRule} from '../VerificationRule';
  * Rule checks if KSI signature contains publication record.
  */
 export class SignaturePublicationRecordExistenceRule extends VerificationRule {
+    constructor() {
+        super("SignaturePublicationRecordExistenceRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         return context.getSignature().getPublicationRecord() === null
             ? new VerificationResult(

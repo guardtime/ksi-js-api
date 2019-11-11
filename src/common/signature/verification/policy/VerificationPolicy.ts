@@ -9,7 +9,7 @@ export class VerificationPolicy extends VerificationRule {
     private readonly firstRule: VerificationRule;
 
     constructor(rule: VerificationRule, ruleName: string | null = null) {
-        super(ruleName);
+        super(ruleName ? ruleName : "VerificationPolicy");
 
         this.firstRule = rule;
     }

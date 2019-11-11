@@ -26,7 +26,8 @@ export class PublicationsFileVerificationPolicy extends VerificationPolicy {
             .onSuccess(new PublicationsFileSignaturePublicationMatchRule() // Pub-05, Gen-02
                 .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule()) // Gen-02
                 .onNa(verificationRule))
-            .onNa(verificationRule));
+            .onNa(verificationRule),
+            "PublicationsFileVerificationPolicy");
 
     }
 }

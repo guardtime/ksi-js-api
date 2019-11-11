@@ -11,6 +11,10 @@ import {VerificationRule} from '../VerificationRule';
  * Rule checks if publications file and signature publication record match.
  */
 export class PublicationsFileSignaturePublicationMatchRule extends VerificationRule {
+    constructor() {
+        super("PublicationsFileSignaturePublicationMatchRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
         if (publicationsFile === null) {

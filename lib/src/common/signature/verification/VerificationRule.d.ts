@@ -7,11 +7,11 @@ import { VerificationResult, VerificationResultCode } from './VerificationResult
  * Verification Rule for KSI Signature
  */
 export declare abstract class VerificationRule {
-    private readonly ruleName;
     private onSuccessRule;
     private onFailureRule;
     private onNaRule;
-    protected constructor(ruleName?: string | null);
+    private readonly ruleName;
+    protected constructor(ruleName: string);
     protected static getSignature(context: VerificationContext): KsiSignature;
     protected static getCalendarHashChain(signature: KsiSignature): CalendarHashChain;
     protected static getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain: CalendarHashChain): ImprintTag | null;

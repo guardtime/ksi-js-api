@@ -6,5 +6,6 @@ import { VerificationRule } from '../VerificationRule';
  * aggregation time equals to current one.
  */
 export declare class AggregationHashChainTimeConsistencyRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

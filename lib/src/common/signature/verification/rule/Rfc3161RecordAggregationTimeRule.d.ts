@@ -6,5 +6,6 @@ import { VerificationRule } from '../VerificationRule';
  * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export declare class Rfc3161RecordAggregationTimeRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

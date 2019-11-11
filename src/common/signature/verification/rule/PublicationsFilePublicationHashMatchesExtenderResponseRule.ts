@@ -12,6 +12,10 @@ import {VerificationRule} from '../VerificationRule';
  * Rule checks that publications file publication hash matches with extender response calendar hash chain root hash.
  */
 export class PublicationsFilePublicationHashMatchesExtenderResponseRule extends VerificationRule {
+    constructor() {
+        super("PublicationsFilePublicationHashMatchesExtenderResponseRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
         if (publicationsFile === null) {

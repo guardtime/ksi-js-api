@@ -9,6 +9,10 @@ import {VerificationRule} from '../VerificationRule';
  * Verifies that aggregation hash chains use hash algorithms that were not deprecated at the aggregation time.
  */
 export class AggregationHashChainAlgorithmDeprecatedRule extends VerificationRule {
+    constructor() {
+        super("AggregationHashChainAlgorithmDeprecatedRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();

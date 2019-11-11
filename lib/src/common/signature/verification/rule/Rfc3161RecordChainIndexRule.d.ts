@@ -6,5 +6,6 @@ import { VerificationRule } from '../VerificationRule';
  * If RFC3161 record is not present then VerificationResultCode.Ok is returned.
  */
 export declare class Rfc3161RecordChainIndexRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

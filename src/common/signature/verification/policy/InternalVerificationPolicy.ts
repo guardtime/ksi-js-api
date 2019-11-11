@@ -54,7 +54,8 @@ export class InternalVerificationPolicy extends VerificationPolicy {
                                                     // No publication record
                                                     .onNa(new SuccessResultRule()))))
                                 // No calendar hash chain
-                                .onNa(new SuccessResultRule())))));
+                                .onNa(new SuccessResultRule())))),
+            "InternalVerificationPolicy");
     }
 
     private static verifyInput(): VerificationRule {

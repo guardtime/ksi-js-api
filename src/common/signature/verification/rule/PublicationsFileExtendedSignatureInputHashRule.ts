@@ -12,6 +12,10 @@ import {VerificationRule} from '../VerificationRule';
  * Rule checks that extender response calendar hash chain input hash matches with signature aggregation root hash.
  */
 export class PublicationsFileExtendedSignatureInputHashRule extends VerificationRule {
+    constructor() {
+        super("PublicationsFileExtendedSignatureInputHashRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const publicationsFile: PublicationsFile | null = context.getPublicationsFile();

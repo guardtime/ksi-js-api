@@ -7,5 +7,6 @@ import { VerificationRule } from '../VerificationRule';
  * If document hash is not provided then VerificationResultCode.Ok is returned.
  */
 export declare class DocumentHashVerificationRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

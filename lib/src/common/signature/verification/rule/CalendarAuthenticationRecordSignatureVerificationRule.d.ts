@@ -7,5 +7,6 @@ import { VerificationRule } from '../VerificationRule';
  * signature in calendar authentication record.
  */
 export declare class CalendarAuthenticationRecordSignatureVerificationRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

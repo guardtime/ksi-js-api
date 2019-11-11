@@ -11,6 +11,10 @@ import {VerificationRule} from '../VerificationRule';
  * If document hash is not provided then VerificationResultCode.Ok is returned.
  */
 export class DocumentHashVerificationRule extends VerificationRule {
+    constructor() {
+        super("DocumentHashVerificationRule");
+    }
+
     public async verify(context: VerificationContext): Promise<VerificationResult> {
         const signature: KsiSignature = context.getSignature();
         const documentHash: DataHash | null = context.getDocumentHash();

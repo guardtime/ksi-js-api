@@ -7,5 +7,6 @@ import { VerificationRule } from '../VerificationRule';
  * If input hash is not provided then <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export declare class InputHashAlgorithmVerificationRule extends VerificationRule {
+    constructor();
     verify(context: VerificationContext): Promise<VerificationResult>;
 }

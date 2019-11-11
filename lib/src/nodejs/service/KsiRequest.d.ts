@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { EventEmitter } from 'events';
 import { KsiRequestBase } from '../../common/service/KsiRequestBase';
 import { PduPayload } from '../../common/service/PduPayload';

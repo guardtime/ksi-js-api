@@ -29,6 +29,7 @@ export class UserProvidedPublicationBasedVerificationPolicy extends Verification
                 .onSuccess(new UserProvidedPublicationVerificationRule() // Pub-04, Gen-02
                     .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule()) // Gen-02
                     .onNa(verificationRule))
-                .onNa(verificationRule))); // Pub-03
+                .onNa(verificationRule)),
+            "UserProvidedPublicationBasedVerificationPolicy"); // Pub-03
     }
 }

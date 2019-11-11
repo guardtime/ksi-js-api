@@ -10,6 +10,7 @@ export class DefaultVerificationPolicy extends VerificationPolicy {
     constructor() {
         super(
             new PublicationBasedVerificationPolicy()
-                .onNa(new KeyBasedVerificationPolicy(true)));
+                .onNa(new KeyBasedVerificationPolicy(true)),
+            "DefaultVerificationPolicy");
     }
 }
