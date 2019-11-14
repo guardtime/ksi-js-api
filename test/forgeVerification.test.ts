@@ -1,17 +1,7 @@
 import {PublicationsFileService} from '../src/common/main';
 import {PublicationsFileFactory} from '../src/common/publication/PublicationsFileFactory';
 import {PublicationsFileServiceProtocol} from '../src/nodejs/service/PublicationsFileServiceProtocol';
-import forge from 'node-forge';
-import {ASCIIConverter, CMSVerification} from 'gt-js-common';
-
-// var common = require('../../gt-js-common');
-// var CMSVerification = common.CMSVerification;
-
-const crypto = require('crypto');
-var util = forge.util;
-var asn1 = forge.asn1;
-var pkcs7 = forge.pkcs7;
-var pki = forge.pki;
+import {CMSVerification} from 'gt-js-common';
 
 const CONFIG = {
     PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin'
@@ -26,22 +16,50 @@ test('example pub file receiving', (done) => {
 
     pubFileService.getPublicationsFile()
         .then(pubFile => {
-            //Verifing the pubFile
-            var signatureValueAscii = ASCIIConverter.ToString(pubFile.getSignatureValue());
-            var signatureBuffer = util.createBuffer(signatureValueAscii);
-            var signatureinAsn1 = asn1.fromDer(signatureBuffer);
-            var signature = pkcs7.messageFromAsn1(signatureinAsn1);
-            signature.content = util.createBuffer(pubFile.getSignedBytes());
-            // @todo: better way to get a certificate;
-            var certificateRaw = signature.certificates[1];
-            var certificate = pki.certificateToPem(certificateRaw);
-            var verified = signature.verify(pki.createCaStore([certificate]));
 
+            const ksiCert = "-----BEGIN CERTIFICATE-----\n" +
+                "MIIGkTCCBHmgAwIBAgIRAPneVn/JTQx3cPlgG1LaFTswDQYJKoZIhvcNAQELBQAw\n" +
+                "SjELMAkGA1UEBhMCVVMxEjAQBgNVBAoTCUlkZW5UcnVzdDEnMCUGA1UEAxMeSWRl\n" +
+                "blRydXN0IENvbW1lcmNpYWwgUm9vdCBDQSAxMB4XDTE1MDIxODIyMjUxOVoXDTIz\n" +
+                "MDIxODIyMjUxOVowOjELMAkGA1UEBhMCVVMxEjAQBgNVBAoTCUlkZW5UcnVzdDEX\n" +
+                "MBUGA1UEAxMOVHJ1c3RJRCBDQSBBMTIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw\n" +
+                "ggEKAoIBAQDRkU08zwonNJKuS+ma1CVreSxP5+rWz1z4RrdhIL+6ZSTKBKb1SSQ6\n" +
+                "hqg2MpmgLHfB5/WTALilBBXZceT4ApH7u4y+c4IjDZwBVQ/T8q7LhfqaKppcYZUN\n" +
+                "OrBWNoW4UJFVUNNCgjYFMynAVCL479OMPn4TT5MBluTOwHuSuThhRsDqEXJPRhuj\n" +
+                "FFSr0zZAcNv7zTDndvVRlU7UdLYx+T0ucg17LOPGJdT+IQ0rTti+ME7Ftj9+0Bg9\n" +
+                "u//1xjfCumplgehdlzoH3/z5pUI0DjkU/eT5i5MML5muZ49AEtAlafJL9CtkR1ex\n" +
+                "qJ5ZSqRQzE9ApMTECsKI/rVhFiU4gykrAgMBAAGjggKAMIICfDCBiQYIKwYBBQUH\n" +
+                "AQEEfTB7MDAGCCsGAQUFBzABhiRodHRwOi8vY29tbWVyY2lhbC5vY3NwLmlkZW50\n" +
+                "cnVzdC5jb20wRwYIKwYBBQUHMAKGO2h0dHA6Ly92YWxpZGF0aW9uLmlkZW50cnVz\n" +
+                "dC5jb20vcm9vdHMvY29tbWVyY2lhbHJvb3RjYTEucDdjMB8GA1UdIwQYMBaAFO1E\n" +
+                "GcDT8AaL7qR7vkLnJlTIjjZ2MA8GA1UdEwEB/wQFMAMBAf8wggEgBgNVHSAEggEX\n" +
+                "MIIBEzCCAQ8GBFUdIAAwggEFMIIBAQYIKwYBBQUHAgIwgfQwRRY+aHR0cHM6Ly9z\n" +
+                "ZWN1cmUuaWRlbnRydXN0LmNvbS9jZXJ0aWZpY2F0ZXMvcG9saWN5L3RzL2luZGV4\n" +
+                "Lmh0bWwwAwIBARqBqlRoaXMgVHJ1c3RJRCBDZXJ0aWZpY2F0ZSBoYXMgYmVlbiBp\n" +
+                "c3N1ZWQgaW4gYWNjb3JkYW5jZSB3aXRoIElkZW5UcnVzdCdzIFRydXN0SUQgQ2Vy\n" +
+                "dGlmaWNhdGUgUG9saWN5IGZvdW5kIGF0IGh0dHBzOi8vc2VjdXJlLmlkZW50cnVz\n" +
+                "dC5jb20vY2VydGlmaWNhdGVzL3BvbGljeS90cy9pbmRleC5odG1sMEoGA1UdHwRD\n" +
+                "MEEwP6A9oDuGOWh0dHA6Ly92YWxpZGF0aW9uLmlkZW50cnVzdC5jb20vY3JsL2Nv\n" +
+                "bW1lcmNpYWxyb290Y2ExLmNybDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH\n" +
+                "AwQwDgYDVR0PAQH/BAQDAgGGMB0GA1UdDgQWBBSkc9rvaTWKdcygGXsIMvhrieRC\n" +
+                "7DANBgkqhkiG9w0BAQsFAAOCAgEADeGCrtL79OtjGX4PsTEjVF2Crx8L2SJPuh9a\n" +
+                "VJor8gyOCOgN8Fs8Za/N2SZtKBiBejwbG4Cif34csiM2/rwGBSZsiPCP9JhpXPpy\n" +
+                "EDbldl2PHMqT6FSSoKZ86f+3BAl5F/EeDcj7RJ/CnnGzXRgXRGhuGuwJGd7o5SaH\n" +
+                "2amHR8TdvbWT3Q5WfH0d+v5gBXghKtMDrTjnNBMobNvfvTCGWI8sWj6E0vpfMS3L\n" +
+                "mF90VpYq0ch+kT33gIuZMkjhIRtarjR3tOkCMKYoI8hU+r/70aqCAa+1qQzkrdVc\n" +
+                "1z1W0o9T3FgYJMMhih5UFDrkmx2x3Izg/MPMB0g2y/i9oXvITTeeHaMtXtcCRypp\n" +
+                "329LgQHiEqMUWyZzDFr4AJR+RVa0FpYGo3h/+jW2GwUkcQC7hDqhEHqZiTOqs+KA\n" +
+                "9rMXauBjDeWnQHWBLMJGP6NG0SshV0w95nankV3HtI2EG1pu6GqakmQXHBb1IGDq\n" +
+                "we/LQenNW8SIGkCkUobVkdczDNCX6lHw/bvBYOxuUlTtCBvxnMZEr2XkY4WHG036\n" +
+                "hdngIKa6csy1pna9JqLt279UquDrgYZk0Ap6sQF6+MlU0WB5KeZQr0YHiQJntTk1\n" +
+                "aVT7Yfzuxye1bhD/Rjq+pAlwl5oweD91CdqFNDan6EHXEkkrfYZYgC5xMUxI4ott\n" +
+                "Adp0g6I=\n" +
+                "-----END CERTIFICATE-----\n";
             //testing js-common
-            var verifiedCommon = CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes(), []);
-
-
-            var certChain2 =   "-----BEGIN CERTIFICATE-----\n" +
+            var verifiedCommon = CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes(), [ksiCert]);
+            //
+            //
+            const certChain =   "-----BEGIN CERTIFICATE-----\n" +
                 "MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/\n" +
                 "MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT\n" +
                 "DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow\n" +
@@ -69,7 +87,7 @@ test('example pub file receiving', (done) => {
                 "KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\n" +
                 "-----END CERTIFICATE-----";
 
-            var exampleSignatureDetached = "-----BEGIN PKCS7-----\n" +
+            const exampleSignatureDetached = "-----BEGIN PKCS7-----\n" +
                 "MIIIGwYJKoZIhvcNAQcCoIIIDDCCCAgCAQExDTALBglghkgBZQMEAgEwCwYJKoZI\n" +
                 "hvcNAQcBoIIFcTCCBW0wggRVoAMCAQICEgPM+K/jvmGkyrXWCFNAV2yEfDANBgkq\n" +
                 "hkiG9w0BAQsFADBKMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNTGV0J3MgRW5jcnlw\n" +
@@ -116,33 +134,63 @@ test('example pub file receiving', (done) => {
                 "ST9CZPFLoyn+4f7R87Pe\n" +
                 "-----END PKCS7-----";
 
-            var exampleContent = "my data";
+            const exampleContent = "my data\r\n";
 
-            var p7 = forge.pkcs7.messageFromPem(exampleSignatureDetached);
-            p7.content = forge.util.createBuffer(exampleContent, 'utf8');
-            var P7verified = p7.verify(forge.pki.createCaStore([certChain2]), { });
-            console.log(P7verified);
+            const exampleSignatureAttached = "-----BEGIN PKCS7-----\n" +
+                "MIIIKAYJKoZIhvcNAQcCoIIIGTCCCBUCAQExDTALBglghkgBZQMEAgEwGAYJKoZI\n" +
+                "hvcNAQcBoAsECW15IGRhdGENCqCCBXEwggVtMIIEVaADAgECAhIDzPiv475hpMq1\n" +
+                "1ghTQFdshHwwDQYJKoZIhvcNAQELBQAwSjELMAkGA1UEBhMCVVMxFjAUBgNVBAoT\n" +
+                "DUxldCdzIEVuY3J5cHQxIzAhBgNVBAMTGkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5\n" +
+                "IFgzMB4XDTE5MDgyODA4MjgyMloXDTE5MTEyNjA4MjgyMlowHDEaMBgGA1UEAwwR\n" +
+                "Ki56Lmd1YXJkdGltZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB\n" +
+                "AQDPeNmcy7HYxfpmlLY488FC8IRQL0BHTu/IZRWIXBw+JN6hdahAUcoKd9mNDmii\n" +
+                "R33IuB3mazQ2V5KyPHcHR6LqkGDgW9ZKmj5jf74Cv6DVvw4FnLlAy+4cErK4udmZ\n" +
+                "pAT8L8YaLA+m5a1bAHNf4hG4sheE4jf+IkJ6VtZXhEpsew+FFjCNEmt8lYtRQita\n" +
+                "5wWmEIii3qiOv/vQPmtW5mlVCnM1M8nY5LUDVCBtBmpP24uBif/kSUiIEQ6W0Puy\n" +
+                "AbZbCc1N3el/yKY1RKgZcnu99zwDAM5gyBfDSn5E2jBbbkRDtT0LKtmRLGBtLgoo\n" +
+                "Ho7tMZ+hKdPeEBPXj+nn/PzPAgMBAAGjggJ5MIICdTAOBgNVHQ8BAf8EBAMCBaAw\n" +
+                "HQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYD\n" +
+                "VR0OBBYEFI7gRMD4mehG1v3a0N3SRxHHf3yUMB8GA1UdIwQYMBaAFKhKamMEfd26\n" +
+                "5tE5t6ZFZe/zqOyhMG8GCCsGAQUFBwEBBGMwYTAuBggrBgEFBQcwAYYiaHR0cDov\n" +
+                "L29jc3AuaW50LXgzLmxldHNlbmNyeXB0Lm9yZzAvBggrBgEFBQcwAoYjaHR0cDov\n" +
+                "L2NlcnQuaW50LXgzLmxldHNlbmNyeXB0Lm9yZy8wLQYDVR0RBCYwJIIRKi56Lmd1\n" +
+                "YXJkdGltZS5jb22CD3ouZ3VhcmR0aW1lLmNvbTBMBgNVHSAERTBDMAgGBmeBDAEC\n" +
+                "ATA3BgsrBgEEAYLfEwEBATAoMCYGCCsGAQUFBwIBFhpodHRwOi8vY3BzLmxldHNl\n" +
+                "bmNyeXB0Lm9yZzCCAQYGCisGAQQB1nkCBAIEgfcEgfQA8gB3AOJpS64m6OlACeiG\n" +
+                "G7Y7g9Q+5/50iPukjyiTAZ3d8dv+AAABbNeN/FIAAAQDAEgwRgIhALXcp2zae1wa\n" +
+                "lmxb9iLBf+AKhM83ROfrNVMg7X7yuc92AiEA6QnZFrPcs0r1Yg99waISQGoirwl5\n" +
+                "iVZJsZnIx6N3LUQAdwApPFGWVMg5ZbqqUPxYB9S3b79Yeily3KTDDPTlRUf0eAAA\n" +
+                "AWzXjfxGAAAEAwBIMEYCIQCrUYNqkXq5/JzUGsHDT7nHrpbr54Lw2eb57jwbxf2i\n" +
+                "9gIhAL0zZ0kHuzV0GeobVU8oZd2KTvWbBoKF6GdPOKg0lCfmMA0GCSqGSIb3DQEB\n" +
+                "CwUAA4IBAQBXcYIkIwildnIfkabesGSSnTMiJpiknqlRrAfRdQCCzmTgeJOHuWcn\n" +
+                "zFbIkK1p/Y7v1mo0q7avI4OTrevvwNhBqbzgJU5XHTITDqPydf6Yi3cExgJJEhVP\n" +
+                "1IGcoHF/B1qLTSj5sUNBQpLHh5XOpqftCtQyEnjZrDPLG/X8Fb+8LaqWwsZL3GNf\n" +
+                "RswWXqm7RCpm/UVhaA/0eYkzqt1YJfdP/r+ZV0kJr9RWTheAoG7m2wF8sKRG0Mmv\n" +
+                "ezy7GcNiXvzHZW3zY55ZrLHv6C4T/LWeDyfdv6Mj1SBT6TquVe1YrqnrGUy9UvRL\n" +
+                "H2g8wPkBe0R3Z2L4LIHtJISJvSq5etHjMYICcDCCAmwCAQEwYDBKMQswCQYDVQQG\n" +
+                "EwJVUzEWMBQGA1UEChMNTGV0J3MgRW5jcnlwdDEjMCEGA1UEAxMaTGV0J3MgRW5j\n" +
+                "cnlwdCBBdXRob3JpdHkgWDMCEgPM+K/jvmGkyrXWCFNAV2yEfDALBglghkgBZQME\n" +
+                "AgGggeQwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcN\n" +
+                "MTkwOTAzMTAzODIzWjAvBgkqhkiG9w0BCQQxIgQgJJLU6KuD8gawc+WYypnHBE9M\n" +
+                "lcb5lG/lENcFJZv1GYcweQYJKoZIhvcNAQkPMWwwajALBglghkgBZQMEASowCwYJ\n" +
+                "YIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgIC\n" +
+                "AIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwDQYJKoZI\n" +
+                "hvcNAQEBBQAEggEAH+drkNfXK2uR6TmE02NriCHkf5PLN0kZGm/Mg2mhDWSt5b1f\n" +
+                "RULwJZC5SYSNlpXnCnE0uyrZVrgcOz0W10ZisztASvzr0MRdQvx1nrlOMi79x2kw\n" +
+                "RYlI1VD5NkhIIAxU1Tmn+xBM5GjqUOuEEphByknam+NEYC513vBxcSm1RR0zSOcB\n" +
+                "q5yBv7JuAw7RHcqS9L5npJQ/KkrIwxUTFTr0kbl6739U2VbUlb/mPOGXNqZdWTsn\n" +
+                "GZJDMT1xHDCP4vtE/0HVXjdSJirmI2loVGgarKc3QaJ36rOUcvPyCswk5CnIwcX9\n" +
+                "rm3VxOUwDh4LkEorBaya68TOeycBgXcPxqPeOg==\n" +
+                "-----END PKCS7-----";
 
+            var verifyDetached = CMSVerification.verify(exampleSignatureDetached, exampleContent, [certChain]);
+            var verifyAttached = CMSVerification.verify(exampleSignatureAttached, "", [certChain]);
 
-            // expect(verified).toEqual(true);
+            expect(verifyDetached).toBe(true);
+            expect(verifyAttached).toBe(true);
             expect(verifiedCommon).toEqual(true);
-            // expect(P7verified).toEqual(true);
 
             done();
         });
 });
 
-// class CMSVerification {
-//     static verify(signatureValue: Uint8Array, signedBytes: Uint8Array){
-//         var signatureValueAscii = ASCIIConverter.ToString(signatureValue);
-//         var signatureBuffer = util.createBuffer(signatureValueAscii);
-//         var signatureinAsn1 = asn1.fromDer(signatureBuffer);
-//         var signature = pkcs7.messageFromAsn1(signatureinAsn1);
-//         signature.content = util.createBuffer(signedBytes);
-//         // @todo: better way to get a certificate;
-//         var certificateRaw = signature.certificates[1];
-//         var certificate = pki.certificateToPem(certificateRaw);
-//         var verified = signature.verify(pki.createCaStore([certificate]));
-//         return verified;
-//     }
-// }
