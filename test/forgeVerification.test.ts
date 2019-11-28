@@ -151,7 +151,7 @@ test('example pub file receiving', (done) => {
                 '-----END PKCS7-----';
 
             let verifyDetached = CMSVerification.verify(exampleSignatureDetached, exampleContent, [certChain]);
-            let verifyAttached = CMSVerification.verify(exampleSignatureAttached, '', [certChain]);
+            let verifyAttached = CMSVerification.verify(exampleSignatureAttached, null, [certChain]);
 
             expect(verifyDetached).toBe(true);
             expect(verifyAttached).toBe(true);

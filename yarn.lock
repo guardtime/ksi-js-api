@@ -69,9 +69,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "12.12.7"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.7.tgz#01e4ea724d9e3bd50d90c11fd5980ba317d8fa11"
-  integrity sha512-E6Zn0rffhgd130zbCbAr/JdXfXkoOUFAKNs/rF8qnafSJ8KYaA/j3oz7dcwal+lYjLA7xvdd5J4wdYpCTlP8+w==
+  version "12.12.14"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.14.tgz#1c1d6e3c75dba466e0326948d56e8bd72a1903d2"
+  integrity sha512-u/SJDyXwuihpwjXy7hOOghagLEV1KdAST6syfnOk6QZAMzZuWZqXy5aYYZbh8Jdpd4escVFP0MvftHNDb9pruA==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -2681,7 +2681,7 @@ growly@^1.3.0:
 
 "gt-js-common@git+ssh://git@github.com:guardtime/gt-js-common.git#publicationFileSignatureVerify":
   version "1.1.2"
-  resolved "git+ssh://git@github.com:guardtime/gt-js-common.git#787da8cef9591345f42c43c2b00606acde9f3ec4"
+  resolved "git+ssh://git@github.com:guardtime/gt-js-common.git#5a41d056dda1b16ccd695f4b8e8f1b3995861652"
   dependencies:
     "@types/base64-js" "^1.2.5"
     "@types/node-forge" "^0.8.4"

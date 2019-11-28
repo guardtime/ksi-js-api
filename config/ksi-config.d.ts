@@ -4,6 +4,7 @@ declare type KsiConfiguration =  Readonly<{
     LOGIN_ID: string;
     LOGIN_KEY: Uint8Array;
     PUBLICATIONS_FILE_URL: string;
+    PUBLICATIONS_FILE_SIGNATURE_TRSUTED_CERTIFICATES: string;
 }>;
 /**
  * Config parameters
