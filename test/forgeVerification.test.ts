@@ -23,7 +23,7 @@ test('example pub file receiving', (done) => {
             let certificates = certfileData.split(";");
             let signature = pubFile.getSignatureValue();
             let signedBytes = pubFile.getSignedBytes();
-            let verifiedCommon = CMSVerification.verify(signature, signedBytes, certificates);
+            let verifiedCommon = CMSVerification.verify(signature, signedBytes, certificates, "E=publications@guardtime.com");
 
             // testing custom signatures
             const certChain =   '-----BEGIN CERTIFICATE-----\n' +
@@ -150,8 +150,8 @@ test('example pub file receiving', (done) => {
                 'rm3VxOUwDh4LkEorBaya68TOeycBgXcPxqPeOg==\n' +
                 '-----END PKCS7-----';
 
-            let verifyDetached = CMSVerification.verify(exampleSignatureDetached, exampleContent, [certChain]);
-            let verifyAttached = CMSVerification.verify(exampleSignatureAttached, null, [certChain]);
+            let verifyDetached = CMSVerification.verify(exampleSignatureDetached, exampleContent, [certChain], 'CN=*.z.guardtime.com');
+            let verifyAttached = CMSVerification.verify(exampleSignatureAttached, null, [certChain], 'CN=*.z.guardtime.com');
 
             expect(verifyDetached).toBe(true);
             expect(verifyAttached).toBe(true);
