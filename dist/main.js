@@ -3141,13 +3141,13 @@ util.compareDN = function(l, r) {
   return rval;
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20), __webpack_require__(44).setImmediate, __webpack_require__(14), __webpack_require__(15).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(21), __webpack_require__(45).setImmediate, __webpack_require__(14), __webpack_require__(15).Buffer))
 
 /***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var bigInt = (function (undefined) {
+/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_RESULT__;var bigInt = (function (undefined) {
     "use strict";
 
     var BASE = 1e7,
@@ -3832,6 +3832,10 @@ util.compareDN = function(l, r) {
         if (mod.isZero()) throw new Error("Cannot take modPow with modulus 0");
         var r = Integer[1],
             base = this.mod(mod);
+        if (exp.isNegative()) {
+            exp = exp.multiply(Integer[-1]);
+            base = base.modInv(mod);
+        }
         while (exp.isPositive()) {
             if (base.isZero()) return Integer[0];
             if (exp.isOdd()) r = r.multiply(base).mod(mod);
@@ -4075,13 +4079,13 @@ util.compareDN = function(l, r) {
     };
     NativeBigInt.prototype.isPrime = SmallInteger.prototype.isPrime = BigInteger.prototype.isPrime;
 
-    BigInteger.prototype.isProbablePrime = function (iterations) {
+    BigInteger.prototype.isProbablePrime = function (iterations, rng) {
         var isPrime = isBasicPrime(this);
         if (isPrime !== undefined) return isPrime;
         var n = this.abs();
         var t = iterations === undefined ? 5 : iterations;
         for (var a = [], i = 0; i < t; i++) {
-            a.push(bigInt.randBetween(2, n.minus(2)));
+            a.push(bigInt.randBetween(2, n.minus(2), rng));
         }
         return millerRabinTest(n, a);
     };
@@ -4313,17 +4317,18 @@ util.compareDN = function(l, r) {
         b = parseValue(b).abs();
         return a.divide(gcd(a, b)).multiply(b);
     }
-    function randBetween(a, b) {
+    function randBetween(a, b, rng) {
         a = parseValue(a);
         b = parseValue(b);
+        var usedRNG = rng || Math.random;
         var low = min(a, b), high = max(a, b);
         var range = high.subtract(low).add(1);
-        if (range.isSmall) return low.add(Math.floor(Math.random() * range));
+        if (range.isSmall) return low.add(Math.floor(usedRNG() * range));
         var digits = toBase(range, BASE).value;
         var result = [], restricted = true;
         for (var i = 0; i < digits.length; i++) {
             var top = restricted ? digits[i] : BASE;
-            var digit = truncate(Math.random() * top);
+            var digit = truncate(usedRNG() * top);
             result.push(digit);
             if (digit < top) restricted = false;
         }
@@ -4591,13 +4596,13 @@ if ( true && module.hasOwnProperty("exports")) {
 
 //amd check
 if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+    !(__WEBPACK_AMD_DEFINE_RESULT__ = (function () {
         return bigInt;
-    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+    }).call(exports, __webpack_require__, exports, module),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(43)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(44)(module)))
 
 /***/ }),
 /* 3 */,
@@ -4637,8 +4642,8 @@ forge.md.algorithms = forge.md.algorithms || {};
  * Copyright (c) 2009-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
-__webpack_require__(24);
+__webpack_require__(8);
+__webpack_require__(25);
 __webpack_require__(31);
 __webpack_require__(1);
 
@@ -4955,7 +4960,7 @@ module.exports = forge.random;
  */
 var forge = __webpack_require__(0);
 __webpack_require__(1);
-__webpack_require__(8);
+__webpack_require__(9);
 
 /* ASN.1 API */
 var asn1 = module.exports = forge.asn1 = forge.asn1 || {};
@@ -6233,6 +6238,47 @@ asn1.prettyPrint = function(obj, level, indentation) {
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
+ * Node.js module for Forge.
+ *
+ * @author Dave Longley
+ *
+ * Copyright 2011-2016 Digital Bazaar, Inc.
+ */
+module.exports = __webpack_require__(0);
+__webpack_require__(8);
+__webpack_require__(50);
+__webpack_require__(6);
+__webpack_require__(20);
+__webpack_require__(38);
+__webpack_require__(16);
+__webpack_require__(52);
+__webpack_require__(12);
+__webpack_require__(53);
+__webpack_require__(40);
+__webpack_require__(54);
+__webpack_require__(37);
+__webpack_require__(23);
+__webpack_require__(10);
+__webpack_require__(33);
+__webpack_require__(35);
+__webpack_require__(55);
+__webpack_require__(29);
+__webpack_require__(34);
+__webpack_require__(31);
+__webpack_require__(26);
+__webpack_require__(5);
+__webpack_require__(32);
+__webpack_require__(56);
+__webpack_require__(57);
+__webpack_require__(28);
+__webpack_require__(1);
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
  * Advanced Encryption Standard (AES) implementation.
  *
  * This implementation is based on the public domain library 'jscrypto' which
@@ -6250,7 +6296,7 @@ asn1.prettyPrint = function(obj, level, indentation) {
  * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(19);
+__webpack_require__(20);
 __webpack_require__(27);
 __webpack_require__(1);
 
@@ -7326,7 +7372,7 @@ function _createCipher(options) {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7497,7 +7543,7 @@ _IN('1.3.6.1.5.5.7.3.8', 'timeStamping');
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -7733,7 +7779,7 @@ function ltrim(str) {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -8058,47 +8104,6 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Node.js module for Forge.
- *
- * @author Dave Longley
- *
- * Copyright 2011-2016 Digital Bazaar, Inc.
- */
-module.exports = __webpack_require__(0);
-__webpack_require__(7);
-__webpack_require__(50);
-__webpack_require__(6);
-__webpack_require__(19);
-__webpack_require__(38);
-__webpack_require__(16);
-__webpack_require__(52);
-__webpack_require__(12);
-__webpack_require__(53);
-__webpack_require__(40);
-__webpack_require__(54);
-__webpack_require__(37);
-__webpack_require__(22);
-__webpack_require__(9);
-__webpack_require__(33);
-__webpack_require__(35);
-__webpack_require__(55);
-__webpack_require__(29);
-__webpack_require__(34);
-__webpack_require__(31);
-__webpack_require__(25);
-__webpack_require__(5);
-__webpack_require__(32);
-__webpack_require__(56);
-__webpack_require__(57);
-__webpack_require__(28);
-__webpack_require__(1);
-
-
-/***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8364,14 +8369,14 @@ hmac.create = function() {
  * }
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
+__webpack_require__(8);
 __webpack_require__(6);
 __webpack_require__(16);
 __webpack_require__(4);
 __webpack_require__(51);
-__webpack_require__(8);
 __webpack_require__(9);
-__webpack_require__(25);
+__webpack_require__(10);
+__webpack_require__(26);
 __webpack_require__(17);
 __webpack_require__(1);
 
@@ -11601,14 +11606,14 @@ module.exports = g;
 /* WEBPACK VAR INJECTION */(function(global) {/*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @author   Feross Aboukhadijeh <http://feross.org>
  * @license  MIT
  */
 /* eslint-disable no-proto */
 
 
 
-var base64 = __webpack_require__(46)
+var base64 = __webpack_require__(19)
 var ieee754 = __webpack_require__(47)
 var isArray = __webpack_require__(48)
 
@@ -13426,7 +13431,7 @@ function isnan (val) {
  * Copyright (c) 2012-2014 Digital Bazaar, Inc.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(19);
+__webpack_require__(20);
 __webpack_require__(27);
 __webpack_require__(1);
 
@@ -13962,7 +13967,7 @@ function _createCipher(options) {
 var forge = __webpack_require__(0);
 __webpack_require__(6);
 __webpack_require__(18);
-__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(33);
 __webpack_require__(34);
 __webpack_require__(5);
@@ -13972,7 +13977,7 @@ if(typeof BigInteger === 'undefined') {
   var BigInteger = forge.jsbn.BigInteger;
 }
 
-var _crypto = forge.util.isNodejs ? __webpack_require__(23) : null;
+var _crypto = forge.util.isNodejs ? __webpack_require__(24) : null;
 
 // shortcut for asn.1 API
 var asn1 = forge.asn1;
@@ -17030,6 +17035,165 @@ BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+exports.byteLength = byteLength
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
+}
+
+// Support decoding URL-safe base64 strings, as Node.js does.
+// See: https://en.wikipedia.org/wiki/Base64#URL_applications
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
+
+function getLens (b64) {
+  var len = b64.length
+
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // Trim off extra bytes after placeholder bytes are found
+  // See: https://github.com/beatgammit/base64-js/issues/42
+  var validLen = b64.indexOf('=')
+  if (validLen === -1) validLen = len
+
+  var placeHoldersLen = validLen === len
+    ? 0
+    : 4 - (validLen % 4)
+
+  return [validLen, placeHoldersLen]
+}
+
+// base64 is 4/3 + up to two characters of the original data
+function byteLength (b64) {
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function _byteLength (b64, validLen, placeHoldersLen) {
+  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
+}
+
+function toByteArray (b64) {
+  var tmp
+  var lens = getLens(b64)
+  var validLen = lens[0]
+  var placeHoldersLen = lens[1]
+
+  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
+
+  var curByte = 0
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  var len = placeHoldersLen > 0
+    ? validLen - 4
+    : validLen
+
+  var i
+  for (i = 0; i < len; i += 4) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 18) |
+      (revLookup[b64.charCodeAt(i + 1)] << 12) |
+      (revLookup[b64.charCodeAt(i + 2)] << 6) |
+      revLookup[b64.charCodeAt(i + 3)]
+    arr[curByte++] = (tmp >> 16) & 0xFF
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 2) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 2) |
+      (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  if (placeHoldersLen === 1) {
+    tmp =
+      (revLookup[b64.charCodeAt(i)] << 10) |
+      (revLookup[b64.charCodeAt(i + 1)] << 4) |
+      (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[curByte++] = (tmp >> 8) & 0xFF
+    arr[curByte++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] +
+    lookup[num >> 12 & 0x3F] +
+    lookup[num >> 6 & 0x3F] +
+    lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp =
+      ((uint8[i] << 16) & 0xFF0000) +
+      ((uint8[i + 1] << 8) & 0xFF00) +
+      (uint8[i + 2] & 0xFF)
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(
+      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
+    ))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 2] +
+      lookup[(tmp << 4) & 0x3F] +
+      '=='
+    )
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
+    parts.push(
+      lookup[tmp >> 10] +
+      lookup[(tmp >> 4) & 0x3F] +
+      lookup[(tmp << 2) & 0x3F] +
+      '='
+    )
+  }
+
+  return parts.join('')
+}
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /**
  * Cipher base API.
  *
@@ -17263,7 +17427,7 @@ BlockCipher.prototype.finish = function(pad) {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -17453,7 +17617,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -17748,7 +17912,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -17769,7 +17933,7 @@ var pkcs5 = forge.pkcs5 = forge.pkcs5 || {};
 
 var crypto;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript) {
-  crypto = __webpack_require__(23);
+  crypto = __webpack_require__(24);
 }
 
 /**
@@ -17966,13 +18130,13 @@ module.exports = forge.pbkdf2 = pkcs5.pbkdf2 = function(
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(15).Buffer))
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -18305,7 +18469,7 @@ function _update(s, w, bytes) {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -18549,165 +18713,6 @@ pss.create = function(options) {
 
   return pssobj;
 };
-
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.byteLength = byteLength
-exports.toByteArray = toByteArray
-exports.fromByteArray = fromByteArray
-
-var lookup = []
-var revLookup = []
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
-
-var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-for (var i = 0, len = code.length; i < len; ++i) {
-  lookup[i] = code[i]
-  revLookup[code.charCodeAt(i)] = i
-}
-
-// Support decoding URL-safe base64 strings, as Node.js does.
-// See: https://en.wikipedia.org/wiki/Base64#URL_applications
-revLookup['-'.charCodeAt(0)] = 62
-revLookup['_'.charCodeAt(0)] = 63
-
-function getLens (b64) {
-  var len = b64.length
-
-  if (len % 4 > 0) {
-    throw new Error('Invalid string. Length must be a multiple of 4')
-  }
-
-  // Trim off extra bytes after placeholder bytes are found
-  // See: https://github.com/beatgammit/base64-js/issues/42
-  var validLen = b64.indexOf('=')
-  if (validLen === -1) validLen = len
-
-  var placeHoldersLen = validLen === len
-    ? 0
-    : 4 - (validLen % 4)
-
-  return [validLen, placeHoldersLen]
-}
-
-// base64 is 4/3 + up to two characters of the original data
-function byteLength (b64) {
-  var lens = getLens(b64)
-  var validLen = lens[0]
-  var placeHoldersLen = lens[1]
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
-}
-
-function _byteLength (b64, validLen, placeHoldersLen) {
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
-}
-
-function toByteArray (b64) {
-  var tmp
-  var lens = getLens(b64)
-  var validLen = lens[0]
-  var placeHoldersLen = lens[1]
-
-  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
-
-  var curByte = 0
-
-  // if there are placeholders, only get up to the last complete 4 chars
-  var len = placeHoldersLen > 0
-    ? validLen - 4
-    : validLen
-
-  var i
-  for (i = 0; i < len; i += 4) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 18) |
-      (revLookup[b64.charCodeAt(i + 1)] << 12) |
-      (revLookup[b64.charCodeAt(i + 2)] << 6) |
-      revLookup[b64.charCodeAt(i + 3)]
-    arr[curByte++] = (tmp >> 16) & 0xFF
-    arr[curByte++] = (tmp >> 8) & 0xFF
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  if (placeHoldersLen === 2) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 2) |
-      (revLookup[b64.charCodeAt(i + 1)] >> 4)
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  if (placeHoldersLen === 1) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 10) |
-      (revLookup[b64.charCodeAt(i + 1)] << 4) |
-      (revLookup[b64.charCodeAt(i + 2)] >> 2)
-    arr[curByte++] = (tmp >> 8) & 0xFF
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  return arr
-}
-
-function tripletToBase64 (num) {
-  return lookup[num >> 18 & 0x3F] +
-    lookup[num >> 12 & 0x3F] +
-    lookup[num >> 6 & 0x3F] +
-    lookup[num & 0x3F]
-}
-
-function encodeChunk (uint8, start, end) {
-  var tmp
-  var output = []
-  for (var i = start; i < end; i += 3) {
-    tmp =
-      ((uint8[i] << 16) & 0xFF0000) +
-      ((uint8[i + 1] << 8) & 0xFF00) +
-      (uint8[i + 2] & 0xFF)
-    output.push(tripletToBase64(tmp))
-  }
-  return output.join('')
-}
-
-function fromByteArray (uint8) {
-  var tmp
-  var len = uint8.length
-  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
-  var parts = []
-  var maxChunkLength = 16383 // must be multiple of 3
-
-  // go through the array every three bytes, we'll deal with trailing stuff later
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(
-      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
-    ))
-  }
-
-  // pad the end with zeros, but make sure to not forget the extra bytes
-  if (extraBytes === 1) {
-    tmp = uint8[len - 1]
-    parts.push(
-      lookup[tmp >> 2] +
-      lookup[(tmp << 4) & 0x3F] +
-      '=='
-    )
-  } else if (extraBytes === 2) {
-    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
-    parts.push(
-      lookup[tmp >> 10] +
-      lookup[(tmp >> 4) & 0x3F] +
-      lookup[(tmp << 2) & 0x3F] +
-      '='
-    )
-  }
-
-  return parts.join('')
-}
 
 
 /***/ }),
@@ -19942,11 +19947,11 @@ function from64To32(num) {
 var forge = __webpack_require__(0);
 __webpack_require__(6);
 __webpack_require__(12);
-__webpack_require__(21);
-__webpack_require__(9);
+__webpack_require__(22);
+__webpack_require__(10);
 __webpack_require__(29);
 __webpack_require__(5);
-__webpack_require__(10);
+__webpack_require__(11);
 __webpack_require__(1);
 
 /**
@@ -24005,12 +24010,12 @@ forge.tls.createConnection = tls.createConnection;
  */
 var forge = __webpack_require__(0);
 __webpack_require__(6);
-__webpack_require__(8);
-__webpack_require__(30);
 __webpack_require__(9);
-__webpack_require__(22);
+__webpack_require__(30);
+__webpack_require__(10);
+__webpack_require__(23);
 __webpack_require__(35);
-__webpack_require__(25);
+__webpack_require__(26);
 __webpack_require__(17);
 __webpack_require__(1);
 __webpack_require__(13);
@@ -24123,13 +24128,13 @@ pki.privateKeyInfoToPem = function(pki, maxline) {
  * EncryptedData ::= OCTET STRING
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
+__webpack_require__(8);
 __webpack_require__(6);
 __webpack_require__(16);
 __webpack_require__(4);
-__webpack_require__(8);
-__webpack_require__(22);
 __webpack_require__(9);
+__webpack_require__(23);
+__webpack_require__(10);
 __webpack_require__(5);
 __webpack_require__(32);
 __webpack_require__(17);
@@ -25149,7 +25154,7 @@ __webpack_require__(1);
 var _crypto = null;
 if(forge.util.isNodejs && !forge.options.usePureJavaScript &&
   !process.versions['node-webkit']) {
-  _crypto = __webpack_require__(23);
+  _crypto = __webpack_require__(24);
 }
 
 /* PRNG API */
@@ -25552,7 +25557,7 @@ prng.create = function(plugin) {
   return ctx;
 };
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(20)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(21)))
 
 /***/ }),
 /* 32 */
@@ -26022,7 +26027,7 @@ forge.rc2.createDecryptionCipher = function(key, bits) {
 var forge = __webpack_require__(0);
 __webpack_require__(1);
 __webpack_require__(5);
-__webpack_require__(10);
+__webpack_require__(11);
 
 // shortcut for PKCS#1 API
 var pkcs1 = module.exports = forge.pkcs1 = forge.pkcs1 || {};
@@ -26657,12 +26662,12 @@ function getMillerRabinTests(bits) {
 var forge = __webpack_require__(0);
 __webpack_require__(6);
 __webpack_require__(12);
-__webpack_require__(8);
+__webpack_require__(9);
 __webpack_require__(36);
 __webpack_require__(30);
 __webpack_require__(5);
 __webpack_require__(17);
-__webpack_require__(10);
+__webpack_require__(11);
 __webpack_require__(1);
 __webpack_require__(13);
 
@@ -29117,36 +29122,6 @@ module.exports = v35('v3', 0x30, md5);
 
 const DEFAULT_VALUES = {
     TRUSTED_CERTIFICATES: "-----BEGIN CERTIFICATE-----\n" +
-        "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\n" +
-        "-----END CERTIFICATE-----\n;-----BEGIN CERTIFICATE-----\n" +
         "MIIFgzCCA2ugAwIBAgIORea7A4Mzw4VlSOb/RVEwDQYJKoZIhvcNAQEMBQAwTDEg\n" +
         "MB4GA1UECxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjYxEzARBgNVBAoTCkdsb2Jh\n" +
         "bFNpZ24xEzARBgNVBAMTCkdsb2JhbFNpZ24wHhcNMTQxMjEwMDAwMDAwWhcNMzQx\n" +
@@ -29177,17 +29152,65 @@ const DEFAULT_VALUES = {
         "JJUEeKgDu+6B5dpffItKoZB0JaezPkvILFa9x8jvOOJckvB595yEunQtYQEgfn7R\n" +
         "8k8HWV+LLUNS60YMlOH1Zkd5d9VUWx+tJDfLRVpOoERIyNiwmcUVhAn21klJwGW4\n" +
         "5hpxbqCo8YLoRT5s1gLXCmeDBVrJpBA=\n" +
-        "-----END CERTIFICATE-----"
+        "-----END CERTIFICATE-----;-----BEGIN CERTIFICATE-----\n" +
+        "MIIFYDCCA0igAwIBAgIQCgFCgAAAAUUjyES1AAAAAjANBgkqhkiG9w0BAQsFADBK\n" +
+        "MQswCQYDVQQGEwJVUzESMBAGA1UEChMJSWRlblRydXN0MScwJQYDVQQDEx5JZGVu\n" +
+        "VHJ1c3QgQ29tbWVyY2lhbCBSb290IENBIDEwHhcNMTQwMTE2MTgxMjIzWhcNMzQw\n" +
+        "MTE2MTgxMjIzWjBKMQswCQYDVQQGEwJVUzESMBAGA1UEChMJSWRlblRydXN0MScw\n" +
+        "JQYDVQQDEx5JZGVuVHJ1c3QgQ29tbWVyY2lhbCBSb290IENBIDEwggIiMA0GCSqG\n" +
+        "SIb3DQEBAQUAA4ICDwAwggIKAoICAQCnUBneP5k91DNG8W9RYYKyqU+PZ4ldhNlT\n" +
+        "3Qwo2dfw/66VQ3KZ+bVdfIrBQuExUHTRgQ18zZshq0PirK1ehm7zCYofWjK9ouuU\n" +
+        "+ehcCuz/mNKvcbO0U59Oh++SvL3sTzIwiEsXXlfEU8L2ApeN2WIrvyQfYo3fw7gp\n" +
+        "S0l4PJNgiCL8mdo2yMKi1CxUAGc1bnO/AljwpN3lsKImesrgNqUZFvX9t++uP0D1\n" +
+        "bVoE/c40yiTcdCMbXTMTEl3EASX2MN0CXZ/g1Ue9tOsbobtJSdifWwLziuQkkORi\n" +
+        "T0/Br4sOdBeo0XKIanoBScy0RnnGF7HamB4HWfp1IYVl3ZBWzvurpWCdxJ35UrCL\n" +
+        "vYf5jysjCiN2O/cz4ckA82n5S6LgTrx+kzmEB/dEcH7+B1rlsazRGMzyNeVJSQjK\n" +
+        "Vsk9+w8YfYs7wRPCTY/JTw436R+hDmrfYi7LNQZReSzIJTj0+kuniVyc0uMNOYZK\n" +
+        "dHzVWYfCP04MXFL0PfdSgvHqo6z9STQaKPNBiDoT7uje/5kdX7rL6B7yuVBgwDHT\n" +
+        "c+XvvqDtMwt0viAgxGds8AgDelWAf0ZOlqf0Hj7h9tgJ4TNkK2PXMl6f+cB7D3hv\n" +
+        "l7yTmvmcEpB4eoCHFddydJxVdHixuuFucAS6T6C6aMN7/zHwcz09lCqxC0EOoP5N\n" +
+        "iGVreTO01wIDAQABo0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB\n" +
+        "/zAdBgNVHQ4EFgQU7UQZwNPwBovupHu+QucmVMiONnYwDQYJKoZIhvcNAQELBQAD\n" +
+        "ggIBAA2ukDL2pkt8RHYZYR4nKM1eVO8lvOMIkPkp165oCOGUAFjvLi5+U1KMtlwH\n" +
+        "6oi6mYtQlNeCgN9hCQCTrQ0U5s7B8jeUeLBfnLOic7iPBZM4zY0+sLj7wM+x8uwt\n" +
+        "LRvM7Kqas6pgghstO8OEPVeKlh6cdbjTMM1gCIOQ045U8U1mwF10A0Cj7oV+wh93\n" +
+        "nAbowacYXVKV7cndJZ5t+qntozo00Fl72u1Q8zW/7esUTTHHYPTa8Yec4kjixsU3\n" +
+        "+wYQ+nVZZjFHKdp2mhzpgq7vmrlR94gjmmmVYjzlVYA211QC//G5Xc7UI2/YRYRK\n" +
+        "W2XviQzdFKcgyxilJbQN+QHwotL0AMh0jqEqSI5l2xPE4iUXfeu+h1sXIFRRk0pT\n" +
+        "AwvsXcoz7WL9RccvW9xYoIA55vrX/hMUpu09lEpCdNTDd1lzzY9GvlU47/rokTLq\n" +
+        "l1gEIt44w8y8bckzOmoKaT+gyOpyj4xjhiO9bTyWnpXgSUyqorkqG5w2gXjtw+hG\n" +
+        "4iZZRHUe2XWJUc0QhJ1hYMtd+ZciTY6Y5uN/9lu7rs3KSoFrXgvzUeF0K+l+J6fZ\n" +
+        "mUlO+KWA2yUPHGNiiskzZ2s8EIPGrd6ozRaOjfAHN3Gf8qv8QfXBi+wAN10J5U6A\n" +
+        "7/qxXDgGpRtK4dw4LTzcqx+QGtVKnO7RcGzM7vRX+Bi6hG6H\n" +
+        "-----END CERTIFICATE-----\n"
 };
 
 if ( true && typeof module.exports !== 'undefined') {
-    module.exports = DEFAULT;
+    module.exports = DEFAULT_VALUES;
 }
 
 
 
 /***/ }),
 /* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const CONFIG = {
+    AGGREGATION_URL: 'http://tryout.guardtime.net:8080/gt-signingservice',
+    EXTENDER_URL: 'http://tryout-extender.guardtime.net:8081/gt-extendingservice',
+    LOGIN_ID: 'CHANGE_ME_KSI_GATEWAY_USERNAME',
+    LOGIN_KEY: new Uint8Array([0, 0, 0, 0, 0]),
+    PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin',
+    CERTIFICATE_SUBJECT: "E=publications@guardtime.com"
+};
+
+if ( true && typeof module.exports !== 'undefined') {
+    module.exports = CONFIG;
+}
+
+
+/***/ }),
+/* 44 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -29215,7 +29238,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var scope = (typeof global !== "undefined" && global) ||
@@ -29271,7 +29294,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(45);
+__webpack_require__(46);
 // On some exotic environments, it's not clear which object `setimmediate` was
 // able to install onto.  Search each possibility in the same order as the
 // `setimmediate` library.
@@ -29285,7 +29308,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14)))
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -29475,165 +29498,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(20)))
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.byteLength = byteLength
-exports.toByteArray = toByteArray
-exports.fromByteArray = fromByteArray
-
-var lookup = []
-var revLookup = []
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
-
-var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-for (var i = 0, len = code.length; i < len; ++i) {
-  lookup[i] = code[i]
-  revLookup[code.charCodeAt(i)] = i
-}
-
-// Support decoding URL-safe base64 strings, as Node.js does.
-// See: https://en.wikipedia.org/wiki/Base64#URL_applications
-revLookup['-'.charCodeAt(0)] = 62
-revLookup['_'.charCodeAt(0)] = 63
-
-function getLens (b64) {
-  var len = b64.length
-
-  if (len % 4 > 0) {
-    throw new Error('Invalid string. Length must be a multiple of 4')
-  }
-
-  // Trim off extra bytes after placeholder bytes are found
-  // See: https://github.com/beatgammit/base64-js/issues/42
-  var validLen = b64.indexOf('=')
-  if (validLen === -1) validLen = len
-
-  var placeHoldersLen = validLen === len
-    ? 0
-    : 4 - (validLen % 4)
-
-  return [validLen, placeHoldersLen]
-}
-
-// base64 is 4/3 + up to two characters of the original data
-function byteLength (b64) {
-  var lens = getLens(b64)
-  var validLen = lens[0]
-  var placeHoldersLen = lens[1]
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
-}
-
-function _byteLength (b64, validLen, placeHoldersLen) {
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
-}
-
-function toByteArray (b64) {
-  var tmp
-  var lens = getLens(b64)
-  var validLen = lens[0]
-  var placeHoldersLen = lens[1]
-
-  var arr = new Arr(_byteLength(b64, validLen, placeHoldersLen))
-
-  var curByte = 0
-
-  // if there are placeholders, only get up to the last complete 4 chars
-  var len = placeHoldersLen > 0
-    ? validLen - 4
-    : validLen
-
-  for (var i = 0; i < len; i += 4) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 18) |
-      (revLookup[b64.charCodeAt(i + 1)] << 12) |
-      (revLookup[b64.charCodeAt(i + 2)] << 6) |
-      revLookup[b64.charCodeAt(i + 3)]
-    arr[curByte++] = (tmp >> 16) & 0xFF
-    arr[curByte++] = (tmp >> 8) & 0xFF
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  if (placeHoldersLen === 2) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 2) |
-      (revLookup[b64.charCodeAt(i + 1)] >> 4)
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  if (placeHoldersLen === 1) {
-    tmp =
-      (revLookup[b64.charCodeAt(i)] << 10) |
-      (revLookup[b64.charCodeAt(i + 1)] << 4) |
-      (revLookup[b64.charCodeAt(i + 2)] >> 2)
-    arr[curByte++] = (tmp >> 8) & 0xFF
-    arr[curByte++] = tmp & 0xFF
-  }
-
-  return arr
-}
-
-function tripletToBase64 (num) {
-  return lookup[num >> 18 & 0x3F] +
-    lookup[num >> 12 & 0x3F] +
-    lookup[num >> 6 & 0x3F] +
-    lookup[num & 0x3F]
-}
-
-function encodeChunk (uint8, start, end) {
-  var tmp
-  var output = []
-  for (var i = start; i < end; i += 3) {
-    tmp =
-      ((uint8[i] << 16) & 0xFF0000) +
-      ((uint8[i + 1] << 8) & 0xFF00) +
-      (uint8[i + 2] & 0xFF)
-    output.push(tripletToBase64(tmp))
-  }
-  return output.join('')
-}
-
-function fromByteArray (uint8) {
-  var tmp
-  var len = uint8.length
-  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
-  var parts = []
-  var maxChunkLength = 16383 // must be multiple of 3
-
-  // go through the array every three bytes, we'll deal with trailing stuff later
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(
-      uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)
-    ))
-  }
-
-  // pad the end with zeros, but make sure to not forget the extra bytes
-  if (extraBytes === 1) {
-    tmp = uint8[len - 1]
-    parts.push(
-      lookup[tmp >> 2] +
-      lookup[(tmp << 4) & 0x3F] +
-      '=='
-    )
-  } else if (extraBytes === 2) {
-    tmp = (uint8[len - 2] << 8) + uint8[len - 1]
-    parts.push(
-      lookup[tmp >> 10] +
-      lookup[(tmp >> 4) & 0x3F] +
-      lookup[(tmp << 2) & 0x3F] +
-      '='
-    )
-  }
-
-  return parts.join('')
-}
-
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(14), __webpack_require__(21)))
 
 /***/ }),
 /* 47 */
@@ -29942,7 +29807,7 @@ function _encodeWithByteBuffer(input, alphabet) {
  *
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
+__webpack_require__(8);
 __webpack_require__(28);
 
 var tls = module.exports = forge.tls;
@@ -31425,9 +31290,9 @@ function _createKDF(kdf, md, counterStart, digestLength) {
  */
 module.exports = __webpack_require__(4);
 
-__webpack_require__(21);
-__webpack_require__(10);
-__webpack_require__(24);
+__webpack_require__(22);
+__webpack_require__(11);
+__webpack_require__(25);
 __webpack_require__(39);
 
 
@@ -31454,11 +31319,11 @@ __webpack_require__(39);
  * PKCS standards like PKCS #12.
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
+__webpack_require__(8);
 __webpack_require__(6);
 __webpack_require__(16);
-__webpack_require__(8);
 __webpack_require__(9);
+__webpack_require__(10);
 __webpack_require__(36);
 __webpack_require__(5);
 __webpack_require__(1);
@@ -32904,10 +32769,10 @@ function _decryptContent(msg) {
  * @author https://github.com/shellac
  */
 var forge = __webpack_require__(0);
-__webpack_require__(7);
+__webpack_require__(8);
 __webpack_require__(12);
-__webpack_require__(21);
-__webpack_require__(10);
+__webpack_require__(22);
+__webpack_require__(11);
 __webpack_require__(1);
 
 var ssh = module.exports = forge.ssh = forge.ssh || {};
@@ -35309,7 +35174,7 @@ var RawTag_RawTag = /** @class */ (function (_super) {
 
 
 // EXTERNAL MODULE: ./node_modules/node-forge/lib/index.js
-var lib = __webpack_require__(11);
+var lib = __webpack_require__(7);
 
 // CONCATENATED MODULE: ./src/common/parser/StringTag.ts
 var StringTag_extends = (undefined && undefined.__extends) || (function () {
@@ -35446,7 +35311,7 @@ class DataHasher_DataHasher {
 }
 
 // EXTERNAL MODULE: ./node_modules/base64-js/index.js
-var base64_js = __webpack_require__(26);
+var base64_js = __webpack_require__(19);
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/coders/Base64Coder.js
 
@@ -41353,10 +41218,10 @@ var asn1 = __webpack_require__(6);
 var asn1_default = /*#__PURE__*/__webpack_require__.n(asn1);
 
 // EXTERNAL MODULE: ./node_modules/node-forge/lib/sha256.js
-var sha256 = __webpack_require__(24);
+var sha256 = __webpack_require__(25);
 
 // EXTERNAL MODULE: ./node_modules/node-forge/lib/sha1.js
-var sha1 = __webpack_require__(10);
+var sha1 = __webpack_require__(11);
 
 // EXTERNAL MODULE: ./node_modules/node-forge/lib/md.js
 var md = __webpack_require__(4);
@@ -43767,12 +43632,13 @@ var PublicationsFile_PublicationsFile = /** @class */ (function (_super) {
 
 // CONCATENATED MODULE: ./node_modules/gt-js-common/lib/crypto/CMSVerification.js
 
+
 //Fix to be correct from forge PR with verification
-var forge = __webpack_require__(11);
-var util = forge.util;
-var CMSVerification_asn1 = forge.asn1;
+var forge = __webpack_require__(7);
+// var util = forge.util;
+// var asn1 = forge.asn1;
 var pkcs7 = forge.pkcs7;
-var pki = forge.pki;
+// var pki = forge.pki;
 class CMSVerification_CMSVerification {
     /**
      * Function that verifies attached or detached signature and check that it is signed by the given trusted certificate
@@ -43782,21 +43648,64 @@ class CMSVerification_CMSVerification {
      * @param trustedCertificates - list of trusted root ceritificates in PEM format
      * @returns boolean value whether the signature was verified
      */
-    static verify(signatureValue, signedBytes, trustedCertificates) {
+    static verify(signatureValue, signedBytes, trustedCertificates, selector) {
         if (signatureValue instanceof Uint8Array) {
             var signatureValueAscii = ASCIIConverter.ToString(signatureValue);
-            var signatureBuffer = util.createBuffer(signatureValueAscii);
-            var signatureinAsn1 = CMSVerification_asn1.fromDer(signatureBuffer);
+            var signatureBuffer = lib["util"].createBuffer(signatureValueAscii);
+            var signatureinAsn1 = lib["asn1"].fromDer(signatureBuffer);
             var signature = pkcs7.messageFromAsn1(signatureinAsn1);
         }
         else {
             var signature = pkcs7.messageFromPem(signatureValue);
         }
         if (signedBytes !== null) {
-            signature.content = util.createBuffer(signedBytes);
+            signature.content = lib["util"].createBuffer(signedBytes);
         }
-        var verified = signature.verify(pki.createCaStore(trustedCertificates));
-        return verified;
+        var verifySelector = this.verifyCertificateSubject(signature.certificates[0], selector);
+        var verified = signature.verify(lib["pki"].createCaStore(trustedCertificates));
+        return verified && verifySelector;
+    }
+    static verifyCertificateSubject(certificate, selectorString) {
+        var selectorsArray = selectorString.split(",");
+        for (const selector of selectorsArray) {
+            var selectorArray = selector.split("=");
+            var selectorField = selectorArray[0];
+            var selectorValue = selectorArray[1];
+            if (selectorField.length > 2) {
+                selectorField = this.getFieldShortName(selectorField);
+            }
+            let subject = certificate.subject.getField(selectorField);
+            if (subject !== null) {
+                let value = subject.value;
+                if (value !== selectorValue) {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+    static getFieldShortName(longName) {
+        switch (longName.toLowerCase()) {
+            case "commonname":
+                return 'CN';
+            case 'countryname':
+                return 'C';
+            case "localityname":
+                return 'L';
+            case 'stateorprovincename':
+                return 'O';
+            case "organizationname":
+                return 'O';
+            case 'organizationalunitname':
+                return 'OU';
+            case "emailaddress":
+                return 'E';
+            default:
+                return longName;
+        }
     }
 }
 
@@ -43804,7 +43713,12 @@ class CMSVerification_CMSVerification {
 var default_gt_root_certificates = __webpack_require__(42);
 var default_gt_root_certificates_default = /*#__PURE__*/__webpack_require__.n(default_gt_root_certificates);
 
+// EXTERNAL MODULE: ./config/ksi-config.js
+var ksi_config = __webpack_require__(43);
+var ksi_config_default = /*#__PURE__*/__webpack_require__.n(ksi_config);
+
 // CONCATENATED MODULE: ./src/common/publication/PublicationsFileFactory.ts
+
 
 
 
@@ -43830,8 +43744,7 @@ var PublicationsFileFactory_PublicationsFileFactory = /** @class */ (function ()
             throw new PublicationsFileError('Publications file header is incorrect. Invalid publications file magic bytes.');
         }
         var pubFile = new PublicationsFile_PublicationsFile(RawTag_RawTag.CREATE(0x0, false, false, publicationFileBytes.slice(PublicationsFile_PublicationsFile.FileBeginningMagicBytes.length)));
-        // TODO: Verification
-        var verified = CMSVerification_CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes(), this.trustedCertificates);
+        var verified = CMSVerification_CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes(), this.trustedCertificates, ksi_config_default.a.CERTIFICATE_SUBJECT);
         if (!verified) {
             throw new PublicationsFileError("The signature on the publications file is not valid. ");
         }
