@@ -32,7 +32,7 @@ export class KsiHttpProtocol {
                     }
                 },
                 (response: IncomingMessage): void => {
-                    let data: Buffer = new Buffer(0);
+                    let data: Buffer = Buffer.alloc(0);
                     response.on('data', (chunk: Uint8Array): void => {
                         data = Buffer.concat([data, chunk]);
                     });
@@ -51,7 +51,7 @@ export class KsiHttpProtocol {
                 resolve(null);
             });
 
-            request.write(new Buffer(requestBytes));
+            request.write(Buffer.from(requestBytes));
             request.end();
         });
     }
@@ -68,7 +68,7 @@ export class KsiHttpProtocol {
                     path: this.url.pathname
                 },
                 (response: IncomingMessage): void => {
-                    let data: Buffer = new Buffer(0);
+                    let data: Buffer = Buffer.alloc(0);
                     response.on('data', (chunk: Uint8Array): void => {
                         data = Buffer.concat([data, chunk]);
                     });
