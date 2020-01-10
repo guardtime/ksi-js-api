@@ -1,3 +1,23 @@
+/*
+ * GUARDTIME CONFIDENTIAL
+ *
+ * Copyright 2008-2020 Guardtime, Inc.
+ * All Rights Reserved.
+ *
+ * All information contained herein is, and remains, the property
+ * of Guardtime, Inc. and its suppliers, if any.
+ * The intellectual and technical concepts contained herein are
+ * proprietary to Guardtime, Inc. and its suppliers and may be
+ * covered by U.S. and foreign patents and patents in process,
+ * and/or are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Guardtime, Inc.
+ * "Guardtime" and "KSI" are trademarks or registered trademarks of
+ * Guardtime, Inc., and no license to trademarks is granted; Guardtime
+ * reserves and retains all trademark rights.
+ */
+
 import {Base64Coder, DataHash, UnsignedLongCoder} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
 // @ts-ignore
@@ -49,7 +69,7 @@ export class KsiSignature extends CompositeTag {
 
     public static CREATE(payload: AggregationResponsePayload): KsiSignature {
         return new KsiSignature(CompositeTag.CREATE_FROM_LIST(KSI_SIGNATURE_CONSTANTS.TagType, false, false,
-                                                              payload.getSignatureTags()));
+            payload.getSignatureTags()));
     }
 
     public static CREATE_FROM_BASE64(value: string): KsiSignature {
@@ -192,7 +212,7 @@ export class KsiSignature extends CompositeTag {
             && (tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) !== 0
                 || tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) !== 0)) {
             throw new TlvError('No publication record or calendar authentication record is ' +
-                                   'allowed in KSI signature if there is no calendar hash chain.');
+                'allowed in KSI signature if there is no calendar hash chain.');
         }
 
         if ((tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) === 1 &&
