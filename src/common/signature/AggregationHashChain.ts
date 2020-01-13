@@ -1,3 +1,23 @@
+/*
+ * GUARDTIME CONFIDENTIAL
+ *
+ * Copyright 2008-2020 Guardtime, Inc.
+ * All Rights Reserved.
+ *
+ * All information contained herein is, and remains, the property
+ * of Guardtime, Inc. and its suppliers, if any.
+ * The intellectual and technical concepts contained herein are
+ * proprietary to Guardtime, Inc. and its suppliers and may be
+ * covered by U.S. and foreign patents and patents in process,
+ * and/or are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Guardtime, Inc.
+ * "Guardtime" and "KSI" are trademarks or registered trademarks of
+ * Guardtime, Inc., and no license to trademarks is granted; Guardtime
+ * reserves and retains all trademark rights.
+ */
+
 import {DataHash, DataHasher, HashAlgorithm, UnsignedLongCoder, Utf8Converter} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
 import {AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection} from '../Constants';
@@ -220,7 +240,7 @@ export class AggregationHashChainLink extends CompositeTag {
     }
 }
 
-export type AggregationHashResult = Readonly<{level: BigInteger; hash: DataHash}>;
+export type AggregationHashResult = Readonly<{ level: BigInteger; hash: DataHash }>;
 
 /**
  * Aggregation Hash Chain TLV Object
@@ -311,8 +331,8 @@ export class AggregationHashChain extends CompositeTag {
         let result: BigInteger = bigInteger(0);
         const links: AggregationHashChainLink[] = this.getChainLinks();
 
-        for (let i: number = 0; i < this.getChainLinks().length; i += 1)      {
-            if (links[i].getDirection() === LinkDirection.Left)             {
+        for (let i: number = 0; i < this.getChainLinks().length; i += 1) {
+            if (links[i].getDirection() === LinkDirection.Left) {
                 result = result.or(bigInteger(1).shiftLeft(i));
             }
         }
