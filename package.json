@@ -41,8 +41,7 @@
   },
   "peerDependencies": {
     "big-integer": "^1.6.36",
-    "forge-pr": "file:../forge-pr",
-    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#publicationFileSignatureVerify",
+    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -54,8 +53,7 @@
     "babel-preset-env": "^1.7.0",
     "big-integer": "^1.6.36",
     "csv-parse": "^3.2.0",
-    "forge-pr": "file:../forge-pr",
-    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git#publicationFileSignatureVerify",
+    "gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git",
     "jest": "^23.6.0",
     "rimraf": "^2.6.2",
     "ts-jest": "^23.10.4",

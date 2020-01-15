@@ -54,6 +54,13 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
+"@types/node-forge@0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-0.9.0.tgz#e9f678ec09283f9f35cb8de6c01f86be9278ac08"
+  integrity sha512-J00+BIHJOfagO1Qs67Jp5CZO3VkFxY8YKMt44oBhXr+3ZYNnl8wv/vtcJyPjuH0QZ+q7+5nnc6o/YH91ZJy2pQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node-forge@^0.7.6":
   version "0.7.12"
   resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-0.7.12.tgz#24b0bbbbc2c8163379e976a8fd27c7950a271cbc"
@@ -61,17 +68,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node-forge@^0.8.4":
-  version "0.8.7"
-  resolved "https://registry.yarnpkg.com/@types/node-forge/-/node-forge-0.8.7.tgz#5a32cbe05fecb0a34ac5550e7b54acaac0056b08"
-  integrity sha512-xDtriZLWYx21QvMeTUD7EYQ+kPUxsKzNK+3Wl037RsRotR57MwrzTv6jy2vOJtWQV7S7jMI/hqMxunEqdLHK8Q==
-  dependencies:
-    "@types/node" "*"
-
 "@types/node@*":
-  version "12.12.20"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.20.tgz#7b693038ce661fe57a7ffa4679440b5e7c5e8b99"
-  integrity sha512-VAe+DiwpnC/g448uN+/3gRl4th0BTdrR9gSLIOHA+SUQskaYZQDOHG7xmjiE7JUhjbXnbXytf6Ih+/pA6CtMFQ==
+  version "13.1.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.1.6.tgz#076028d0b0400be8105b89a0a55550c86684ffec"
+  integrity sha512-Jg1F+bmxcpENHP23sVKkNuU3uaxPnsBMW0cLjleiikFKomJQbsn0Cqk2yDvQArqzZN6ABfBkZ0To7pQ8sLdWDg==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -2485,9 +2485,6 @@ forever-agent@~0.6.1:
   resolved "https://registry.yarnpkg.com/forever-agent/-/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
   integrity sha1-+8cfDEGt6zf5bFd60e1C2P2sypE=
 
-"forge-pr@file:../forge-pr":
-  version "0.8.6-dev"
-
 form-data@~2.3.2:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-2.3.3.tgz#dcce52c05f644f298c6a7ab936bd724ceffbf3a6"
@@ -2697,12 +2694,12 @@ growly@^1.3.0:
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
-"gt-js-common@git+ssh://git@github.com:guardtime/gt-js-common.git#publicationFileSignatureVerify":
-  version "1.1.2"
-  resolved "git+ssh://git@github.com:guardtime/gt-js-common.git#9e74b51b075b940e89b608c31b0f2f8e74342660"
+"gt-js-common@git+ssh://git@github.com:guardtime/gt-js-common.git":
+  version "1.1.4"
+  resolved "git+ssh://git@github.com:guardtime/gt-js-common.git#68afabcea90a49315321efa86e05990bc08d5890"
   dependencies:
     "@types/base64-js" "^1.2.5"
-    "@types/node-forge" "^0.8.4"
+    "@types/node-forge" "0.9.0"
     base64-js "^1.3.0"
     big-integer "^1.6.36"
     node-forge "github:roysjosh/forge#ImplementPkcs7Verify"
