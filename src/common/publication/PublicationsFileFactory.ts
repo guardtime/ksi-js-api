@@ -36,7 +36,7 @@ export class PublicationsFileFactory {
                 false,
                 publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length)));
 
-        let verified = CMSVerification.verify(pubFile.getSignatureValue(), pubFile.getSignedBytes(), this.trustedCertificates, CONFIG.CERTIFICATE_SUBJECT);
+        let verified = CMSVerification.verifyFromBytes(pubFile.getSignatureValue(), pubFile.getSignedBytes(), this.trustedCertificates, CONFIG.CERTIFICATE_SUBJECT);
 
         if (!verified){
             throw new PublicationsFileError("The signature on the publications file is not valid. ");
