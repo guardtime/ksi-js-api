@@ -4,3 +4,5 @@ tools/proxy/httpd/01-ksi-proxy.conf
 config/ksi-config.js
 yarn-error.log
 .DS_Store
+
+.npmrc

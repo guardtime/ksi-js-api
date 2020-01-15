@@ -1,5 +1,25 @@
+/*
+ * GUARDTIME CONFIDENTIAL
+ *
+ * Copyright 2008-2020 Guardtime, Inc.
+ * All Rights Reserved.
+ *
+ * All information contained herein is, and remains, the property
+ * of Guardtime, Inc. and its suppliers, if any.
+ * The intellectual and technical concepts contained herein are
+ * proprietary to Guardtime, Inc. and its suppliers and may be
+ * covered by U.S. and foreign patents and patents in process,
+ * and/or are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Guardtime, Inc.
+ * "Guardtime" and "KSI" are trademarks or registered trademarks of
+ * Guardtime, Inc., and no license to trademarks is granted; Guardtime
+ * reserves and retains all trademark rights.
+ */
+
+import {DataHash, pseudoRandomLong} from '@guardtime/gt-js-common';
 import bigInteger, {BigInteger} from 'big-integer';
-import {DataHash, pseudoRandomLong} from 'gt-js-common';
 import {TlvInputStream} from '../parser/TlvInputStream';
 import {KsiSignature} from '../signature/KsiSignature';
 import {AggregationRequestPayload} from './AggregationRequestPayload';
@@ -27,7 +47,7 @@ export class SigningService {
     }
 
     private static processPayload(payload: AggregationResponsePayload): KsiSignature {
-        if (payload.getStatus().neq(0))         {
+        if (payload.getStatus().neq(0)) {
             // tslint:disable-next-line:max-line-length
             throw new KsiServiceError(`Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`);
         }
@@ -41,8 +61,8 @@ export class SigningService {
         const requestPayload: AggregationRequestPayload = AggregationRequestPayload.CREATE(requestId, hash, level);
 
         const requestPdu: AggregationRequestPdu = await AggregationRequestPdu.CREATE(header, requestPayload,
-                                                                                     this.signingServiceCredentials.getHmacAlgorithm(),
-                                                                                     this.signingServiceCredentials.getLoginKey());
+            this.signingServiceCredentials.getHmacAlgorithm(),
+            this.signingServiceCredentials.getLoginKey());
 
         const ksiRequest: KsiRequestBase = this.signingServiceProtocol.sign(requestPdu.encode());
         this.requests[requestId.toString()] = ksiRequest;

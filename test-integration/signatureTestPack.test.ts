@@ -1,20 +1,45 @@
+/*
+ * GUARDTIME CONFIDENTIAL
+ *
+ * Copyright 2008-2020 Guardtime, Inc.
+ * All Rights Reserved.
+ *
+ * All information contained herein is, and remains, the property
+ * of Guardtime, Inc. and its suppliers, if any.
+ * The intellectual and technical concepts contained herein are
+ * proprietary to Guardtime, Inc. and its suppliers and may be
+ * covered by U.S. and foreign patents and patents in process,
+ * and/or are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Guardtime, Inc.
+ * "Guardtime" and "KSI" are trademarks or registered trademarks of
+ * Guardtime, Inc., and no license to trademarks is granted; Guardtime
+ * reserves and retains all trademark rights.
+ */
+
+// tslint:disable-next-line:no-submodule-imports
+import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
+// tslint:disable-next-line:no-submodule-imports
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import bigInteger, {BigInteger} from 'big-integer';
-import {CastingContext} from 'csv-parse';
+import {CastingContext, ColumnOption} from 'csv-parse';
 // tslint:disable-next-line:import-name
 import parseCsv from 'csv-parse/lib/sync';
 import {EventEmitter} from 'events';
 import fs from 'fs';
-import HexCoder from 'gt-js-common/lib/coders/HexCoder';
-import DataHash from 'gt-js-common/lib/hash/DataHash';
 import * as path from 'path';
 import ksiConfig from '../config/ksi-config';
 import {
     ExtendingService,
     KeyBasedVerificationPolicy,
     KsiService,
-    PublicationBasedVerificationPolicy, PublicationsFileFactory, PublicationsFileService,
+    PublicationBasedVerificationPolicy,
+    PublicationsFileFactory,
+    PublicationsFileService,
     ServiceCredentials,
-    SigningService, VerificationContext
+    SigningService,
+    VerificationContext
 } from '../src/common/main';
 import {TlvInputStream} from '../src/common/parser/TlvInputStream';
 import {PublicationData} from '../src/common/publication/PublicationData';
@@ -94,7 +119,7 @@ describe.each(
     it.each(
         (<SignatureTestRow[]>parseCsv(fs.readFileSync(resultFile).toString(), {
                 delimiter: ';',
-                columns: (): boolean | string[] => {
+                columns: (): ColumnOption[] => {
                     return [
                         'signatureFile', 'actionName', 'errorCode', 'errorMessage', 'inputHashLevel',
                         'inputHash', 'calendarHashChainInput', 'calendarHashChainOutput', 'aggregationTime',

@@ -1,3 +1,23 @@
+/*
+ * GUARDTIME CONFIDENTIAL
+ *
+ * Copyright 2008-2020 Guardtime, Inc.
+ * All Rights Reserved.
+ *
+ * All information contained herein is, and remains, the property
+ * of Guardtime, Inc. and its suppliers, if any.
+ * The intellectual and technical concepts contained herein are
+ * proprietary to Guardtime, Inc. and its suppliers and may be
+ * covered by U.S. and foreign patents and patents in process,
+ * and/or are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Guardtime, Inc.
+ * "Guardtime" and "KSI" are trademarks or registered trademarks of
+ * Guardtime, Inc., and no license to trademarks is granted; Guardtime
+ * reserves and retains all trademark rights.
+ */
+
 import {LinkDirection} from '../../Constants';
 import {ImprintTag} from '../../parser/ImprintTag';
 import {CalendarHashChain} from '../CalendarHashChain';
@@ -10,15 +30,13 @@ import {VerificationResult, VerificationResultCode} from './VerificationResult';
  * Verification Rule for KSI Signature
  */
 export abstract class VerificationRule {
-    private readonly ruleName: string = this.constructor.name;
     private onSuccessRule: VerificationRule | null = null;
     private onFailureRule: VerificationRule | null = null;
     private onNaRule: VerificationRule | null = null;
+    private readonly ruleName: string;
 
-    protected constructor(ruleName: string | null = null) {
-        if (ruleName !== null) {
-            this.ruleName = ruleName;
-        }
+    protected constructor(ruleName: string) {
+        this.ruleName = ruleName;
     }
 
     protected static getSignature(context: VerificationContext): KsiSignature {

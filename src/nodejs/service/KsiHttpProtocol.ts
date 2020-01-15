@@ -1,3 +1,23 @@
+/*
+ * GUARDTIME CONFIDENTIAL
+ *
+ * Copyright 2008-2020 Guardtime, Inc.
+ * All Rights Reserved.
+ *
+ * All information contained herein is, and remains, the property
+ * of Guardtime, Inc. and its suppliers, if any.
+ * The intellectual and technical concepts contained herein are
+ * proprietary to Guardtime, Inc. and its suppliers and may be
+ * covered by U.S. and foreign patents and patents in process,
+ * and/or are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Guardtime, Inc.
+ * "Guardtime" and "KSI" are trademarks or registered trademarks of
+ * Guardtime, Inc., and no license to trademarks is granted; Guardtime
+ * reserves and retains all trademark rights.
+ */
+
 import {EventEmitter} from 'events';
 import {ClientRequest, IncomingMessage, request as httpRequest, RequestOptions} from 'http';
 import {request as httpsRequest} from 'https';
@@ -32,7 +52,7 @@ export class KsiHttpProtocol {
                     }
                 },
                 (response: IncomingMessage): void => {
-                    let data: Buffer = new Buffer(0);
+                    let data: Buffer = Buffer.alloc(0);
                     response.on('data', (chunk: Uint8Array): void => {
                         data = Buffer.concat([data, chunk]);
                     });
@@ -51,7 +71,7 @@ export class KsiHttpProtocol {
                 resolve(null);
             });
 
-            request.write(new Buffer(requestBytes));
+            request.write(Buffer.from(requestBytes));
             request.end();
         });
     }
@@ -68,7 +88,7 @@ export class KsiHttpProtocol {
                     path: this.url.pathname
                 },
                 (response: IncomingMessage): void => {
-                    let data: Buffer = new Buffer(0);
+                    let data: Buffer = Buffer.alloc(0);
                     response.on('data', (chunk: Uint8Array): void => {
                         data = Buffer.concat([data, chunk]);
                     });

@@ -1,5 +1,25 @@
+/*
+ * GUARDTIME CONFIDENTIAL
+ *
+ * Copyright 2008-2020 Guardtime, Inc.
+ * All Rights Reserved.
+ *
+ * All information contained herein is, and remains, the property
+ * of Guardtime, Inc. and its suppliers, if any.
+ * The intellectual and technical concepts contained herein are
+ * proprietary to Guardtime, Inc. and its suppliers and may be
+ * covered by U.S. and foreign patents and patents in process,
+ * and/or are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Guardtime, Inc.
+ * "Guardtime" and "KSI" are trademarks or registered trademarks of
+ * Guardtime, Inc., and no license to trademarks is granted; Guardtime
+ * reserves and retains all trademark rights.
+ */
+
+import {pseudoRandomLong} from '@guardtime/gt-js-common';
 import {BigInteger} from 'big-integer';
-import {pseudoRandomLong} from 'gt-js-common';
 import {TlvInputStream} from '../parser/TlvInputStream';
 import {CalendarHashChain} from '../signature/CalendarHashChain';
 import {ErrorPayload} from './ErrorPayload';
@@ -40,8 +60,8 @@ export class ExtendingService {
         const requestId: BigInteger = this.generateRequestId();
         const requestPayload: ExtendRequestPayload = ExtendRequestPayload.CREATE(requestId, aggregationTime, publicationTime);
         const requestPdu: ExtendRequestPdu = await ExtendRequestPdu.CREATE(header, requestPayload,
-                                                                           this.extendingServiceCredentials.getHmacAlgorithm(),
-                                                                           this.extendingServiceCredentials.getLoginKey());
+            this.extendingServiceCredentials.getHmacAlgorithm(),
+            this.extendingServiceCredentials.getLoginKey());
 
         const ksiRequest: KsiRequestBase = this.extendingServiceProtocol.extend(requestPdu.encode());
         this.requests[requestId.toString()] = ksiRequest;
