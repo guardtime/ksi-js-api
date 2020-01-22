@@ -1,4 +1,4 @@
-import {CMSVerification} from 'gt-js-common';
+import {CMSVerification} from '@guardtime/gt-js-common';
 import {PublicationsFileService} from '../src/common/main';
 import {PublicationsFileFactory} from '../src/common/publication/PublicationsFileFactory';
 import {PublicationsFileServiceProtocol} from '../src/nodejs/service/PublicationsFileServiceProtocol';
@@ -150,6 +150,7 @@ describe('Testing signature verification', () => {
                 let verifyPubFile = CMSVerification.verifyFromBytes(signature, signedBytes, certificates, "E=publications@guardtime.com");
 
                 expect(verifyPubFile).toEqual(true);
+            });
     });
 
 
@@ -163,5 +164,4 @@ describe('Testing signature verification', () => {
         let verifyDetached = CMSVerification.verifyFromPem(exampleSignatureDetached, exampleContent, [certChain], 'CN=*.z.guardtime.com');
         expect(verifyDetached).toBe(true);
     });
-        });
 });
