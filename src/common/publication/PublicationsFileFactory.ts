@@ -30,13 +30,12 @@ import CONFIG from '../../../config/ksi-config.js';
  * Publications file factory for publications file creation from byte array
  */
 export class PublicationsFileFactory {
-    private readonly trustedCertificates: string[];
+    private readonly trustedCertificates: string;
 
     constructor(trustedCertificates?: string) {
+        this.trustedCertificates = DEFAULT_VALUES.TRUSTED_CERTIFICATES;
         if (typeof(trustedCertificates) !== 'undefined'){
-            this.trustedCertificates = trustedCertificates.split(';');
-        } else {
-            this.trustedCertificates = DEFAULT_VALUES.TRUSTED_CERTIFICATES.split(';');
+            this.trustedCertificates = trustedCertificates;
         }
 
     }
@@ -56,7 +55,7 @@ export class PublicationsFileFactory {
                 false,
                 publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length)));
 
-        const verified = CMSVerification.verifyFromBytes(pubFile.getSignatureValue(), pubFile.getSignedBytes(), this.trustedCertificates, CONFIG.CERTIFICATE_SUBJECT);
+        const verified = CMSVerification.verifyFromBytes(pubFile.getSignatureValue(), pubFile.getSignedBytes(), [this.trustedCertificates], CONFIG.CERTIFICATE_SUBJECT);
 
         if (!verified){
             throw new PublicationsFileError("The signature on the publications file is not valid. ");
