@@ -32,12 +32,8 @@ import CONFIG from '../../../config/ksi-config.js';
 export class PublicationsFileFactory {
     private readonly trustedCertificates: string;
 
-    constructor(trustedCertificates?: string) {
-        this.trustedCertificates = DEFAULT_VALUES.TRUSTED_CERTIFICATES;
-        if (typeof(trustedCertificates) !== 'undefined'){
-            this.trustedCertificates = trustedCertificates;
-        }
-
+    constructor(trustedCertificates: string = DEFAULT_VALUES.TRUSTED_CERTIFICATES) {
+        this.trustedCertificates = trustedCertificates;
     }
 
 // noinspection JSMethodCanBeStatic
