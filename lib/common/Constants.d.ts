@@ -192,4 +192,8 @@ export declare enum LinkDirection {
     Left = 7,
     Right = 8
 }
+export declare const PUBLICATIONS_FILE_SIGNATURE_CONSTANTS: Readonly<{
+    TrustedCertifiactes: string;
+    GuardtimeSignatureSubjectEmail: string;
+}>;
 export {};

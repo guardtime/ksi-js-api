@@ -4,6 +4,7 @@ import { PublicationsFile } from './PublicationsFile';
  */
 export declare class PublicationsFileFactory {
     private readonly trustedCertificates;
-    constructor(trustedCertificates?: string);
+    private readonly signatueSubjectToVerify;
+    constructor(trustedCertificates?: string, signatueSubjectToVerify?: string);
     create(publicationFileBytes: Uint8Array): PublicationsFile;
 }
