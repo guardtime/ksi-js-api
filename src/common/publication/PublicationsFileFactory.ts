@@ -23,17 +23,19 @@ import {compareTypedArray} from '../util/Array';
 import {PublicationsFile} from './PublicationsFile';
 import {PublicationsFileError} from './PublicationsFileError';
 import {CMSVerification} from '@guardtime/gt-js-common';
-import DEFAULT_VALUES from '../../../config/default_gt_root_certificates.js';
-import CONFIG from '../../../config/ksi-config.js';
+import {PUBLICATIONS_FILE_SIGNATURE_CONSTANTS} from '../Constants';
 
 /**
  * Publications file factory for publications file creation from byte array
  */
 export class PublicationsFileFactory {
     private readonly trustedCertificates: string;
+    private readonly signatueSubjectToVerify: string;
 
-    constructor(trustedCertificates: string = DEFAULT_VALUES.TRUSTED_CERTIFICATES) {
+    constructor(trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertifiactes,
+                signatueSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail) {
         this.trustedCertificates = trustedCertificates;
+        this.signatueSubjectToVerify = signatueSubjectToVerify;
     }
 
 // noinspection JSMethodCanBeStatic
@@ -51,7 +53,11 @@ export class PublicationsFileFactory {
                 false,
                 publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length)));
 
-        const verified = CMSVerification.verifyFromBytes(pubFile.getSignatureValue(), pubFile.getSignedBytes(), [this.trustedCertificates], CONFIG.CERTIFICATE_SUBJECT);
+        const verified = CMSVerification.verifyFromBytes(
+            pubFile.getSignatureValue(),
+            pubFile.getSignedBytes(),
+            [this.trustedCertificates],
+            this.signatueSubjectToVerify);
 
         if (!verified){
             throw new PublicationsFileError("The signature on the publications file is not valid. ");
