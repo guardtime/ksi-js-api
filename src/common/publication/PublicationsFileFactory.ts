@@ -32,7 +32,7 @@ export class PublicationsFileFactory {
     private readonly trustedCertificates: string;
     private readonly signatueSubjectToVerify: string;
 
-    constructor(trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertifiactes,
+    constructor(trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates,
                 signatueSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail) {
         this.trustedCertificates = trustedCertificates;
         this.signatueSubjectToVerify = signatueSubjectToVerify;
