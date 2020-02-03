@@ -38,7 +38,6 @@ export class PublicationsFileFactory {
         this.signatueSubjectToVerify = signatueSubjectToVerify;
     }
 
-// noinspection JSMethodCanBeStatic
     public create(publicationFileBytes: Uint8Array): PublicationsFile {
         const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
         if (!compareTypedArray(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {
