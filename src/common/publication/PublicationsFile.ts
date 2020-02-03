@@ -30,8 +30,6 @@ import {PublicationRecord} from './PublicationRecord';
 import {PublicationsFileError} from './PublicationsFileError';
 import {PublicationsFileHeader} from './PublicationsFileHeader';
 
-const ElementTypeCmsSignature = 1796;
-
 /**
  * Publications File TLV object
  */
@@ -114,7 +112,7 @@ export class PublicationsFile extends CompositeTag {
         const stream: TlvOutputStream = new TlvOutputStream();
         stream.write(PublicationsFile.FileBeginningMagicBytes);
         for (const tlvTag of this.value) {
-            if (tlvTag.id !== ElementTypeCmsSignature){
+            if (tlvTag.id !== PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType){
                 stream.writeTag(tlvTag);
             }
         }

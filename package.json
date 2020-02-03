@@ -1,6 +1,6 @@
 {
   "name": "@guardtime/ksi-js-api",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "private": true,
   "main": "./dist/main.node.js",
   "browser": "./dist/main.js",
@@ -35,7 +35,7 @@
   "peerDependencies": {
     "@guardtime/gt-js-common": "1.1.6",
     "big-integer": "^1.6.48",
-    "uuid": "^"
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@types/big-integer": "^0.0.31",
