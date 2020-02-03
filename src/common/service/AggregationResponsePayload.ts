@@ -39,6 +39,7 @@ export class AggregationResponsePayload extends RequestResponsePayload {
         super(tlvTag);
 
         this.decodeValue(this.parseChild.bind(this));
+        this.validateValue(this.validate.bind(this));
 
         Object.freeze(this);
     }

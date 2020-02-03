@@ -14,15 +14,6 @@
     "lint:fix": "eslint \"src/**/*.ts\" --fix"
   },
   "jest": {
-    "globals": {
-      "ts-jest": {
-        "tsConfig": {
-          "module": "commonjs",
-          "target": "es6",
-          "declaration": false
-        }
-      }
-    },
     "transform": {
       "^.+\\.tsx?$": "babel-jest",
       "^.+\\.m?js$": "babel-jest"
@@ -38,38 +29,39 @@
       "mjs"
     ],
     "transformIgnorePatterns": [
-      "/node_modules/(?!(@guardtime/gt-js-common/lib))"
+      "/node_modules/(?!(@guardtime/gt-js-common))"
     ]
   },
   "peerDependencies": {
-    "@guardtime/gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git",
+    "@guardtime/gt-js-common": "1.1.6",
     "big-integer": "^1.6.48",
-    "uuid": "^3.3.3"
+    "uuid": "^"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.7",
-    "@babel/plugin-proposal-class-properties": "^7.7.4",
-    "@babel/polyfill": "^7.7.0",
-    "@babel/preset-env": "^7.7.7",
-    "@babel/preset-typescript": "^7.7.7",
-    "@guardtime/gt-js-common": "git+ssh://git@github.com:guardtime/gt-js-common.git",
     "@types/big-integer": "^0.0.31",
     "@types/csv-parse": "^1.2.2",
-    "@types/jest": "^24.0.25",
     "@types/uuid": "^3.4.6",
-    "@typescript-eslint/eslint-plugin": "^2.13.0",
-    "@typescript-eslint/parser": "^2.13.0",
-    "babel-jest": "^24.9.0",
+    "@types/jest": "^25.1.0",
+    "@babel/core": "^7.8.3",
+    "@babel/runtime": "^7.8.3",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/preset-typescript": "^7.8.3",
+    "babel-jest": "^25.1.0",
     "babel-loader": "^8.0.6",
-    "big-integer": "^1.6.48",
-    "csv-parse": "^4.8.3",
+    "typescript": "^3.7.5",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.9.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "jest": "^24.9.0",
     "prettier": "^1.19.1",
+    "jest": "^25.1.0",
+    "@guardtime/gt-js-common": "1.1.6",
+    "@typescript-eslint/eslint-plugin": "^2.13.0",
+    "@typescript-eslint/parser": "^2.13.0",
+    "big-integer": "^1.6.48",
+    "csv-parse": "^4.8.3",
     "rimraf": "^3.0.0",
-    "typescript": "^3.7.4",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.1"
