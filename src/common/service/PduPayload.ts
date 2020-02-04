@@ -29,5 +29,4 @@ export abstract class PduPayload extends CompositeTag {
     protected constructor(tlvTag: TlvTag) {
         super(tlvTag);
     }
-
 }

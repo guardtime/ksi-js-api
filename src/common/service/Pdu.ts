@@ -75,7 +75,7 @@ export abstract class Pdu extends CompositeTag {
     }
 
     protected validate(tagCount: ICount): void {
-        if (ErrorPayload != null) {
+        if (this.errorPayload != null) {
             return;
         }
 

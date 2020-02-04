@@ -27,5 +27,10 @@ import {ErrorPayload} from './ErrorPayload';
 export class ExtendErrorPayload extends ErrorPayload {
     constructor(tlvTag: TlvTag) {
         super(tlvTag);
+
+        this.decodeValue(this.parseChild.bind(this));
+        this.validateValue(this.validate.bind(this));
+
+        Object.freeze(this);
     }
 }

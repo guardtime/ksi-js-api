@@ -21,7 +21,6 @@
 import {PublicationsFile} from '../publication/PublicationsFile';
 import {PublicationsFileFactory} from '../publication/PublicationsFileFactory';
 import {IPublicationsFileServiceProtocol} from './IPublicationsFileServiceProtocol';
-
 /**
  * Publications file service
  */

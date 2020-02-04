@@ -112,7 +112,9 @@ export class PublicationsFile extends CompositeTag {
         const stream: TlvOutputStream = new TlvOutputStream();
         stream.write(PublicationsFile.FileBeginningMagicBytes);
         for (const tlvTag of this.value) {
-            stream.writeTag(tlvTag);
+            if (tlvTag.id !== PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType){
+                stream.writeTag(tlvTag);
+            }
         }
 
         return stream.getData();
