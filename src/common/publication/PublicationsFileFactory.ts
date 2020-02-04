@@ -32,13 +32,12 @@ export class PublicationsFileFactory {
     private readonly trustedCertificates: string;
     private readonly signatueSubjectToVerify: string;
 
-    constructor(trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertifiactes,
+    constructor(trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates,
                 signatueSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail) {
         this.trustedCertificates = trustedCertificates;
         this.signatueSubjectToVerify = signatueSubjectToVerify;
     }
 
-// noinspection JSMethodCanBeStatic
     public create(publicationFileBytes: Uint8Array): PublicationsFile {
         const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
         if (!compareTypedArray(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {

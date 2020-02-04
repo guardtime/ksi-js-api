@@ -153,24 +153,23 @@ const exampleSignatureAttached = '-----BEGIN PKCS7-----\n' +
     '-----END PKCS7-----';
 
 describe('Testing signature verification', () => {
-    it('verify publication file', () => {
+    it('verify publication file', async () => {
         let pubFileService: PublicationsFileService;
         pubFileService = new PublicationsFileService(
             new PublicationsFileServiceProtocol(CONFIG.PUBLICATIONS_FILE_URL),
             new PublicationsFileFactory()
         );
-        pubFileService.getPublicationsFile()
-            .then(pubFile => {
-                //testing js-common
-                let certfile = 'test/certificate.txt';
-                let certfileData = fs.readFileSync(certfile, "utf8");
-                let certificates = certfileData.split(";");
-                let signature = pubFile.getSignatureValue();
-                let signedBytes = pubFile.getSignedBytes();
-                let verifyPubFile = CMSVerification.verifyFromBytes(signature, signedBytes, certificates, "E=publications@guardtime.com");
 
-                expect(verifyPubFile).toEqual(true);
-            });
+
+        const pubFile = await pubFileService.getPublicationsFile();
+        let certfile = 'test/certificate.txt';
+        let certfileData = fs.readFileSync(certfile, "utf8");
+        let certificates = certfileData.split(";");
+        let signature = pubFile.getSignatureValue();
+        let signedBytes = pubFile.getSignedBytes();
+        let verifyPubFile = CMSVerification.verifyFromBytes(signature, signedBytes, certificates, "E=publications@guardtime.com");
+
+        expect(verifyPubFile).toEqual(true);
     });
 
 

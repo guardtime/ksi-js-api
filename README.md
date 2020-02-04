@@ -29,8 +29,7 @@ const CONFIG = {
     EXTENDER_URL: 'http://tryout-extender.guardtime.net:8081/gt-extendingservice',
     LOGIN_ID: 'CHANGE_ME_KSI_GATEWAY_USERNAME',
     LOGIN_KEY: new Uint8Array([0, 0, 0, 0, 0]),
-    PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin',
-    CERTIFICATE_SUBJECT: "E=publications@guardtime.com"
+    PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin'
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

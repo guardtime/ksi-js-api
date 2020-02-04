@@ -324,8 +324,8 @@ export enum LinkDirection {
     Right = 0x8
 }
 
-export const PUBLICATIONS_FILE_SIGNATURE_CONSTANTS: Readonly<{TrustedCertifiactes: string; GuardtimeSignatureSubjectEmail: string}> = Object.freeze({
-    TrustedCertifiactes: "-----BEGIN CERTIFICATE-----\n" +
+export const PUBLICATIONS_FILE_SIGNATURE_CONSTANTS: Readonly<{TrustedCertificates: string; GuardtimeSignatureSubjectEmail: string}> = Object.freeze({
+    TrustedCertificates: "-----BEGIN CERTIFICATE-----\n" +
         "MIIFgzCCA2ugAwIBAgIORea7A4Mzw4VlSOb/RVEwDQYJKoZIhvcNAQEMBQAwTDEg\n" +
         "MB4GA1UECxMXR2xvYmFsU2lnbiBSb290IENBIC0gUjYxEzARBgNVBAoTCkdsb2Jh\n" +
         "bFNpZ24xEzARBgNVBAMTCkdsb2JhbFNpZ24wHhcNMTQxMjEwMDAwMDAwWhcNMzQx\n" +
