@@ -28,7 +28,7 @@ const web = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
+                test: /\.ts$/,
                 use: {
                     loader: "babel-loader",
                     options: {
@@ -62,7 +62,7 @@ const nodejs = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
+                test: /\.ts$/,
                 use: {
                     loader: "babel-loader",
                     options: {

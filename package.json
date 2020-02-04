@@ -15,10 +15,10 @@
   },
   "jest": {
     "transform": {
-      "^.+\\.tsx?$": "babel-jest",
+      "^.+\\.ts$": "babel-jest",
       "^.+\\.m?js$": "babel-jest"
     },
-    "testRegex": "(^.*\\.test)\\.(tsx?)$",
+    "testRegex": "(^.*\\.test)\\.(ts)$",
     "moduleFileExtensions": [
       "ts",
       "js",
