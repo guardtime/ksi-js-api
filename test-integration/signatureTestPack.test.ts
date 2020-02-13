@@ -118,6 +118,7 @@ describe.each(
 
     it.each(
         (<SignatureTestRow[]>parseCsv(fs.readFileSync(resultFile).toString(), {
+                from_line: 2,
                 delimiter: ';',
                 columns: (): ColumnOption[] => {
                     return [
