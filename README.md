@@ -12,14 +12,15 @@ npm install "git+ssh://git@github.com:guardtime/ksi-js-api.git"
 ## Development
 Install system dependencies:
 
-1. [Node](https://nodejs.org/en/download/current/) for development.
-2. [Yarn](https://yarnpkg.com/en/docs/install) for package management.
+1. [Node/npm](https://nodejs.org/en/download/current/) for development and package management.
 
 Setup project:
+
+Add .npmrc file to project root which points to a npm repository containing @guardtime/ libraries.
 ```shell
 git clone git@github.com:guardtime/ksi-js-api.git
 cd ksi-js-api
-yarn install
+npm install
 ```
 Add KSI gateway configuration:
 ```shell
@@ -40,22 +41,22 @@ EOF
 
 Building project:
 ```shell
-yarn build
+npm run build
 ```
 
 Open development server:
 ```shell
-yarn browser:dev
+npm run browser:dev
 ```
 
 Running tests in node:
 ```
-yarn test
+npm run test
 ```
 
 Running integration tests in node:
 ```
-yarn integration-test
+npm run integration-test
 ```
 
 ## Example usage
