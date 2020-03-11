@@ -1,0 +1,42 @@
+pipeline {
+    agent {
+        label 'centos7'
+    }
+    environment {
+        SHORT_COMMIT = "${GIT_COMMIT[0..7]}"
+    }
+    stages {
+        stage('build') {
+            steps {
+                nodejs(nodeJSInstallationName: 'node1320', configId: 'feb08d93-6888-4c30-9bd8-45aef7ae0db1') {
+                    sh 'npm ci'
+                    sh 'npm run test'
+                    sh 'npm run lint'
+                    sh 'npm run build'
+                }
+                archiveArtifacts artifacts: 'dist/**', fingerprint: true
+                junit testResults: 'coverage/junit.xml'
+                step([
+                    $class: 'CloverPublisher',
+                    cloverReportDir: 'coverage',
+                    cloverReportFileName: 'clover.xml'
+                ])
+            }
+        }
+        stage('Publish') {
+                when {
+                    branch 'master'
+                }
+                steps {
+                    nodejs(nodeJSInstallationName: 'node1320', configId: '7f0f5e1c-f542-433b-98ca-7cb938e79aac') {
+                        sh "npm run publish:ci"
+                    }
+                }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

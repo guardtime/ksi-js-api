@@ -1,2 +1,9 @@
 .idea/
+dist/
+lib/
 node_modules/
+
+.DS_Store
+.npmrc
+config/ksi-config.js
+tools/proxy/httpd/01-ksi-proxy.conf

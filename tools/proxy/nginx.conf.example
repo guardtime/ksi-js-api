@@ -1,0 +1,38 @@
+http {
+
+    server {
+        listen       8080;
+        server_name  signing-service;
+
+        location /gt-signingservice {
+            add_header Access-Control-Allow-Origin "*" always;
+            add_header Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT" always;
+            add_header Access-Control-Max-Age "1000" always;
+            add_header Access-Control-Allow-Headers "x-requested-with, Content-Type, origin, authorization, accept, client-security-token" always;
+
+            if ($request_method ~ "OPTIONS"){
+                return 200;
+            }
+
+            proxy_pass  http://gt-signing-url:8080/gt-signingservice;
+        }
+    }
+
+    server {
+        listen       8081;
+        server_name  extending-service;
+
+        location /gt-extendingservice {
+            add_header Access-Control-Allow-Origin "*" always;
+            add_header Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT" always;
+            add_header Access-Control-Max-Age "1000" always;
+            add_header Access-Control-Allow-Headers "x-requested-with, Content-Type, origin, authorization, accept, client-security-token" always;
+
+            if ($request_method ~ "OPTIONS"){
+                return 200;
+            }
+
+            proxy_pass  http://gt-extending-url:8081/gt-extendingservice;
+        }
+    }
+}

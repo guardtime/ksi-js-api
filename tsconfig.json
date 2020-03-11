@@ -1,19 +1,25 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./lib",
     "noImplicitAny": true,
     "strictNullChecks": true,
+    "moduleResolution": "node",
     "module": "es6",
     "target": "es5",
     "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noEmitOnError": true,
     "lib": [
       "es6",
       "es2015",
       "dom"
-    ],
-    "moduleResolution": "node"
+    ]
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "test",
+    "test-integration",
+    "config"
   ]
 }

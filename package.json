@@ -1,23 +1,25 @@
 {
-  "name": "ksi-js-api",
+  "name": "@guardtime/ksi-js-api",
   "version": "1.0.0",
   "private": true,
-  "main": "./dist/main.js",
+  "main": "./dist/main.node.js",
+  "browser": "./dist/main.js",
+  "types": "./lib/nodejs/main.d.ts",
   "scripts": {
-    "test": "jest",
-    "build": "webpack"
+    "test": "jest test/",
+    "integration-test": "jest test-integration/",
+    "build": "rimraf lib && tsc -t ES6 -d  && webpack",
+    "browser:dev": "webpack-dev-server",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "publish:ci": "npm --no-git-tag-version version $npm_package_version-$SHORT_COMMIT && npm publish"
   },
   "jest": {
-    "globals": {
-      "ts-jest": {
-        "tsConfigFile": "tsconfig.jest.json"
-      }
-    },
     "transform": {
-      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.ts$": "babel-jest",
       "^.+\\.m?js$": "babel-jest"
     },
-    "testRegex": "(/test/.*|(\\.|/)(test|spec))\\.(tsx?)$",
+    "testRegex": "(^.*\\.test)\\.(ts)$",
     "moduleFileExtensions": [
       "ts",
       "js",
@@ -28,21 +30,46 @@
       "mjs"
     ],
     "transformIgnorePatterns": [
-      "/node_modules/(?!(gt-js-common/lib))"
+      "/node_modules/(?!(@guardtime/gt-js-common))"
     ]
   },
+  "peerDependencies": {
+    "@guardtime/gt-js-common": "1.1.6",
+    "big-integer": "^1.6.48",
+    "uuid": "^3.3.3"
+  },
   "devDependencies": {
-    "big-integer": "^1.6.36",
-    "gt-js-common": "git@github.com:guardtime/gt-js-common.git#typescript",
-    "jest": "^23.6.0",
-    "@types/jest": "^23.3.2",
-    "ts-jest": "^23.1.4",
-    "babel-jest": "^23.6.0",
-    "babel-preset-env": "^1.7.0",
-    "webpack": "^4.17.2",
-    "webpack-cli": "^3.1.0",
-    "typescript": "^3.0.3",
-    "ts-loader": "^5.1.1",
-    "tslint": "5.11.0"
+    "@types/big-integer": "^0.0.31",
+    "@types/csv-parse": "^1.2.2",
+    "@types/uuid": "^3.4.6",
+    "@types/jest": "^25.1.0",
+    "@babel/core": "^7.8.3",
+    "@babel/runtime": "^7.8.3",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/preset-typescript": "^7.8.3",
+    "babel-jest": "^25.1.0",
+    "babel-loader": "^8.0.6",
+    "typescript": "^3.7.5",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^1.19.1",
+    "jest": "^25.1.0",
+    "jest-junit": "10.0.0",
+    "@guardtime/gt-js-common": "1.1.6",
+    "@typescript-eslint/eslint-plugin": "^2.13.0",
+    "@typescript-eslint/parser": "^2.13.0",
+    "big-integer": "^1.6.48",
+    "csv-parse": "^4.8.3",
+    "rimraf": "^3.0.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1"
+  },
+  "jest-junit": {
+    "outputDirectory": "./coverage",
+    "outputName": "junit.xml"
   }
 }

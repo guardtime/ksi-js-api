@@ -1,0 +1,16 @@
+# Changelog
+All notable changes to KSI JS API will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [Unreleased]
+
+## [1.0.0] - 2019-07-15
+### Added
+- Base functionality for KSI signatures
+  - Signature parsing, verification and extending
+  - Publications file parsing
+  - Hash, file signing
+
+[Unreleased]: https://github.com/guardtime/ksi-js-api/tree/master
+[1.0.0]: https://github.com/guardtime/ksi-js-api/tree/1.0.0
