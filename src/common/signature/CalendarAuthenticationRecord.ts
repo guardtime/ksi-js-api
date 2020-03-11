@@ -18,56 +18,56 @@
  * reserves and retains all trademark rights.
  */
 
-import {PUBLICATION_DATA_CONSTANTS, SIGNATURE_DATA_CONSTANTS} from '../Constants';
-import {CompositeTag, ICount} from '../parser/CompositeTag';
-import {TlvError} from '../parser/TlvError';
-import {TlvTag} from '../parser/TlvTag';
-import {PublicationData} from '../publication/PublicationData';
-import {SignatureData} from './SignatureData';
+import { PUBLICATION_DATA_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../Constants';
+import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { TlvError } from '../parser/TlvError';
+import { TlvTag } from '../parser/TlvTag';
+import { PublicationData } from '../publication/PublicationData';
+import { SignatureData } from './SignatureData';
 
 /**
  * Calendar Authentication Record TLV Object
  */
 export class CalendarAuthenticationRecord extends CompositeTag {
-    private publicationData: PublicationData;
-    private signatureData: SignatureData;
+  private publicationData: PublicationData;
+  private signatureData: SignatureData;
 
-    constructor(tlvTag: TlvTag) {
-        super(tlvTag);
+  constructor(tlvTag: TlvTag) {
+    super(tlvTag);
 
-        this.decodeValue(this.parseChild.bind(this));
-        this.validateValue(this.validate.bind(this));
+    this.decodeValue(this.parseChild.bind(this));
+    this.validateValue(this.validate.bind(this));
 
-        Object.freeze(this);
+    Object.freeze(this);
+  }
+
+  public getPublicationData(): PublicationData {
+    return this.publicationData;
+  }
+
+  public getSignatureData(): SignatureData {
+    return this.signatureData;
+  }
+
+  private parseChild(tlvTag: TlvTag): TlvTag {
+    switch (tlvTag.id) {
+      case PUBLICATION_DATA_CONSTANTS.TagType:
+        return (this.publicationData = new PublicationData(tlvTag));
+      case SIGNATURE_DATA_CONSTANTS.TagType:
+        return (this.signatureData = new SignatureData(tlvTag));
+      default:
+        return CompositeTag.parseTlvTag(tlvTag);
+    }
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private validate(tagCount: ICount): void {
+    if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
+      throw new TlvError('Exactly one publication data must exist in calendar authentication record.');
     }
 
-    public getPublicationData(): PublicationData {
-        return this.publicationData;
+    if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.TagType) !== 1) {
+      throw new TlvError('Exactly one signature data must exist in calendar authentication record.');
     }
-
-    public getSignatureData(): SignatureData {
-        return this.signatureData;
-    }
-
-    private parseChild(tlvTag: TlvTag): TlvTag {
-        switch (tlvTag.id) {
-            case PUBLICATION_DATA_CONSTANTS.TagType:
-                return this.publicationData = new PublicationData(tlvTag);
-            case SIGNATURE_DATA_CONSTANTS.TagType:
-                return this.signatureData = new SignatureData(tlvTag);
-            default:
-                return CompositeTag.parseTlvTag(tlvTag);
-        }
-    }
-
-    // noinspection JSMethodCanBeStatic
-    private validate(tagCount: ICount): void {
-        if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
-            throw new TlvError('Exactly one publication data must exist in calendar authentication record.');
-        }
-
-        if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.TagType) !== 1) {
-            throw new TlvError('Exactly one signature data must exist in calendar authentication record.');
-        }
-    }
+  }
 }

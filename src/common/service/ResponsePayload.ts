@@ -18,52 +18,52 @@
  * reserves and retains all trademark rights.
  */
 
-import {BigInteger} from 'big-integer';
-import {PDU_PAYLOAD_CONSTANTS} from '../Constants';
-import {CompositeTag, ICount} from '../parser/CompositeTag';
-import {IntegerTag} from '../parser/IntegerTag';
-import {StringTag} from '../parser/StringTag';
-import {TlvError} from '../parser/TlvError';
-import {TlvTag} from '../parser/TlvTag';
-import {PduPayload} from './PduPayload';
+import { BigInteger } from 'big-integer';
+import { PDU_PAYLOAD_CONSTANTS } from '../Constants';
+import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { IntegerTag } from '../parser/IntegerTag';
+import { StringTag } from '../parser/StringTag';
+import { TlvError } from '../parser/TlvError';
+import { TlvTag } from '../parser/TlvTag';
+import { PduPayload } from './PduPayload';
 
 /**
  * PDU payload base class for responses
  */
 export abstract class ResponsePayload extends PduPayload {
-    private status: IntegerTag;
-    private errorMessage: StringTag | null = null;
+  private status: IntegerTag;
+  private errorMessage: StringTag | null = null;
 
-    protected constructor(tlvTag: TlvTag) {
-        super(tlvTag);
+  protected constructor(tlvTag: TlvTag) {
+    super(tlvTag);
+  }
+
+  public getStatus(): BigInteger {
+    return this.status.getValue();
+  }
+
+  public getErrorMessage(): string | null {
+    return this.errorMessage !== null ? this.errorMessage.getValue() : null;
+  }
+
+  protected parseChild(tlvTag: TlvTag): TlvTag {
+    switch (tlvTag.id) {
+      case PDU_PAYLOAD_CONSTANTS.StatusTagType:
+        return (this.status = new IntegerTag(tlvTag));
+      case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
+        return (this.errorMessage = new StringTag(tlvTag));
+      default:
+        return CompositeTag.parseTlvTag(tlvTag);
+    }
+  }
+
+  protected validate(tagCount: ICount): void {
+    if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.StatusTagType) !== 1) {
+      throw new TlvError('Exactly one status code must exist in response payload.');
     }
 
-    public getStatus(): BigInteger {
-        return this.status.getValue();
+    if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType) > 1) {
+      throw new TlvError('Only one error message is allowed in response payload.');
     }
-
-    public getErrorMessage(): string | null {
-        return this.errorMessage !== null ? this.errorMessage.getValue() : null;
-    }
-
-    protected parseChild(tlvTag: TlvTag): TlvTag {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.StatusTagType:
-                return this.status = new IntegerTag(tlvTag);
-            case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
-                return this.errorMessage = new StringTag(tlvTag);
-            default:
-                return CompositeTag.parseTlvTag(tlvTag);
-        }
-    }
-
-    protected validate(tagCount: ICount): void {
-        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.StatusTagType) !== 1) {
-            throw new TlvError('Exactly one status code must exist in response payload.');
-        }
-
-        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType) > 1) {
-            throw new TlvError('Only one error message is allowed in response payload.');
-        }
-    }
+  }
 }

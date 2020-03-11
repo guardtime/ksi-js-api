@@ -18,42 +18,42 @@
  * reserves and retains all trademark rights.
  */
 
-import {BigInteger} from 'big-integer';
-import {PDU_PAYLOAD_CONSTANTS} from '../Constants';
-import {ICount} from '../parser/CompositeTag';
-import {IntegerTag} from '../parser/IntegerTag';
-import {TlvError} from '../parser/TlvError';
-import {TlvTag} from '../parser/TlvTag';
-import {ResponsePayload} from './ResponsePayload';
+import { BigInteger } from 'big-integer';
+import { PDU_PAYLOAD_CONSTANTS } from '../Constants';
+import { ICount } from '../parser/CompositeTag';
+import { IntegerTag } from '../parser/IntegerTag';
+import { TlvError } from '../parser/TlvError';
+import { TlvTag } from '../parser/TlvTag';
+import { ResponsePayload } from './ResponsePayload';
 
 /**
  * PDU payload base class for requested responses
  */
 export abstract class RequestResponsePayload extends ResponsePayload {
-    private requestId: IntegerTag;
+  private requestId: IntegerTag;
 
-    protected constructor(tlvTag: TlvTag) {
-        super(tlvTag);
+  protected constructor(tlvTag: TlvTag) {
+    super(tlvTag);
+  }
+
+  public getRequestId(): BigInteger {
+    return this.requestId.getValue();
+  }
+
+  protected parseChild(tlvTag: TlvTag): TlvTag {
+    switch (tlvTag.id) {
+      case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
+        return (this.requestId = new IntegerTag(tlvTag));
+      default:
+        return super.parseChild(tlvTag);
     }
+  }
 
-    public getRequestId(): BigInteger {
-        return this.requestId.getValue();
+  protected validate(tagCount: ICount): void {
+    super.validate(tagCount);
+
+    if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
+      throw new TlvError('Exactly one request id must exist in response payload.');
     }
-
-    protected parseChild(tlvTag: TlvTag): TlvTag {
-        switch (tlvTag.id) {
-            case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
-                return this.requestId = new IntegerTag(tlvTag);
-            default:
-                return super.parseChild(tlvTag);
-        }
-    }
-
-    protected validate(tagCount: ICount): void {
-        super.validate(tagCount);
-
-        if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
-            throw new TlvError('Exactly one request id must exist in response payload.');
-        }
-    }
+  }
 }

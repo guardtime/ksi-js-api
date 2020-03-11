@@ -22,11 +22,10 @@
  * TLV parsing error
  */
 export class TlvError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = 'TlvError';
+  constructor(message: string) {
+    super(message);
+    this.name = 'TlvError';
 
-        Object.setPrototypeOf(this, TlvError.prototype);
-    }
-
+    Object.setPrototypeOf(this, TlvError.prototype);
+  }
 }

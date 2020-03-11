@@ -18,100 +18,100 @@
  * reserves and retains all trademark rights.
  */
 
-import {DataHash} from '@guardtime/gt-js-common';
-import bigInteger, {BigInteger} from 'big-integer';
-import {PublicationData} from '../../publication/PublicationData';
-import {PublicationsFile} from '../../publication/PublicationsFile';
-import {KsiService} from '../../service/KsiService';
-import {CalendarHashChain} from '../CalendarHashChain';
-import {KsiSignature} from '../KsiSignature';
-import {KsiVerificationError} from './KsiVerificationError';
+import { DataHash } from '@guardtime/gt-js-common';
+import bigInteger, { BigInteger } from 'big-integer';
+import { PublicationData } from '../../publication/PublicationData';
+import { PublicationsFile } from '../../publication/PublicationsFile';
+import { KsiService } from '../../service/KsiService';
+import { CalendarHashChain } from '../CalendarHashChain';
+import { KsiSignature } from '../KsiSignature';
+import { KsiVerificationError } from './KsiVerificationError';
 
 /**
  * Verification context for KSI signature
  */
 export class VerificationContext {
-    private ksiService: KsiService | null = null;
-    private readonly ksiSignature: KsiSignature;
-    private documentHash: DataHash | null = null;
-    private publicationsFile: PublicationsFile | null = null;
-    private publicationData: PublicationData | null = null;
-    private extendingAllowed: boolean = true;
-    private documentHashLevel: BigInteger = bigInteger(0);
+  private ksiService: KsiService | null = null;
+  private readonly ksiSignature: KsiSignature;
+  private documentHash: DataHash | null = null;
+  private publicationsFile: PublicationsFile | null = null;
+  private publicationData: PublicationData | null = null;
+  private extendingAllowed = true;
+  private documentHashLevel: BigInteger = bigInteger(0);
 
-    constructor(signature: KsiSignature) {
-        this.ksiSignature = signature;
+  constructor(signature: KsiSignature) {
+    this.ksiSignature = signature;
+  }
+
+  public getSignature(): KsiSignature {
+    return this.ksiSignature;
+  }
+
+  /**
+   * Get extended latest calendar hash chain.
+   */
+  public async getExtendedLatestCalendarHashChain(): Promise<CalendarHashChain> {
+    return this.getExtendedCalendarHashChain(null);
+  }
+
+  /**
+   * Get extended calendar hash chain from given publication time.
+   */
+  public async getExtendedCalendarHashChain(publicationTime: BigInteger | null): Promise<CalendarHashChain> {
+    if (!this.ksiService) {
+      throw new KsiVerificationError('Invalid KSI service in context.');
     }
 
-    public getSignature(): KsiSignature {
-        return this.ksiSignature;
-    }
+    return this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime);
+  }
 
-    /**
-     * Get extended latest calendar hash chain.
-     */
-    public async getExtendedLatestCalendarHashChain(): Promise<CalendarHashChain> {
-        return this.getExtendedCalendarHashChain(null);
-    }
+  /**
+   * Get document hash.
+   */
+  public getDocumentHash(): DataHash | null {
+    return this.documentHash;
+  }
 
-    /**
-     * Get extended calendar hash chain from given publication time.
-     */
-    public async getExtendedCalendarHashChain(publicationTime: BigInteger | null): Promise<CalendarHashChain> {
-        if (!this.ksiService) {
-            throw new KsiVerificationError('Invalid KSI service in context.');
-        }
+  public setDocumentHash(documentHash: DataHash | null): void {
+    this.documentHash = documentHash;
+  }
 
-        return this.ksiService.extend(this.getSignature().getAggregationTime(), publicationTime);
-    }
+  public setKsiService(ksiService: KsiService | null): void {
+    this.ksiService = ksiService;
+  }
 
-    /**
-     * Get document hash.
-     */
-    public getDocumentHash(): DataHash | null {
-        return this.documentHash;
-    }
+  /**
+   * Get document hash node level value in the aggregation tree
+   */
+  public getDocumentHashLevel(): BigInteger {
+    return this.documentHashLevel;
+  }
 
-    public setDocumentHash(documentHash: DataHash | null): void {
-        this.documentHash = documentHash;
-    }
+  public setDocumentHashLevel(documentHashLevel: BigInteger): void {
+    this.documentHashLevel = documentHashLevel;
+  }
 
-    public setKsiService(ksiService: KsiService | null): void {
-        this.ksiService = ksiService;
-    }
+  public getPublicationsFile(): PublicationsFile | null {
+    return this.publicationsFile;
+  }
 
-    /**
-     * Get document hash node level value in the aggregation tree
-     */
-    public getDocumentHashLevel(): BigInteger {
-        return this.documentHashLevel;
-    }
+  public setPublicationsFile(publicationsFile: PublicationsFile | null): void {
+    this.publicationsFile = publicationsFile;
+  }
 
-    public setDocumentHashLevel(documentHashLevel: BigInteger): void {
-        this.documentHashLevel = documentHashLevel;
-    }
+  public getUserPublication(): PublicationData | null {
+    return this.publicationData;
+  }
 
-    public getPublicationsFile(): PublicationsFile | null {
-        return this.publicationsFile;
-    }
+  public setUserPublication(publicationData: PublicationData | null): void {
+    this.publicationData = publicationData;
+  }
 
-    public setPublicationsFile(publicationsFile: PublicationsFile | null): void {
-        this.publicationsFile = publicationsFile;
-    }
+  public isExtendingAllowed(): boolean {
+    return this.extendingAllowed;
+  }
 
-    public getUserPublication(): PublicationData | null {
-        return this.publicationData;
-    }
-
-    public setUserPublication(publicationData: PublicationData | null): void {
-        this.publicationData = publicationData;
-    }
-
-    public isExtendingAllowed(): boolean {
-        return this.extendingAllowed;
-    }
-
-    public setExtendingAllowed(extendingAllowed: boolean): void {
-        this.extendingAllowed = extendingAllowed;
-    }
+  public setExtendingAllowed(extendingAllowed: boolean): void {
+    this.extendingAllowed = extendingAllowed;
+  }
 }

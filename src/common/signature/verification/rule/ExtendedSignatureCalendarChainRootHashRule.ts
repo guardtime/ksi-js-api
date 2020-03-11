@@ -18,13 +18,13 @@
  * reserves and retains all trademark rights.
  */
 
-import {CalendarHashChain} from '../../CalendarHashChain';
-import {KsiSignature} from '../../KsiSignature';
-import {KsiVerificationError} from '../KsiVerificationError';
-import {VerificationContext} from '../VerificationContext';
-import {VerificationError} from '../VerificationError';
-import {VerificationResult, VerificationResultCode} from '../VerificationResult';
-import {VerificationRule} from '../VerificationRule';
+import { CalendarHashChain } from '../../CalendarHashChain';
+import { KsiSignature } from '../../KsiSignature';
+import { KsiVerificationError } from '../KsiVerificationError';
+import { VerificationContext } from '../VerificationContext';
+import { VerificationError } from '../VerificationError';
+import { VerificationResult, VerificationResultCode } from '../VerificationResult';
+import { VerificationRule } from '../VerificationRule';
 
 /**
  * Rule checks that extender response calendar hash chain (extension request with current calendar hash chain
@@ -32,33 +32,33 @@ import {VerificationRule} from '../VerificationRule';
  * does not contain calendar hash chain, VerificationResultCode.Ok is returned.
  */
 export class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule {
-    constructor() {
-        super('ExtendedSignatureCalendarChainRootHashRule');
+  constructor() {
+    super('ExtendedSignatureCalendarChainRootHashRule');
+  }
+
+  public async verify(context: VerificationContext): Promise<VerificationResult> {
+    const signature: KsiSignature = context.getSignature();
+    const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
+
+    if (calendarHashChain === null) {
+      return new VerificationResult(
+        this.getRuleName(),
+        VerificationResultCode.NA,
+        VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.'))
+      );
     }
 
-    public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = context.getSignature();
-        const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
-
-        if (calendarHashChain === null) {
-            return new VerificationResult(
-                this.getRuleName(),
-                VerificationResultCode.NA,
-                VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.')));
-        }
-
-        let extendedCalendarHashChain: CalendarHashChain | null = null;
-        try {
-            extendedCalendarHashChain = await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
-        } catch (e) {
-            return new VerificationResult(
-                this.getRuleName(),
-                VerificationResultCode.NA,
-                VerificationError.GEN_02(e));
-        }
-
-        return !(await calendarHashChain.calculateOutputHash()).equals(await extendedCalendarHashChain.calculateOutputHash())
-            ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_01())
-            : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
+    let extendedCalendarHashChain: CalendarHashChain | null = null;
+    try {
+      extendedCalendarHashChain = await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
+    } catch (e) {
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e));
     }
+
+    return !(await calendarHashChain.calculateOutputHash()).equals(
+      await extendedCalendarHashChain.calculateOutputHash()
+    )
+      ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_01())
+      : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
+  }
 }
