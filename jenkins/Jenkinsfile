@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Publish') {
                 when {
-                    branch 'KSIJS-24'
+                    branch 'master'
                 }
                 steps {
                     nodejs(nodeJSInstallationName: 'node1320', configId: '7f0f5e1c-f542-433b-98ca-7cb938e79aac') {
