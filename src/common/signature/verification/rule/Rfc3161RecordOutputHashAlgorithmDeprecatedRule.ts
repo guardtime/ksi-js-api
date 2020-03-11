@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { HashAlgorithm } from '@guardtime/gt-js-common';
+import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 import { BigInteger } from 'big-integer';
 import { AggregationHashChain } from '../../AggregationHashChain';
 import { KsiSignature } from '../../KsiSignature';
@@ -48,7 +48,6 @@ export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends Verification
     const aggregationTime: BigInteger = aggregationHashChain.getAggregationTime();
 
     if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
-      // tslint:disable-next-line:max-line-length
       console.debug(
         `RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: ${hashAlgorithm}; Aggregation time: ${aggregationTime}.`
       );

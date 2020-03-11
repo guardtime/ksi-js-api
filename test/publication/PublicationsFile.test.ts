@@ -18,11 +18,16 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHash, HashAlgorithm } from '@guardtime/gt-js-common';
 import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
+import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 import bigInteger from 'big-integer';
 
-import { CERTIFICATE_RECORD_CONSTANTS, PUBLICATIONS_FILE_CONSTANTS, PUBLICATIONS_FILE_HEADER_CONSTANTS } from '../../src/common/Constants';
+import {
+  CERTIFICATE_RECORD_CONSTANTS,
+  PUBLICATIONS_FILE_CONSTANTS,
+  PUBLICATIONS_FILE_HEADER_CONSTANTS
+} from '../../src/common/Constants';
 import { CompositeTag } from '../../src/common/parser/CompositeTag';
 import { IntegerTag } from '../../src/common/parser/IntegerTag';
 import { RawTag } from '../../src/common/parser/RawTag';

@@ -44,7 +44,6 @@ export class AggregationHashChainShapeRule extends VerificationRule {
       const lastIndexValue: BigInteger = chainIndex[chainIndex.length - 1];
 
       if (!lastIndexValue.eq(calculatedValue)) {
-        // tslint:disable-next-line:max-line-length
         console.debug(
           `The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: ${calculatedValue}; Value in chain: ${lastIndexValue}.`
         );

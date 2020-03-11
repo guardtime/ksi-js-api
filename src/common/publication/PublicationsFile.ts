@@ -60,7 +60,6 @@ export class PublicationsFile extends CompositeTag {
     Object.freeze(this);
   }
 
-  // TODO: Check input param
   public findCertificateById(certificateId: Uint8Array): CertificateRecord | null {
     for (const certificateRecord of this.certificateRecordList) {
       if (compareTypedArray(certificateId, certificateRecord.getCertificateId())) {

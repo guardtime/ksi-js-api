@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { HashAlgorithm } from '@guardtime/gt-js-common';
+import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 import { IServiceCredentials } from './IServiceCredentials';
 
 /**

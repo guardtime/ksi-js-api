@@ -47,7 +47,6 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
         (parentChainIndex.length <= chainIndex.length ||
           !compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))
       ) {
-        // tslint:disable-next-line:max-line-length
         console.debug(
           `Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}.`
         );
@@ -59,7 +58,6 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
     }
 
     if (aggregationHashChains[aggregationHashChains.length - 1].getChainIndex().length !== 1) {
-      // tslint:disable-next-line:max-line-length
       console.debug(
         `Highest aggregation hash chain index length is not 1. Chain index: ${aggregationHashChains[
           aggregationHashChains.length - 1

@@ -50,7 +50,6 @@ export class Rfc3161RecordChainIndexRule extends VerificationRule {
     const aggregationChainIndex: bigInteger.BigInteger[] = aggregationHashChains[0].getChainIndex();
 
     if (!compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
-      // tslint:disable-next-line:max-line-length
       console.debug(
         `Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index ${JSON.stringify(
           rfc3161ChainIndex

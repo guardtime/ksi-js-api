@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { tabPrefix } from '@guardtime/gt-js-common';
+import { tabPrefix } from '@guardtime/gt-js-common/lib/strings/StringUtils';
 import { TlvError } from './TlvError';
 import { TlvInputStream } from './TlvInputStream';
 import { TlvOutputStream } from './TlvOutputStream';

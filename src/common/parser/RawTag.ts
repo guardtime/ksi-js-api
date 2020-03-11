@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { HexCoder } from '@guardtime/gt-js-common';
+import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
 import { TlvTag } from './TlvTag';
 
 /**

@@ -18,7 +18,10 @@
  * reserves and retains all trademark rights.
  */
 
-import { Base32Coder, CRC32, DataHash, UnsignedLongCoder } from '@guardtime/gt-js-common';
+import Base32Coder from '@guardtime/gt-js-common/lib/coders/Base32Coder';
+import UnsignedLongCoder from '@guardtime/gt-js-common/lib/coders/UnsignedLongCoder';
+import CRC32 from '@guardtime/gt-js-common/lib/crc/CRC32';
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import bigInteger, { BigInteger } from 'big-integer';
 import { PUBLICATION_DATA_CONSTANTS } from '../Constants';
 import { CompositeTag, ICount } from '../parser/CompositeTag';
@@ -64,7 +67,6 @@ export class PublicationData extends CompositeTag {
     const messageCrc32: Uint8Array = bytesWithCrc32.slice(-4);
 
     if (!compareTypedArray(calculatedCrc32, messageCrc32)) {
-      // tslint:disable-next-line:max-line-length
       throw new TlvError(
         `Publication string CRC 32 check failed. Calculated: ${JSON.stringify(
           calculatedCrc32

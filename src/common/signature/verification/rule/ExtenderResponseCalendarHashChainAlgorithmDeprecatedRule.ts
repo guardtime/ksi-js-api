@@ -63,7 +63,6 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
         return new VerificationResult(
           this.getRuleName(),
           VerificationResultCode.NA,
-          // tslint:disable-next-line:max-line-length
           VerificationError.GEN_02(
             new KsiVerificationError(
               `No publication record found after given time in publications file: ${signature.getAggregationTime()}.`
@@ -86,7 +85,6 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
       extendedCalendarHashChain
     );
     if (deprecatedLink !== null) {
-      // tslint:disable-next-line:max-line-length
       console.debug(
         `Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${
           deprecatedLink.getValue().hashAlgorithm.name

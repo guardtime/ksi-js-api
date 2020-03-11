@@ -46,7 +46,6 @@ export class AggregationHashChainConsistencyRule extends VerificationRule {
       }
 
       if (!chain.getInputHash().equals(chainHashResult.hash)) {
-        // tslint:disable-next-line:max-line-length
         console.debug(
           `Aggregation hash chains not consistent. Aggregation hash chain input hash ${chain.getInputHash()} does not match previous aggregation hash chain output hash ${
             chainHashResult.hash

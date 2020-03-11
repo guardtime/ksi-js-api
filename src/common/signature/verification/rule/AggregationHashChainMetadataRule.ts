@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { HashAlgorithm } from '@guardtime/gt-js-common';
+import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../../Constants';
 import { RawTag } from '../../../parser/RawTag';
 import { TlvOutputStream } from '../../../parser/TlvOutputStream';
@@ -84,7 +84,6 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
           }
 
           if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
-            // tslint:disable-next-line:max-line-length
             console.debug(
               `Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: ${metadata}.`
             );

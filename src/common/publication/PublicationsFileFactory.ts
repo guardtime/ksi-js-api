@@ -18,11 +18,11 @@
  * reserves and retains all trademark rights.
  */
 
+import CMSVerification from '@guardtime/gt-js-common/lib/crypto/CMSVerification';
 import { RawTag } from '../parser/RawTag';
 import { compareTypedArray } from '../util/Array';
 import { PublicationsFile } from './PublicationsFile';
 import { PublicationsFileError } from './PublicationsFileError';
-import { CMSVerification } from '@guardtime/gt-js-common';
 import { PUBLICATIONS_FILE_SIGNATURE_CONSTANTS } from '../Constants';
 
 /**
@@ -34,10 +34,10 @@ export class PublicationsFileFactory {
 
   constructor(
     trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates,
-    signatueSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail
+    signatureSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail
   ) {
     this.trustedCertificates = trustedCertificates;
-    this.signatueSubjectToVerify = signatueSubjectToVerify;
+    this.signatueSubjectToVerify = signatureSubjectToVerify;
   }
 
   public create(publicationFileBytes: Uint8Array): PublicationsFile {

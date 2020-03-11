@@ -49,7 +49,6 @@ export class CalendarHashChainAlgorithmObsoleteRule extends VerificationRule {
       }
 
       if (link.getValue().hashAlgorithm.isObsolete(calendarHashChain.getPublicationTime().valueOf())) {
-        // tslint:disable-next-line:max-line-length
         console.debug(
           `Calendar hash chain contains obsolete aggregation algorithm at publication time. Algorithm: ${
             link.getValue().hashAlgorithm.name

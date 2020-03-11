@@ -48,7 +48,6 @@ export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
       calendarHashChain
     );
     if (deprecatedLink !== null) {
-      // tslint:disable-next-line:max-line-length
       console.debug(
         `Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${
           deprecatedLink.getValue().hashAlgorithm.name

@@ -18,7 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { HexCoder, X509 } from '@guardtime/gt-js-common';
+import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
+import X509 from '@guardtime/gt-js-common/lib/crypto/X509';
 import { CertificateRecord } from '../../../publication/CertificateRecord';
 import { PublicationsFile } from '../../../publication/PublicationsFile';
 import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord';
@@ -76,7 +77,6 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
         this.getRuleName(),
         VerificationResultCode.NA,
         VerificationError.GEN_02(
-          // tslint:disable-next-line:max-line-length
           new KsiVerificationError(
             `No certificate found in publications file with id: ${HexCoder.encode(signatureData.getCertificateId())}.`
           )

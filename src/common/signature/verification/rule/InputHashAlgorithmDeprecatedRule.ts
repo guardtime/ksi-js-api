@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHash } from '@guardtime/gt-js-common';
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import { KsiSignature } from '../../KsiSignature';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
@@ -39,7 +39,6 @@ export class InputHashAlgorithmDeprecatedRule extends VerificationRule {
     const inputHash: DataHash = signature.getInputHash();
 
     if (inputHash.hashAlgorithm.isDeprecated(signature.getAggregationTime().valueOf())) {
-      // tslint:disable-next-line:max-line-length
       console.debug(
         `Input hash algorithm was deprecated at aggregation time. Algorithm: ${
           inputHash.hashAlgorithm.name

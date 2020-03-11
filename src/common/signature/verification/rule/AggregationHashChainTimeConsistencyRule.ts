@@ -46,7 +46,6 @@ export class AggregationHashChainTimeConsistencyRule extends VerificationRule {
       }
 
       if (!chain.getAggregationTime().equals(time)) {
-        // tslint:disable-next-line:max-line-length
         console.debug(
           `Previous aggregation hash chain aggregation time ${time} does not match current aggregation time ${chain.getAggregationTime()}.`
         );

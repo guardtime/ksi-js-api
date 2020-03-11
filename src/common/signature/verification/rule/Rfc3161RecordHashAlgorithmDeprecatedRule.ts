@@ -46,7 +46,6 @@ export class Rfc3161RecordHashAlgorithmDeprecatedRule extends VerificationRule {
       rfc3161Record.getTstInfoAlgorithm() != null &&
       rfc3161Record.getTstInfoAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())
     ) {
-      // tslint:disable-next-line:max-line-length
       console.debug(
         `Hash algorithm used to hash the TSTInfo structure was deprecated at aggregation time. Algorithm: ${
           rfc3161Record.getTstInfoAlgorithm().name
@@ -60,7 +59,6 @@ export class Rfc3161RecordHashAlgorithmDeprecatedRule extends VerificationRule {
       rfc3161Record.getSignedAttributesAlgorithm() != null &&
       rfc3161Record.getSignedAttributesAlgorithm().isDeprecated(rfc3161Record.getAggregationTime().valueOf())
     ) {
-      // tslint:disable-next-line:max-line-length
       console.debug(
         `Hash algorithm used to hash the SignedAttributes structure was deprecated at aggregation time. Algorithm: ${
           rfc3161Record.getSignedAttributesAlgorithm().name

@@ -39,7 +39,6 @@ export class AggregationHashChainAlgorithmDeprecatedRule extends VerificationRul
 
     for (const chain of aggregationHashChains) {
       if (chain.getAggregationAlgorithm().isDeprecated(chain.getAggregationTime().valueOf())) {
-        // tslint:disable-next-line:max-line-length
         console.debug(
           `Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: ${
             chain.getAggregationAlgorithm().name

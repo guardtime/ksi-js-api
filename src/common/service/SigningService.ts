@@ -18,7 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHash, pseudoRandomLong } from '@guardtime/gt-js-common';
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
+import { pseudoRandomLong } from '@guardtime/gt-js-common/lib/random/RandomUtil';
 import bigInteger, { BigInteger } from 'big-integer';
 import { TlvInputStream } from '../parser/TlvInputStream';
 import { KsiSignature } from '../signature/KsiSignature';
@@ -48,7 +49,6 @@ export class SigningService {
 
   private static processPayload(payload: AggregationResponsePayload): KsiSignature {
     if (payload.getStatus().neq(0)) {
-      // tslint:disable-next-line:max-line-length
       throw new KsiServiceError(
         `Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`
       );
@@ -73,10 +73,10 @@ export class SigningService {
     this.requests[requestId.toString()] = ksiRequest;
     const responseBytes: Uint8Array | null = await ksiRequest.getResponse();
     if (ksiRequest.isAborted()) {
-      return SigningService.processPayload(<AggregationResponsePayload>ksiRequest.getAbortResponse());
+      return SigningService.processPayload(ksiRequest.getAbortResponse() as AggregationResponsePayload);
     }
 
-    const stream: TlvInputStream = new TlvInputStream(<Uint8Array>responseBytes);
+    const stream: TlvInputStream = new TlvInputStream(responseBytes as Uint8Array);
     const responsePdu: AggregationResponsePdu = new AggregationResponsePdu(stream.readTag());
     if (stream.getPosition() < stream.getLength()) {
       throw new KsiServiceError(`Response contains more bytes than PDU length.`);
@@ -88,7 +88,6 @@ export class SigningService {
         throw new KsiServiceError(`PDU contains unexpected response payloads!\nPDU:\n${responsePdu}.`);
       }
 
-      // tslint:disable-next-line:max-line-length
       throw new KsiServiceError(
         `Server responded with error message. Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`
       );
@@ -96,7 +95,7 @@ export class SigningService {
 
     let currentAggregationPayload: AggregationResponsePayload | null = null;
     for (const responsePayload of responsePdu.getPayloads()) {
-      const aggregationPayload: AggregationResponsePayload = <AggregationResponsePayload>responsePayload;
+      const aggregationPayload: AggregationResponsePayload = responsePayload as AggregationResponsePayload;
       const payloadRequestId: string = aggregationPayload.getRequestId().toString();
       if (!this.requests.hasOwnProperty(payloadRequestId)) {
         throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent.');

@@ -18,11 +18,11 @@
  * reserves and retains all trademark rights.
  */
 
-import { Base64Coder, DataHash, UnsignedLongCoder } from '@guardtime/gt-js-common';
+import Base64Coder from '@guardtime/gt-js-common/lib/coders/Base64Coder';
+import UnsignedLongCoder from '@guardtime/gt-js-common/lib/coders/UnsignedLongCoder';
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import bigInteger, { BigInteger } from 'big-integer';
-// @ts-ignore
-// tslint:disable-next-line:no-submodule-imports import-name
-import uuid from 'uuid/v3';
+import { v3 as uuid } from 'uuid';
 import {
   AGGREGATION_HASH_CHAIN_CONSTANTS,
   CALENDAR_AUTHENTICATION_RECORD_CONSTANTS,

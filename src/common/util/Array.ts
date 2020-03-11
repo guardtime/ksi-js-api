@@ -52,6 +52,6 @@ export function compareArrayEquals<T extends IEquals>(arr1: T[], arr2: T[]): boo
 }
 
 interface IEquals {
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   equals(object: any): boolean;
 }

@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { pseudoRandomLong } from '@guardtime/gt-js-common';
+import { pseudoRandomLong } from '@guardtime/gt-js-common/lib/random/RandomUtil';
 import { BigInteger } from 'big-integer';
 import { TlvInputStream } from '../parser/TlvInputStream';
 import { CalendarHashChain } from '../signature/CalendarHashChain';
@@ -48,7 +48,6 @@ export class ExtendingService {
 
   private static processPayload(payload: ExtendResponsePayload): CalendarHashChain {
     if (payload.getStatus().neq(0)) {
-      // tslint:disable-next-line:max-line-length
       throw new KsiServiceError(
         `Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`
       );
@@ -79,10 +78,10 @@ export class ExtendingService {
     this.requests[requestId.toString()] = ksiRequest;
     const responseBytes: Uint8Array | null = await ksiRequest.getResponse();
     if (ksiRequest.isAborted()) {
-      return ExtendingService.processPayload(<ExtendResponsePayload>ksiRequest.getAbortResponse());
+      return ExtendingService.processPayload(ksiRequest.getAbortResponse() as ExtendResponsePayload);
     }
 
-    const stream: TlvInputStream = new TlvInputStream(<Uint8Array>responseBytes);
+    const stream: TlvInputStream = new TlvInputStream(responseBytes as Uint8Array);
     const responsePdu: ExtendResponsePdu = new ExtendResponsePdu(stream.readTag());
     if (stream.getPosition() < stream.getLength()) {
       throw new KsiServiceError(`Response contains more bytes than PDU length.`);
@@ -94,7 +93,6 @@ export class ExtendingService {
         throw new KsiServiceError(`PDU contains unexpected response payloads!\nPDU:\n${responsePdu}.`);
       }
 
-      // tslint:disable-next-line:max-line-length
       throw new KsiServiceError(
         `Server responded with error message. Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`
       );
@@ -102,7 +100,7 @@ export class ExtendingService {
 
     let currentExtendPayload: ExtendResponsePayload | null = null;
     for (const responsePayload of responsePdu.getPayloads()) {
-      const extendPayload: ExtendResponsePayload = <ExtendResponsePayload>responsePayload;
+      const extendPayload: ExtendResponsePayload = responsePayload as ExtendResponsePayload;
       const payloadRequestId: string = extendPayload.getRequestId().toString();
       if (!this.requests.hasOwnProperty(payloadRequestId)) {
         throw new KsiServiceError('Extend response request ID does not match any request id which is sent.');

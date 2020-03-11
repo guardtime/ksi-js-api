@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { tabPrefix } from '@guardtime/gt-js-common';
+import { tabPrefix } from '@guardtime/gt-js-common/lib/strings/StringUtils';
 import { VerificationError } from './VerificationError';
 
 export enum VerificationResultCode {

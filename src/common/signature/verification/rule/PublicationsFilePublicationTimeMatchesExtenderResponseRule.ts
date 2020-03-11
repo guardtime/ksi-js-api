@@ -55,7 +55,6 @@ export class PublicationsFilePublicationTimeMatchesExtenderResponseRule extends 
       return new VerificationResult(
         this.getRuleName(),
         VerificationResultCode.NA,
-        // tslint:disable-next-line:max-line-length
         VerificationError.GEN_02(
           new KsiVerificationError(
             `No publication record found after given time in publications file: ${signature.getAggregationTime()}.`

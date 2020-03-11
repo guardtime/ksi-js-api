@@ -18,7 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHash, DataHasher } from '@guardtime/gt-js-common';
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
+import DataHasher from '@guardtime/gt-js-common/lib/hash/DataHasher';
 import { KsiSignature } from '../../KsiSignature';
 import { Rfc3161Record } from '../../Rfc3161Record';
 import { VerificationContext } from '../VerificationContext';

@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHash } from '@guardtime/gt-js-common';
+import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import { TlvTag } from './TlvTag';
 
 /**

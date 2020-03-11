@@ -51,7 +51,7 @@ export class TlvTag {
     }
   }
 
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static EQUALS(x: any, y: any): boolean {
     if (!(x instanceof TlvTag) || !(y instanceof TlvTag)) {
       return false;
@@ -85,9 +85,9 @@ export class TlvTag {
 
     const tlv16BitFlag: boolean = this.id > TLV_CONSTANTS.TypeMask || valueBytes.length > 0xff || this.tlv16BitFlag;
     let firstByte: number =
-      <number>(tlv16BitFlag && TLV_CONSTANTS.Tlv16BitFlagBit) +
-      <number>(this.nonCriticalFlag && TLV_CONSTANTS.NonCriticalFlagBit) +
-      <number>(this.forwardFlag && TLV_CONSTANTS.ForwardFlagBit);
+      ((tlv16BitFlag && TLV_CONSTANTS.Tlv16BitFlagBit) as number) +
+      ((this.nonCriticalFlag && TLV_CONSTANTS.NonCriticalFlagBit) as number) +
+      ((this.forwardFlag && TLV_CONSTANTS.ForwardFlagBit) as number);
 
     let result: Uint8Array;
     if (tlv16BitFlag) {
@@ -107,7 +107,7 @@ export class TlvTag {
     return result;
   }
 
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public equals(tag: any): boolean {
     return TlvTag.EQUALS(this, tag);
   }
