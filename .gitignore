@@ -1,8 +1,9 @@
 .idea/
+dist/
+lib/
 node_modules/
-tools/proxy/httpd/01-ksi-proxy.conf
-config/ksi-config.js
-yarn-error.log
-.DS_Store
 
+.DS_Store
 .npmrc
+config/ksi-config.js
+tools/proxy/httpd/01-ksi-proxy.conf
