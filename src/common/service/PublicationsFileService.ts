@@ -18,22 +18,25 @@
  * reserves and retains all trademark rights.
  */
 
-import {PublicationsFile} from '../publication/PublicationsFile';
-import {PublicationsFileFactory} from '../publication/PublicationsFileFactory';
-import {IPublicationsFileServiceProtocol} from './IPublicationsFileServiceProtocol';
+import { PublicationsFile } from '../publication/PublicationsFile';
+import { PublicationsFileFactory } from '../publication/PublicationsFileFactory';
+import { IPublicationsFileServiceProtocol } from './IPublicationsFileServiceProtocol';
 /**
  * Publications file service
  */
 export class PublicationsFileService {
-    private publicationsFileServiceProtocol: IPublicationsFileServiceProtocol;
-    private publicationsFileFactory: PublicationsFileFactory;
+  private publicationsFileServiceProtocol: IPublicationsFileServiceProtocol;
+  private publicationsFileFactory: PublicationsFileFactory;
 
-    constructor(publicationsFileServiceProtocol: IPublicationsFileServiceProtocol, publicationsFileFactory: PublicationsFileFactory) {
-        this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
-        this.publicationsFileFactory = publicationsFileFactory;
-    }
+  constructor(
+    publicationsFileServiceProtocol: IPublicationsFileServiceProtocol,
+    publicationsFileFactory: PublicationsFileFactory
+  ) {
+    this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
+    this.publicationsFileFactory = publicationsFileFactory;
+  }
 
-    public async getPublicationsFile(): Promise<PublicationsFile> {
-        return this.publicationsFileFactory.create(await this.publicationsFileServiceProtocol.getPublicationsFile());
-    }
+  public async getPublicationsFile(): Promise<PublicationsFile> {
+    return this.publicationsFileFactory.create(await this.publicationsFileServiceProtocol.getPublicationsFile());
+  }
 }

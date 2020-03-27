@@ -18,15 +18,14 @@
  * reserves and retains all trademark rights.
  */
 
-import {TlvTag} from '../parser/TlvTag';
-import {PduPayload} from './PduPayload';
+import { TlvTag } from '../parser/TlvTag';
+import { PduPayload } from './PduPayload';
 
 /**
  * Extender configuration request payload.
  */
 export class ExtenderConfigRequestPayload extends PduPayload {
-    constructor(tlvTag: TlvTag) {
-        super(tlvTag);
-    }
-
+  constructor(tlvTag: TlvTag) {
+    super(tlvTag);
+  }
 }

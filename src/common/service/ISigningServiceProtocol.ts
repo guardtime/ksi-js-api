@@ -18,11 +18,11 @@
  * reserves and retains all trademark rights.
  */
 
-import {KsiRequestBase} from './KsiRequestBase';
+import { KsiRequestBase } from './KsiRequestBase';
 
 /**
  * Signing service protocol interface
  */
 export interface ISigningServiceProtocol {
-    sign(requestBytes: Uint8Array): KsiRequestBase;
+  sign(requestBytes: Uint8Array): KsiRequestBase;
 }

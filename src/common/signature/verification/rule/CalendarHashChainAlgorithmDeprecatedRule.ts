@@ -18,45 +18,49 @@
  * reserves and retains all trademark rights.
  */
 
-import {ImprintTag} from '../../../parser/ImprintTag';
-import {CalendarHashChain} from '../../CalendarHashChain';
-import {KsiSignature} from '../../KsiSignature';
-import {KsiVerificationError} from '../KsiVerificationError';
-import {VerificationContext} from '../VerificationContext';
-import {VerificationError} from '../VerificationError';
-import {VerificationResult, VerificationResultCode} from '../VerificationResult';
-import {VerificationRule} from '../VerificationRule';
+import { ImprintTag } from '../../../parser/ImprintTag';
+import { CalendarHashChain } from '../../CalendarHashChain';
+import { KsiSignature } from '../../KsiSignature';
+import { KsiVerificationError } from '../KsiVerificationError';
+import { VerificationContext } from '../VerificationContext';
+import { VerificationError } from '../VerificationError';
+import { VerificationResult, VerificationResultCode } from '../VerificationResult';
+import { VerificationRule } from '../VerificationRule';
 
 /**
  * Verifies that calendar hash chain right link hash algorithms were not deprecated at the publication time.
  * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
  */
 export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
-    constructor() {
-        super('CalendarHashChainAlgorithmDeprecatedRule');
+  constructor() {
+    super('CalendarHashChainAlgorithmDeprecatedRule');
+  }
+
+  public async verify(context: VerificationContext): Promise<VerificationResult> {
+    const signature: KsiSignature = context.getSignature();
+    const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
+
+    if (calendarHashChain === null) {
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 
-    public async verify(context: VerificationContext): Promise<VerificationResult> {
-        const signature: KsiSignature = context.getSignature();
-        const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
+    const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(
+      calendarHashChain
+    );
+    if (deprecatedLink !== null) {
+      console.debug(
+        `Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${
+          deprecatedLink.getValue().hashAlgorithm.name
+        }; Publication time: ${calendarHashChain.getPublicationTime()}.`
+      );
 
-        if (calendarHashChain === null) {
-            return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
-        }
-
-        const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain);
-        if (deprecatedLink !== null) {
-            // tslint:disable-next-line:max-line-length
-            console.debug(`Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${deprecatedLink.getValue().hashAlgorithm.name}; Publication time: ${calendarHashChain.getPublicationTime()}.`);
-
-            return new VerificationResult(
-                this.getRuleName(),
-                VerificationResultCode.NA,
-                VerificationError.GEN_02(
-                    new KsiVerificationError('Calendar hash chain right links has deprecated links.')));
-        }
-
-        return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
-
+      return new VerificationResult(
+        this.getRuleName(),
+        VerificationResultCode.NA,
+        VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain right links has deprecated links.'))
+      );
     }
+
+    return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
+  }
 }

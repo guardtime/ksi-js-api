@@ -18,19 +18,18 @@
  * reserves and retains all trademark rights.
  */
 
-import {KeyBasedVerificationPolicy} from './KeyBasedVerificationPolicy';
-import {PublicationBasedVerificationPolicy} from './PublicationBasedVerificationPolicy';
-import {VerificationPolicy} from './VerificationPolicy';
+import { KeyBasedVerificationPolicy } from './KeyBasedVerificationPolicy';
+import { PublicationBasedVerificationPolicy } from './PublicationBasedVerificationPolicy';
+import { VerificationPolicy } from './VerificationPolicy';
 
 /**
  * Default verification policy
  */
 export class DefaultVerificationPolicy extends VerificationPolicy {
-
-    constructor() {
-        super(
-            new PublicationBasedVerificationPolicy()
-                .onNa(new KeyBasedVerificationPolicy(true)),
-            'DefaultVerificationPolicy');
-    }
+  constructor() {
+    super(
+      new PublicationBasedVerificationPolicy().onNa(new KeyBasedVerificationPolicy(true)),
+      'DefaultVerificationPolicy'
+    );
+  }
 }

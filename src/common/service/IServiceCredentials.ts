@@ -18,15 +18,15 @@
  * reserves and retains all trademark rights.
  */
 
-import {HashAlgorithm} from '@guardtime/gt-js-common';
+import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 
 /**
  * Service credentials interface
  */
 export interface IServiceCredentials {
-    getLoginId(): string;
+  getLoginId(): string;
 
-    getLoginKey(): Uint8Array;
+  getLoginKey(): Uint8Array;
 
-    getHmacAlgorithm(): HashAlgorithm;
+  getHmacAlgorithm(): HashAlgorithm;
 }

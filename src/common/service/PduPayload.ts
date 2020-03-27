@@ -18,15 +18,14 @@
  * reserves and retains all trademark rights.
  */
 
-import {CompositeTag} from '../parser/CompositeTag';
-import {TlvTag} from '../parser/TlvTag';
+import { CompositeTag } from '../parser/CompositeTag';
+import { TlvTag } from '../parser/TlvTag';
 
 /**
  * Base class for PDU payloads
  */
 export abstract class PduPayload extends CompositeTag {
-
-    protected constructor(tlvTag: TlvTag) {
-        super(tlvTag);
-    }
+  protected constructor(tlvTag: TlvTag) {
+    super(tlvTag);
+  }
 }

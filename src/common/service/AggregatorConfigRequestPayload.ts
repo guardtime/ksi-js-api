@@ -18,14 +18,14 @@
  * reserves and retains all trademark rights.
  */
 
-import {TlvTag} from '../parser/TlvTag';
-import {PduPayload} from './PduPayload';
+import { TlvTag } from '../parser/TlvTag';
+import { PduPayload } from './PduPayload';
 
 /**
  * Aggregator configuration request payload.
  */
 export class AggregatorConfigRequestPayload extends PduPayload {
-    public constructor(tlvTag: TlvTag) {
-        super(tlvTag);
-    }
+  public constructor(tlvTag: TlvTag) {
+    super(tlvTag);
+  }
 }

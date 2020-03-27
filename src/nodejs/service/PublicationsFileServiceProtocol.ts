@@ -18,17 +18,17 @@
  * reserves and retains all trademark rights.
  */
 
-import {KsiHttpProtocol} from './KsiHttpProtocol';
+import { KsiHttpProtocol } from './KsiHttpProtocol';
 
 /**
  * HTTP signing service protocol
  */
 export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
-    constructor(url: string) {
-        super(url);
-    }
+  constructor(url: string) {
+    super(url);
+  }
 
-    public async getPublicationsFile(): Promise<Uint8Array> {
-        return this.download();
-    }
+  public async getPublicationsFile(): Promise<Uint8Array> {
+    return this.download();
+  }
 }

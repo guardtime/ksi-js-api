@@ -18,17 +18,17 @@
  * reserves and retains all trademark rights.
  */
 
-import {BigInteger} from 'big-integer';
+import { BigInteger } from 'big-integer';
 
 /**
  * Ksi identity interface
  */
 export interface IKsiIdentity {
-    getClientId(): string;
+  getClientId(): string;
 
-    getMachineId(): string | null;
+  getMachineId(): string | null;
 
-    getSequenceNumber(): BigInteger | null;
+  getSequenceNumber(): BigInteger | null;
 
-    getRequestTime(): BigInteger | null;
+  getRequestTime(): BigInteger | null;
 }

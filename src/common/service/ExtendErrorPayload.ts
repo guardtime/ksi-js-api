@@ -18,19 +18,19 @@
  * reserves and retains all trademark rights.
  */
 
-import {TlvTag} from '../parser/TlvTag';
-import {ErrorPayload} from './ErrorPayload';
+import { TlvTag } from '../parser/TlvTag';
+import { ErrorPayload } from './ErrorPayload';
 
 /**
  * Extends Error payload TLV element.
  */
 export class ExtendErrorPayload extends ErrorPayload {
-    constructor(tlvTag: TlvTag) {
-        super(tlvTag);
+  constructor(tlvTag: TlvTag) {
+    super(tlvTag);
 
-        this.decodeValue(this.parseChild.bind(this));
-        this.validateValue(this.validate.bind(this));
+    this.decodeValue(this.parseChild.bind(this));
+    this.validateValue(this.validate.bind(this));
 
-        Object.freeze(this);
-    }
+    Object.freeze(this);
+  }
 }
