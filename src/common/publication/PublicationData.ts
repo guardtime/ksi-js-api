@@ -102,11 +102,11 @@ export class PublicationData extends CompositeTag {
   // noinspection JSMethodCanBeStatic
   private validate(tagCount: ICount): void {
     if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {
-      throw new TlvError('Exactly one publication time must exist in publication data.');
+      throw new TlvError('Exactly one publication time must exist in published data.');
     }
 
     if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType) !== 1) {
-      throw new TlvError('Exactly one publication hash must exist in publication data.');
+      throw new TlvError('Exactly one published hash must exist in published data.');
     }
   }
 }

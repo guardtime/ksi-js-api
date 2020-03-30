@@ -20,6 +20,7 @@
 
 import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import Base64Coder from '@guardtime/gt-js-common/lib/coders/Base64Coder';
 import bigInteger from 'big-integer';
 
 import { CALENDAR_AUTHENTICATION_RECORD_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../../src/common/Constants';
@@ -30,6 +31,8 @@ import { TlvTag } from '../../src/common/parser/TlvTag';
 import { PublicationData } from '../../src/common/publication/PublicationData';
 import { CalendarAuthenticationRecord } from '../../src/common/signature/CalendarAuthenticationRecord';
 import { SignatureData } from '../../src/common/signature/SignatureData';
+import { TlvInputStream } from '../../src/common/parser/TlvInputStream';
+import { KsiSignature } from '../../src/common/signature/KsiSignature';
 
 /**
  * Aggregation hash chain TLV tag tests
@@ -138,4 +141,8 @@ describe('CalendarAuthenticationRecord', () => {
       return new CalendarAuthenticationRecord(tlvTag);
     }).toThrow('Exactly one signature data must exist in calendar authentication record.');
   });
+
+  it('', () => {
+    const signature = new KsiSignature(new TlvInputStream(Base64Coder.decode('iAAEYogFATAwCAIEXX0ymAQAgAsBIgEWMS4yLjg0MC4xMTM1NDkuMS4xLjExAIACAQBy/YC5vTXvfbHrBX16GKw6Y4iYDyugZxz49E7gUEmRD6dPAxLoK8wj3tE5YSX4D7OCPnX4qbwSPWF5Ae20+M6LKgzn7G8FWpahYoYosIRyMx0wXHqau6QKG0zsO7fwa1gee/9uJmKuZJrDNJEzWSSJtKyy2MVL91TejHK3d95TUq4nBL2dRIa4Wwo2fVzatDrnJ68/KQeMEm8YuqteH0W2SknIpkznTKz1pknaNQqMIRXu1LHEdFHgZguMBBFWwHAs0EukCWlHyYlL3J25dgvbM9DKbqZwlvS5h1jLyXaPLwyHjsmYawwUohwsqwjNoxkSTscg0h1HItl3Ti80SkiMAwQZixsniAICggEEXX0ymAIEXX0ymAUhAcyHa0lN/K+qWjcfXXKOA8fd/viVNrEY6lJDpz31RnJaCCEBbSa8goLpBmhgVOjmrxGN83TZy9d7f3RsPlGWOs1SXf0IIQGGEiPkNrJJDVw12jYdKpCaEUiGe2Zei7DaLhd1tD4H/wghASDp23CSacm4TSIejSZPpmqNgmWxXOV1BXPqRNSGSB4ECCEBtuNu92tZdZQxznLfLnarUpXOAiFz2iAaNchPQ5cgVVgIIQFQM50JV2wacd4D40pLqnFkM5+ENoqaU69BJXt4pi2YQQghAeGzt5t+eFqw5U2UWZGzAKDAfHgZpQezYH6o3TsH45zvCCEB77ZSOk2XtwohR4MMQZ8bKj2rRsdcA4CeHNeEVUqszPAIIQEOMeNFRf0KOOmVFoeRXRHLxzaWt5ft6GBQUmIA2XRhOQghAUYIHWLAc19POJm03mw7c+mKVyryvY0aIFv/SWl7kS0xCCEBuBxpWUUPLmZoxdDJFpBCHHDLXyfcIkm+hVTvq9T7DNoIIQE8gifFfRaMEbql0AfRHltZzbh1WxM4vooR1iudKXIligghAS0TiA4H9EvOWlQRi7PmAi+SGpWShqrAHbpRhIZnmeLDCCEBuhItBtPqQg9ZauznUBo3YG36/mBJUTHBg+q3jRq9BhcIIQFWt7cyECrbobXY3EICS8corKAULzVouetlR1B5hrZQ1wghAevDqx2GZBWBEwrDxwd7cbZ7ukyRVTDp/km5h2n8jcrrCCEBSW/AEg2FTnU0uZKrMuwwRbINS+4b++RWT9CSzq+gi3IIIQG7RP02pfPN7ntcbfOmCYoJ41MzW2Ap8Ud1AliKfje+AIgBAKQCBF19MpgDAQ0FIQEQs+VNUr/2mZTMYSBvVmKRLS8sNCcIBaFjCg6JoRtm8wYBAQcmAQFRAiEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIJgEBLQIhAWX9jwGNTnIx0D3LKSx0LXuCV0T22G/TpRxfKEQ1PAMaByMCIQFUNHBqbf8mcanYDM+mHeNkK/jLwfoeSja9hZE3rbM3gg==')).readTag());
+  })
 });
