@@ -20,7 +20,6 @@
 
 import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
-import Base64Coder from '@guardtime/gt-js-common/lib/coders/Base64Coder';
 import bigInteger from 'big-integer';
 
 import { CALENDAR_AUTHENTICATION_RECORD_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../../src/common/Constants';
@@ -31,8 +30,6 @@ import { TlvTag } from '../../src/common/parser/TlvTag';
 import { PublicationData } from '../../src/common/publication/PublicationData';
 import { CalendarAuthenticationRecord } from '../../src/common/signature/CalendarAuthenticationRecord';
 import { SignatureData } from '../../src/common/signature/SignatureData';
-import { TlvInputStream } from '../../src/common/parser/TlvInputStream';
-import { KsiSignature } from '../../src/common/signature/KsiSignature';
 
 /**
  * Aggregation hash chain TLV tag tests
