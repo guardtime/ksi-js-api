@@ -65,7 +65,7 @@ describe('StringTag', () => {
   });
 
   it('Fail creation with invalid string length', () => {
-    const tlvTag: TlvTag = new TlvTag(0x1, true, true, new Uint8Array([0x0]));
+    const tlvTag: TlvTag = new TlvTag(0x1, true, true, new Uint8Array([]));
     expect(() => {
       return new StringTag(tlvTag);
     }).toThrow(TlvError);
