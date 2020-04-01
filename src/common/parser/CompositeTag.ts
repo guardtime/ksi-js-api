@@ -24,35 +24,12 @@ import { TlvInputStream } from './TlvInputStream';
 import { TlvOutputStream } from './TlvOutputStream';
 import { TlvTag } from './TlvTag';
 
-export interface ICount {
-  getCount(id: number): number;
-}
-
-/**
- * Counter for elements in composite TLV
- */
-class ElementCounter implements ICount {
-  private counts: { [key: number]: number } = {};
-
-  public getCount(id: number): number {
-    return this.counts[id] || 0;
-  }
-
-  public addCount(id: number): void {
-    if (!this.counts.hasOwnProperty(id)) {
-      this.counts[id] = 0;
-    }
-
-    this.counts[id] += 1;
-  }
-}
-
 /**
  * Composite TLV object
  */
 export abstract class CompositeTag extends TlvTag {
   public value: TlvTag[] = [];
-  private readonly elementCounter: ElementCounter = new ElementCounter();
+  private elementCount: { [key: number]: number } = {};
 
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
@@ -77,11 +54,12 @@ export abstract class CompositeTag extends TlvTag {
     return new TlvTag(id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
   }
 
-  protected static parseTlvTag(tlvTag: TlvTag): TlvTag {
+  protected validateUnknownTlvTag(tlvTag: TlvTag): TlvTag {
     if (!tlvTag.nonCriticalFlag) {
       throw new TlvError(`Unknown TLV tag: 0x${tlvTag.id.toString(16)}`);
     }
 
+    console.warn(`Ignoring TLV tag: 0x${tlvTag.id.toString(16)} in 0x${this.id.toString(16)}`);
     return tlvTag;
   }
 
@@ -115,14 +93,18 @@ export abstract class CompositeTag extends TlvTag {
       const tlvTag: TlvTag = createFunc(stream.readTag(), position);
       this.value.push(tlvTag);
 
-      this.elementCounter.addCount(tlvTag.id);
+      if (!this.elementCount.hasOwnProperty(tlvTag.id)) {
+        this.elementCount[tlvTag.id] = 0;
+      }
+
+      this.elementCount[tlvTag.id] += 1;
       position += 1;
     }
 
-    Object.freeze(this.elementCounter);
+    Object.freeze(this.elementCount);
   }
 
-  protected validateValue(validate: (tlvCount: ICount) => void): void {
-    validate(this.elementCounter);
+  public getCount(id: number): number {
+    return this.elementCount[id] || 0;
   }
 }

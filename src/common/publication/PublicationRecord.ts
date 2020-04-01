@@ -21,7 +21,7 @@
 import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import bigInteger from 'big-integer';
 import { PUBLICATION_DATA_CONSTANTS, PUBLICATION_RECORD_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { StringTag } from '../parser/StringTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
@@ -39,7 +39,7 @@ export class PublicationRecord extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -83,13 +83,12 @@ export class PublicationRecord extends CompositeTag {
 
         return uri;
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
       throw new TlvError('Exactly one publication data must exist in publication record.');
     }
   }

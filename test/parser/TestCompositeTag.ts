@@ -19,7 +19,7 @@ export class TestCompositeTag extends CompositeTag {
       case CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType:
         return new RawTag(tlvTag);
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 }

@@ -31,7 +31,7 @@ import {
   LinkDirection,
   RFC_3161_RECORD_CONSTANTS
 } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvInputStream } from '../parser/TlvInputStream';
 import { TlvOutputStream } from '../parser/TlvOutputStream';
@@ -58,7 +58,7 @@ export class KsiSignature extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     this.aggregationHashChains.sort((x: AggregationHashChain, y: AggregationHashChain) => {
       return y.getChainIndex().length - x.getChainIndex().length;
@@ -204,23 +204,23 @@ export class KsiSignature extends CompositeTag {
       case RFC_3161_RECORD_CONSTANTS.TagType:
         return (this.rfc3161Record = new Rfc3161Record(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  private validate(tagCount: ICount): void {
+  private validate(): void {
     if (this.aggregationHashChains.length === 0) {
       throw new TlvError('Aggregation hash chains must exist in KSI signature.');
     }
 
-    if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) > 1) {
+    if (this.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) > 1) {
       throw new TlvError('Only one calendar hash chain is allowed in KSI signature.');
     }
 
     if (
-      tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) === 0 &&
-      (tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) !== 0 ||
-        tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) !== 0)
+      this.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.TagType) === 0 &&
+      (this.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) !== 0 ||
+        this.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) !== 0)
     ) {
       throw new TlvError(
         'No publication record or calendar authentication record is ' +
@@ -229,17 +229,17 @@ export class KsiSignature extends CompositeTag {
     }
 
     if (
-      (tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) === 1 &&
-        tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) === 1) ||
-      tagCount.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) > 1 ||
-      tagCount.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) > 1
+      (this.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) === 1 &&
+        this.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) === 1) ||
+      this.getCount(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType) > 1 ||
+      this.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) > 1
     ) {
       throw new TlvError(
         'Only one from publication record or calendar authentication record is allowed in KSI signature.'
       );
     }
 
-    if (tagCount.getCount(RFC_3161_RECORD_CONSTANTS.TagType) > 1) {
+    if (this.getCount(RFC_3161_RECORD_CONSTANTS.TagType) > 1) {
       throw new TlvError('Only one RFC 3161 record is allowed in KSI signature.');
     }
   }

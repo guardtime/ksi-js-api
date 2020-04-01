@@ -20,7 +20,7 @@
 
 import { BigInteger } from 'big-integer';
 import { PDU_PAYLOAD_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { StringTag } from '../parser/StringTag';
 import { TlvError } from '../parser/TlvError';
@@ -53,16 +53,16 @@ export abstract class ResponsePayload extends PduPayload {
       case PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType:
         return (this.errorMessage = new StringTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  protected validate(tagCount: ICount): void {
-    if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.StatusTagType) !== 1) {
+  protected validate(): void {
+    if (this.getCount(PDU_PAYLOAD_CONSTANTS.StatusTagType) !== 1) {
       throw new TlvError('Exactly one status code must exist in response payload.');
     }
 
-    if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType) > 1) {
+    if (this.getCount(PDU_PAYLOAD_CONSTANTS.ErrorMessageTagType) > 1) {
       throw new TlvError('Only one error message is allowed in response payload.');
     }
   }

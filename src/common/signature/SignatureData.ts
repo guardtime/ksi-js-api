@@ -19,7 +19,7 @@
  */
 
 import { SIGNATURE_DATA_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { RawTag } from '../parser/RawTag';
 import { StringTag } from '../parser/StringTag';
 import { TlvError } from '../parser/TlvError';
@@ -38,7 +38,7 @@ export class SignatureData extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -66,25 +66,24 @@ export class SignatureData extends CompositeTag {
       case SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType:
         return (this.certificateRepositoryUri = new StringTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType) !== 1) {
       throw new TlvError('Exactly one signature type must exist in signature data.');
     }
 
-    if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType) !== 1) {
+    if (this.getCount(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType) !== 1) {
       throw new TlvError('Exactly one signature value must exist in signature data.');
     }
 
-    if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType) !== 1) {
+    if (this.getCount(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType) !== 1) {
       throw new TlvError('Exactly one certificate id must exist in signature data.');
     }
 
-    if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType) > 1) {
+    if (this.getCount(SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType) > 1) {
       throw new TlvError('Only one certificate repository uri is allowed in signature data.');
     }
   }
