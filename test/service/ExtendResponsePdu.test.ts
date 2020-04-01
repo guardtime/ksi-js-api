@@ -15,6 +15,4 @@ describe('ExtendResponsePdu', () => {
       return new ExtendResponsePdu(new TlvInputStream(responseBytes).readTag());
     }).toThrow('Header must be the first element in PDU.');
   });
-
-
 });

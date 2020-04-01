@@ -27,6 +27,4 @@ describe('AggregationResponsePdu', () => {
       return new AggregationResponsePdu(new TlvInputStream(responseBytes).readTag());
     }).toThrow('Header must be the first element in PDU.');
   });
-
-
 });
