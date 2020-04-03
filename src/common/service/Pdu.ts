@@ -70,9 +70,12 @@ export abstract class Pdu extends CompositeTag {
   }
 
   public async verifyHmac(algorithm: HashAlgorithm, key: Uint8Array): Promise<boolean> {
-    const pduBytes = this.getValueBytes();
+    const pduBytes = this.encode();
     const pduHmac = this.hmac.getValue();
-    const calculatedHmac = await HMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length));
+    const calculatedHmac = DataHash.create(
+      algorithm,
+      await HMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length))
+    );
     return pduHmac.equals(calculatedHmac);
   }
 
