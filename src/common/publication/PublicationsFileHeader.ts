@@ -20,7 +20,7 @@
 
 import { BigInteger } from 'big-integer';
 import { PUBLICATIONS_FILE_HEADER_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { StringTag } from '../parser/StringTag';
 import { TlvError } from '../parser/TlvError';
@@ -38,7 +38,7 @@ export class PublicationsFileHeader extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
     Object.freeze(this);
   }
 
@@ -63,21 +63,20 @@ export class PublicationsFileHeader extends CompositeTag {
       case PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType:
         return (this.repositoryUri = new StringTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType) !== 1) {
       throw new TlvError('Exactly one version must exist in publications file header.');
     }
 
-    if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType) !== 1) {
+    if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType) !== 1) {
       throw new TlvError('Exactly one creation time must exist in publications file header.');
     }
 
-    if (tagCount.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType) > 1) {
+    if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType) > 1) {
       throw new TlvError('Only one repository uri is allowed in publications file header.');
     }
   }

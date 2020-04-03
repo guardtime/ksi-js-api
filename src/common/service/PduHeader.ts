@@ -19,7 +19,7 @@
  */
 
 import { PDU_HEADER_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { StringTag } from '../parser/StringTag';
 import { TlvError } from '../parser/TlvError';
@@ -37,7 +37,7 @@ export class PduHeader extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -59,21 +59,20 @@ export class PduHeader extends CompositeTag {
       case PDU_HEADER_CONSTANTS.MessageIdTagType:
         return (this.messageId = new IntegerTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(PDU_HEADER_CONSTANTS.LoginIdTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(PDU_HEADER_CONSTANTS.LoginIdTagType) !== 1) {
       throw new TlvError('Exactly one login id must exist in PDU header.');
     }
 
-    if (tagCount.getCount(PDU_HEADER_CONSTANTS.InstanceIdTagType) > 1) {
+    if (this.getCount(PDU_HEADER_CONSTANTS.InstanceIdTagType) > 1) {
       throw new TlvError('Only one instance id is allowed in PDU header.');
     }
 
-    if (tagCount.getCount(PDU_HEADER_CONSTANTS.MessageIdTagType) > 1) {
+    if (this.getCount(PDU_HEADER_CONSTANTS.MessageIdTagType) > 1) {
       throw new TlvError('Only one message id is allowed in PDU header.');
     }
   }

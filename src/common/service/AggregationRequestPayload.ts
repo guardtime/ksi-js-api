@@ -21,7 +21,7 @@
 import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import bigInteger, { BigInteger } from 'big-integer';
 import { AGGREGATION_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { ImprintTag } from '../parser/ImprintTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { TlvError } from '../parser/TlvError';
@@ -39,7 +39,7 @@ export class AggregationRequestPayload extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -72,21 +72,20 @@ export class AggregationRequestPayload extends CompositeTag {
       case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType:
         return (this.requestLevel = new IntegerTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
       throw new TlvError('Exactly one request id must exist in aggregation request payload.');
     }
 
-    if (tagCount.getCount(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType) !== 1) {
+    if (this.getCount(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType) !== 1) {
       throw new TlvError('Exactly one request hash must exist in aggregation request payload.');
     }
 
-    if (tagCount.getCount(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType) > 1) {
+    if (this.getCount(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestLevelTagType) > 1) {
       throw new TlvError('Only one request level is allowed in aggregation request payload.');
     }
   }

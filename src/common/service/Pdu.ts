@@ -22,7 +22,7 @@ import HMAC from '@guardtime/gt-js-common/lib/crypto/HMAC';
 import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 import { PDU_CONSTANTS, PDU_HEADER_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { ImprintTag } from '../parser/ImprintTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvInputStream } from '../parser/TlvInputStream';
@@ -84,11 +84,11 @@ export abstract class Pdu extends CompositeTag {
       case PDU_CONSTANTS.MacTagType:
         return (this.hmac = new ImprintTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  protected validate(tagCount: ICount): void {
+  protected validate(): void {
     if (this.errorPayload != null) {
       return;
     }
@@ -96,13 +96,13 @@ export abstract class Pdu extends CompositeTag {
     if (this.payloads.length === 0) {
       throw new TlvError('Payloads are missing in PDU.');
     }
-    if (tagCount.getCount(PDU_HEADER_CONSTANTS.TagType) !== 1) {
+    if (this.getCount(PDU_HEADER_CONSTANTS.TagType) !== 1) {
       throw new TlvError('Exactly one header must exist in PDU.');
     }
     if (this.value[0] !== this.header) {
       throw new TlvError('Header must be the first element in PDU.');
     }
-    if (tagCount.getCount(PDU_CONSTANTS.MacTagType) !== 1) {
+    if (this.getCount(PDU_CONSTANTS.MacTagType) !== 1) {
       throw new TlvError('Exactly one MAC must exist in PDU.');
     }
     if (this.value[this.value.length - 1] !== this.hmac) {

@@ -20,7 +20,7 @@
 
 import { BigInteger } from 'big-integer';
 import { EXTEND_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
@@ -38,7 +38,7 @@ export class ExtendRequestPayload extends PduPayload {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -73,21 +73,20 @@ export class ExtendRequestPayload extends PduPayload {
       case EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType:
         return (this.publicationTime = new IntegerTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
       throw new TlvError('Exactly one request id must exist in extend request payload.');
     }
 
-    if (tagCount.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType) !== 1) {
+    if (this.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType) !== 1) {
       throw new TlvError('Exactly one aggregation time must exist in extend request payload.');
     }
 
-    if (tagCount.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType) > 1) {
+    if (this.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType) > 1) {
       throw new TlvError('Only one publication time is allowed in extend request payload.');
     }
   }

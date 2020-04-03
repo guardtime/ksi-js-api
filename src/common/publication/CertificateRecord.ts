@@ -19,7 +19,7 @@
  */
 
 import { CERTIFICATE_RECORD_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { RawTag } from '../parser/RawTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
@@ -35,7 +35,7 @@ export class CertificateRecord extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -55,17 +55,16 @@ export class CertificateRecord extends CompositeTag {
       case CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType:
         return (this.x509Certificate = new RawTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType) !== 1) {
       throw new TlvError('Exactly one certificate id must exist in certificate record.');
     }
 
-    if (tagCount.getCount(CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType) !== 1) {
+    if (this.getCount(CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType) !== 1) {
       throw new TlvError('Exactly one certificate must exist in certificate record.');
     }
   }

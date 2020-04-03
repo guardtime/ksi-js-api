@@ -25,7 +25,6 @@ import {
   EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS,
   KSI_SIGNATURE_CONSTANTS
 } from '../Constants';
-import { ICount } from '../parser/CompositeTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 import { RequestResponsePayload } from './RequestResponsePayload';
@@ -38,7 +37,7 @@ export class AggregationResponsePayload extends RequestResponsePayload {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -66,10 +65,10 @@ export class AggregationResponsePayload extends RequestResponsePayload {
     }
   }
 
-  protected validate(tagCount: ICount): void {
-    super.validate(tagCount);
+  protected validate(): void {
+    super.validate();
 
-    if (tagCount.getCount(EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType) > 1) {
+    if (this.getCount(EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType) > 1) {
       throw new TlvError('Only one extender config request payload is allowed in PDU.');
     }
   }

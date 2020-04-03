@@ -24,7 +24,7 @@ import CRC32 from '@guardtime/gt-js-common/lib/crc/CRC32';
 import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
 import bigInteger, { BigInteger } from 'big-integer';
 import { PUBLICATION_DATA_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { ImprintTag } from '../parser/ImprintTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { TlvError } from '../parser/TlvError';
@@ -42,7 +42,7 @@ export class PublicationData extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
     Object.freeze(this);
   }
 
@@ -95,17 +95,16 @@ export class PublicationData extends CompositeTag {
       case PUBLICATION_DATA_CONSTANTS.PublicationHashTagType:
         return (this.publicationHash = new ImprintTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {
-      throw new TlvError('Exactly one publication time must exist in published data.');
+  private validate(): void {
+    if (this.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {
+      throw new TlvError('Exactly one published time must exist in published data.');
     }
 
-    if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType) !== 1) {
+    if (this.getCount(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType) !== 1) {
       throw new TlvError('Exactly one published hash must exist in published data.');
     }
   }
