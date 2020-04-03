@@ -89,7 +89,7 @@ export class PublicationRecord extends CompositeTag {
 
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
-      throw new TlvError('Exactly one publication data must exist in publication record.');
+      throw new TlvError('Exactly one published data must exist in publication record.');
     }
   }
 }

@@ -70,7 +70,7 @@ describe('PublicationData', () => {
 
     expect(() => {
       return new PublicationData(tlvTag);
-    }).toThrow('Exactly one publication time must exist in publication data.');
+    }).toThrow('Exactly one publication time must exist in published data.');
   });
 
   it('Creation with missing publication hash', () => {
@@ -80,7 +80,7 @@ describe('PublicationData', () => {
 
     expect(() => {
       return new PublicationData(tlvTag);
-    }).toThrow('Exactly one publication hash must exist in publication data.');
+    }).toThrow('Exactly one published hash must exist in published data.');
   });
 
   it('Creation with multiple publication time', () => {
@@ -97,7 +97,7 @@ describe('PublicationData', () => {
 
     expect(() => {
       return new PublicationData(tlvTag);
-    }).toThrow('Exactly one publication time must exist in publication data.');
+    }).toThrow('Exactly one publication time must exist in published data.');
   });
 
   it('Creation with multiple publication hash', () => {
@@ -119,6 +119,6 @@ describe('PublicationData', () => {
 
     expect(() => {
       return new PublicationData(tlvTag);
-    }).toThrow('Exactly one publication hash must exist in publication data.');
+    }).toThrow('Exactly one published hash must exist in published data.');
   });
 });
