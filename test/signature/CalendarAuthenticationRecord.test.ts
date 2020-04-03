@@ -77,7 +77,7 @@ describe('CalendarAuthenticationRecord', () => {
 
     expect(() => {
       return new CalendarAuthenticationRecord(tlvTag);
-    }).toThrow('Exactly one publication data must exist in calendar authentication record.');
+    }).toThrow('Exactly one published data must exist in calendar authentication record.');
   });
 
   it('Creation with TlvTag multiple publication data', async () => {
@@ -98,7 +98,7 @@ describe('CalendarAuthenticationRecord', () => {
 
     expect(() => {
       return new CalendarAuthenticationRecord(tlvTag);
-    }).toThrow('Exactly one publication data must exist in calendar authentication record.');
+    }).toThrow('Exactly one published data must exist in calendar authentication record.');
   });
 
   it('Creation with TlvTag missing signature data', async () => {

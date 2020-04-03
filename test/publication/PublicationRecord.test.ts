@@ -78,7 +78,7 @@ describe('PublicationRecord', () => {
 
     expect(() => {
       return new PublicationRecord(tlvTag);
-    }).toThrow('Exactly one publication data must exist in publication record.');
+    }).toThrow('Exactly one published data must exist in publication record.');
   });
 
   it('Creation with multiple publication data', () => {
@@ -94,6 +94,6 @@ describe('PublicationRecord', () => {
 
     expect(() => {
       return new PublicationRecord(tlvTag);
-    }).toThrow('Exactly one publication data must exist in publication record.');
+    }).toThrow('Exactly one published data must exist in publication record.');
   });
 });
