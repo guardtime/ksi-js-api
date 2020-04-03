@@ -19,6 +19,7 @@
  */
 
 import { AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS } from '../Constants';
+import { CompositeTag } from '../parser/CompositeTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { StringTag } from '../parser/StringTag';
 import { TlvError } from '../parser/TlvError';
