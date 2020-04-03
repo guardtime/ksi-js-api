@@ -25,7 +25,7 @@ import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 import Utf8Converter from '@guardtime/gt-js-common/lib/strings/Utf8Converter';
 import bigInteger, { BigInteger } from 'big-integer';
 import { AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { ImprintTag } from '../parser/ImprintTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { RawTag } from '../parser/RawTag';
@@ -49,7 +49,7 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -87,25 +87,24 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
       case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType:
         return (this.requestTime = new IntegerTag(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType) !== 1) {
       throw new TlvError('Exactly one client id must exist in aggregation hash chain link metadata.');
     }
 
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType) > 1) {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType) > 1) {
       throw new TlvError('Only one machine id is allowed in aggregation hash chain link metadata.');
     }
 
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType) > 1) {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType) > 1) {
       throw new TlvError('Only one sequence number is allowed in aggregation hash chain link metadata.');
     }
 
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType) > 1) {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType) > 1) {
       throw new TlvError('Only one request time is allowed in aggregation hash chain link metadata.');
     }
   }
@@ -129,7 +128,7 @@ export class AggregationHashChainLink extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     switch (this.id) {
       case LinkDirection.Left:
@@ -225,20 +224,19 @@ export class AggregationHashChainLink extends CompositeTag {
       case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType:
         return (this.metadata = new AggregationHashChainLinkMetaData(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType) > 1) {
+  private validate(): void {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType) > 1) {
       throw new TlvError('Only one LevelCorrection value is allowed in aggregation hash chain link.');
     }
 
     if (
-      (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType) || 0) +
-        (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId) || 0) +
-        (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType) || 0) !==
+      (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType) || 0) +
+        (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId) || 0) +
+        (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType) || 0) !==
       1
     ) {
       throw new TlvError(
@@ -265,7 +263,7 @@ export class AggregationHashChain extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -387,12 +385,12 @@ export class AggregationHashChain extends CompositeTag {
 
         return linkTag;
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) !== 1) {
       throw new TlvError('Exactly one aggregation time must exist in aggregation hash chain.');
     }
 
@@ -400,15 +398,15 @@ export class AggregationHashChain extends CompositeTag {
       throw new TlvError('Chain index is missing in aggregation hash chain.');
     }
 
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType) > 1) {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType) > 1) {
       throw new TlvError('Only one input data value is allowed in aggregation hash chain.');
     }
 
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType) !== 1) {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType) !== 1) {
       throw new TlvError('Exactly one input hash must exist in aggregation hash chain.');
     }
 
-    if (tagCount.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType) !== 1) {
+    if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType) !== 1) {
       throw new TlvError('Exactly one algorithm must exist in aggregation hash chain.');
     }
 

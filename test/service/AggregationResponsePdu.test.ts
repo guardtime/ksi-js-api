@@ -5,8 +5,6 @@ import Base64Coder from '@guardtime/gt-js-common/lib/coders/Base64Coder';
 import { TlvInputStream } from '../../src/common/parser/TlvInputStream';
 import { AggregationResponsePdu } from '../../src/common/service/AggregationResponsePdu';
 import { ErrorPayload } from '../../src/common/service/ErrorPayload';
-import { TestCompositeTag } from '../parser/TestCompositeTag';
-import { TlvError } from '../../src/common/parser/TlvError';
 
 describe('AggregationResponsePdu', () => {
   it('Test with error pdu', () => {

@@ -87,6 +87,15 @@ export class ExtendingService {
       throw new KsiServiceError(`Response contains more bytes than PDU length.`);
     }
 
+    if (
+      !(await responsePdu.verifyHmac(
+        this.extendingServiceCredentials.getHmacAlgorithm(),
+        this.extendingServiceCredentials.getLoginKey()
+      ))
+    ) {
+      throw new KsiServiceError(`Response HMAC is not correct.`);
+    }
+
     const errorPayload: ErrorPayload | null = responsePdu.getErrorPayload();
     if (errorPayload !== null) {
       if (responsePdu.getPayloads().length > 0) {

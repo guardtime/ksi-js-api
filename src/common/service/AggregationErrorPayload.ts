@@ -29,7 +29,7 @@ export class AggregationErrorPayload extends ErrorPayload {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }

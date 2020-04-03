@@ -24,7 +24,7 @@ import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 import bigInteger, { BigInteger } from 'big-integer';
 
 import { CALENDAR_HASH_CHAIN_CONSTANTS, LinkDirection } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { ImprintTag } from '../parser/ImprintTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { TlvError } from '../parser/TlvError';
@@ -44,7 +44,7 @@ export class CalendarHashChain extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -196,20 +196,20 @@ export class CalendarHashChain extends CompositeTag {
 
         return link;
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType) !== 1) {
       throw new TlvError('Exactly one publication time must exist in calendar hash chain.');
     }
 
-    if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) > 1) {
+    if (this.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) > 1) {
       throw new TlvError('Only one aggregation time is allowed in calendar hash chain.');
     }
 
-    if (tagCount.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType) !== 1) {
+    if (this.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.InputHashTagType) !== 1) {
       throw new TlvError('Exactly one input hash must exist in calendar hash chain.');
     }
 

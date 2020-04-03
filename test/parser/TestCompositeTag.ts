@@ -13,13 +13,12 @@ export class TestCompositeTag extends CompositeTag {
     this.decodeValue(this.parseChild.bind(this));
   }
 
-  // noinspection JSMethodCanBeStatic
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType:
         return new RawTag(tlvTag);
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 }

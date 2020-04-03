@@ -19,7 +19,7 @@
  */
 
 import { PUBLICATION_DATA_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../Constants';
-import { CompositeTag, ICount } from '../parser/CompositeTag';
+import { CompositeTag } from '../parser/CompositeTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 import { PublicationData } from '../publication/PublicationData';
@@ -36,7 +36,7 @@ export class CalendarAuthenticationRecord extends CompositeTag {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
-    this.validateValue(this.validate.bind(this));
+    this.validate();
 
     Object.freeze(this);
   }
@@ -56,17 +56,16 @@ export class CalendarAuthenticationRecord extends CompositeTag {
       case SIGNATURE_DATA_CONSTANTS.TagType:
         return (this.signatureData = new SignatureData(tlvTag));
       default:
-        return CompositeTag.parseTlvTag(tlvTag);
+        return this.validateUnknownTlvTag(tlvTag);
     }
   }
 
-  // noinspection JSMethodCanBeStatic
-  private validate(tagCount: ICount): void {
-    if (tagCount.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
+  private validate(): void {
+    if (this.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
       throw new TlvError('Exactly one published data must exist in calendar authentication record.');
     }
 
-    if (tagCount.getCount(SIGNATURE_DATA_CONSTANTS.TagType) !== 1) {
+    if (this.getCount(SIGNATURE_DATA_CONSTANTS.TagType) !== 1) {
       throw new TlvError('Exactly one signature data must exist in calendar authentication record.');
     }
   }
