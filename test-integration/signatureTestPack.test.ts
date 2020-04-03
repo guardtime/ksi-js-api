@@ -57,7 +57,7 @@ import { VerificationPolicy } from '../src/common/signature/verification/policy/
 import { VerificationError } from '../src/common/signature/verification/VerificationError';
 import { VerificationResult } from '../src/common/signature/verification/VerificationResult';
 import { ExtendingServiceProtocol, PublicationsFileServiceProtocol, SigningServiceProtocol } from '../src/nodejs/main';
-import { KsiRequest } from '../src/nodejs/service/KsiRequest';
+import { TestServiceProtocol } from '../test/service/TestServiceProtocol';
 
 const config: {
   testDirectory: null | string;
@@ -107,30 +107,6 @@ class TestExtendingService extends ExtendingService {
 
   protected generateRequestId(): BigInteger {
     return this.requestId;
-  }
-}
-
-/**
- * Test service protocol for mocking queries to server
- */
-class TestServiceProtocol
-  implements ISigningServiceProtocol, IExtendingServiceProtocol, IPublicationsFileServiceProtocol {
-  private readonly resultBytes: Uint8Array;
-
-  constructor(resultBytes: Uint8Array) {
-    this.resultBytes = resultBytes;
-  }
-
-  public extend(): KsiRequestBase {
-    return new KsiRequest(Promise.resolve(this.resultBytes), new EventEmitter());
-  }
-
-  public getPublicationsFile(): Promise<Uint8Array> {
-    return Promise.resolve(this.resultBytes);
-  }
-
-  public sign(): KsiRequestBase {
-    return new KsiRequest(Promise.resolve(this.resultBytes), new EventEmitter());
   }
 }
 

@@ -44,7 +44,7 @@ export abstract class Pdu extends CompositeTag {
     super(tlvTag);
   }
 
-  protected static async create(
+  protected static async CREATE_PDU(
     tagType: number,
     header: PduHeader,
     payload: PduPayload,
@@ -67,6 +67,16 @@ export abstract class Pdu extends CompositeTag {
     );
 
     return new TlvInputStream(pduBytes).readTag();
+  }
+
+  public async verifyHmac(algorithm: HashAlgorithm, key: Uint8Array): Promise<boolean> {
+    const pduBytes = this.encode();
+    const pduHmac = this.hmac.getValue();
+    const calculatedHmac = DataHash.create(
+      algorithm,
+      await HMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length))
+    );
+    return pduHmac.equals(calculatedHmac);
   }
 
   public getErrorPayload(): ErrorPayload | null {

@@ -20,7 +20,6 @@
 
 import { BigInteger } from 'big-integer';
 import { PDU_PAYLOAD_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { StringTag } from '../parser/StringTag';
 import { TlvError } from '../parser/TlvError';
