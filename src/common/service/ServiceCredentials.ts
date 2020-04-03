@@ -29,7 +29,7 @@ export class ServiceCredentials implements IServiceCredentials {
   private readonly loginId: string;
   private readonly loginKey: Uint8Array;
 
-  constructor(loginId: string, loginKey: Uint8Array, hmacAlgorithm: HashAlgorithm = HashAlgorithm.SHA2_256) {
+  constructor(loginId: string, loginKey: Uint8Array, hmacAlgorithm: HashAlgorithm = HashAlgorithm.DEFAULT) {
     this.loginId = loginId;
     this.loginKey = loginKey;
     this.hmacAlgorithm = hmacAlgorithm;

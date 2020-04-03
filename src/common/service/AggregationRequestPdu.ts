@@ -53,7 +53,7 @@ export class AggregationRequestPdu extends Pdu {
     key: Uint8Array
   ): Promise<AggregationRequestPdu> {
     return new AggregationRequestPdu(
-      await Pdu.create(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)
+      await Pdu.CREATE_PDU(AGGREGATION_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)
     );
   }
 
