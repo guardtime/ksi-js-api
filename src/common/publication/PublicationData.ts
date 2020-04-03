@@ -101,7 +101,7 @@ export class PublicationData extends CompositeTag {
 
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {
-      throw new TlvError('Exactly one published time must exist in published data.');
+      throw new TlvError('Exactly one publication time must exist in published data.');
     }
 
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType) !== 1) {
