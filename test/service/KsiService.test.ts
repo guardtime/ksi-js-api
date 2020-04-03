@@ -25,7 +25,7 @@ import { ServiceCredentials } from '../../src/common/service/ServiceCredentials'
 import { HashAlgorithm } from '../../src/common/main';
 
 describe('KsiService', () => {
-  it('extender request with empty aggregation time value', () => {
+  it('example test', () => {
     const ksiService = new KsiService(
       new SigningService(
         new TestServiceProtocol(new Uint8Array(0)),
