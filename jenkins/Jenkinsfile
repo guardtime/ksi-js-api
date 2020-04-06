@@ -10,7 +10,7 @@ pipeline {
             steps {
                 nodejs(nodeJSInstallationName: 'node1320', configId: 'feb08d93-6888-4c30-9bd8-45aef7ae0db1') {
                     sh 'npm ci'
-                    sh 'npm run test'
+                    sh 'npm run test:ci'
                     sh 'npm run lint'
                     sh 'npm run build'
                 }
