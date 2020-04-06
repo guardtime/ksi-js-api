@@ -25,7 +25,6 @@ import bigInteger, { BigInteger } from 'big-integer';
 import { CastingContext, ColumnOption } from 'csv-parse';
 // tslint:disable-next-line:import-name
 import parseCsv from 'csv-parse/lib/sync';
-import { EventEmitter } from 'events';
 import fs from 'fs';
 import * as path from 'path';
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -46,10 +45,7 @@ import { TlvInputStream } from '../src/common/parser/TlvInputStream';
 import { PublicationData } from '../src/common/publication/PublicationData';
 import { PublicationsFile } from '../src/common/publication/PublicationsFile';
 import { IExtendingServiceProtocol } from '../src/common/service/IExtendingServiceProtocol';
-import { IPublicationsFileServiceProtocol } from '../src/common/service/IPublicationsFileServiceProtocol';
 import { IServiceCredentials } from '../src/common/service/IServiceCredentials';
-import { ISigningServiceProtocol } from '../src/common/service/ISigningServiceProtocol';
-import { KsiRequestBase } from '../src/common/service/KsiRequestBase';
 import { KsiSignature } from '../src/common/signature/KsiSignature';
 import { CalendarBasedVerificationPolicy } from '../src/common/signature/verification/policy/CalendarBasedVerificationPolicy';
 import { InternalVerificationPolicy } from '../src/common/signature/verification/policy/InternalVerificationPolicy';
