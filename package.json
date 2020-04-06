@@ -9,7 +9,6 @@
     "test": "jest test/",
     "test:ci": "jest test/ --ci --reporters=default --reporters=jest-junit",
     "integration-test": "jest test-integration/",
-    "integration-test:ci": "jest test-integration/ --ci",
     "build": "rimraf lib && tsc -t ES6 -d  && webpack",
     "browser:dev": "webpack-dev-server",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\"",
