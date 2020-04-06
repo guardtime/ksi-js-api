@@ -1,7 +1,6 @@
 {
   "name": "@guardtime/ksi-js-api",
   "version": "1.0.0",
-  "private": true,
   "main": "./dist/main.node.js",
   "browser": "./dist/main.js",
   "types": "./lib/nodejs/main.d.ts",
