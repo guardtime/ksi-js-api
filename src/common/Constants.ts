@@ -290,7 +290,7 @@ export const AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: AggregatorConfigRespo
   AggregationAlgorithmTagType: 0x2,
   AggregationPeriodTagType: 0x3,
   MaxRequestsTagType: 0x4,
-  ParentUriTagType: 0x5
+  ParentUriTagType: 0x10
 });
 
 export const AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({

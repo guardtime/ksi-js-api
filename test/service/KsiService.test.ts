@@ -26,6 +26,7 @@ import { HashAlgorithm } from '../../src/common/main';
 
 describe('KsiService', () => {
   it('example test', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const ksiService = new KsiService(
       new SigningService(
         new TestServiceProtocol(new Uint8Array(0)),
