@@ -18,6 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
+import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
 import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
 import X509 from '@guardtime/gt-js-common/lib/crypto/X509';
 import { CertificateRecord } from '../../../publication/CertificateRecord';
@@ -28,7 +29,7 @@ import { SignatureData } from '../../SignatureData';
 import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
-import { VerificationResult, VerificationResultCode } from '../VerificationResult';
+import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**

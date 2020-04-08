@@ -18,12 +18,13 @@
  * reserves and retains all trademark rights.
  */
 
+import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
 import { AggregationHashChain } from '../../AggregationHashChain';
 import { CalendarHashChain } from '../../CalendarHashChain';
 import { KsiSignature } from '../../KsiSignature';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
-import { VerificationResult, VerificationResultCode } from '../VerificationResult';
+import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
