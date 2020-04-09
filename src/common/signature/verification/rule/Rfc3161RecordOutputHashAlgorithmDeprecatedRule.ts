@@ -19,12 +19,13 @@
  */
 
 import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
 import { BigInteger } from 'big-integer';
 import { AggregationHashChain } from '../../AggregationHashChain';
 import { KsiSignature } from '../../KsiSignature';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
-import { VerificationResult, VerificationResultCode } from '../VerificationResult';
+import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**

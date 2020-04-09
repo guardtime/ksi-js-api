@@ -18,13 +18,14 @@
  * reserves and retains all trademark rights.
  */
 
+import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
 import { PublicationData } from '../../../publication/PublicationData';
 import { PublicationRecord } from '../../../publication/PublicationRecord';
 import { KsiSignature } from '../../KsiSignature';
 import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
-import { VerificationResult, VerificationResultCode } from '../VerificationResult';
+import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**

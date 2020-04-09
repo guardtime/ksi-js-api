@@ -18,6 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
+import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
 import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
 import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../../Constants';
 import { RawTag } from '../../../parser/RawTag';
@@ -27,7 +28,7 @@ import { AggregationHashChain, AggregationHashChainLinkMetaData } from '../../Ag
 import { KsiSignature } from '../../KsiSignature';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
-import { VerificationResult, VerificationResultCode } from '../VerificationResult';
+import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**

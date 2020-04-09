@@ -18,7 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { VerificationResult, VerificationResultCode } from '../VerificationResult';
+import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
+import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
