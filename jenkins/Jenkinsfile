@@ -54,7 +54,7 @@ pipeline {
         success {
             updateStatus("SUCCESS", "Build successful")
         }
-        always {
+        cleanup {
             cleanWs()
         }
     }
