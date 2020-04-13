@@ -1,5 +1,5 @@
 def updateStatus(statusName, descriptionName){
-    commit = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%H'").trim()
+    commit = ${GIT_COMMIT}
     githubNotify status: statusName,
         description: descriptionName,
         repo: 'ksi-js-api',
