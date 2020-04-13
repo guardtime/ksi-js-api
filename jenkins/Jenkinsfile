@@ -1,5 +1,5 @@
 def updateStatus(statusName, descriptionName){
-    commit = ${GIT_COMMIT}
+    commit = "${GIT_COMMIT}"
     githubNotify status: statusName,
         description: descriptionName,
         repo: 'ksi-js-api',
