@@ -1,3 +1,13 @@
+def updateStatus(statusName, descriptionName){
+    commit = "${GIT_COMMIT}"
+    githubNotify status: statusName,
+        description: descriptionName,
+        repo: 'ksi-js-api',
+        credentialsId: 'github-api-token-up',
+        account: 'guardtime',
+        sha: commit
+}
+
 pipeline {
     agent {
         label 'centos7'
@@ -8,6 +18,7 @@ pipeline {
     stages {
         stage('build') {
             steps {
+                updateStatus("PENDING", "Build pending")
                 nodejs(nodeJSInstallationName: 'node1320', configId: 'feb08d93-6888-4c30-9bd8-45aef7ae0db1') {
                     sh 'npm ci'
                     configFileProvider([configFile(fileId: 'b14b75f0-639c-4512-b868-2631b97fced9', targetLocation: "./config/ksi-config.js")]) {
@@ -37,7 +48,13 @@ pipeline {
         }
     }
     post {
-        always {
+        failure {
+            updateStatus("FAILURE", "Build has failed")
+        }
+        success {
+            updateStatus("SUCCESS", "Build successful")
+        }
+        cleanup {
             cleanWs()
         }
     }

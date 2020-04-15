@@ -1,9 +1,11 @@
 .idea/
+coverage/
 dist/
 lib/
 node_modules/
 
 .DS_Store
 .npmrc
+*.iml
 config/ksi-config.js
 tools/proxy/httpd/01-ksi-proxy.conf
