@@ -21,7 +21,7 @@
 import { KsiHttpProtocol } from './KsiHttpProtocol';
 
 /**
- * HTTP signing service protocol
+ * HTTP publications file service protocol
  */
 export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
   constructor(url: string) {
