@@ -18,24 +18,23 @@
  * reserves and retains all trademark rights.
  */
 
-import { isNodePlatform } from "@guardtime/gt-js-common/lib/utils/Util";
-import { IExtendingServiceProtocol } from "./IExtendingServiceProtocol";
-import { ExtendingServiceProtocol as NodeExtendingServiceProtocol } from "../../nodejs/service/ExtendingServiceProtocol";
-import { ExtendingServiceProtocol as WebExtendingServiceProtocol } from "../../web/service/ExtendingServiceProtocol";
-import { KsiRequestBase } from "./KsiRequestBase";
+import { isNodePlatform } from '@guardtime/gt-js-common/lib/utils/Util';
+import { IExtendingServiceProtocol } from './IExtendingServiceProtocol';
+import { ExtendingServiceProtocol as NodeExtendingServiceProtocol } from '../../nodejs/service/ExtendingServiceProtocol';
+import { ExtendingServiceProtocol as WebExtendingServiceProtocol } from '../../web/service/ExtendingServiceProtocol';
+import { KsiRequestBase } from './KsiRequestBase';
 
 /**
  * HTTP extending service protocol
  */
 export class ExtendingServiceProtocol implements IExtendingServiceProtocol {
-
   private readonly extendingServiceProtocol: IExtendingServiceProtocol;
 
   constructor(url: string) {
     this.extendingServiceProtocol = this.getExtendingServiceProtocol(url);
   }
 
-  getExtendingServiceProtocol(url: string) {
+  getExtendingServiceProtocol(url: string): IExtendingServiceProtocol {
     if (isNodePlatform) {
       return new NodeExtendingServiceProtocol(url);
     } else {
@@ -46,5 +45,4 @@ export class ExtendingServiceProtocol implements IExtendingServiceProtocol {
   extend(requestBytes: Uint8Array): KsiRequestBase {
     return this.extendingServiceProtocol.extend(requestBytes);
   }
-
 }

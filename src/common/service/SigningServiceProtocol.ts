@@ -18,24 +18,23 @@
  * reserves and retains all trademark rights.
  */
 
-import { SigningServiceProtocol as NodeSigningServiceProtocol } from "../../nodejs/service/SigningServiceProtocol";
-import { SigningServiceProtocol as WebSigningServiceProtocol } from "../../web/service/SigningServiceProtocol";
-import { isNodePlatform } from "@guardtime/gt-js-common/lib/utils/Util";
-import { ISigningServiceProtocol } from "./ISigningServiceProtocol";
-import { KsiRequestBase } from "./KsiRequestBase";
+import { SigningServiceProtocol as NodeSigningServiceProtocol } from '../../nodejs/service/SigningServiceProtocol';
+import { SigningServiceProtocol as WebSigningServiceProtocol } from '../../web/service/SigningServiceProtocol';
+import { isNodePlatform } from '@guardtime/gt-js-common/lib/utils/Util';
+import { ISigningServiceProtocol } from './ISigningServiceProtocol';
+import { KsiRequestBase } from './KsiRequestBase';
 
 /**
  * HTTP signing service protocol
  */
 export class SigningServiceProtocol implements ISigningServiceProtocol {
-
   private readonly signingServiceProtocol: ISigningServiceProtocol;
 
   constructor(url: string) {
     this.signingServiceProtocol = this.getSigningServiceProtocol(url);
   }
 
-  getSigningServiceProtocol(url: string) {
+  getSigningServiceProtocol(url: string): ISigningServiceProtocol {
     if (isNodePlatform) {
       return new NodeSigningServiceProtocol(url);
     } else {
@@ -46,5 +45,4 @@ export class SigningServiceProtocol implements ISigningServiceProtocol {
   sign(requestBytes: Uint8Array): KsiRequestBase {
     return this.signingServiceProtocol.sign(requestBytes);
   }
-
 }

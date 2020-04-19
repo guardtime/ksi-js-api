@@ -18,23 +18,22 @@
  * reserves and retains all trademark rights.
  */
 
-import { isNodePlatform } from "@guardtime/gt-js-common/lib/utils/Util";
-import { PublicationsFileServiceProtocol as NodePublicationsFileServiceProtocol } from "../../nodejs/service/PublicationsFileServiceProtocol";
-import { PublicationsFileServiceProtocol as WebPublicationsFileServiceProtocol } from "../../web/service/PublicationsFileServiceProtocol";
-import { IPublicationsFileServiceProtocol } from "./IPublicationsFileServiceProtocol";
+import { isNodePlatform } from '@guardtime/gt-js-common/lib/utils/Util';
+import { PublicationsFileServiceProtocol as NodePublicationsFileServiceProtocol } from '../../nodejs/service/PublicationsFileServiceProtocol';
+import { PublicationsFileServiceProtocol as WebPublicationsFileServiceProtocol } from '../../web/service/PublicationsFileServiceProtocol';
+import { IPublicationsFileServiceProtocol } from './IPublicationsFileServiceProtocol';
 
 /**
  * HTTP publications file service protocol
  */
 export class PublicationsFileServiceProtocol implements IPublicationsFileServiceProtocol {
-
   private readonly publicationsFileServiceProtocol: IPublicationsFileServiceProtocol;
 
   constructor(url: string) {
     this.publicationsFileServiceProtocol = this.getPublicationsFileServiceProtocol(url);
   }
 
-  getPublicationsFileServiceProtocol(url: string) {
+  getPublicationsFileServiceProtocol(url: string): IPublicationsFileServiceProtocol {
     if (isNodePlatform) {
       return new NodePublicationsFileServiceProtocol(url);
     } else {
@@ -45,5 +44,4 @@ export class PublicationsFileServiceProtocol implements IPublicationsFileService
   async getPublicationsFile(): Promise<Uint8Array> {
     return this.publicationsFileServiceProtocol.getPublicationsFile();
   }
-
 }
