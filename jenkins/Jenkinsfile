@@ -13,7 +13,7 @@ pipeline {
         label 'centos7'
     }
     environment {
-        SHORT_COMMIT = "VER-1718-2-${GIT_COMMIT[0..7]}"
+        SHORT_COMMIT = "${GIT_COMMIT[0..7]}"
     }
     stages {
         stage('build') {
@@ -38,7 +38,7 @@ pipeline {
         }
         stage('Publish') {
                 when {
-                    branch 'VER-1718_2'
+                    branch 'master'
                 }
                 steps {
                     nodejs(nodeJSInstallationName: 'node1320', configId: '7f0f5e1c-f542-433b-98ca-7cb938e79aac') {
