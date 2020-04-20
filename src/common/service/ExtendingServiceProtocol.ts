@@ -20,7 +20,7 @@
 
 import { IExtendingServiceProtocol } from './IExtendingServiceProtocol';
 import { KsiRequestBase } from './KsiRequestBase';
-import 'isomorphic-fetch';
+import 'isomorphic-unfetch';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
 import { KsiRequest } from '../../web/service/KsiRequest';

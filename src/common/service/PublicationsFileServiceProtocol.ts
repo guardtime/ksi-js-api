@@ -19,7 +19,7 @@
  */
 
 import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
-import 'isomorphic-fetch';
+import 'isomorphic-unfetch';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 
 /**
