@@ -49,3 +49,6 @@ export { ExtendingService } from '../common/service/ExtendingService';
 export { PublicationsFileService } from '../common/service/PublicationsFileService';
 export { ServiceCredentials } from '../common/service/ServiceCredentials';
 export { PublicationsFileFactory } from '../common/publication/PublicationsFileFactory';
+export { SigningServiceProtocol } from '../common/service/SigningServiceProtocol';
+export { ExtendingServiceProtocol } from '../common/service/ExtendingServiceProtocol';
+export { PublicationsFileServiceProtocol } from '../common/service/PublicationsFileServiceProtocol';

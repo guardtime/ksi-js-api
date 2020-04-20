@@ -26,6 +26,7 @@ import { KsiRequest } from './KsiRequest';
 
 /**
  * HTTP extending service protocol
+ * @deprecated Use common/service/ExtendingServiceProtocol instead.
  */
 export class ExtendingServiceProtocol extends KsiHttpProtocol implements IExtendingServiceProtocol {
   constructor(url: string) {

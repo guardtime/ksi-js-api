@@ -18,24 +18,19 @@
  * reserves and retains all trademark rights.
  */
 
-import { EventEmitter } from 'events';
-import { ISigningServiceProtocol } from '../../common/service/ISigningServiceProtocol';
-import { KsiRequestBase } from '../../common/service/KsiRequestBase';
-import { KsiHttpProtocol } from './KsiHttpProtocol';
-import { KsiRequest } from './KsiRequest';
+import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
+import 'isomorphic-unfetch';
+import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 
 /**
- * HTTP signing service protocol
- * @deprecated Use common/service/SigningServiceProtocol instead.
+ * HTTP publications file service protocol
  */
-export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
+export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
   constructor(url: string) {
     super(url);
   }
 
-  public sign(requestBytes: Uint8Array): KsiRequestBase {
-    const eventEmitter: EventEmitter = new EventEmitter();
-
-    return new KsiRequest(this.requestKsi(requestBytes, eventEmitter), eventEmitter);
+  public async getPublicationsFile(): Promise<Uint8Array> {
+    return this.download();
   }
 }

@@ -18,15 +18,15 @@
  * reserves and retains all trademark rights.
  */
 
-import { EventEmitter } from 'events';
-import { ISigningServiceProtocol } from '../../common/service/ISigningServiceProtocol';
-import { KsiRequestBase } from '../../common/service/KsiRequestBase';
-import { KsiHttpProtocol } from './KsiHttpProtocol';
-import { KsiRequest } from './KsiRequest';
+import { ISigningServiceProtocol } from './ISigningServiceProtocol';
+import { KsiRequestBase } from './KsiRequestBase';
+import 'isomorphic-unfetch';
+import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
+import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
+import { KsiRequest } from '../../web/service/KsiRequest';
 
 /**
  * HTTP signing service protocol
- * @deprecated Use common/service/SigningServiceProtocol instead.
  */
 export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
   constructor(url: string) {
@@ -34,8 +34,8 @@ export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningS
   }
 
   public sign(requestBytes: Uint8Array): KsiRequestBase {
-    const eventEmitter: EventEmitter = new EventEmitter();
+    const abortController: AbortController = new AbortController();
 
-    return new KsiRequest(this.requestKsi(requestBytes, eventEmitter), eventEmitter);
+    return new KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
   }
 }
