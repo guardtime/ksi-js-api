@@ -22,6 +22,7 @@ import { KsiHttpProtocol } from './KsiHttpProtocol';
 
 /**
  * HTTP publications file service protocol
+ * @deprecated Use common/service/PublicationsFileServiceProtocol instead.
  */
 export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
   constructor(url: string) {

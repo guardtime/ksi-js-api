@@ -25,6 +25,7 @@ import { KsiRequest } from './KsiRequest';
 
 /**
  * HTTP signing service protocol
+ * @deprecated Use common/service/SigningServiceProtocol instead.
  */
 export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
   constructor(url: string) {
