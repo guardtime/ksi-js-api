@@ -13,7 +13,7 @@ pipeline {
         label 'centos7'
     }
     environment {
-        SHORT_COMMIT = "VER-1718_2-${GIT_COMMIT[0..7]}"
+        SHORT_COMMIT = "VER-1718-2-${GIT_COMMIT[0..7]}"
     }
     stages {
         stage('build') {
