@@ -18,31 +18,23 @@
  * reserves and retains all trademark rights.
  */
 
-import { SigningServiceProtocol as NodeSigningServiceProtocol } from '../../nodejs/service/SigningServiceProtocol';
-import { SigningServiceProtocol as WebSigningServiceProtocol } from '../../web/service/SigningServiceProtocol';
-import { isNodePlatform } from '@guardtime/gt-js-common/lib/utils/Util';
 import { ISigningServiceProtocol } from './ISigningServiceProtocol';
 import { KsiRequestBase } from './KsiRequestBase';
+import 'isomorphic-fetch';
+import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
+import { KsiRequest } from '../../web/service/KsiRequest';
 
 /**
  * HTTP signing service protocol
  */
-export class SigningServiceProtocol implements ISigningServiceProtocol {
-  private readonly signingServiceProtocol: ISigningServiceProtocol;
-
+export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
   constructor(url: string) {
-    this.signingServiceProtocol = this.getSigningServiceProtocol(url);
+    super(url);
   }
 
-  getSigningServiceProtocol(url: string): ISigningServiceProtocol {
-    if (isNodePlatform) {
-      return new NodeSigningServiceProtocol(url);
-    } else {
-      return new WebSigningServiceProtocol(url);
-    }
-  }
+  public sign(requestBytes: Uint8Array): KsiRequestBase {
+    const abortController: AbortController = new AbortController();
 
-  sign(requestBytes: Uint8Array): KsiRequestBase {
-    return this.signingServiceProtocol.sign(requestBytes);
+    return new KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
   }
 }

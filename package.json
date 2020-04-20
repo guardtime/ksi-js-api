@@ -72,5 +72,8 @@
   "jest-junit": {
     "outputDirectory": "./coverage",
     "outputName": "junit.xml"
+  },
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1"
   }
 }

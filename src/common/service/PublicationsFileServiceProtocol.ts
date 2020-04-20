@@ -18,30 +18,18 @@
  * reserves and retains all trademark rights.
  */
 
-import { isNodePlatform } from '@guardtime/gt-js-common/lib/utils/Util';
-import { PublicationsFileServiceProtocol as NodePublicationsFileServiceProtocol } from '../../nodejs/service/PublicationsFileServiceProtocol';
-import { PublicationsFileServiceProtocol as WebPublicationsFileServiceProtocol } from '../../web/service/PublicationsFileServiceProtocol';
-import { IPublicationsFileServiceProtocol } from './IPublicationsFileServiceProtocol';
+import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
+import 'isomorphic-fetch';
 
 /**
  * HTTP publications file service protocol
  */
-export class PublicationsFileServiceProtocol implements IPublicationsFileServiceProtocol {
-  private readonly publicationsFileServiceProtocol: IPublicationsFileServiceProtocol;
-
+export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
   constructor(url: string) {
-    this.publicationsFileServiceProtocol = this.getPublicationsFileServiceProtocol(url);
+    super(url);
   }
 
-  getPublicationsFileServiceProtocol(url: string): IPublicationsFileServiceProtocol {
-    if (isNodePlatform) {
-      return new NodePublicationsFileServiceProtocol(url);
-    } else {
-      return new WebPublicationsFileServiceProtocol(url);
-    }
-  }
-
-  async getPublicationsFile(): Promise<Uint8Array> {
-    return this.publicationsFileServiceProtocol.getPublicationsFile();
+  public async getPublicationsFile(): Promise<Uint8Array> {
+    return this.download();
   }
 }

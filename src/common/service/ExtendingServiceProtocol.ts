@@ -18,31 +18,23 @@
  * reserves and retains all trademark rights.
  */
 
-import { isNodePlatform } from '@guardtime/gt-js-common/lib/utils/Util';
 import { IExtendingServiceProtocol } from './IExtendingServiceProtocol';
-import { ExtendingServiceProtocol as NodeExtendingServiceProtocol } from '../../nodejs/service/ExtendingServiceProtocol';
-import { ExtendingServiceProtocol as WebExtendingServiceProtocol } from '../../web/service/ExtendingServiceProtocol';
 import { KsiRequestBase } from './KsiRequestBase';
+import 'isomorphic-fetch';
+import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
+import { KsiRequest } from '../../web/service/KsiRequest';
 
 /**
  * HTTP extending service protocol
  */
-export class ExtendingServiceProtocol implements IExtendingServiceProtocol {
-  private readonly extendingServiceProtocol: IExtendingServiceProtocol;
-
+export class ExtendingServiceProtocol extends KsiHttpProtocol implements IExtendingServiceProtocol {
   constructor(url: string) {
-    this.extendingServiceProtocol = this.getExtendingServiceProtocol(url);
+    super(url);
   }
 
-  getExtendingServiceProtocol(url: string): IExtendingServiceProtocol {
-    if (isNodePlatform) {
-      return new NodeExtendingServiceProtocol(url);
-    } else {
-      return new WebExtendingServiceProtocol(url);
-    }
-  }
+  public extend(requestBytes: Uint8Array): KsiRequestBase {
+    const abortController: AbortController = new AbortController();
 
-  extend(requestBytes: Uint8Array): KsiRequestBase {
-    return this.extendingServiceProtocol.extend(requestBytes);
+    return new KsiRequest(this.requestKsi(requestBytes, abortController), abortController);
   }
 }
