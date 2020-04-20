@@ -76,7 +76,6 @@
   },
   "dependencies": {
     "abortcontroller-polyfill": "^1.4.0",
-    "import": "0.0.6",
     "isomorphic-unfetch": "^3.0.0"
   }
 }
