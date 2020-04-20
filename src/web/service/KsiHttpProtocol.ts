@@ -34,10 +34,10 @@ export class KsiHttpProtocol {
     const response: Response = await fetch(this.url, {
       method: 'POST',
       body: requestBytes,
-      headers: new Headers({
+      headers: {
         'Content-Type': 'application/ksi-request',
         'Content-Length': requestBytes.length.toString()
-      }),
+      },
       signal: abortController.signal
     });
 
