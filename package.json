@@ -74,6 +74,7 @@
     "outputName": "junit.xml"
   },
   "dependencies": {
+    "abortcontroller-polyfill": "^1.4.0",
     "isomorphic-fetch": "^2.2.1"
   }
 }
