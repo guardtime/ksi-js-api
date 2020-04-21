@@ -52,7 +52,7 @@ import { InternalVerificationPolicy } from '../src/common/signature/verification
 import { VerificationPolicy } from '../src/common/signature/verification/policy/VerificationPolicy';
 import { VerificationError } from '../src/common/signature/verification/VerificationError';
 import { VerificationResult } from '../src/common/signature/verification/VerificationResult';
-import { ExtendingServiceProtocol, PublicationsFileServiceProtocol, SigningServiceProtocol } from '../src/nodejs/main';
+import { ExtendingServiceProtocol, PublicationsFileServiceProtocol, SigningServiceProtocol } from '../src/common/main';
 import { TestServiceProtocol } from '../test/service/TestServiceProtocol';
 
 const config: {
