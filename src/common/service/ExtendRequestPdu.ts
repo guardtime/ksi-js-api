@@ -24,7 +24,6 @@ import {
   EXTEND_REQUEST_PDU_CONSTANTS,
   EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS
 } from '../Constants';
-import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 import { ExtenderConfigRequestPayload } from './ExtenderConfigRequestPayload';
 import { ExtendRequestPayload } from './ExtendRequestPayload';

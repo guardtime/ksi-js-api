@@ -24,7 +24,6 @@ import {
   AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS,
   ERROR_PAYLOAD_CONSTANTS
 } from '../Constants';
-import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 import { AggregationErrorPayload } from './AggregationErrorPayload';
 import { AggregationResponsePayload } from './AggregationResponsePayload';
