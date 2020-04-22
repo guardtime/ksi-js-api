@@ -18,9 +18,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
-import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
-import X509 from '@guardtime/gt-js-common/lib/crypto/X509';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
+import HexCoder from '@guardtime/common/lib/coders/HexCoder';
+import X509 from '@guardtime/common/lib/crypto/X509';
 import { CertificateRecord } from '../../../publication/CertificateRecord';
 import { PublicationsFile } from '../../../publication/PublicationsFile';
 import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord';

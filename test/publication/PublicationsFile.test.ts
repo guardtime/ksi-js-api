@@ -18,9 +18,9 @@
  * reserves and retains all trademark rights.
  */
 
-import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import HexCoder from '@guardtime/common/lib/coders/HexCoder';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import bigInteger from 'big-integer';
 
 import {

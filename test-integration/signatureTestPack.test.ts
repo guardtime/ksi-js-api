@@ -18,9 +18,9 @@
  * reserves and retains all trademark rights.
  */
 
-import HexCoder from '@guardtime/gt-js-common/lib/coders/HexCoder';
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import Utf8Converter from '@guardtime/gt-js-common/lib/strings/Utf8Converter';
+import HexCoder from '@guardtime/common/lib/coders/HexCoder';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import Utf8Converter from '@guardtime/common/lib/strings/Utf8Converter';
 import bigInteger, { BigInteger } from 'big-integer';
 import { CastingContext, ColumnOption } from 'csv-parse';
 // tslint:disable-next-line:import-name

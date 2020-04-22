@@ -18,11 +18,11 @@
  * reserves and retains all trademark rights.
  */
 
-import UnsignedLongCoder from '@guardtime/gt-js-common/lib/coders/UnsignedLongCoder';
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import DataHasher from '@guardtime/gt-js-common/lib/hash/DataHasher';
-import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
-import Utf8Converter from '@guardtime/gt-js-common/lib/strings/Utf8Converter';
+import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import DataHasher from '@guardtime/common/lib/hash/DataHasher';
+import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import Utf8Converter from '@guardtime/common/lib/strings/Utf8Converter';
 import bigInteger, { BigInteger } from 'big-integer';
 import { AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';

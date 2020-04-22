@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import CMSVerification from '@guardtime/gt-js-common/lib/crypto/CMSVerification';
+import CMSVerification from '@guardtime/common/lib/crypto/CMSVerification';
 import { RawTag } from '../parser/RawTag';
 import { compareTypedArray } from '../util/Array';
 import { PublicationsFile } from './PublicationsFile';

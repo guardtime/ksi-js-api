@@ -18,9 +18,9 @@
  * reserves and retains all trademark rights.
  */
 
-import Base64Coder from '@guardtime/gt-js-common/lib/coders/Base64Coder';
-import UnsignedLongCoder from '@guardtime/gt-js-common/lib/coders/UnsignedLongCoder';
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
+import Base64Coder from '@guardtime/common/lib/coders/Base64Coder';
+import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
 import bigInteger, { BigInteger } from 'big-integer';
 import { v3 as uuid } from 'uuid';
 import {

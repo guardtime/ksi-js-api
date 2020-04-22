@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import {
   EXTEND_REQUEST_PAYLOAD_CONSTANTS,
   EXTEND_REQUEST_PDU_CONSTANTS,
@@ -68,14 +68,6 @@ export class ExtendRequestPdu extends Pdu {
         return (this.extenderConfigRequest = new ExtenderConfigRequestPayload(tlvTag));
       default:
         return super.parseChild(tlvTag);
-    }
-  }
-
-  protected validate(): void {
-    super.validate();
-
-    if (this.getCount(EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType) > 1) {
-      throw new TlvError('Only one extender config request payload is allowed in PDU.');
     }
   }
 }

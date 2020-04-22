@@ -64,12 +64,4 @@ export class AggregationResponsePdu extends Pdu {
         return super.parseChild(tlvTag);
     }
   }
-
-  protected validate(): void {
-    super.validate();
-
-    if (this.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType) > 1) {
-      throw new TlvError('Only one aggregator config response payload is allowed in PDU.');
-    }
-  }
 }

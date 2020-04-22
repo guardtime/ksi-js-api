@@ -18,10 +18,10 @@
  * reserves and retains all trademark rights.
  */
 
-import Base32Coder from '@guardtime/gt-js-common/lib/coders/Base32Coder';
-import UnsignedLongCoder from '@guardtime/gt-js-common/lib/coders/UnsignedLongCoder';
-import CRC32 from '@guardtime/gt-js-common/lib/crc/CRC32';
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
+import Base32Coder from '@guardtime/common/lib/coders/Base32Coder';
+import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
+import CRC32 from '@guardtime/common/lib/crc/CRC32';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
 import bigInteger, { BigInteger } from 'big-integer';
 import { PUBLICATION_DATA_CONSTANTS } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';

@@ -18,8 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import { pseudoRandomLong } from '@guardtime/gt-js-common/lib/random/RandomUtil';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import { pseudoRandomLong } from '@guardtime/common/lib/random/RandomUtil';
 import bigInteger, { BigInteger } from 'big-integer';
 import { TlvInputStream } from '../parser/TlvInputStream';
 import { KsiSignature } from '../signature/KsiSignature';
@@ -107,7 +107,8 @@ export class SigningService {
       const aggregationPayload: AggregationResponsePayload = responsePayload as AggregationResponsePayload;
       const payloadRequestId: string = aggregationPayload.getRequestId().toString();
       if (!this.requests.hasOwnProperty(payloadRequestId)) {
-        throw new KsiServiceError('Aggregation response request ID does not match any request id which is sent.');
+        console.warn('Aggregation response request ID does not match any request id.');
+        continue;
       }
 
       const request: KsiRequestBase = this.requests[payloadRequestId];

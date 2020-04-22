@@ -18,9 +18,9 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import DataHasher from '@guardtime/gt-js-common/lib/hash/DataHasher';
-import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import DataHasher from '@guardtime/common/lib/hash/DataHasher';
+import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import { BigInteger } from 'big-integer';
 import { RFC_3161_RECORD_CONSTANTS } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';

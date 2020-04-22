@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import {
   AGGREGATION_REQUEST_PAYLOAD_CONSTANTS,
   AGGREGATION_REQUEST_PDU_CONSTANTS,

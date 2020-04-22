@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
 import bigInteger, { BigInteger } from 'big-integer';
 import { AGGREGATION_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';
