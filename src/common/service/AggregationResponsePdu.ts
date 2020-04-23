@@ -29,6 +29,7 @@ import { AggregationErrorPayload } from './AggregationErrorPayload';
 import { AggregationResponsePayload } from './AggregationResponsePayload';
 import { AggregatorConfigResponsePayload } from './AggregatorConfigResponsePayload';
 import { Pdu } from './Pdu';
+import { ExtenderConfigResponsePayload } from './ExtenderConfigResponsePayload';
 
 /**
  * Aggregation response PDU
@@ -55,7 +56,12 @@ export class AggregationResponsePdu extends Pdu {
       case ERROR_PAYLOAD_CONSTANTS.TagType:
         return (this.errorPayload = new AggregationErrorPayload(tlvTag));
       case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-        return (this.aggregatorConfigResponse = new AggregatorConfigResponsePayload(tlvTag));
+        const configResponsePayload = new AggregatorConfigResponsePayload(tlvTag);
+        if (!this.aggregatorConfigResponse) {
+          this.aggregatorConfigResponse = configResponsePayload;
+        }
+
+        return configResponsePayload;
       // not implemented yet, so just return the tag
       case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
         return tlvTag;
