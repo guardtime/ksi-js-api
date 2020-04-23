@@ -18,8 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
 import { CalendarHashChain } from '../../CalendarHashChain';
 import { KsiSignature } from '../../KsiSignature';
 import { VerificationContext } from '../VerificationContext';

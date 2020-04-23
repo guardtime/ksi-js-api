@@ -1,9 +1,9 @@
 /**
  * Aggregation Response PDU tests
  */
-import Base64Coder from '@guardtime/gt-js-common/lib/coders/Base64Coder';
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import Base64Coder from '@guardtime/common/lib/coders/Base64Coder';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import { TlvInputStream } from '../../src/common/parser/TlvInputStream';
 import { AggregationResponsePdu } from '../../src/common/service/AggregationResponsePdu';
 import { ErrorPayload } from '../../src/common/service/ErrorPayload';

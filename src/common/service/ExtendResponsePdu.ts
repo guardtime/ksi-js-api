@@ -24,7 +24,6 @@ import {
   EXTEND_RESPONSE_PAYLOAD_CONSTANTS,
   EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS
 } from '../Constants';
-import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 import { ExtenderConfigResponsePayload } from './ExtenderConfigResponsePayload';
 import { ExtendErrorPayload } from './ExtendErrorPayload';
@@ -56,20 +55,17 @@ export class ExtendResponsePdu extends Pdu {
       case ERROR_PAYLOAD_CONSTANTS.TagType:
         return (this.errorPayload = new ExtendErrorPayload(tlvTag));
       case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-        return (this.extenderConfigResponse = new ExtenderConfigResponsePayload(tlvTag));
+        const configResponsePayload = new ExtenderConfigResponsePayload(tlvTag);
+        if (!this.extenderConfigResponse) {
+          this.extenderConfigResponse = configResponsePayload;
+        }
+
+        return configResponsePayload;
       // not implemented yet, so just return the tag
       case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
         return tlvTag;
       default:
         return super.parseChild(tlvTag);
-    }
-  }
-
-  protected validate(): void {
-    super.validate();
-
-    if (this.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType) > 1) {
-      throw new TlvError('Only one extender config response payload is allowed in PDU.');
     }
   }
 }

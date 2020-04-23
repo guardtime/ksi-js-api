@@ -18,9 +18,9 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import DataHasher from '@guardtime/gt-js-common/lib/hash/DataHasher';
-import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import DataHasher from '@guardtime/common/lib/hash/DataHasher';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
 import { KsiSignature } from '../../KsiSignature';
 import { Rfc3161Record } from '../../Rfc3161Record';
 import { VerificationContext } from '../VerificationContext';

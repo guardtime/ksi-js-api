@@ -24,7 +24,6 @@ import {
   AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS,
   ERROR_PAYLOAD_CONSTANTS
 } from '../Constants';
-import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 import { AggregationErrorPayload } from './AggregationErrorPayload';
 import { AggregationResponsePayload } from './AggregationResponsePayload';
@@ -56,20 +55,17 @@ export class AggregationResponsePdu extends Pdu {
       case ERROR_PAYLOAD_CONSTANTS.TagType:
         return (this.errorPayload = new AggregationErrorPayload(tlvTag));
       case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
-        return (this.aggregatorConfigResponse = new AggregatorConfigResponsePayload(tlvTag));
+        const configResponsePayload = new AggregatorConfigResponsePayload(tlvTag);
+        if (!this.aggregatorConfigResponse) {
+          this.aggregatorConfigResponse = configResponsePayload;
+        }
+
+        return configResponsePayload;
       // not implemented yet, so just return the tag
       case AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS.TagType:
         return tlvTag;
       default:
         return super.parseChild(tlvTag);
-    }
-  }
-
-  protected validate(): void {
-    super.validate();
-
-    if (this.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType) > 1) {
-      throw new TlvError('Only one aggregator config response payload is allowed in PDU.');
     }
   }
 }

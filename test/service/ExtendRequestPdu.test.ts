@@ -1,7 +1,7 @@
 /**
  * Aggregation Response PDU tests
  */
-import Base64Coder from '@guardtime/gt-js-common/lib/coders/Base64Coder';
+import Base64Coder from '@guardtime/common/lib/coders/Base64Coder';
 import { TlvInputStream } from '../../src/common/parser/TlvInputStream';
 import { ExtendRequestPdu } from '../../src/common/service/ExtendRequestPdu';
 

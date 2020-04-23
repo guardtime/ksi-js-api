@@ -18,9 +18,9 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHasher from '@guardtime/gt-js-common/lib/hash/DataHasher';
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import DataHasher from '@guardtime/common/lib/hash/DataHasher';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
+import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import bigInteger, { BigInteger } from 'big-integer';
 
 import { CALENDAR_HASH_CHAIN_CONSTANTS, LinkDirection } from '../Constants';

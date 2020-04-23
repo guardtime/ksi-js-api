@@ -18,8 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
-import HashAlgorithm from '@guardtime/gt-js-common/lib/hash/HashAlgorithm';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
+import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../../Constants';
 import { RawTag } from '../../../parser/RawTag';
 import { TlvOutputStream } from '../../../parser/TlvOutputStream';

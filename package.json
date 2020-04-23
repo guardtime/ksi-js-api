@@ -9,7 +9,6 @@
     "test:ci": "jest test/ --ci --reporters=default --reporters=jest-junit",
     "integration-test": "jest test-integration/",
     "build": "rimraf lib && tsc -t ES6 -d  && webpack",
-    "browser:dev": "webpack-dev-server",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\" --fix",
     "publish:ci": "npm --no-git-tag-version version $npm_package_version-$SHORT_COMMIT && npm publish"
@@ -30,11 +29,11 @@
       "mjs"
     ],
     "transformIgnorePatterns": [
-      "/node_modules/(?!(@guardtime/gt-js-common))"
+      "/node_modules/(?!(@guardtime/common))"
     ]
   },
   "peerDependencies": {
-    "@guardtime/gt-js-common": "1.1.11",
+    "@guardtime/common": "^1.0.0",
     "big-integer": "^1.6.48",
     "uuid": "^7.0.2"
   },
@@ -45,7 +44,7 @@
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-typescript": "^7.8.3",
     "@babel/runtime": "^7.8.7",
-    "@guardtime/gt-js-common": "1.1.11",
+    "@guardtime/common": "^1.0.0",
     "@types/big-integer": "^0.0.31",
     "@types/csv-parse": "^1.2.2",
     "@types/jest": "^25.1.4",
@@ -67,8 +66,7 @@
     "typescript": "^3.8.3",
     "uuid": "^7.0.2",
     "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-cli": "^3.3.11"
   },
   "jest-junit": {
     "outputDirectory": "./coverage",

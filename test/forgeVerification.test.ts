@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import CMSVerification from '@guardtime/gt-js-common/lib/crypto/CMSVerification';
+import CMSVerification from '@guardtime/common/lib/crypto/CMSVerification';
 import { PublicationsFileService } from '../src/common/main';
 import { PublicationsFileFactory } from '../src/common/publication/PublicationsFileFactory';
 import { PublicationsFileServiceProtocol } from '../src/nodejs/service/PublicationsFileServiceProtocol';

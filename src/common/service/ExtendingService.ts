@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { pseudoRandomLong } from '@guardtime/gt-js-common/lib/random/RandomUtil';
+import { pseudoRandomLong } from '@guardtime/common/lib/random/RandomUtil';
 import { BigInteger } from 'big-integer';
 import { TlvInputStream } from '../parser/TlvInputStream';
 import { CalendarHashChain } from '../signature/CalendarHashChain';
@@ -112,7 +112,8 @@ export class ExtendingService {
       const extendPayload: ExtendResponsePayload = responsePayload as ExtendResponsePayload;
       const payloadRequestId: string = extendPayload.getRequestId().toString();
       if (!this.requests.hasOwnProperty(payloadRequestId)) {
-        throw new KsiServiceError('Extend response request ID does not match any request id which is sent.');
+        console.warn('Extend response request ID does not match any request id.');
+        continue;
       }
 
       const request: KsiRequestBase = this.requests[payloadRequestId];

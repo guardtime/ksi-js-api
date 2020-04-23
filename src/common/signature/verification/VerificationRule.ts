@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { Rule } from '@guardtime/gt-js-common/lib/verification/Rule';
+import { Rule } from '@guardtime/common/lib/verification/Rule';
 import { LinkDirection } from '../../Constants';
 import { ImprintTag } from '../../parser/ImprintTag';
 import { CalendarHashChain } from '../CalendarHashChain';

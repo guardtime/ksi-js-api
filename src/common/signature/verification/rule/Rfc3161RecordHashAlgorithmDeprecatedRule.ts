@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/gt-js-common/lib/verification/Result';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
 import { KsiSignature } from '../../KsiSignature';
 import { Rfc3161Record } from '../../Rfc3161Record';
 import { VerificationContext } from '../VerificationContext';

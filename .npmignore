@@ -5,3 +5,11 @@ node_modules/
 .npmrc
 config/ksi-config.js
 tools/proxy/httpd/01-ksi-proxy.conf
+
+src/
+test/
+test-integration/
+jenkins/
+nodejs/
+web/
+tools/

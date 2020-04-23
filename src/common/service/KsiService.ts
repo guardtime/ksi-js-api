@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/gt-js-common/lib/hash/DataHash';
+import DataHash from '@guardtime/common/lib/hash/DataHash';
 import bigInteger, { BigInteger } from 'big-integer';
 import { PublicationsFile } from '../publication/PublicationsFile';
 import { CalendarHashChain } from '../signature/CalendarHashChain';

@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { Policy } from '@guardtime/gt-js-common/lib/verification/Policy';
+import { Policy } from '@guardtime/common/lib/verification/Policy';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 
