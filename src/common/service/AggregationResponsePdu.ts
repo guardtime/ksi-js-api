@@ -29,7 +29,6 @@ import { AggregationErrorPayload } from './AggregationErrorPayload';
 import { AggregationResponsePayload } from './AggregationResponsePayload';
 import { AggregatorConfigResponsePayload } from './AggregatorConfigResponsePayload';
 import { Pdu } from './Pdu';
-import { ExtenderConfigResponsePayload } from './ExtenderConfigResponsePayload';
 
 /**
  * Aggregation response PDU
