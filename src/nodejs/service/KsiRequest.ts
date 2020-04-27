@@ -24,6 +24,7 @@ import { PduPayload } from '../../common/service/PduPayload';
 
 /**
  * KSI request for PDU exchanging with KSI servers.
+ * @deprecated Use common/service/KsiRequest instead and make sure to polyfill fetch.
  */
 export class KsiRequest extends KsiRequestBase {
   public static readonly ABORT_EVENT: string = 'ABORT';

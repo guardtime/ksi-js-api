@@ -22,8 +22,8 @@ import { IExtendingServiceProtocol } from './IExtendingServiceProtocol';
 import { KsiRequestBase } from './KsiRequestBase';
 import 'isomorphic-unfetch';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
-import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
-import { KsiRequest } from '../../web/service/KsiRequest';
+import { KsiHttpProtocol } from './KsiHttpProtocol';
+import { KsiRequest } from './KsiRequest';
 
 /**
  * HTTP extending service protocol

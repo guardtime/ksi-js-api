@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiHttpProtocol } from '../../web/service/KsiHttpProtocol';
+import { KsiHttpProtocol } from './KsiHttpProtocol';
 import 'isomorphic-unfetch';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 

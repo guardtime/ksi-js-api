@@ -27,6 +27,7 @@ import { KsiRequest } from './KsiRequest';
 
 /**
  * Http protocol for requests
+ * @deprecated Use common/service/KsiHttpProtocol instead and make sure to polyfill fetch.
  */
 export class KsiHttpProtocol {
   private readonly url: URL;
