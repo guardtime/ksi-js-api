@@ -29,6 +29,7 @@ import { ExtenderConfigResponsePayload } from './ExtenderConfigResponsePayload';
 import { ExtendErrorPayload } from './ExtendErrorPayload';
 import { ExtendResponsePayload } from './ExtendResponsePayload';
 import { Pdu } from './Pdu';
+import { PduPayload } from './PduPayload';
 
 /**
  * Extend response PDU
@@ -45,6 +46,10 @@ export class ExtendResponsePdu extends Pdu {
     Object.freeze(this);
   }
 
+  public getExtendResponsePayloads(): PduPayload[] {
+    return this.payloads.filter(payload => payload.id === EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType);
+  }
+
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType:
@@ -56,6 +61,7 @@ export class ExtendResponsePdu extends Pdu {
         return (this.errorPayload = new ExtendErrorPayload(tlvTag));
       case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
         const configResponsePayload = new ExtenderConfigResponsePayload(tlvTag);
+        this.payloads.push(configResponsePayload);
         if (!this.extenderConfigResponse) {
           this.extenderConfigResponse = configResponsePayload;
         }

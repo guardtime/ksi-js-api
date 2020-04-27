@@ -29,6 +29,7 @@ import { AggregationErrorPayload } from './AggregationErrorPayload';
 import { AggregationResponsePayload } from './AggregationResponsePayload';
 import { AggregatorConfigResponsePayload } from './AggregatorConfigResponsePayload';
 import { Pdu } from './Pdu';
+import { PduPayload } from './PduPayload';
 
 /**
  * Aggregation response PDU
@@ -45,6 +46,10 @@ export class AggregationResponsePdu extends Pdu {
     Object.freeze(this);
   }
 
+  public getAggregationResponsePayloads(): PduPayload[] {
+    return this.payloads.filter(payload => payload.id === AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType);
+  }
+
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType:
@@ -56,6 +61,7 @@ export class AggregationResponsePdu extends Pdu {
         return (this.errorPayload = new AggregationErrorPayload(tlvTag));
       case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.TagType:
         const configResponsePayload = new AggregatorConfigResponsePayload(tlvTag);
+        this.payloads.push(configResponsePayload);
         if (!this.aggregatorConfigResponse) {
           this.aggregatorConfigResponse = configResponsePayload;
         }
