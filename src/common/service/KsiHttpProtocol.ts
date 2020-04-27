@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiServiceError } from '../../common/service/KsiServiceError';
+import { KsiServiceError } from './KsiServiceError';
 
 /**
  * Http protocol for requests

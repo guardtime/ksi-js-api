@@ -18,7 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiHttpProtocol } from './KsiHttpProtocol';
+import { KsiHttpProtocol } from '../../common/service/KsiHttpProtocol';
 
 /**
  * HTTP publications file service protocol

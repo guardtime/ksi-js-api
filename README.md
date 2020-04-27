@@ -20,7 +20,6 @@ Install system dependencies:
 
 Setup project:
 
-Add .npmrc file to project root which points to a npm repository containing @guardtime/ libraries.
 ```shell
 git clone git@github.com:guardtime/ksi-js-api.git
 cd ksi-js-api

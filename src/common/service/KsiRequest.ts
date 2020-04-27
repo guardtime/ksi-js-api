@@ -18,8 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiRequestBase } from '../../common/service/KsiRequestBase';
-import { PduPayload } from '../../common/service/PduPayload';
+import { KsiRequestBase } from './KsiRequestBase';
+import { PduPayload } from './PduPayload';
 
 /**
  * KSI request for PDU exchanging with KSI servers.

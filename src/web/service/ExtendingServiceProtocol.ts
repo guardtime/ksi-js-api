@@ -20,8 +20,8 @@
 
 import { IExtendingServiceProtocol } from '../../common/service/IExtendingServiceProtocol';
 import { KsiRequestBase } from '../../common/service/KsiRequestBase';
-import { KsiHttpProtocol } from './KsiHttpProtocol';
-import { KsiRequest } from './KsiRequest';
+import { KsiHttpProtocol } from '../../common/service/KsiHttpProtocol';
+import { KsiRequest } from '../../common/service/KsiRequest';
 
 /**
  * HTTP extending service protocol.
