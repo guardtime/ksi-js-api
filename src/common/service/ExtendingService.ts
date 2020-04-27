@@ -108,7 +108,7 @@ export class ExtendingService {
     }
 
     let currentExtendPayload: ExtendResponsePayload | null = null;
-    for (const responsePayload of responsePdu.getPayloads()) {
+    for (const responsePayload of responsePdu.getExtendResponsePayloads()) {
       const extendPayload: ExtendResponsePayload = responsePayload as ExtendResponsePayload;
       const payloadRequestId: string = extendPayload.getRequestId().toString();
       if (!this.requests.hasOwnProperty(payloadRequestId)) {

@@ -103,7 +103,7 @@ export class SigningService {
     }
 
     let currentAggregationPayload: AggregationResponsePayload | null = null;
-    for (const responsePayload of responsePdu.getPayloads()) {
+    for (const responsePayload of responsePdu.getAggregationResponsePayloads()) {
       const aggregationPayload: AggregationResponsePayload = responsePayload as AggregationResponsePayload;
       const payloadRequestId: string = aggregationPayload.getRequestId().toString();
       if (!this.requests.hasOwnProperty(payloadRequestId)) {
