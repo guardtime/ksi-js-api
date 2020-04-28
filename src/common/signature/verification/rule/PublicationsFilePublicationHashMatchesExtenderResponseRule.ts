@@ -23,7 +23,6 @@ import { PublicationRecord } from '../../../publication/PublicationRecord';
 import { PublicationsFile } from '../../../publication/PublicationsFile';
 import { CalendarHashChain } from '../../CalendarHashChain';
 import { KsiSignature } from '../../KsiSignature';
-import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 import { VerificationResult } from '../VerificationResult';
@@ -40,11 +39,7 @@ export class PublicationsFilePublicationHashMatchesExtenderResponseRule extends 
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
     if (publicationsFile === null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     const signature: KsiSignature = context.getSignature();
@@ -53,22 +48,14 @@ export class PublicationsFilePublicationHashMatchesExtenderResponseRule extends 
     );
 
     if (publicationRecord == null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(
-          new KsiVerificationError(
-            `No publication record found after given time in publications file: ${signature.getAggregationTime()}.`
-          )
-        )
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     let extendedCalendarHashChain: CalendarHashChain | null = null;
     try {
       extendedCalendarHashChain = await context.getExtendedCalendarHashChain(publicationRecord.getPublicationTime());
     } catch (e) {
-      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e));
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     return !(await extendedCalendarHashChain.calculateOutputHash()).equals(publicationRecord.getPublicationHash())

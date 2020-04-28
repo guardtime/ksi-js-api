@@ -38,7 +38,7 @@ export class KeyBasedVerificationPolicy extends VerificationPolicy {
           .onSuccess(
             new CalendarAuthenticationRecordExistenceRule() // Gen-02
               .onSuccess(
-                new CertificateExistenceRule() // Key-01
+                new CertificateExistenceRule() // GEN-02
                   .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule())
               )
           )

@@ -46,7 +46,7 @@ export class ExtendedSignatureCalendarChainInputHashRule extends VerificationRul
           ? await context.getExtendedLatestCalendarHashChain()
           : await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
     } catch (e) {
-      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e));
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     const lastAggregationHashChainRootHash: DataHash = await signature.getLastAggregationHashChainRootHash();

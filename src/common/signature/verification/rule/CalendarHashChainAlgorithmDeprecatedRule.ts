@@ -22,7 +22,6 @@ import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/veri
 import { ImprintTag } from '../../../parser/ImprintTag';
 import { CalendarHashChain } from '../../CalendarHashChain';
 import { KsiSignature } from '../../KsiSignature';
-import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 import { VerificationResult } from '../VerificationResult';
@@ -55,11 +54,7 @@ export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
         }; Publication time: ${calendarHashChain.getPublicationTime()}.`
       );
 
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain right links has deprecated links.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

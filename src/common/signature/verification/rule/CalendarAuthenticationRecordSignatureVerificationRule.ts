@@ -19,14 +19,12 @@
  */
 
 import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import HexCoder from '@guardtime/common/lib/coders/HexCoder';
 import X509 from '@guardtime/common/lib/crypto/X509';
 import { CertificateRecord } from '../../../publication/CertificateRecord';
 import { PublicationsFile } from '../../../publication/PublicationsFile';
 import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord';
 import { KsiSignature } from '../../KsiSignature';
 import { SignatureData } from '../../SignatureData';
-import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 import { VerificationResult } from '../VerificationResult';
@@ -52,11 +50,7 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
 
     const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
     if (publicationsFile === null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     const signatureData: SignatureData = calendarAuthenticationRecord.getSignatureData();
@@ -74,15 +68,7 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
     );
 
     if (certificateRecord === null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(
-          new KsiVerificationError(
-            `No certificate found in publications file with id: ${HexCoder.encode(signatureData.getCertificateId())}.`
-          )
-        )
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     if (!X509.isCertificateValidDuring(certificateRecord.getX509Certificate(), signature.getAggregationTime())) {

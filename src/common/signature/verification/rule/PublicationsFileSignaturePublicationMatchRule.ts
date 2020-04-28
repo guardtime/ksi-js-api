@@ -22,7 +22,6 @@ import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/veri
 import { PublicationRecord } from '../../../publication/PublicationRecord';
 import { PublicationsFile } from '../../../publication/PublicationsFile';
 import { KsiSignature } from '../../KsiSignature';
-import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 import { VerificationResult } from '../VerificationResult';
@@ -39,21 +38,13 @@ export class PublicationsFileSignaturePublicationMatchRule extends VerificationR
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
     if (publicationsFile === null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('Publications file missing from context.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     const signature: KsiSignature = context.getSignature();
     const publicationRecord: PublicationRecord | null = signature.getPublicationRecord();
     if (publicationRecord == null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('Publications record is missing from signature.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     const publicationRecordInPublicationFile: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(
@@ -64,11 +55,7 @@ export class PublicationsFileSignaturePublicationMatchRule extends VerificationR
       publicationRecordInPublicationFile === null ||
       publicationRecordInPublicationFile.getPublicationTime().neq(publicationRecord.getPublicationTime())
     ) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('Publications file publication record is missing.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     return !publicationRecordInPublicationFile.getPublicationHash().equals(publicationRecord.getPublicationHash())

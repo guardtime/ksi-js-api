@@ -21,7 +21,6 @@
 import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
 import { PublicationData } from '../../../publication/PublicationData';
 import { CalendarHashChain } from '../../CalendarHashChain';
-import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 import { VerificationResult } from '../VerificationResult';
@@ -38,18 +37,14 @@ export class UserProvidedPublicationHashMatchesExtendedResponseRule extends Veri
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const userPublication: PublicationData | null = context.getUserPublication();
     if (userPublication === null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     let extendedCalendarHashChain: CalendarHashChain | null = null;
     try {
       extendedCalendarHashChain = await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
     } catch (e) {
-      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02(e));
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     return !(await extendedCalendarHashChain.calculateOutputHash()).equals(userPublication.getPublicationHash())

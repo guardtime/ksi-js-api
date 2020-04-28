@@ -193,7 +193,10 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
   const result: VerificationResult = await policy.verify(verificationContext);
   const verificationError: VerificationError | null = result.getVerificationError();
   console.debug(result.toString());
-  expect(verificationError ? verificationError.code : null).toEqual(row.errorCode || null);
+  if (verificationError) {
+    expect(verificationError.code).toEqual(row.errorCode);
+    expect(verificationError.message).toEqual(row.errorMessage);
+  }
 }
 
 /**
