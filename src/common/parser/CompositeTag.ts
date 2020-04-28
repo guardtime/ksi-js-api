@@ -31,10 +31,23 @@ export abstract class CompositeTag extends TlvTag {
   public value: TlvTag[] = [];
   private elementCount: { [key: number]: number } = {};
 
+  /**
+   * Composite TLV object constructor
+   * @param tlvTag TLV object
+   */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
   }
 
+  /**
+   * Create composite TLV object from TLV list
+   * @param id TLV id
+   * @param nonCriticalFlag is TLV non critical
+   * @param forwardFlag is TLV forwarded
+   * @param value TLV object list
+   * @param tlv16BitFlag is TLV with 16 bit length
+   * @returns TLV object
+   */
   public static CREATE_FROM_LIST(
     id: number,
     nonCriticalFlag: boolean,
@@ -50,10 +63,21 @@ export abstract class CompositeTag extends TlvTag {
     return new TlvTag(id, nonCriticalFlag, forwardFlag, stream.getData(), tlv16BitFlag);
   }
 
+  /**
+   * Create new TLV object from composite TLV object
+   * @param id TLV id
+   * @param tlvTag Composite TLV object
+   * @returns TLV object
+   */
   protected static createFromCompositeTag(id: number, tlvTag: CompositeTag): TlvTag {
     return new TlvTag(id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
   }
 
+  /**
+   * Validate unknown TLV object, if critical throw TLVError
+   * @param tlvTag TLV object
+   * @returns TLV object
+   */
   protected validateUnknownTlvTag(tlvTag: TlvTag): TlvTag {
     if (!tlvTag.nonCriticalFlag) {
       throw new TlvError(`Unknown TLV tag: 0x${tlvTag.id.toString(16)}`);
@@ -63,6 +87,9 @@ export abstract class CompositeTag extends TlvTag {
     return tlvTag;
   }
 
+  /**
+   * Serialize current composite TLV object to string
+   */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;
     if (this.nonCriticalFlag) {
@@ -85,6 +112,10 @@ export abstract class CompositeTag extends TlvTag {
     return result;
   }
 
+  /**
+   * Decode TLV object value bytes to TLV list and get their count.
+   * @param createFunc function to create TLV objects
+   */
   protected decodeValue(createFunc: (tlvTag: TlvTag, position: number) => TlvTag): void {
     const valueBytes: Uint8Array = this.getValueBytes();
     const stream: TlvInputStream = new TlvInputStream(valueBytes);
@@ -104,6 +135,10 @@ export abstract class CompositeTag extends TlvTag {
     Object.freeze(this.elementCount);
   }
 
+  /**
+   * Get TLV object count by its id
+   * @param id TLV object id
+   */
   public getCount(id: number): number {
     return this.elementCount[id] || 0;
   }

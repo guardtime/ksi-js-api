@@ -27,6 +27,10 @@ import { TlvTag } from './TlvTag';
 export class ImprintTag extends TlvTag {
   private readonly value: DataHash;
 
+  /**
+   * Imprint TLV object constructor
+   * @param tlvTag TLV object
+   */
   constructor(tlvTag: TlvTag) {
     const valueBytes: Uint8Array = tlvTag.getValueBytes();
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag);
@@ -34,14 +38,28 @@ export class ImprintTag extends TlvTag {
     Object.freeze(this);
   }
 
+  /**
+   * Create imprint TLV object from data hash
+   * @param id TLV id
+   * @param nonCriticalFlag is TLV non critical
+   * @param forwardFlag is TLV forwarded
+   * @param value data hash
+   * @returns Imprint TLV object
+   */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: DataHash): ImprintTag {
     return new ImprintTag(new TlvTag(id, nonCriticalFlag, forwardFlag, value.imprint));
   }
 
+  /**
+   * @returns Data hash
+   */
   public getValue(): DataHash {
     return this.value;
   }
 
+  /**
+   * Serialize current imprint TLV object to string
+   */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;
     if (this.nonCriticalFlag) {

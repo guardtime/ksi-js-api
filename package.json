@@ -70,7 +70,7 @@
     "outputName": "junit.xml"
   },
   "dependencies": {
-    "@guardtime/common": "^1.0.0",
+    "@guardtime/common": "^1.0.1-rc.942efae",
     "abortcontroller-polyfill": "^1.4.0",
     "big-integer": "^1.6.48",
     "isomorphic-unfetch": "^3.0.0",

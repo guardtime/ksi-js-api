@@ -26,14 +26,25 @@ import { TlvTag } from './TlvTag';
 export class TlvOutputStream {
   private data: Uint8Array = new Uint8Array(0);
 
+  /**
+   * Get current stream output bytes
+   */
   public getData(): Uint8Array {
     return new Uint8Array(this.data);
   }
 
+  /**
+   * Write TLV object to stream
+   * @param tlvTag TLV object
+   */
   public writeTag(tlvTag: TlvTag): void {
     this.write(tlvTag.encode());
   }
 
+  /**
+   * Write bytes to stream
+   * @param data byte array
+   */
   public write(data: Uint8Array): void {
     const combinedData: Uint8Array = new Uint8Array(this.data.length + data.length);
     combinedData.set(this.data);

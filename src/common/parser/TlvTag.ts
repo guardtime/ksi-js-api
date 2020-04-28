@@ -32,6 +32,14 @@ export class TlvTag {
   public readonly forwardFlag: boolean;
   public readonly getValueBytes: () => Uint8Array;
 
+  /**
+   * TlvTag constructor
+   * @param id TLV id
+   * @param nonCriticalFlag is TLV non critical
+   * @param forwardFlag is TLV forwarded
+   * @param valueBytes TLV value bytes
+   * @param tlv16BitFlag is TLV with 16 bit length
+   */
   constructor(
     id: number,
     nonCriticalFlag: boolean,
@@ -51,6 +59,12 @@ export class TlvTag {
     }
   }
 
+  /**
+   * Test if 2 TLV objects are equal
+   * @param x first object to test as TLV
+   * @param y second object to test as TLV
+   * @returns true if 2 objects are equal as TLV
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static EQUALS(x: any, y: any): boolean {
     if (!(x instanceof TlvTag) || !(y instanceof TlvTag)) {
@@ -73,6 +87,9 @@ export class TlvTag {
     );
   }
 
+  /**
+   * Encode TLV to byte array
+   */
   public encode(): Uint8Array {
     if (this.id > TLV_CONSTANTS.MaxType) {
       throw new TlvError('Could not write TlvTag: Type is larger than max id');
@@ -107,6 +124,10 @@ export class TlvTag {
     return result;
   }
 
+  /**
+   * Test if current TLV is equal to another object
+   * @param tag TLV object
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public equals(tag: any): boolean {
     return TlvTag.EQUALS(this, tag);

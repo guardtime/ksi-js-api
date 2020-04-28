@@ -28,6 +28,10 @@ import { TlvTag } from './TlvTag';
 export class StringTag extends TlvTag {
   private readonly value: string;
 
+  /**
+   * String TLV object constructor
+   * @param tlvTag TLV object
+   */
   constructor(tlvTag: TlvTag) {
     const valueBytes: Uint8Array = tlvTag.getValueBytes();
     if (valueBytes.length < 1) {
@@ -43,14 +47,28 @@ export class StringTag extends TlvTag {
     Object.freeze(this);
   }
 
+  /**
+   * Create string TLV object from string
+   * @param id TLV id
+   * @param nonCriticalFlag is TLV non critical
+   * @param forwardFlag is TLV forwarded
+   * @param value string
+   * @returns String TLV object
+   */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: string): StringTag {
     return new StringTag(new TlvTag(id, nonCriticalFlag, forwardFlag, Utf8Converter.ToBytes(`${value}\0`)));
   }
 
+  /**
+   * @returns UTF8 string value
+   */
   public getValue(): string {
     return this.value;
   }
 
+  /**
+   * Serialize current string TLV object to string
+   */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;
     if (this.nonCriticalFlag) {

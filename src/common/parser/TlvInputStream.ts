@@ -30,20 +30,35 @@ export class TlvInputStream {
   private position: number;
   private readonly length: number;
 
+  /**
+   * TLV input stream constructor
+   * @param bytes data bytes
+   */
   constructor(bytes: Uint8Array) {
     this.data = new Uint8Array(bytes);
     this.position = 0;
     this.length = bytes.length;
   }
 
+  /**
+   * Get stream position
+   */
   public getPosition(): number {
     return this.position;
   }
 
+  /**
+   * Get stream length
+   */
   public getLength(): number {
     return this.length;
   }
 
+  /**
+   * Read next TLV object from stream
+   * @returns TLV object
+   * @throws TlvError if available bytes is shorter than TLV object size
+   */
   public readTag(): TlvTag {
     const firstByte: number = this.readByte();
     const tlv16BitFlag: boolean = (firstByte & TLV_CONSTANTS.Tlv16BitFlagBit) !== 0;
@@ -63,6 +78,10 @@ export class TlvInputStream {
     return new TlvTag(id, nonCriticalFlag, forwardFlag, data, tlv16BitFlag);
   }
 
+  /**
+   * Read next byte from stream
+   * @throws TlvError if available bytes is shorter than read bytes length
+   */
   private readByte(): number {
     if (this.length <= this.position) {
       throw new TlvError('Could not read byte: Premature end of data');
@@ -74,10 +93,18 @@ export class TlvInputStream {
     return byte;
   }
 
+  /**
+   * Read next short int from stream
+   */
   private readShort(): number {
     return (this.readByte() << 8) | this.readByte();
   }
 
+  /**
+   * Read number of bytes from stream
+   * @param length read bytes length
+   * @throws TlvError if available bytes is shorter than read bytes length
+   */
   private read(length: number): Uint8Array {
     if (this.length < this.position + length) {
       throw new TlvError(`Could not read ${length} bytes: Premature end of data`);
