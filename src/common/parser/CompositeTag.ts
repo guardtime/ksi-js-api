@@ -25,28 +25,37 @@ import { TlvOutputStream } from './TlvOutputStream';
 import { TlvTag } from './TlvTag';
 
 /**
- * Composite TLV object
+ * Decode value callback to set parameters and create correct TLV objects.
+ *
+ * @callback decodeCallback
+ * @param {TlvTag} tlvTag TLV object.
+ * @param {number} position Position in TLV object.
+ * @returns {TlvTag} Resulting TLV object.
+ */
+
+/**
+ * Composite TLV object.
  */
 export abstract class CompositeTag extends TlvTag {
   public value: TlvTag[] = [];
   private elementCount: { [key: number]: number } = {};
 
   /**
-   * Composite TLV object constructor
-   * @param tlvTag TLV object
+   * Composite TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
   }
 
   /**
-   * Create composite TLV object from TLV list
-   * @param id TLV id
-   * @param nonCriticalFlag is TLV non critical
-   * @param forwardFlag is TLV forwarded
-   * @param value TLV object list
-   * @param tlv16BitFlag is TLV with 16 bit length
-   * @returns TLV object
+   * Create composite TLV object from TLV list.
+   * @param {number} id TLV id.
+   * @param {boolean} nonCriticalFlag Is TLV non critical.
+   * @param {boolean} forwardFlag Is TLV forwarded.
+   * @param {TlvTag[]} value TLV object list.
+   * @param {boolean} tlv16BitFlag Is TLV with 16 bit length.
+   * @returns {TlvTag} TLV object.
    */
   public static CREATE_FROM_LIST(
     id: number,
@@ -64,10 +73,10 @@ export abstract class CompositeTag extends TlvTag {
   }
 
   /**
-   * Create new TLV object from composite TLV object
-   * @param id TLV id
-   * @param tlvTag Composite TLV object
-   * @returns TLV object
+   * Create new TLV object from composite TLV object.
+   * @param {number} id TLV id.
+   * @param {TlvTag} tlvTag Composite TLV object.
+   * @returns {TlvTag} TLV object.
    */
   protected static createFromCompositeTag(id: number, tlvTag: CompositeTag): TlvTag {
     return new TlvTag(id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes());
@@ -75,8 +84,8 @@ export abstract class CompositeTag extends TlvTag {
 
   /**
    * Validate unknown TLV object, if critical throw TLVError
-   * @param tlvTag TLV object
-   * @returns TLV object
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
    */
   protected validateUnknownTlvTag(tlvTag: TlvTag): TlvTag {
     if (!tlvTag.nonCriticalFlag) {
@@ -88,7 +97,8 @@ export abstract class CompositeTag extends TlvTag {
   }
 
   /**
-   * Serialize current composite TLV object to string
+   * Serialize current composite TLV object to string.
+   * @returns {string} Serialized TLV object.
    */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;
@@ -114,7 +124,7 @@ export abstract class CompositeTag extends TlvTag {
 
   /**
    * Decode TLV object value bytes to TLV list and get their count.
-   * @param createFunc function to create TLV objects
+   * @param {decodeCallback} createFunc Function to create TLV objects
    */
   protected decodeValue(createFunc: (tlvTag: TlvTag, position: number) => TlvTag): void {
     const valueBytes: Uint8Array = this.getValueBytes();
@@ -136,8 +146,9 @@ export abstract class CompositeTag extends TlvTag {
   }
 
   /**
-   * Get TLV object count by its id
-   * @param id TLV object id
+   * Get TLV object count by its id.
+   * @param {number} id TLV object id.
+   * @returns {number} TLV object count.
    */
   public getCount(id: number): number {
     return this.elementCount[id] || 0;

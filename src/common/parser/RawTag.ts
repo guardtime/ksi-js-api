@@ -22,17 +22,18 @@ import HexCoder from '@guardtime/common/lib/coders/HexCoder';
 import { TlvTag } from './TlvTag';
 
 /**
- * Byte array TLV object
+ * Byte array TLV object.
  */
 export class RawTag extends TlvTag {
   /**
-   * @returns value bytes
+   * Get TLV object value.
+   * @returns {Uint8Array}
    */
   public getValue: () => Uint8Array;
 
   /**
-   * Byte array TLV object constructor
-   * @param tlvTag TLV object
+   * Byte array TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
@@ -41,19 +42,20 @@ export class RawTag extends TlvTag {
   }
 
   /**
-   * Create byte array TLV object from value bytes
-   * @param id TLV id
-   * @param nonCriticalFlag is TLV non critical
-   * @param forwardFlag is TLV forwarded
-   * @param value value bytes
-   * @returns Byte array TLV object
+   * Create byte array TLV object from value bytes.
+   * @param {number} id TLV id.
+   * @param {boolean} nonCriticalFlag Is TLV non critical.
+   * @param {boolean} forwardFlag Is TLV forwarded.
+   * @param {Uint8Array} value Value bytes.
+   * @returns {RawTag} Byte array TLV object.
    */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: Uint8Array): RawTag {
     return new RawTag(new TlvTag(id, nonCriticalFlag, forwardFlag, value));
   }
 
   /**
-   * Serialize current byte array TLV object to string
+   * Serialize current byte array TLV object to string.
+   * @returns {string} Serialized TLV object.
    */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;

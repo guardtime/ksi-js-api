@@ -23,7 +23,7 @@ import { TlvError } from './TlvError';
 import { TlvTag } from './TlvTag';
 
 /**
- * Specialized input stream for decoding TLV data from bytes
+ * Specialized input stream for decoding TLV data from bytes.
  */
 export class TlvInputStream {
   private readonly data: Uint8Array;
@@ -31,8 +31,8 @@ export class TlvInputStream {
   private readonly length: number;
 
   /**
-   * TLV input stream constructor
-   * @param bytes data bytes
+   * TLV input stream constructor.
+   * @param {Uint8Array} bytes Data bytes.
    */
   constructor(bytes: Uint8Array) {
     this.data = new Uint8Array(bytes);
@@ -41,23 +41,25 @@ export class TlvInputStream {
   }
 
   /**
-   * Get stream position
+   * Get stream position.
+   * @returns {number} Stream position.
    */
   public getPosition(): number {
     return this.position;
   }
 
   /**
-   * Get stream length
+   * Get stream length.
+   * @returns {number} Stream length.
    */
   public getLength(): number {
     return this.length;
   }
 
   /**
-   * Read next TLV object from stream
-   * @returns TLV object
-   * @throws TlvError if available bytes is shorter than TLV object size
+   * Read next TLV object from stream.
+   * @returns {TlvTag} TLV object.
+   * @throws {TlvError} If available bytes is shorter than TLV object size.
    */
   public readTag(): TlvTag {
     const firstByte: number = this.readByte();
@@ -79,8 +81,8 @@ export class TlvInputStream {
   }
 
   /**
-   * Read next byte from stream
-   * @throws TlvError if available bytes is shorter than read bytes length
+   * Read next byte from stream.
+   * @throws {TlvError} If available bytes is shorter than read bytes length.
    */
   private readByte(): number {
     if (this.length <= this.position) {
@@ -94,16 +96,17 @@ export class TlvInputStream {
   }
 
   /**
-   * Read next short int from stream
+   * Read next short int from stream.
+   * @throws {TlvError} If available bytes is shorter than read bytes length.
    */
   private readShort(): number {
     return (this.readByte() << 8) | this.readByte();
   }
 
   /**
-   * Read number of bytes from stream
-   * @param length read bytes length
-   * @throws TlvError if available bytes is shorter than read bytes length
+   * Read number of bytes from stream.
+   * @param {number} length Read bytes length.
+   * @throws {TlvError} If available bytes is shorter than read bytes length.
    */
   private read(length: number): Uint8Array {
     if (this.length < this.position + length) {

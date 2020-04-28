@@ -21,29 +21,30 @@
 import { TlvTag } from './TlvTag';
 
 /**
- * Specialized output stream for encoding TLV data from TLVTag classes
+ * Specialized output stream for encoding TLV data from TLVTag classes.
  */
 export class TlvOutputStream {
   private data: Uint8Array = new Uint8Array(0);
 
   /**
-   * Get current stream output bytes
+   * Get current stream output bytes.
+   * @returns {Uint8Array} Output bytes.
    */
   public getData(): Uint8Array {
     return new Uint8Array(this.data);
   }
 
   /**
-   * Write TLV object to stream
-   * @param tlvTag TLV object
+   * Write TLV object to stream.
+   * @param {TlvTag} tlvTag TLV object.
    */
   public writeTag(tlvTag: TlvTag): void {
     this.write(tlvTag.encode());
   }
 
   /**
-   * Write bytes to stream
-   * @param data byte array
+   * Write bytes to stream.
+   * @param {Uint8Array} data Data bytes.
    */
   public write(data: Uint8Array): void {
     const combinedData: Uint8Array = new Uint8Array(this.data.length + data.length);

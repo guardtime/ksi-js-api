@@ -23,7 +23,7 @@ import { compareTypedArray } from '../util/Array';
 import { TlvError } from './TlvError';
 
 /**
- * TLV objects base class
+ * TLV objects base class.
  */
 export class TlvTag {
   public readonly id: number;
@@ -33,12 +33,12 @@ export class TlvTag {
   public readonly getValueBytes: () => Uint8Array;
 
   /**
-   * TlvTag constructor
-   * @param id TLV id
-   * @param nonCriticalFlag is TLV non critical
-   * @param forwardFlag is TLV forwarded
-   * @param valueBytes TLV value bytes
-   * @param tlv16BitFlag is TLV with 16 bit length
+   * TlvTag constructor.
+   * @param {number} id TLV id.
+   * @param {boolean} nonCriticalFlag Is TLV non critical.
+   * @param {boolean} forwardFlag Is TLV forwarded.
+   * @param {Uint8Array} valueBytes TLV value bytes.
+   * @param {boolean} tlv16BitFlag Is TLV with 16 bit length.
    */
   constructor(
     id: number,
@@ -60,10 +60,10 @@ export class TlvTag {
   }
 
   /**
-   * Test if 2 TLV objects are equal
-   * @param x first object to test as TLV
-   * @param y second object to test as TLV
-   * @returns true if 2 objects are equal as TLV
+   * Test if 2 TLV objects are equal.
+   * @param {*} x First object to test as TLV.
+   * @param {*} y Second object to test as TLV.
+   * @returns {boolean} If 2 TLV are equal return true.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static EQUALS(x: any, y: any): boolean {
@@ -88,7 +88,8 @@ export class TlvTag {
   }
 
   /**
-   * Encode TLV to byte array
+   * Encode TLV to byte array.
+   * @returns {Uint8Array} Encoded TLV object bytes.
    */
   public encode(): Uint8Array {
     if (this.id > TLV_CONSTANTS.MaxType) {
@@ -125,8 +126,9 @@ export class TlvTag {
   }
 
   /**
-   * Test if current TLV is equal to another object
-   * @param tag TLV object
+   * Test if current TLV is equal to another object.
+   * @param {*} tag TLV object.
+   * @returns {boolean} If tested TLV header and value are equal.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public equals(tag: any): boolean {

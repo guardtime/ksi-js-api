@@ -32,15 +32,15 @@ import { TlvTag } from '../parser/TlvTag';
 import { compareTypedArray } from '../util/Array';
 
 /**
- * Publication Data TLV object
+ * Publication Data TLV object.
  */
 export class PublicationData extends CompositeTag {
   private publicationTime: IntegerTag;
   private publicationHash: ImprintTag;
 
   /**
-   * Publication data TLV object constructor
-   * @param tlvTag TLV object
+   * Publication data TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -51,10 +51,10 @@ export class PublicationData extends CompositeTag {
   }
 
   /**
-   * Create publication data TLV object from publication time and hash
-   * @param publicationTime publication time in seconds
-   * @param publicationHash publication hash
-   * @constructor
+   * Create publication data TLV object from publication time and hash.
+   * @param {BigInteger} publicationTime Publication time in seconds.
+   * @param {DataHash} publicationHash Publication hash.
+   * @returns {PublicationData}
    */
   public static CREATE(publicationTime: BigInteger, publicationHash: DataHash): PublicationData {
     return new PublicationData(
@@ -66,9 +66,9 @@ export class PublicationData extends CompositeTag {
   }
 
   /**
-   * Create publication data TLV object from publication string
-   * @param publicationString publication string
-   * @constructor
+   * Create publication data TLV object from publication string.
+   * @param {string} publicationString Publication string.
+   * @returns {PublicationData}
    */
   public static CREATE_FROM_PUBLICATION_STRING(publicationString: string): PublicationData {
     const bytesWithCrc32: Uint8Array = Base32Coder.decode(publicationString);
@@ -96,25 +96,25 @@ export class PublicationData extends CompositeTag {
   }
 
   /**
-   * Get publication hash
-   * @returns publication hash
+   * Get publication hash.
+   * @returns {DataHash} Publication hash.
    */
   public getPublicationHash(): DataHash {
     return this.publicationHash.getValue();
   }
 
   /**
-   * Get publication time
-   * @returns publication time in seconds
+   * Get publication time.
+   * @returns {BigInteger} Publication time in seconds.
    */
   public getPublicationTime(): BigInteger {
     return this.publicationTime.getValue();
   }
 
   /**
-   * Parse child element to correct object
-   * @param tlvTag TLV object
-   * @returns TLV object
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
@@ -128,7 +128,7 @@ export class PublicationData extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format
+   * Validate TLV object format.
    */
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {

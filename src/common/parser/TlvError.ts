@@ -19,12 +19,12 @@
  */
 
 /**
- * TLV parsing error
+ * TLV parsing error.
  */
 export class TlvError extends Error {
   /**
-   * TLV parsing error constructor
-   * @param message error message
+   * TLV parsing error constructor.
+   * @param {string} message Error message.
    */
   constructor(message: string) {
     super(message);

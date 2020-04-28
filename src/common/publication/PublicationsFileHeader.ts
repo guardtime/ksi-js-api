@@ -27,7 +27,7 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * Publications File Header TLV Object
+ * Publications File Header TLV Object.
  */
 export class PublicationsFileHeader extends CompositeTag {
   private version: IntegerTag;
@@ -35,8 +35,8 @@ export class PublicationsFileHeader extends CompositeTag {
   private repositoryUri: StringTag | null = null;
 
   /**
-   * Publications file header TLV object constructor
-   * @param tlvTag TLV object
+   * Publications file header TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -47,33 +47,33 @@ export class PublicationsFileHeader extends CompositeTag {
   }
 
   /**
-   * Get publications file version
-   * @returns version as BigInteger
+   * Get publications file version.
+   * @returns {BigInteger} File version.
    */
   public getVersion(): BigInteger {
     return this.version.getValue();
   }
 
   /**
-   * Get publications file creation time
-   * @returns unix time as BigInteger
+   * Get publications file creation time.
+   * @returns {BigInteger} Unix time.
    */
   public getCreationTime(): BigInteger {
     return this.creationTime.getValue();
   }
 
   /**
-   * Get publications file repository uri
-   * @returns uri
+   * Get publications file repository uri.
+   * @returns {string|null} Repository uri.
    */
   public getRepositoryUri(): string | null {
     return this.repositoryUri === null ? null : this.repositoryUri.getValue();
   }
 
   /**
-   * Parse child element to correct object
-   * @param tlvTag TLV object
-   * @returns TLV object
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
@@ -89,7 +89,7 @@ export class PublicationsFileHeader extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format
+   * Validate TLV object format.
    */
   private validate(): void {
     if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType) !== 1) {

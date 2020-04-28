@@ -23,14 +23,14 @@ import { TlvError } from './TlvError';
 import { TlvTag } from './TlvTag';
 
 /**
- * String TLV object
+ * String TLV object.
  */
 export class StringTag extends TlvTag {
   private readonly value: string;
 
   /**
-   * String TLV object constructor
-   * @param tlvTag TLV object
+   * String TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     const valueBytes: Uint8Array = tlvTag.getValueBytes();
@@ -48,26 +48,28 @@ export class StringTag extends TlvTag {
   }
 
   /**
-   * Create string TLV object from string
-   * @param id TLV id
-   * @param nonCriticalFlag is TLV non critical
-   * @param forwardFlag is TLV forwarded
-   * @param value string
-   * @returns String TLV object
+   * Create string TLV object from string.
+   * @param {number} id TLV id.
+   * @param {boolean} nonCriticalFlag Is TLV non critical.
+   * @param {boolean} forwardFlag Is TLV forwarded.
+   * @param {string} value
+   * @returns {StringTag} String TLV object.
    */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: string): StringTag {
     return new StringTag(new TlvTag(id, nonCriticalFlag, forwardFlag, Utf8Converter.ToBytes(`${value}\0`)));
   }
 
   /**
-   * @returns UTF8 string value
+   * Get TLV object value.
+   * @returns {string} UTF8 string value.
    */
   public getValue(): string {
     return this.value;
   }
 
   /**
-   * Serialize current string TLV object to string
+   * Serialize current string TLV object to string.
+   * @returns {string} Serialized TLV object.
    */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;

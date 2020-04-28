@@ -35,12 +35,12 @@ import { PublicationsFileError } from './PublicationsFileError';
 import { PublicationsFileHeader } from './PublicationsFileHeader';
 
 /**
- * Publications File TLV object
+ * Publications File TLV object.
  */
 export class PublicationsFile extends CompositeTag {
   /**
-   * Get publication file beginning magic bytes
-   * @returns magic bytes
+   * Get publication file beginning magic bytes.
+   * @returns {Uint8Array} Magic bytes.
    */
   public static get FileBeginningMagicBytes(): Uint8Array {
     return new Uint8Array([0x4b, 0x53, 0x49, 0x50, 0x55, 0x42, 0x4c, 0x46]);
@@ -56,8 +56,8 @@ export class PublicationsFile extends CompositeTag {
   private cmsSignatureIndex = 0;
 
   /**
-   * Publications file TLV object constructor
-   * @param tlvTag TLV object
+   * Publications file TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -69,9 +69,9 @@ export class PublicationsFile extends CompositeTag {
   }
 
   /**
-   * Find certificate by its id
-   * @param certificateId certificate id as bytes
-   * @returns certificate record or null if none found
+   * Find certificate by its id.
+   * @param {Uint8Array} certificateId Certificate id as bytes.
+   * @returns {CertificateRecord|null} Certificate record or null if none found.
    */
   public findCertificateById(certificateId: Uint8Array): CertificateRecord | null {
     for (const certificateRecord of this.certificateRecordList) {
@@ -84,8 +84,8 @@ export class PublicationsFile extends CompositeTag {
   }
 
   /**
-   * Get latest publication record
-   * @returns latest publication record or null if none found
+   * Get latest publication record.
+   * @returns {PublicationRecord|null} Latest publication record or null if none found.
    */
   public getLatestPublication(): PublicationRecord | null {
     let latestPublicationRecord: PublicationRecord | null = null;
@@ -104,9 +104,9 @@ export class PublicationsFile extends CompositeTag {
   }
 
   /**
-   * Get nearest publication record to given unix time
-   * @param unixTime unix time in seconds as BigInteger
-   * @returns nearest publication record or null if none found
+   * Get nearest publication record to given unix time.
+   * @param {BigInteger} unixTime Unix time in seconds.
+   * @returns {PublicationRecord|null} Nearest publication record or null if none found.
    */
   public getNearestPublicationRecord(unixTime: BigInteger): PublicationRecord | null {
     let nearestPublicationRecord: PublicationRecord | null = null;
@@ -130,16 +130,16 @@ export class PublicationsFile extends CompositeTag {
   }
 
   /**
-   * Get publications file signature bytes
-   * @returns signature bytes
+   * Get publications file signature bytes.
+   * @returns {Uint8Array} Signature bytes.
    */
   public getSignatureValue(): Uint8Array {
     return this.cmsSignature.getValue();
   }
 
   /**
-   * Get publications file signed bytes
-   * @returns signed bytes
+   * Get publications file signed bytes.
+   * @returns {Uint8Array} Signed bytes.
    */
   public getSignedBytes(): Uint8Array {
     const stream: TlvOutputStream = new TlvOutputStream();
@@ -154,9 +154,9 @@ export class PublicationsFile extends CompositeTag {
   }
 
   /**
-   * Parse child element to correct object
-   * @param tlvTag TLV object
-   * @returns TLV object
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
    */
   private parseChild(tlvTag: TlvTag, position: number): TlvTag {
     switch (tlvTag.id) {
@@ -189,7 +189,7 @@ export class PublicationsFile extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format
+   * Validate TLV object format.
    */
   private validate(): void {
     if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType) !== 1) {

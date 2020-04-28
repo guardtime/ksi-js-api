@@ -23,14 +23,14 @@ import { BigInteger } from 'big-integer';
 import { TlvTag } from './TlvTag';
 
 /**
- * Long TLV object
+ * Integer TLV object.
  */
 export class IntegerTag extends TlvTag {
   private readonly value: BigInteger;
 
   /**
-   * Integer TLV object constructor
-   * @param tlvTag TLV object
+   * Integer TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     const bytes: Uint8Array = tlvTag.getValueBytes();
@@ -40,26 +40,28 @@ export class IntegerTag extends TlvTag {
   }
 
   /**
-   * Create integer TLV object from bigInteger value
-   * @param id TLV id
-   * @param nonCriticalFlag is TLV non critical
-   * @param forwardFlag is TLV forwarded
-   * @param value bigInteger
-   * @returns Integer TLV object
+   * Create integer TLV object from value.
+   * @param {number} id TLV id.
+   * @param {boolean} nonCriticalFlag Is TLV non critical.
+   * @param {boolean} forwardFlag Is TLV forwarded.
+   * @param {BigInteger} value.
+   * @returns {IntegerTag} Integer TLV object.
    */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: BigInteger): IntegerTag {
     return new IntegerTag(new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(value)));
   }
 
   /**
-   * @returns bigInteger value
+   * Get TLV object value
+   * @returns {BigInteger} TLV object value.
    */
   public getValue(): BigInteger {
     return this.value;
   }
 
   /**
-   * Serialize current integer TLV object to string
+   * Serialize current integer TLV object to string.
+   * @returns {string} Serialized TLV object.
    */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;

@@ -19,12 +19,12 @@
  */
 
 /**
- * Publications File related error
+ * Publications File related error.
  */
 export class PublicationsFileError extends Error {
   /**
-   * Publications file error constructor
-   * @param message error message
+   * Publications file error constructor.
+   * @param {string} message Error message.
    */
   constructor(message: string) {
     super(message);

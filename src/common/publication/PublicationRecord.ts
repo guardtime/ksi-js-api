@@ -28,7 +28,7 @@ import { TlvTag } from '../parser/TlvTag';
 import { PublicationData } from './PublicationData';
 
 /**
- * Publication Record TLV object
+ * Publication Record TLV object.
  */
 export class PublicationRecord extends CompositeTag {
   private publicationData: PublicationData;
@@ -36,8 +36,8 @@ export class PublicationRecord extends CompositeTag {
   private repositoryUri: StringTag[] = [];
 
   /**
-   * Publication record TLV object constructor
-   * @param tlvTag TLV object
+   * Publication record TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -63,16 +63,16 @@ export class PublicationRecord extends CompositeTag {
   }
 
   /**
-   * Get publication data {@see PublicationData}
-   * @returns publication data
+   * Get publication data.
+   * @returns {PublicationData} publication data.
    */
   public getPublicationData(): PublicationData {
     return this.publicationData;
   }
 
   /**
-   * Get publication references
-   * @returns publication reference array
+   * Get publication references.
+   * @returns [string} Publication references.
    */
   public getPublicationReferences(): string[] {
     return this.publicationReferences.map((reference: StringTag) => {
@@ -81,8 +81,8 @@ export class PublicationRecord extends CompositeTag {
   }
 
   /**
-   * Get publication repositories
-   * @returns publication repository array
+   * Get publication repositories.
+   * @returns {string[]} Publication repositories.
    */
   public getPublicationRepositories(): string[] {
     return this.repositoryUri.map((repository: StringTag) => {
@@ -91,9 +91,9 @@ export class PublicationRecord extends CompositeTag {
   }
 
   /**
-   * Parse child element to correct object
-   * @param tlvTag TLV object
-   * @returns TLV object
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
@@ -115,7 +115,7 @@ export class PublicationRecord extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format
+   * Validate TLV object format.
    */
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {

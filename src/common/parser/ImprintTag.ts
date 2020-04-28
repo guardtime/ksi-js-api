@@ -22,14 +22,14 @@ import DataHash from '@guardtime/common/lib/hash/DataHash';
 import { TlvTag } from './TlvTag';
 
 /**
- * DataHash TLV object
+ * Imprint TLV object.
  */
 export class ImprintTag extends TlvTag {
   private readonly value: DataHash;
 
   /**
-   * Imprint TLV object constructor
-   * @param tlvTag TLV object
+   * Imprint TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     const valueBytes: Uint8Array = tlvTag.getValueBytes();
@@ -39,26 +39,28 @@ export class ImprintTag extends TlvTag {
   }
 
   /**
-   * Create imprint TLV object from data hash
-   * @param id TLV id
-   * @param nonCriticalFlag is TLV non critical
-   * @param forwardFlag is TLV forwarded
-   * @param value data hash
-   * @returns Imprint TLV object
+   * Create imprint TLV object from data hash.
+   * @param {number} id TLV id.
+   * @param {boolean} nonCriticalFlag Is TLV non critical.
+   * @param {boolean} forwardFlag Is TLV forwarded.
+   * @param {DataHash} value Data hash.
+   * @returns {ImprintTag} Imprint TLV object.
    */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: DataHash): ImprintTag {
     return new ImprintTag(new TlvTag(id, nonCriticalFlag, forwardFlag, value.imprint));
   }
 
   /**
-   * @returns Data hash
+   * Get TLV object value.
+   * @returns {DataHash} Data hash.
    */
   public getValue(): DataHash {
     return this.value;
   }
 
   /**
-   * Serialize current imprint TLV object to string
+   * Serialize current imprint TLV object to string.
+   * @returns {string} Serialized TLV object.
    */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;

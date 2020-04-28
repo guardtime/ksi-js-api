@@ -25,15 +25,15 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * Certificate Record TLV object
+ * Certificate Record TLV object.
  */
 export class CertificateRecord extends CompositeTag {
   private certificateId: RawTag;
   private x509Certificate: RawTag;
 
   /**
-   * Certificate record TLV object constructor
-   * @param tlvTag TLV object
+   * Certificate record TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -45,25 +45,25 @@ export class CertificateRecord extends CompositeTag {
   }
 
   /**
-   * Get X509 certificate bytes
-   * @returns certificate bytes
+   * Get X509 certificate bytes.
+   * @returns {Uint8Array} Certificate bytes.
    */
   public getX509Certificate(): Uint8Array {
     return this.x509Certificate.getValue();
   }
 
   /**
-   * Get X509 certificate id
-   * @returns certificate id
+   * Get X509 certificate id.
+   * @returns {Uint8Array} Certificate id.
    */
   public getCertificateId(): Uint8Array {
     return this.certificateId.getValue();
   }
 
   /**
-   * Parse child element to correct object
-   * @param tlvTag TLV object
-   * @returns TLV object
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
@@ -77,7 +77,7 @@ export class CertificateRecord extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format
+   * Validate TLV object format.
    */
   private validate(): void {
     if (this.getCount(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType) !== 1) {

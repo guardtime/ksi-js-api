@@ -26,16 +26,16 @@ import { PublicationsFileError } from './PublicationsFileError';
 import { PUBLICATIONS_FILE_SIGNATURE_CONSTANTS } from '../Constants';
 
 /**
- * Publications file factory for publications file creation from byte array
+ * Publications file factory for publications file creation from byte array.
  */
 export class PublicationsFileFactory {
   private readonly trustedCertificates: string;
   private readonly signatueSubjectToVerify: string;
 
   /**
-   * Publications file factory constructor
-   * @param trustedCertificates trusted certificates, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates}
-   * @param signatureSubjectToVerify subject string to verify, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail}
+   * Publications file factory constructor.
+   * @param {string} trustedCertificates Trusted certificates, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#TrustedCertificates}.
+   * @param {string} signatureSubjectToVerify Subject string to verify, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#GuardtimeSignatureSubjectEmail}.
    */
   constructor(
     trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates,
@@ -46,10 +46,10 @@ export class PublicationsFileFactory {
   }
 
   /**
-   * Create publications file from bytes
-   * @param publicationFileBytes publications file bytes
-   * @returns Publications File
-   * @throws PublicationsFileError if verification fails
+   * Create publications file from bytes.
+   * @param {Uint8Array} publicationFileBytes Publications file bytes.
+   * @returns {PublicationsFile} Publications File.
+   * @throws {PublicationsFileError} If verification fails.
    */
   public create(publicationFileBytes: Uint8Array): PublicationsFile {
     const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
