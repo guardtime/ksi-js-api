@@ -34,6 +34,10 @@ export class PublicationsFileHeader extends CompositeTag {
   private creationTime: IntegerTag;
   private repositoryUri: StringTag | null = null;
 
+  /**
+   * Publications file header TLV object constructor
+   * @param tlvTag TLV object
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -42,18 +46,35 @@ export class PublicationsFileHeader extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Get publications file version
+   * @returns version as BigInteger
+   */
   public getVersion(): BigInteger {
     return this.version.getValue();
   }
 
+  /**
+   * Get publications file creation time
+   * @returns unix time as BigInteger
+   */
   public getCreationTime(): BigInteger {
     return this.creationTime.getValue();
   }
 
+  /**
+   * Get publications file repository uri
+   * @returns uri
+   */
   public getRepositoryUri(): string | null {
     return this.repositoryUri === null ? null : this.repositoryUri.getValue();
   }
 
+  /**
+   * Parse child element to correct object
+   * @param tlvTag TLV object
+   * @returns TLV object
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType:
@@ -67,6 +88,9 @@ export class PublicationsFileHeader extends CompositeTag {
     }
   }
 
+  /**
+   * Validate TLV object format
+   */
   private validate(): void {
     if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType) !== 1) {
       throw new TlvError('Exactly one version must exist in publications file header.');

@@ -32,6 +32,11 @@ export class PublicationsFileFactory {
   private readonly trustedCertificates: string;
   private readonly signatueSubjectToVerify: string;
 
+  /**
+   * Publications file factory constructor
+   * @param trustedCertificates trusted certificates, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates}
+   * @param signatureSubjectToVerify subject string to verify, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail}
+   */
   constructor(
     trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates,
     signatureSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail
@@ -40,6 +45,12 @@ export class PublicationsFileFactory {
     this.signatueSubjectToVerify = signatureSubjectToVerify;
   }
 
+  /**
+   * Create publications file from bytes
+   * @param publicationFileBytes publications file bytes
+   * @returns Publications File
+   * @throws PublicationsFileError if verification fails
+   */
   public create(publicationFileBytes: Uint8Array): PublicationsFile {
     const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
     if (!compareTypedArray(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {

@@ -22,7 +22,7 @@ import Base32Coder from '@guardtime/common/lib/coders/Base32Coder';
 import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
 import CRC32 from '@guardtime/common/lib/crc/CRC32';
 import DataHash from '@guardtime/common/lib/hash/DataHash';
-import bigInteger, { BigInteger } from 'big-integer';
+import { BigInteger } from 'big-integer';
 import { PUBLICATION_DATA_CONSTANTS } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';
 import { ImprintTag } from '../parser/ImprintTag';
@@ -38,6 +38,10 @@ export class PublicationData extends CompositeTag {
   private publicationTime: IntegerTag;
   private publicationHash: ImprintTag;
 
+  /**
+   * Publication data TLV object constructor
+   * @param tlvTag TLV object
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -46,6 +50,12 @@ export class PublicationData extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Create publication data TLV object from publication time and hash
+   * @param publicationTime publication time in seconds
+   * @param publicationHash publication hash
+   * @constructor
+   */
   public static CREATE(publicationTime: BigInteger, publicationHash: DataHash): PublicationData {
     return new PublicationData(
       CompositeTag.CREATE_FROM_LIST(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
@@ -55,6 +65,11 @@ export class PublicationData extends CompositeTag {
     );
   }
 
+  /**
+   * Create publication data TLV object from publication string
+   * @param publicationString publication string
+   * @constructor
+   */
   public static CREATE_FROM_PUBLICATION_STRING(publicationString: string): PublicationData {
     const bytesWithCrc32: Uint8Array = Base32Coder.decode(publicationString);
 
@@ -80,14 +95,27 @@ export class PublicationData extends CompositeTag {
     );
   }
 
+  /**
+   * Get publication hash
+   * @returns publication hash
+   */
   public getPublicationHash(): DataHash {
     return this.publicationHash.getValue();
   }
 
-  public getPublicationTime(): bigInteger.BigInteger {
+  /**
+   * Get publication time
+   * @returns publication time in seconds
+   */
+  public getPublicationTime(): BigInteger {
     return this.publicationTime.getValue();
   }
 
+  /**
+   * Parse child element to correct object
+   * @param tlvTag TLV object
+   * @returns TLV object
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType:
@@ -99,6 +127,9 @@ export class PublicationData extends CompositeTag {
     }
   }
 
+  /**
+   * Validate TLV object format
+   */
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {
       throw new TlvError('Exactly one publication time must exist in published data.');

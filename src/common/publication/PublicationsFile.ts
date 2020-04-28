@@ -38,6 +38,10 @@ import { PublicationsFileHeader } from './PublicationsFileHeader';
  * Publications File TLV object
  */
 export class PublicationsFile extends CompositeTag {
+  /**
+   * Get publication file beginning magic bytes
+   * @returns magic bytes
+   */
   public static get FileBeginningMagicBytes(): Uint8Array {
     return new Uint8Array([0x4b, 0x53, 0x49, 0x50, 0x55, 0x42, 0x4c, 0x46]);
   }
@@ -51,6 +55,10 @@ export class PublicationsFile extends CompositeTag {
   private firstPublicationRecordIndex: number | null = null;
   private cmsSignatureIndex = 0;
 
+  /**
+   * Publications file TLV object constructor
+   * @param tlvTag TLV object
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -60,6 +68,11 @@ export class PublicationsFile extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Find certificate by its id
+   * @param certificateId certificate id as bytes
+   * @returns certificate record or null if none found
+   */
   public findCertificateById(certificateId: Uint8Array): CertificateRecord | null {
     for (const certificateRecord of this.certificateRecordList) {
       if (compareTypedArray(certificateId, certificateRecord.getCertificateId())) {
@@ -70,6 +83,10 @@ export class PublicationsFile extends CompositeTag {
     return null;
   }
 
+  /**
+   * Get latest publication record
+   * @returns latest publication record or null if none found
+   */
   public getLatestPublication(): PublicationRecord | null {
     let latestPublicationRecord: PublicationRecord | null = null;
     for (const publicationRecord of this.publicationRecordList) {
@@ -86,6 +103,11 @@ export class PublicationsFile extends CompositeTag {
     return latestPublicationRecord;
   }
 
+  /**
+   * Get nearest publication record to given unix time
+   * @param unixTime unix time in seconds as BigInteger
+   * @returns nearest publication record or null if none found
+   */
   public getNearestPublicationRecord(unixTime: BigInteger): PublicationRecord | null {
     let nearestPublicationRecord: PublicationRecord | null = null;
     for (const publicationRecord of this.publicationRecordList) {
@@ -107,10 +129,18 @@ export class PublicationsFile extends CompositeTag {
     return nearestPublicationRecord;
   }
 
+  /**
+   * Get publications file signature bytes
+   * @returns signature bytes
+   */
   public getSignatureValue(): Uint8Array {
     return this.cmsSignature.getValue();
   }
 
+  /**
+   * Get publications file signed bytes
+   * @returns signed bytes
+   */
   public getSignedBytes(): Uint8Array {
     const stream: TlvOutputStream = new TlvOutputStream();
     stream.write(PublicationsFile.FileBeginningMagicBytes);
@@ -123,6 +153,11 @@ export class PublicationsFile extends CompositeTag {
     return stream.getData();
   }
 
+  /**
+   * Parse child element to correct object
+   * @param tlvTag TLV object
+   * @returns TLV object
+   */
   private parseChild(tlvTag: TlvTag, position: number): TlvTag {
     switch (tlvTag.id) {
       case PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType:
@@ -153,6 +188,9 @@ export class PublicationsFile extends CompositeTag {
     }
   }
 
+  /**
+   * Validate TLV object format
+   */
   private validate(): void {
     if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType) !== 1) {
       throw new PublicationsFileError('Exactly one publications file header must exist in publications file.');

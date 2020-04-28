@@ -35,6 +35,10 @@ export class PublicationRecord extends CompositeTag {
   private publicationReferences: StringTag[] = [];
   private repositoryUri: StringTag[] = [];
 
+  /**
+   * Publication record TLV object constructor
+   * @param tlvTag TLV object
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -44,30 +48,53 @@ export class PublicationRecord extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * @see PublicationData#getPublicationHash()
+   */
   public getPublicationHash(): DataHash {
     return this.publicationData.getPublicationHash();
   }
 
+  /**
+   * @see PublicationData#getPublicationTime()
+   */
   public getPublicationTime(): bigInteger.BigInteger {
     return this.publicationData.getPublicationTime();
   }
 
+  /**
+   * Get publication data {@see PublicationData}
+   * @returns publication data
+   */
   public getPublicationData(): PublicationData {
     return this.publicationData;
   }
 
+  /**
+   * Get publication references
+   * @returns publication reference array
+   */
   public getPublicationReferences(): string[] {
     return this.publicationReferences.map((reference: StringTag) => {
       return reference.getValue();
     });
   }
 
+  /**
+   * Get publication repositories
+   * @returns publication repository array
+   */
   public getPublicationRepositories(): string[] {
     return this.repositoryUri.map((repository: StringTag) => {
       return repository.getValue();
     });
   }
 
+  /**
+   * Parse child element to correct object
+   * @param tlvTag TLV object
+   * @returns TLV object
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PUBLICATION_DATA_CONSTANTS.TagType:
@@ -87,6 +114,9 @@ export class PublicationRecord extends CompositeTag {
     }
   }
 
+  /**
+   * Validate TLV object format
+   */
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
       throw new TlvError('Exactly one published data must exist in publication record.');
