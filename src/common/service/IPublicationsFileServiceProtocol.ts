@@ -24,7 +24,7 @@
 export interface IPublicationsFileServiceProtocol {
   /**
    * Get publications file bytes.
-   * @returns {Promise<Uint8Array>} Publications file bytes.
+   * @returns Publications file bytes.
    */
   getPublicationsFile(): Promise<Uint8Array>;
 }

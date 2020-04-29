@@ -38,7 +38,7 @@ export class AggregatorConfigResponsePayload extends PduPayload {
 
   /**
    * Aggregator configuration response payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -51,7 +51,7 @@ export class AggregatorConfigResponsePayload extends PduPayload {
 
   /**
    * Get aggregation period.
-   * @returns {BigInteger|null} Aggregation period, null if value is not set.
+   * @returns Aggregation period, null if value is not set.
    */
   public getAggregationPeriod(): BigInteger | null {
     return this.aggregationPeriod === null ? null : this.aggregationPeriod.getValue();
@@ -59,7 +59,7 @@ export class AggregatorConfigResponsePayload extends PduPayload {
 
   /**
    * Get aggregation algorithm.
-   * @returns {BigInteger|null} Aggregation algorithm, null if value is not set.
+   * @returns Aggregation algorithm, null if value is not set.
    */
   public getAggregationAlgorithm(): BigInteger | null {
     return this.aggregationAlgorithm === null ? null : this.aggregationAlgorithm.getValue();
@@ -67,7 +67,7 @@ export class AggregatorConfigResponsePayload extends PduPayload {
 
   /**
    * Get max level.
-   * @returns {BigInteger|null} Max level, null if value is not set.
+   * @returns Max level, null if value is not set.
    */
   public getMaxLevel(): BigInteger | null {
     return this.maxLevel === null ? null : this.maxLevel.getValue();
@@ -75,7 +75,7 @@ export class AggregatorConfigResponsePayload extends PduPayload {
 
   /**
    * Get max amount of requests.
-   * @returns {BigInteger} Amount of requests.
+   * @returns Amount of requests.
    */
   public getMaxRequests(): BigInteger | null {
     return this.maxRequests === null ? null : this.maxRequests.getValue();
@@ -83,7 +83,7 @@ export class AggregatorConfigResponsePayload extends PduPayload {
 
   /**
    * Get parent URI list.
-   * @returns {string[]} Parent URI list.
+   * @returns Parent URI list.
    */
   public getParentUriList(): string[] {
     return this.parentUriList.map((parentUri: StringTag) => {
@@ -93,8 +93,8 @@ export class AggregatorConfigResponsePayload extends PduPayload {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

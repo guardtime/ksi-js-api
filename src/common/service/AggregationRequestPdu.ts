@@ -39,7 +39,7 @@ export class AggregationRequestPdu extends Pdu {
 
   /**
    * Aggregation request PDU TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -52,11 +52,11 @@ export class AggregationRequestPdu extends Pdu {
 
   /**
    * Create aggregation request PDU TLV object from aggregation request payload.
-   * @param {PduHeader} header PDU header.
-   * @param {AggregationRequestPayload} payload Aggregation request payload.
-   * @param {HashAlgorithm} algorithm HMAC algorithm.
-   * @param {Uint8Array} key HMAC key.
-   * @returns {Promise<AggregationRequestPdu>} Aggregation request PDU promise.
+   * @param header PDU header.
+   * @param payload Aggregation request payload.
+   * @param algorithm HMAC algorithm.
+   * @param key HMAC key.
+   * @returns Aggregation request PDU promise.
    */
   public static async CREATE(
     header: PduHeader,
@@ -71,8 +71,8 @@ export class AggregationRequestPdu extends Pdu {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

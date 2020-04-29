@@ -28,7 +28,7 @@ export class TlvOutputStream {
 
   /**
    * Get current stream output bytes.
-   * @returns {Uint8Array} Output bytes.
+   * @returns Output bytes.
    */
   public getData(): Uint8Array {
     return new Uint8Array(this.data);
@@ -36,7 +36,7 @@ export class TlvOutputStream {
 
   /**
    * Write TLV object to stream.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   public writeTag(tlvTag: TlvTag): void {
     this.write(tlvTag.encode());
@@ -44,7 +44,7 @@ export class TlvOutputStream {
 
   /**
    * Write bytes to stream.
-   * @param {Uint8Array} data Data bytes.
+   * @param data Data bytes.
    */
   public write(data: Uint8Array): void {
     const combinedData: Uint8Array = new Uint8Array(this.data.length + data.length);

@@ -24,7 +24,7 @@
 export class PublicationsFileError extends Error {
   /**
    * Publications file error constructor.
-   * @param {string} message Error message.
+   * @param message Error message.
    */
   constructor(message: string) {
     super(message);

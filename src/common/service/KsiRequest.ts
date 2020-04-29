@@ -30,7 +30,7 @@ export class KsiRequest extends KsiRequestBase {
 
   /**
    * KSI request constructor.
-   * @param {Promise<Uint8Array | null>} response Response promise.
+   * @param response Response promise.
    * @param abortController Abort controller for cancelling request.
    */
   constructor(response: Promise<Uint8Array | null>, abortController: AbortController) {

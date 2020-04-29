@@ -36,7 +36,7 @@ export class PublicationsFileHeader extends CompositeTag {
 
   /**
    * Publications file header TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -48,7 +48,7 @@ export class PublicationsFileHeader extends CompositeTag {
 
   /**
    * Get publications file version.
-   * @returns {BigInteger} File version.
+   * @returns File version.
    */
   public getVersion(): BigInteger {
     return this.version.getValue();
@@ -56,7 +56,7 @@ export class PublicationsFileHeader extends CompositeTag {
 
   /**
    * Get publications file creation time.
-   * @returns {BigInteger} Unix time.
+   * @returns Unix time.
    */
   public getCreationTime(): BigInteger {
     return this.creationTime.getValue();
@@ -64,7 +64,7 @@ export class PublicationsFileHeader extends CompositeTag {
 
   /**
    * Get publications file repository uri.
-   * @returns {string|null} Repository uri.
+   * @returns Repository uri.
    */
   public getRepositoryUri(): string | null {
     return this.repositoryUri === null ? null : this.repositoryUri.getValue();
@@ -72,7 +72,7 @@ export class PublicationsFileHeader extends CompositeTag {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    * @returns {TlvTag} TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {

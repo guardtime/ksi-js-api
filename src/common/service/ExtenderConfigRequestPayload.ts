@@ -27,7 +27,7 @@ import { PduPayload } from './PduPayload';
 export class ExtenderConfigRequestPayload extends PduPayload {
   /**
    * Extender configuration request payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);

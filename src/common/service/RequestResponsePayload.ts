@@ -33,7 +33,7 @@ export abstract class RequestResponsePayload extends ResponsePayload {
 
   /**
    * PDU payload base for requested responses TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -41,7 +41,7 @@ export abstract class RequestResponsePayload extends ResponsePayload {
 
   /**
    * Get request ID.
-   * @returns {BigInteger} Request ID.
+   * @returns Request ID.
    */
   public getRequestId(): BigInteger {
     return this.requestId.getValue();
@@ -49,8 +49,8 @@ export abstract class RequestResponsePayload extends ResponsePayload {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

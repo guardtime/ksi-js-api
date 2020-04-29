@@ -31,9 +31,9 @@ export class ServiceCredentials implements IServiceCredentials {
 
   /**
    * Service credentials constructor.
-   * @param {string} loginId Login ID.
-   * @param {Uint8Array} loginKey Login key for HMAC calculation.
-   * @param {HashAlgorithm} hmacAlgorithm HMAC algorithm, by default algorithm defined in js-common dependency HashAlgorithm.DEFAULT.
+   * @param loginId Login ID.
+   * @param loginKey Login key for HMAC calculation.
+   * @param hmacAlgorithm HMAC algorithm, by default algorithm defined in js-common dependency HashAlgorithm.DEFAULT.
    */
   constructor(loginId: string, loginKey: Uint8Array, hmacAlgorithm: HashAlgorithm = HashAlgorithm.DEFAULT) {
     this.loginId = loginId;

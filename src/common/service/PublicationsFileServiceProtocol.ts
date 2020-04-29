@@ -28,7 +28,7 @@ import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
   /**
    * HTTP publications file service protocol constructor.
-   * @param {string} url Publications file url.
+   * @param url Publications file url.
    */
   constructor(url: string) {
     super(url);
@@ -36,7 +36,7 @@ export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
 
   /**
    * Get publications file.
-   * @returns {Promise<Uint8Array>} Publications file bytes.
+   * @returns Publications file bytes.
    */
   public async getPublicationsFile(): Promise<Uint8Array> {
     return this.download();

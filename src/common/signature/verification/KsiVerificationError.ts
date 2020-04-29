@@ -24,7 +24,7 @@
 export class KsiVerificationError extends Error {
   /**
    * KSI verification error constructor.
-   * @param {string} message Error message.
+   * @param message Error message.
    */
   constructor(message: string) {
     super(message);

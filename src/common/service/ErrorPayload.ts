@@ -27,7 +27,7 @@ import { ResponsePayload } from './ResponsePayload';
 export abstract class ErrorPayload extends ResponsePayload {
   /**
    * KSI service error response payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);

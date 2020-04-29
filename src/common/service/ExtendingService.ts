@@ -43,8 +43,8 @@ export class ExtendingService {
 
   /**
    * Extending service constructor.
-   * @param {IExtendingServiceProtocol} extendingServiceProtocol Extending service protocol.
-   * @param {IServiceCredentials} extendingServiceCredentials Extending service credentials.
+   * @param extendingServiceProtocol Extending service protocol.
+   * @param extendingServiceCredentials Extending service credentials.
    */
   constructor(extendingServiceProtocol: IExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials) {
     this.extendingServiceProtocol = extendingServiceProtocol;
@@ -53,8 +53,8 @@ export class ExtendingService {
 
   /**
    * Process extender response payload.
-   * @param {ExtendResponsePayload} payload Extender response payload.
-   * @returns {CalendarHashChain} Calendar hash chain.
+   * @param payload Extender response payload.
+   * @returns Calendar hash chain.
    */
   private static processPayload(payload: ExtendResponsePayload): CalendarHashChain {
     if (payload.getStatus().neq(0)) {
@@ -68,9 +68,9 @@ export class ExtendingService {
 
   /**
    * Get calendar hash chain for given aggregation and publication time.
-   * @param {BigInteger} aggregationTime Aggregation time.
-   * @param {BigInteger|null} publicationTime Publication time, by default null. If null get most recent calendar record.
-   * @returns {Promise<CalendarHashChain>} Calendar hash chain promise.
+   * @param aggregationTime Aggregation time.
+   * @param publicationTime Publication time, by default null. If null get most recent calendar record.
+   * @returns Calendar hash chain promise.
    */
   public async extend(
     aggregationTime: BigInteger,
@@ -155,7 +155,7 @@ export class ExtendingService {
 
   /**
    * Generate request ID.
-   * @returns {BigInteger} Request ID.
+   * @returns Request ID.
    */
   protected generateRequestId(): BigInteger {
     return pseudoRandomLong();

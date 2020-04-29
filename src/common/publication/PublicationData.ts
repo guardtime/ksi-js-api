@@ -40,7 +40,7 @@ export class PublicationData extends CompositeTag {
 
   /**
    * Publication data TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -52,9 +52,9 @@ export class PublicationData extends CompositeTag {
 
   /**
    * Create publication data TLV object from publication time and hash.
-   * @param {BigInteger} publicationTime Publication time in seconds.
-   * @param {DataHash} publicationHash Publication hash.
-   * @returns {PublicationData}
+   * @param publicationTime Publication time in seconds.
+   * @param publicationHash Publication hash.
+   * @returns
    */
   public static CREATE(publicationTime: BigInteger, publicationHash: DataHash): PublicationData {
     return new PublicationData(
@@ -67,8 +67,8 @@ export class PublicationData extends CompositeTag {
 
   /**
    * Create publication data TLV object from publication string.
-   * @param {string} publicationString Publication string.
-   * @returns {PublicationData}
+   * @param publicationString Publication string.
+   * @returns
    */
   public static CREATE_FROM_PUBLICATION_STRING(publicationString: string): PublicationData {
     const bytesWithCrc32: Uint8Array = Base32Coder.decode(publicationString);
@@ -97,7 +97,7 @@ export class PublicationData extends CompositeTag {
 
   /**
    * Get publication hash.
-   * @returns {DataHash} Publication hash.
+   * @returns Publication hash.
    */
   public getPublicationHash(): DataHash {
     return this.publicationHash.getValue();
@@ -105,7 +105,7 @@ export class PublicationData extends CompositeTag {
 
   /**
    * Get publication time.
-   * @returns {BigInteger} Publication time in seconds.
+   * @returns Publication time in seconds.
    */
   public getPublicationTime(): BigInteger {
     return this.publicationTime.getValue();
@@ -113,8 +113,8 @@ export class PublicationData extends CompositeTag {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

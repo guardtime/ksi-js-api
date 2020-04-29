@@ -31,7 +31,7 @@ import { KsiRequest } from './KsiRequest';
 export class ExtendingServiceProtocol extends KsiHttpProtocol implements IExtendingServiceProtocol {
   /**
    * HTTP extending service protocol constructor.
-   * @param {string} url Extender url.
+   * @param url Extender url.
    */
   constructor(url: string) {
     super(url);

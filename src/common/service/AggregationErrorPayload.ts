@@ -27,7 +27,7 @@ import { ErrorPayload } from './ErrorPayload';
 export class AggregationErrorPayload extends ErrorPayload {
   /**
    * Aggregation error payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);

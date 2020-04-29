@@ -24,7 +24,7 @@
 export class TlvError extends Error {
   /**
    * TLV parsing error constructor.
-   * @param {string} message Error message.
+   * @param message Error message.
    */
   constructor(message: string) {
     super(message);

@@ -38,9 +38,9 @@ export class KsiService {
 
   /**
    * KSI service constructor.
-   * @param {SigningService} signingService Signing service.
-   * @param {ExtendingService} extendingService Extending service.
-   * @param {PublicationsFileService} publicationsFileService Publications file service.
+   * @param signingService Signing service.
+   * @param extendingService Extending service.
+   * @param publicationsFileService Publications file service.
    */
   constructor(
     signingService: SigningService | null = null,
@@ -54,9 +54,9 @@ export class KsiService {
 
   /**
    * Sign given data hash.
-   * @param {DataHash} hash Data hash.
-   * @param {BigInteger} level Base level for aggregation chain, by default its 0
-   * @returns {Promise<KsiSignature>} KSI signature promise.
+   * @param hash Data hash.
+   * @param level Base level for aggregation chain, by default its 0
+   * @returns KSI signature promise.
    */
   public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
     if (!this.signingService) {
@@ -68,9 +68,9 @@ export class KsiService {
 
   /**
    * Get calendar hash chain for given aggregation time and publication time.
-   * @param {BigInteger} aggregationTime Aggregation time.
-   * @param {BigInteger|null} publicationTime Publication time, by default null. If null get most recent calendar record.
-   * @returns {Promise<CalendarHashChain>} Calendar hash chain promise.
+   * @param aggregationTime Aggregation time.
+   * @param publicationTime Publication time, by default null. If null get most recent calendar record.
+   * @returns Calendar hash chain promise.
    */
   public async extend(
     aggregationTime: BigInteger,
@@ -85,7 +85,7 @@ export class KsiService {
 
   /**
    * Get publications file.
-   * @returns {Promise<PublicationsFile>} Publications file promise.
+   * @returns Publications file promise.
    */
   public async getPublicationsFile(): Promise<PublicationsFile> {
     if (!this.publicationsFileService) {

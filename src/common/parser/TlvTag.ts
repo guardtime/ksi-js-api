@@ -34,11 +34,11 @@ export class TlvTag {
 
   /**
    * TlvTag constructor.
-   * @param {number} id TLV id.
-   * @param {boolean} nonCriticalFlag Is TLV non critical.
-   * @param {boolean} forwardFlag Is TLV forwarded.
-   * @param {Uint8Array} valueBytes TLV value bytes.
-   * @param {boolean} tlv16BitFlag Is TLV with 16 bit length.
+   * @param id TLV id.
+   * @param nonCriticalFlag Is TLV non critical.
+   * @param forwardFlag Is TLV forwarded.
+   * @param valueBytes TLV value bytes.
+   * @param tlv16BitFlag Is TLV with 16 bit length.
    */
   constructor(
     id: number,
@@ -61,9 +61,9 @@ export class TlvTag {
 
   /**
    * Test if 2 TLV objects are equal.
-   * @param {*} x First object to test as TLV.
-   * @param {*} y Second object to test as TLV.
-   * @returns {boolean} If 2 TLV are equal return true.
+   * @param x First object to test as TLV.
+   * @param y Second object to test as TLV.
+   * @returns If 2 TLV are equal return true.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static EQUALS(x: any, y: any): boolean {
@@ -89,7 +89,7 @@ export class TlvTag {
 
   /**
    * Encode TLV to byte array.
-   * @returns {Uint8Array} Encoded TLV object bytes.
+   * @returns Encoded TLV object bytes.
    */
   public encode(): Uint8Array {
     if (this.id > TLV_CONSTANTS.MaxType) {
@@ -127,8 +127,8 @@ export class TlvTag {
 
   /**
    * Test if current TLV is equal to another object.
-   * @param {*} tag TLV object.
-   * @returns {boolean} If tested TLV header and value are equal.
+   * @param tag TLV object.
+   * @returns If tested TLV header and value are equal.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public equals(tag: any): boolean {

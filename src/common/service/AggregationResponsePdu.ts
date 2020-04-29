@@ -39,7 +39,7 @@ export class AggregationResponsePdu extends Pdu {
 
   /**
    * Aggregation response PDU TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -52,7 +52,7 @@ export class AggregationResponsePdu extends Pdu {
 
   /**
    * Get all aggregation response payloads.
-   * @returns {PduPayload[]} Aggregation response payloads.
+   * @returns Aggregation response payloads.
    */
   public getAggregationResponsePayloads(): PduPayload[] {
     return this.payloads.filter(payload => payload.id === AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType);
@@ -60,7 +60,7 @@ export class AggregationResponsePdu extends Pdu {
 
   /**
    * Get aggregator config response payload.
-   * @returns {AggregatorConfigResponsePayload|null} Aggregator config response, if missing then null.
+   * @returns Aggregator config response, if missing then null.
    */
   public getAggregatorConfigResponsePayload(): AggregatorConfigResponsePayload | null {
     return this.aggregatorConfigResponse;
@@ -68,8 +68,8 @@ export class AggregationResponsePdu extends Pdu {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

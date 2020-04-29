@@ -36,7 +36,7 @@ export class ExtendRequestPayload extends PduPayload {
 
   /**
    * Extend request payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -49,9 +49,9 @@ export class ExtendRequestPayload extends PduPayload {
 
   /**
    * Create extend request payload TLV object from data.
-   * @param {BigInteger} requestId Request ID.
-   * @param {BigInteger} aggregationTime Aggregation time.
-   * @param {BigInteger|null} publicationTime Publication time, by default null.
+   * @param requestId Request ID.
+   * @param aggregationTime Aggregation time.
+   * @param publicationTime Publication time, by default null.
    * @returns {ExtendRequestPayload} Extend request payload.
    */
   public static CREATE(
@@ -77,7 +77,7 @@ export class ExtendRequestPayload extends PduPayload {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    * @returns {TlvTag} TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {

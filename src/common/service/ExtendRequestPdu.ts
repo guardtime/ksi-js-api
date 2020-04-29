@@ -38,7 +38,7 @@ export class ExtendRequestPdu extends Pdu {
 
   /**
    * Extend request PDU TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -51,11 +51,11 @@ export class ExtendRequestPdu extends Pdu {
 
   /**
    * Create extend request PDU TLV object from extend request payload.
-   * @param {PduHeader} header PDU header.
-   * @param {ExtendRequestPayload} payload Extend request payload.
-   * @param {HashAlgorithm} algorithm HMAC algorithm.
-   * @param {Uint8Array} key HMAC key.
-   * @returns {Promise<ExtendRequestPdu>} Extend request PDU promise.
+   * @param header PDU header.
+   * @param payload Extend request payload.
+   * @param algorithm HMAC algorithm.
+   * @param key HMAC key.
+   * @returns Extend request PDU promise.
    */
   public static async CREATE(
     header: PduHeader,
@@ -70,8 +70,8 @@ export class ExtendRequestPdu extends Pdu {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

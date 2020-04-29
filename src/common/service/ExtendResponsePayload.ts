@@ -35,7 +35,7 @@ export class ExtendResponsePayload extends RequestResponsePayload {
 
   /**
    * Extend response payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -48,7 +48,7 @@ export class ExtendResponsePayload extends RequestResponsePayload {
 
   /**
    * Get calendar hash chain.
-   * @returns {CalendarHashChain} Calendar hash chain.
+   * @returns Calendar hash chain.
    */
   public getCalendarHashChain(): CalendarHashChain {
     return this.calendarHashChain;
@@ -56,7 +56,7 @@ export class ExtendResponsePayload extends RequestResponsePayload {
 
   /**
    * Get calendar ending.
-   * @returns {BigInteger|null} Calendar ending, null if value is not set.
+   * @returns Calendar ending, null if value is not set.
    */
   public getCalendarLastTime(): BigInteger | null {
     return this.calendarLastTime === null ? null : this.calendarLastTime.getValue();
@@ -64,8 +64,8 @@ export class ExtendResponsePayload extends RequestResponsePayload {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

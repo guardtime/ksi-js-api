@@ -26,8 +26,8 @@ import { KsiRequestBase } from './KsiRequestBase';
 export interface ISigningServiceProtocol {
   /**
    * Make a signing request.
-   * @param {Uint8Array} requestBytes Signing request bytes.
-   * @returns {KsiRequestBase} Request for getting response.
+   * @param requestBytes Signing request bytes.
+   * @returns Request for getting response.
    */
   sign(requestBytes: Uint8Array): KsiRequestBase;
 }

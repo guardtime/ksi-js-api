@@ -35,7 +35,7 @@ export abstract class ResponsePayload extends PduPayload {
 
   /**
    * PDU payload base TLV object class constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -43,7 +43,7 @@ export abstract class ResponsePayload extends PduPayload {
 
   /**
    * Get payload status.
-   * @returns {BigInteger} Payload status.
+   * @returns Payload status.
    */
   public getStatus(): BigInteger {
     return this.status.getValue();
@@ -51,7 +51,7 @@ export abstract class ResponsePayload extends PduPayload {
 
   /**
    * Get error message.
-   * @returns {string|null} Error message.
+   * @returns Error message.
    */
   public getErrorMessage(): string | null {
     return this.errorMessage !== null ? this.errorMessage.getValue() : null;
@@ -59,8 +59,8 @@ export abstract class ResponsePayload extends PduPayload {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

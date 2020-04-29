@@ -27,7 +27,7 @@ import { PduPayload } from './PduPayload';
 export class AggregatorConfigRequestPayload extends PduPayload {
   /**
    * Aggregator configuration request payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   public constructor(tlvTag: TlvTag) {
     super(tlvTag);

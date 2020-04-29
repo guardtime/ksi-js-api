@@ -40,7 +40,7 @@ export class ExtendResponsePdu extends Pdu {
 
   /**
    * Extend response PDU TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -53,7 +53,7 @@ export class ExtendResponsePdu extends Pdu {
 
   /**
    * Get all extend response payloads.
-   * @returns {PduPayload[]} Aggregation response payloads.
+   * @returns Aggregation response payloads.
    */
   public getExtendResponsePayloads(): PduPayload[] {
     return this.payloads.filter(payload => payload.id === EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType);
@@ -61,7 +61,7 @@ export class ExtendResponsePdu extends Pdu {
 
   /**
    * Get extender config response payload.
-   * @returns {ExtenderConfigResponsePayload|null} Extender config response, if missing then null.
+   * @returns Extender config response, if missing then null.
    */
   public getExtenderConfigResponsePayload(): ExtenderConfigResponsePayload | null {
     return this.extenderConfigResponse;
@@ -69,8 +69,8 @@ export class ExtendResponsePdu extends Pdu {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

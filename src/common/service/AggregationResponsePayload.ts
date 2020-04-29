@@ -33,7 +33,7 @@ import { RequestResponsePayload } from './RequestResponsePayload';
 export class AggregationResponsePayload extends RequestResponsePayload {
   /**
    * Aggregation response payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -46,7 +46,7 @@ export class AggregationResponsePayload extends RequestResponsePayload {
 
   /**
    * Get signature TLV objects from response.
-   * @returns {TlvTag[]} Signature TLV objects.
+   * @returns Signature TLV objects.
    */
   public getSignatureTags(): TlvTag[] {
     const tlvList: TlvTag[] = [];
@@ -61,8 +61,8 @@ export class AggregationResponsePayload extends RequestResponsePayload {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

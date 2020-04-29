@@ -44,8 +44,8 @@ export class SigningService {
 
   /**
    * Signing service constructor.
-   * @param {ISigningServiceProtocol} signingServiceProtocol Signing service protocol.
-   * @param {IServiceCredentials} signingServiceCredentials Service credentials.
+   * @param signingServiceProtocol Signing service protocol.
+   * @param signingServiceCredentials Service credentials.
    */
   constructor(signingServiceProtocol: ISigningServiceProtocol, signingServiceCredentials: IServiceCredentials) {
     this.signingServiceProtocol = signingServiceProtocol;
@@ -54,9 +54,8 @@ export class SigningService {
 
   /**
    * Process aggregation response payload.
-   * @param {AggregationResponsePayload} payload Aggregation response payload.
-   * @returns {KsiSignature} KSI signature.
-   * @throws {KsiServiceError} If server payload status is invalid.
+   * @param payload Aggregation response payload.
+   * @returns KSI signature.
    */
   private static processPayload(payload: AggregationResponsePayload): KsiSignature {
     if (payload.getStatus().neq(0)) {
@@ -70,9 +69,9 @@ export class SigningService {
 
   /**
    * Sign data hash on given base level of aggregation tree.
-   * @param {DataHash} hash Data hash.
-   * @param {BigInteger} level Aggregation tree level. By default its 0.
-   * @returns {Promise<KsiSignature>} KSI signature promise.
+   * @param hash Data hash.
+   * @param level Aggregation tree level. By default its 0.
+   * @returns KSI signature promise.
    */
   public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
     const header: PduHeader = PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
@@ -152,7 +151,7 @@ export class SigningService {
   // noinspection JSMethodCanBeStatic
   /**
    * Generate request ID.
-   * @returns {BigInteger} Request ID.
+   * @returns Request ID.
    */
   protected generateRequestId(): BigInteger {
     return pseudoRandomLong();

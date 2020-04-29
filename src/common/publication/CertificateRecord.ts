@@ -33,7 +33,7 @@ export class CertificateRecord extends CompositeTag {
 
   /**
    * Certificate record TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -46,7 +46,7 @@ export class CertificateRecord extends CompositeTag {
 
   /**
    * Get X509 certificate bytes.
-   * @returns {Uint8Array} Certificate bytes.
+   * @returns Certificate bytes.
    */
   public getX509Certificate(): Uint8Array {
     return this.x509Certificate.getValue();
@@ -54,7 +54,7 @@ export class CertificateRecord extends CompositeTag {
 
   /**
    * Get X509 certificate id.
-   * @returns {Uint8Array} Certificate id.
+   * @returns Certificate id.
    */
   public getCertificateId(): Uint8Array {
     return this.certificateId.getValue();
@@ -62,8 +62,8 @@ export class CertificateRecord extends CompositeTag {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

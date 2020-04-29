@@ -37,7 +37,7 @@ export class PublicationRecord extends CompositeTag {
 
   /**
    * Publication record TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -64,7 +64,7 @@ export class PublicationRecord extends CompositeTag {
 
   /**
    * Get publication data.
-   * @returns {PublicationData} publication data.
+   * @returns publication data.
    */
   public getPublicationData(): PublicationData {
     return this.publicationData;
@@ -92,7 +92,7 @@ export class PublicationRecord extends CompositeTag {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    * @returns {TlvTag} TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {

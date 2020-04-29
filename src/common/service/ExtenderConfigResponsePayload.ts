@@ -37,7 +37,7 @@ export class ExtenderConfigResponsePayload extends PduPayload {
 
   /**
    * Extender configuration response payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -50,7 +50,7 @@ export class ExtenderConfigResponsePayload extends PduPayload {
 
   /**
    * Get calendar beginning.
-   * @returns {BigInteger|null} Calendar beginning, null if value is not set.
+   * @returns Calendar beginning, null if value is not set.
    */
   public getCalendarFirstTime(): BigInteger | null {
     return this.calendarFirstTime === null ? null : this.calendarFirstTime.getValue();
@@ -58,7 +58,7 @@ export class ExtenderConfigResponsePayload extends PduPayload {
 
   /**
    * Get calendar ending.
-   * @returns {BigInteger|null} Calendar ending, null if value is not set.
+   * @returns Calendar ending, null if value is not set.
    */
   public getCalendarLastTime(): BigInteger | null {
     return this.calendarLastTime === null ? null : this.calendarLastTime.getValue();
@@ -66,7 +66,7 @@ export class ExtenderConfigResponsePayload extends PduPayload {
 
   /**
    * Get max amount of requests.
-   * @returns {BigInteger} Amount of requests.
+   * @returns Amount of requests.
    */
   public getMaxRequests(): BigInteger | null {
     return this.maxRequests === null ? null : this.maxRequests.getValue();
@@ -74,7 +74,7 @@ export class ExtenderConfigResponsePayload extends PduPayload {
 
   /**
    * Get parent URI list.
-   * @returns {string[]} Parent URI list.
+   * @returns Parent URI list.
    */
   public getParentUriList(): string[] {
     return this.parentUriList.map((parentUri: StringTag) => {
@@ -84,8 +84,8 @@ export class ExtenderConfigResponsePayload extends PduPayload {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

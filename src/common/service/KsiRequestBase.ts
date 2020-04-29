@@ -44,19 +44,19 @@ export abstract class KsiRequestBase {
 
   /**
    * Get abort response.
-   * @returns {PduPayload} Abort response.
+   * @returns Abort response.
    */
   public abstract getAbortResponse(): PduPayload;
 
   /**
    * Is request aborted.
-   * @returns {boolean} True if request was aborted.
+   * @returns True if request was aborted.
    */
   public abstract isAborted(): boolean;
 
   /**
    * Abort a request with response payload.
-   * @param {PduPayload} payload Payload to use for response.
+   * @param payload Payload to use for response.
    */
   public abstract abort(payload: PduPayload): void;
 }

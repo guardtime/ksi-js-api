@@ -34,8 +34,8 @@ export class PublicationsFileFactory {
 
   /**
    * Publications file factory constructor.
-   * @param {string} trustedCertificates Trusted certificates, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#TrustedCertificates}.
-   * @param {string} signatureSubjectToVerify Subject string to verify, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#GuardtimeSignatureSubjectEmail}.
+   * @param trustedCertificates Trusted certificates, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#TrustedCertificates}.
+   * @param signatureSubjectToVerify Subject string to verify, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#GuardtimeSignatureSubjectEmail}.
    */
   constructor(
     trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates,
@@ -47,9 +47,8 @@ export class PublicationsFileFactory {
 
   /**
    * Create publications file from bytes.
-   * @param {Uint8Array} publicationFileBytes Publications file bytes.
-   * @returns {PublicationsFile} Publications File.
-   * @throws {PublicationsFileError} If verification fails.
+   * @param publicationFileBytes Publications file bytes.
+   * @returns Publications File.
    */
   public create(publicationFileBytes: Uint8Array): PublicationsFile {
     const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;

@@ -42,7 +42,7 @@ export abstract class Pdu extends CompositeTag {
 
   /**
    * PDU base classes TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -50,11 +50,11 @@ export abstract class Pdu extends CompositeTag {
 
   /**
    * Create PDU TLV object.
-   * @param {number} id TLV id.
-   * @param {PduHeader} header Pdu header.
-   * @param {PduPayload} payload Pdu payload.
-   * @param {HashAlgorithm} algorithm HMAC algorithm.
-   * @param {Uint8Array} key HMAC key.
+   * @param id TLV id.
+   * @param header Pdu header.
+   * @param payload Pdu payload.
+   * @param algorithm HMAC algorithm.
+   * @param key HMAC key.
    * @returns PDU TLV object.
    */
   protected static async CREATE_PDU(
@@ -84,8 +84,8 @@ export abstract class Pdu extends CompositeTag {
 
   /**
    * Verify PDU HMAC.
-   * @param {HashAlgorithm} algorithm Hash algorithm.
-   * @param {Uint8Array} key HMAC key.
+   * @param algorithm Hash algorithm.
+   * @param key HMAC key.
    */
   public async verifyHmac(algorithm: HashAlgorithm, key: Uint8Array): Promise<boolean> {
     const pduBytes = this.encode();
@@ -99,7 +99,7 @@ export abstract class Pdu extends CompositeTag {
 
   /**
    * Get PDU error payload.
-   * @returns {ErrorPayload|null} Error payload if exists, null otherwise.
+   * @returns Error payload if exists, null otherwise.
    */
   public getErrorPayload(): ErrorPayload | null {
     return this.errorPayload;
@@ -107,7 +107,7 @@ export abstract class Pdu extends CompositeTag {
 
   /**
    * Get all PDU payloads.
-   * @returns {PduPayload[]} All PDU payloads.
+   * @returns All PDU payloads.
    */
   public getPayloads(): PduPayload[] {
     return this.payloads;
@@ -115,8 +115,8 @@ export abstract class Pdu extends CompositeTag {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

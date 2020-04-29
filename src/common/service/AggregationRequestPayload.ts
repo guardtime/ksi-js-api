@@ -37,7 +37,7 @@ export class AggregationRequestPayload extends CompositeTag {
 
   /**
    * Aggregation request payload TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
@@ -50,10 +50,10 @@ export class AggregationRequestPayload extends CompositeTag {
 
   /**
    * Create aggregation request payload TLV object from data.
-   * @param {BigInteger} requestId Request ID.
-   * @param {DataHash} hash Request hash.
-   * @param {BigInteger} level Request level, default value 0.
-   * @returns {AggregationRequestPayload} Aggregation request payload.
+   * @param requestId Request ID.
+   * @param hash Request hash.
+   * @param level Request level, default value 0.
+   * @returns Aggregation request payload.
    */
   public static CREATE(
     requestId: BigInteger,
@@ -76,8 +76,8 @@ export class AggregationRequestPayload extends CompositeTag {
 
   /**
    * Parse child element to correct object.
-   * @param {TlvTag} tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

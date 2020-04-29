@@ -27,7 +27,7 @@ import { TlvTag } from '../parser/TlvTag';
 export abstract class PduPayload extends CompositeTag {
   /**
    * Base class for PDU payloads TLV object constructor.
-   * @param {TlvTag} tlvTag TLV object.
+   * @param tlvTag TLV object.
    */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);

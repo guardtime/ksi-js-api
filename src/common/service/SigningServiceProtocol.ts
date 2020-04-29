@@ -31,7 +31,7 @@ import { KsiRequest } from './KsiRequest';
 export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
   /**
    * HTTP signing service protocol constructor.
-   * @param {String} url Aggregator url.
+   * @param url Aggregator url.
    */
   constructor(url: string) {
     super(url);

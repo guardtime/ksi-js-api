@@ -32,7 +32,7 @@ export class TlvInputStream {
 
   /**
    * TLV input stream constructor.
-   * @param {Uint8Array} bytes Data bytes.
+   * @param bytes Data bytes.
    */
   constructor(bytes: Uint8Array) {
     this.data = new Uint8Array(bytes);
@@ -42,7 +42,7 @@ export class TlvInputStream {
 
   /**
    * Get stream position.
-   * @returns {number} Stream position.
+   * @returns Stream position.
    */
   public getPosition(): number {
     return this.position;
@@ -50,7 +50,7 @@ export class TlvInputStream {
 
   /**
    * Get stream length.
-   * @returns {number} Stream length.
+   * @returns Stream length.
    */
   public getLength(): number {
     return this.length;
@@ -58,8 +58,7 @@ export class TlvInputStream {
 
   /**
    * Read next TLV object from stream.
-   * @returns {TlvTag} TLV object.
-   * @throws {TlvError} If available bytes is shorter than TLV object size.
+   * @returns TLV object.
    */
   public readTag(): TlvTag {
     const firstByte: number = this.readByte();
@@ -97,7 +96,6 @@ export class TlvInputStream {
 
   /**
    * Read next short int from stream.
-   * @throws {TlvError} If available bytes is shorter than read bytes length.
    */
   private readShort(): number {
     return (this.readByte() << 8) | this.readByte();
@@ -105,7 +103,7 @@ export class TlvInputStream {
 
   /**
    * Read number of bytes from stream.
-   * @param {number} length Read bytes length.
+   * @param length Read bytes length.
    * @throws {TlvError} If available bytes is shorter than read bytes length.
    */
   private read(length: number): Uint8Array {

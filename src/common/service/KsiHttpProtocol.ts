@@ -28,7 +28,7 @@ export class KsiHttpProtocol {
 
   /**
    * HTTP protocol for requests constructor.
-   * @param {string} url
+   * @param url
    */
   constructor(url: string) {
     this.url = url;
@@ -36,10 +36,9 @@ export class KsiHttpProtocol {
 
   /**
    * Make a KSI request.
-   * @param {Uint8Array} requestBytes Request bytes.
-   * @param {AbortController} abortController Abort controller for cancelling request.
+   * @param requestBytes Request bytes.
+   * @param abortController Abort controller for cancelling request.
    * @returns {Promise<Uint8Array | null>} Returns promise for response bytes or null if request was cancelled.
-   * @throws {KsiServiceError} If request fails.
    */
   public async requestKsi(requestBytes: Uint8Array, abortController: AbortController): Promise<Uint8Array | null> {
     const response: Response = await fetch(this.url, {
