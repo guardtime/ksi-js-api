@@ -33,6 +33,11 @@ export class UserProvidedPublicationExistenceRule extends VerificationRule {
     super('UserProvidedPublicationExistenceRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.getUserPublication() === null
       ? new VerificationResult(

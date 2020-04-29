@@ -35,6 +35,11 @@ export class UserProvidedPublicationCreationTimeVerificationRule extends Verific
     super('UserProvidedPublicationCreationTimeVerificationRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const aggregationTime: BigInteger = context.getSignature().getAggregationTime();
     const userPublication: PublicationData | null = context.getUserPublication();

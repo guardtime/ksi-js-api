@@ -25,10 +25,17 @@ import { KsiHttpProtocol } from './KsiHttpProtocol';
  * @deprecated Use common/service/PublicationsFileServiceProtocol instead.
  */
 export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
+  /**
+   * HTTP publications file service protocol constructor.
+   * @param url Publications file url.
+   */
   constructor(url: string) {
     super(url);
   }
 
+  /**
+   * @inheritDoc
+   */
   public async getPublicationsFile(): Promise<Uint8Array> {
     return this.download();
   }

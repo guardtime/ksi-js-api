@@ -33,6 +33,11 @@ export class ExtendingPermittedVerificationRule extends VerificationRule {
     super('ExtendingPermittedVerificationRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.isExtendingAllowed()
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.OK)

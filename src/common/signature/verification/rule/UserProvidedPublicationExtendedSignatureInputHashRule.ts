@@ -36,6 +36,11 @@ export class UserProvidedPublicationExtendedSignatureInputHashRule extends Verif
     super('UserProvidedPublicationExtendedSignatureInputHashRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const userPublication: PublicationData | null = context.getUserPublication();

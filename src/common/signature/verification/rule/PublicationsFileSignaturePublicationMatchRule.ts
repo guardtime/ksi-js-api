@@ -36,6 +36,11 @@ export class PublicationsFileSignaturePublicationMatchRule extends VerificationR
     super('PublicationsFileSignaturePublicationMatchRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
     if (publicationsFile === null) {

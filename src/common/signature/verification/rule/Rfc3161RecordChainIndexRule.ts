@@ -38,6 +38,11 @@ export class Rfc3161RecordChainIndexRule extends VerificationRule {
     super('Rfc3161RecordChainIndexRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const rfc3161Record: Rfc3161Record | null = signature.getRfc3161Record();

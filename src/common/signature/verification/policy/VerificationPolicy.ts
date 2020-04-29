@@ -23,6 +23,6 @@ import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 
 /**
- * Verification policy for KSI signature
+ * Verification policy for KSI signature.
  */
 export class VerificationPolicy extends Policy<VerificationContext, VerificationError> {}

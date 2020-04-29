@@ -22,6 +22,6 @@ import { Result } from '@guardtime/common/lib/verification/Result';
 import { VerificationError } from './VerificationError';
 
 /**
- * Verification result for KSI signature
+ * Verification result for KSI signature.
  */
 export class VerificationResult extends Result<VerificationError> {}

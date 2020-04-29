@@ -29,10 +29,18 @@ import { KsiRequest } from './KsiRequest';
  * @deprecated Use common/service/SigningServiceProtocol instead.
  */
 export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
+
+  /**
+   * HTTP signing service protocol constructor.
+   * @param url Aggregator url.
+   */
   constructor(url: string) {
     super(url);
   }
 
+  /**
+   * @inheritDoc
+   */
   public sign(requestBytes: Uint8Array): KsiRequestBase {
     const eventEmitter: EventEmitter = new EventEmitter();
 

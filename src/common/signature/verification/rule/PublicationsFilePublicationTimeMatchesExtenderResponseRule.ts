@@ -37,6 +37,11 @@ export class PublicationsFilePublicationTimeMatchesExtenderResponseRule extends 
     super('PublicationsFilePublicationTimeMatchesExtenderResponseRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
     if (publicationsFile === null) {

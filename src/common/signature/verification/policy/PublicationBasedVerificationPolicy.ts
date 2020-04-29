@@ -28,6 +28,9 @@ import { VerificationPolicy } from './VerificationPolicy';
  * Policy for verifying KSI signature with publication.
  */
 export class PublicationBasedVerificationPolicy extends VerificationPolicy {
+  /**
+   * Publication based verification policy constructor.
+   */
   constructor() {
     super(
       new InternalVerificationPolicy().onSuccess(

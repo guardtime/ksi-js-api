@@ -33,6 +33,11 @@ export class CalendarAuthenticationRecordExistenceRule extends VerificationRule 
     super('CalendarAuthenticationRecordExistenceRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.getSignature().getCalendarAuthenticationRecord() === null
       ? new VerificationResult(

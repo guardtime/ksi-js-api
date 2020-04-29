@@ -33,6 +33,11 @@ export class CalendarHashChainExistenceRule extends VerificationRule {
     super('CalendarHashChainExistenceRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.getSignature().getCalendarHashChain() === null
       ? new VerificationResult(

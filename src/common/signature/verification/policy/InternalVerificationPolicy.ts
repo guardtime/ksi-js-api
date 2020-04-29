@@ -52,6 +52,9 @@ import { VerificationPolicy } from './VerificationPolicy';
  * Policy for verifying KSI signature internal consistency.
  */
 export class InternalVerificationPolicy extends VerificationPolicy {
+  /**
+   * Policy for verifying KSI signature internal consistency constructor.
+   */
   constructor() {
     super(
       InternalVerificationPolicy.verifyInput().onSuccess(
@@ -88,6 +91,10 @@ export class InternalVerificationPolicy extends VerificationPolicy {
     );
   }
 
+  /**
+   * Verify user input rules.
+   * @returns User input rules chain.
+   */
   private static verifyInput(): VerificationRule {
     return new VerificationPolicy(
       new InputHashAlgorithmVerificationRule() // Gen-04
@@ -102,6 +109,10 @@ export class InternalVerificationPolicy extends VerificationPolicy {
     ); // Int-13)
   }
 
+  /**
+   * Verify RFC3161 rules.
+   * @returns RFC3161 rules chain.
+   */
   private static verifyRfc3161(): VerificationRule {
     return new VerificationPolicy(
       new Rfc3161RecordHashAlgorithmDeprecatedRule() // Int-14
@@ -119,6 +130,10 @@ export class InternalVerificationPolicy extends VerificationPolicy {
     ); // Int-02
   }
 
+  /**
+   * Verify aggregation hash chain rules.
+   * @returns Aggregation hash chain rule chain.
+   */
   private static verifyAggregationChain(): VerificationRule {
     return new VerificationPolicy(
       new AggregationHashChainIndexSuccessorRule() // Int-12
@@ -139,6 +154,10 @@ export class InternalVerificationPolicy extends VerificationPolicy {
     ); // Int-10
   }
 
+  /**
+   * Verify calendar hash chain rules.
+   * @returns Calendar hash chain rules.
+   */
   private static verifyCalendarChain(): VerificationRule {
     return new VerificationPolicy(
       new CalendarHashChainInputHashVerificationRule() // Int-03

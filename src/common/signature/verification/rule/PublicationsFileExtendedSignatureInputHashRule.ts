@@ -37,6 +37,11 @@ export class PublicationsFileExtendedSignatureInputHashRule extends Verification
     super('PublicationsFileExtendedSignatureInputHashRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const publicationsFile: PublicationsFile | null = context.getPublicationsFile();

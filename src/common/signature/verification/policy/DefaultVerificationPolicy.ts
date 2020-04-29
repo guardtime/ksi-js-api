@@ -23,9 +23,12 @@ import { PublicationBasedVerificationPolicy } from './PublicationBasedVerificati
 import { VerificationPolicy } from './VerificationPolicy';
 
 /**
- * Default verification policy
+ * Default verification policy.
  */
 export class DefaultVerificationPolicy extends VerificationPolicy {
+  /**
+   * Default verification policy constructor.
+   */
   constructor() {
     super(
       new PublicationBasedVerificationPolicy().onNa(new KeyBasedVerificationPolicy(true)),

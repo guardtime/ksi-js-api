@@ -35,6 +35,9 @@ import { VerificationPolicy } from './VerificationPolicy';
  * Policy for verifying KSI signature with user provided publication.
  */
 export class UserProvidedPublicationBasedVerificationPolicy extends VerificationPolicy {
+  /**
+   * User provided publication based verification policy.
+   */
   constructor() {
     const verificationRule: VerificationRule = new UserProvidedPublicationCreationTimeVerificationRule() // Gen-02
       .onSuccess(

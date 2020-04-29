@@ -28,9 +28,14 @@ import { VerificationContext } from './VerificationContext';
 import { VerificationError } from './VerificationError';
 
 /**
- * Verification Rule for KSI Signature
+ * Verification Rule for KSI Signature.
  */
 export abstract class VerificationRule extends Rule<VerificationContext, VerificationError> {
+  /**
+   * Get KSI signature from context, throw error if KSI signature is missing.
+   * @param context Verification context.
+   * @returns KSI signature.
+   */
   protected static getSignature(context: VerificationContext): KsiSignature {
     if (!context.getSignature()) {
       throw new KsiVerificationError('Invalid KSI signature in context: null.');
@@ -39,6 +44,11 @@ export abstract class VerificationRule extends Rule<VerificationContext, Verific
     return context.getSignature();
   }
 
+  /**
+   * Get calendar hash chain from signature, throw error if calendar hash chain is missing.
+   * @param signature KSI signature.
+   * @returns Calendar hash chain.
+   */
   protected static getCalendarHashChain(signature: KsiSignature): CalendarHashChain {
     const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
     if (!calendarHashChain) {
@@ -48,6 +58,11 @@ export abstract class VerificationRule extends Rule<VerificationContext, Verific
     return calendarHashChain;
   }
 
+  /**
+   * Get calendar hash chain deprecated algorithm link.
+   * @param calendarHashChain Calendar hash chain.
+   * @returns Deprecated algorithm imprint TLV object.
+   */
   protected static getCalendarHashChainDeprecatedAlgorithmLink(
     calendarHashChain: CalendarHashChain
   ): ImprintTag | null {

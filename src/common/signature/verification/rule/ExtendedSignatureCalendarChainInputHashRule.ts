@@ -28,13 +28,18 @@ import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
- * Extended signature calendar hash chain input hash rule
+ * Extended signature calendar hash chain input hash rule.
  */
 export class ExtendedSignatureCalendarChainInputHashRule extends VerificationRule {
   constructor() {
     super('ExtendedSignatureCalendarChainInputHashRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
