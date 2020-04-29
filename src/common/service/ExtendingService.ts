@@ -46,7 +46,10 @@ export class ExtendingService {
    * @param extendingServiceProtocol Extending service protocol.
    * @param extendingServiceCredentials Extending service credentials.
    */
-  constructor(extendingServiceProtocol: IExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials) {
+  public constructor(
+    extendingServiceProtocol: IExtendingServiceProtocol,
+    extendingServiceCredentials: IServiceCredentials
+  ) {
     this.extendingServiceProtocol = extendingServiceProtocol;
     this.extendingServiceCredentials = extendingServiceCredentials;
   }

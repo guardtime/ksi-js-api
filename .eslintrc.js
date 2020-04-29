@@ -27,6 +27,6 @@ module.exports = {
   },
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
-    '@typescript-eslint/explicit-member-accessibility': 'explicit'
+    '@typescript-eslint/explicit-member-accessibility': 'error'
   }
 };

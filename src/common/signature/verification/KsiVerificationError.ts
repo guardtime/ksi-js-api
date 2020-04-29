@@ -26,7 +26,7 @@ export class KsiVerificationError extends Error {
    * KSI verification error constructor.
    * @param message Error message.
    */
-  constructor(message: string) {
+  public constructor(message: string) {
     super(message);
 
     this.name = 'KsiVerificationError';

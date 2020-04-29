@@ -34,7 +34,7 @@ export class TlvInputStream {
    * TLV input stream constructor.
    * @param bytes Data bytes.
    */
-  constructor(bytes: Uint8Array) {
+  public constructor(bytes: Uint8Array) {
     this.data = new Uint8Array(bytes);
     this.position = 0;
     this.length = bytes.length;

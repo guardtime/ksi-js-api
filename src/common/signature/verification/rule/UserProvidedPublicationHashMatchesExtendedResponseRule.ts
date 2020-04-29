@@ -31,7 +31,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that user provided publication hash matches extender response calendar hash chain root hash.
  */
 export class UserProvidedPublicationHashMatchesExtendedResponseRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationHashMatchesExtendedResponseRule');
   }
 

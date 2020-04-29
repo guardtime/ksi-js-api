@@ -43,7 +43,7 @@ export class VerificationContext {
    * Verification context constructor.
    * @param signature KSI signature.
    */
-  constructor(signature: KsiSignature) {
+  public constructor(signature: KsiSignature) {
     this.ksiSignature = signature;
   }
 

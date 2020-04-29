@@ -29,7 +29,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that user has provided a publication.
  */
 export class UserProvidedPublicationExistenceRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationExistenceRule');
   }
 

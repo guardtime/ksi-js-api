@@ -47,7 +47,7 @@ export class SigningService {
    * @param signingServiceProtocol Signing service protocol.
    * @param signingServiceCredentials Service credentials.
    */
-  constructor(signingServiceProtocol: ISigningServiceProtocol, signingServiceCredentials: IServiceCredentials) {
+  public constructor(signingServiceProtocol: ISigningServiceProtocol, signingServiceCredentials: IServiceCredentials) {
     this.signingServiceProtocol = signingServiceProtocol;
     this.signingServiceCredentials = signingServiceCredentials;
   }

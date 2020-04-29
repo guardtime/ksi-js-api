@@ -33,7 +33,7 @@ import { VerificationRule } from '../VerificationRule';
  * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('Rfc3161RecordOutputHashAlgorithmDeprecatedRule');
   }
 

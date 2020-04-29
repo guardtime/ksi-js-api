@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * If document hash is not provided then VerificationResultCode.Ok is returned.
  */
 export class DocumentHashVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('DocumentHashVerificationRule');
   }
 

@@ -35,7 +35,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule verifies if all metadata tags in aggregation hash chains are valid.
  */
 export class AggregationHashChainMetadataRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('AggregationHashChainMetadataRule');
   }
 

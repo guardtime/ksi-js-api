@@ -39,7 +39,7 @@ export class PublicationRecord extends CompositeTag {
    * Publication record TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));

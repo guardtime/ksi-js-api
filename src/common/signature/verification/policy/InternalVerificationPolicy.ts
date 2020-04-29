@@ -55,7 +55,7 @@ export class InternalVerificationPolicy extends VerificationPolicy {
   /**
    * Policy for verifying KSI signature internal consistency constructor.
    */
-  constructor() {
+  public constructor() {
     super(
       InternalVerificationPolicy.verifyInput().onSuccess(
         InternalVerificationPolicy.verifyRfc3161().onSuccess(

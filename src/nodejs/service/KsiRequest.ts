@@ -41,7 +41,7 @@ export class KsiRequest extends KsiRequestBase {
    * @param response Response promise.
    * @param eventEmitter Event emitter for cancelling request.
    */
-  constructor(response: Promise<Uint8Array | null>, eventEmitter: EventEmitter) {
+  public constructor(response: Promise<Uint8Array | null>, eventEmitter: EventEmitter) {
     super(response);
 
     this.eventEmitter = eventEmitter;

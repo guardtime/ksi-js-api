@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * equals to current aggregation hash chain input hash.
  */
 export class AggregationHashChainConsistencyRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('AggregationHashChainConsistencyRule');
   }
 

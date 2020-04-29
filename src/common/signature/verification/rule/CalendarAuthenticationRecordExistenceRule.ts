@@ -29,7 +29,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule verifies that KSI signature contains calendar authentication record.
  */
 export class CalendarAuthenticationRecordExistenceRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarAuthenticationRecordExistenceRule');
   }
 

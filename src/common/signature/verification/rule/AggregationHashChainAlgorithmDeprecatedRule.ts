@@ -30,7 +30,7 @@ import { VerificationRule } from '../VerificationRule';
  * Verifies that aggregation hash chains use hash algorithms that were not deprecated at the aggregation time.
  */
 export class AggregationHashChainAlgorithmDeprecatedRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('AggregationHashChainAlgorithmDeprecatedRule');
   }
 

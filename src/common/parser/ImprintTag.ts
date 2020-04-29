@@ -31,7 +31,7 @@ export class ImprintTag extends TlvTag {
    * Imprint TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     const valueBytes: Uint8Array = tlvTag.getValueBytes();
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag);
     this.value = new DataHash(valueBytes);

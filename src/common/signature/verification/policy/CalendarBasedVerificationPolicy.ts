@@ -35,7 +35,7 @@ export class CalendarBasedVerificationPolicy extends VerificationPolicy {
   /**
    * Calendar based verification policy constructor.
    */
-  constructor() {
+  public constructor() {
     const verificationRule: VerificationRule = new ExtendedSignatureCalendarChainInputHashRule() // Cal-02
       .onSuccess(new ExtendedSignatureCalendarChainAggregationTimeRule()); // Cal-03
 

@@ -31,7 +31,7 @@ import { VerificationRule } from '../VerificationRule';
  * hash chain is missing, status VerificationResultCode.Ok is returned.
  */
 export class CalendarHashChainInputHashVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarHashChainInputHashVerificationRule');
   }
 

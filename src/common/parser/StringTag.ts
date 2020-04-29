@@ -32,7 +32,7 @@ export class StringTag extends TlvTag {
    * String TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     const valueBytes: Uint8Array = tlvTag.getValueBytes();
     if (valueBytes.length < 1) {
       throw new TlvError(`Invalid null terminated string length: ${valueBytes.length}`);

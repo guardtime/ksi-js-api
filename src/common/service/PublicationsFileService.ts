@@ -33,7 +33,7 @@ export class PublicationsFileService {
    * @param publicationsFileServiceProtocol Publications file service protocol.
    * @param publicationsFileFactory Publications file factory for publications file creation.
    */
-  constructor(
+  public constructor(
     publicationsFileServiceProtocol: IPublicationsFileServiceProtocol,
     publicationsFileFactory: PublicationsFileFactory
   ) {

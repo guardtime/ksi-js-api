@@ -26,7 +26,7 @@ export class KsiServiceError extends Error {
    * KSI service error constructor.
    * @param message Error message.
    */
-  constructor(message: string) {
+  public constructor(message: string) {
     super(message);
     this.name = 'KsiServiceError';
 

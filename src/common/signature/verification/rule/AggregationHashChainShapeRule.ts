@@ -31,7 +31,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that shape of the aggregation hash chain matches with chain index.
  */
 export class AggregationHashChainShapeRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('AggregationHashChainShapeRule');
   }
 

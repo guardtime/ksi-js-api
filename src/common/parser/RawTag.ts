@@ -35,7 +35,7 @@ export class RawTag extends TlvTag {
    * Byte array TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
     this.getValue = (): Uint8Array => tlvTag.getValueBytes();
     Object.freeze(this);

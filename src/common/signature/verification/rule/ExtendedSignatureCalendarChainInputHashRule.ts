@@ -31,7 +31,7 @@ import { VerificationRule } from '../VerificationRule';
  * Extended signature calendar hash chain input hash rule.
  */
 export class ExtendedSignatureCalendarChainInputHashRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('ExtendedSignatureCalendarChainInputHashRule');
   }
 

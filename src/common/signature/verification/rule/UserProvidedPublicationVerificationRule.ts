@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that user provided publication equals to publication in KSI signature.
  */
 export class UserProvidedPublicationVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationVerificationRule');
   }
 

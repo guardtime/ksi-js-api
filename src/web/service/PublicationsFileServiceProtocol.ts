@@ -29,7 +29,7 @@ export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
    * HTTP publications file service protocol constructor.
    * @param url Publications file url.
    */
-  constructor(url: string) {
+  public constructor(url: string) {
     super(url);
   }
 

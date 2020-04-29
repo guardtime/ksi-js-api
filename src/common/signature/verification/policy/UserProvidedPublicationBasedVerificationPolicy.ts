@@ -38,7 +38,7 @@ export class UserProvidedPublicationBasedVerificationPolicy extends Verification
   /**
    * User provided publication based verification policy.
    */
-  constructor() {
+  public constructor() {
     const verificationRule: VerificationRule = new UserProvidedPublicationCreationTimeVerificationRule() // Gen-02
       .onSuccess(
         new ExtendingPermittedVerificationRule() // Gen-02

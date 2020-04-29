@@ -33,7 +33,7 @@ import { VerificationRule } from '../VerificationRule';
  * If publication record is missing, VerificationResultCode.Ok is returned.
  */
 export class SignaturePublicationRecordPublicationHashRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('SignaturePublicationRecordPublicationHashRule');
   }
 

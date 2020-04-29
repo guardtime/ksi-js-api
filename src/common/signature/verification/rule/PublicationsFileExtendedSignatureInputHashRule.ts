@@ -33,7 +33,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that extender response calendar hash chain input hash matches with signature aggregation root hash.
  */
 export class PublicationsFileExtendedSignatureInputHashRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('PublicationsFileExtendedSignatureInputHashRule');
   }
 

@@ -36,7 +36,7 @@ export class KsiHttpProtocol {
    * HTTP protocol for requests constructor.
    * @param url
    */
-  constructor(url: string) {
+  public constructor(url: string) {
     this.url = new URL(url);
   }
 

@@ -49,7 +49,7 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
    * Aggregation Hash Chain Link Metadata TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -156,7 +156,7 @@ export class AggregationHashChainLink extends CompositeTag {
    * Aggregation Hash Chain Link TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -324,7 +324,7 @@ export class AggregationHashChain extends CompositeTag {
    * Aggregation Hash Chain TLV object.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));

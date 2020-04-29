@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that extender response input hash equals to signature aggregation root hash.
  */
 export class UserProvidedPublicationExtendedSignatureInputHashRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationExtendedSignatureInputHashRule');
   }
 

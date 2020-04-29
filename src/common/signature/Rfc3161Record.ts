@@ -48,7 +48,7 @@ export class Rfc3161Record extends CompositeTag {
    * RFC 3161 Record TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));

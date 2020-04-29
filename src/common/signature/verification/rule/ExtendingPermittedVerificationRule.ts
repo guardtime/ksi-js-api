@@ -29,7 +29,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that extending is permitted by user.
  */
 export class ExtendingPermittedVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('ExtendingPermittedVerificationRule');
   }
 

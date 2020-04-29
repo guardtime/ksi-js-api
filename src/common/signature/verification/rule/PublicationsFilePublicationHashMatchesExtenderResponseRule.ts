@@ -33,7 +33,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that publications file publication hash matches with extender response calendar hash chain root hash.
  */
 export class PublicationsFilePublicationHashMatchesExtenderResponseRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('PublicationsFilePublicationHashMatchesExtenderResponseRule');
   }
 

@@ -31,7 +31,7 @@ import { VerificationRule } from '../VerificationRule';
  * If RFC3161 record is present then RFC3161 record input hash algorithm deprecation is checked.
  */
 export class InputHashAlgorithmDeprecatedRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('InputHashAlgorithmDeprecatedRule');
   }
 

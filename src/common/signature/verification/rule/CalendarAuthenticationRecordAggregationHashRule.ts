@@ -33,7 +33,7 @@ import { VerificationRule } from '../VerificationRule';
  * Without calendar authentication record VerificationResultCode.Ok is returned.
  */
 export class CalendarAuthenticationRecordAggregationHashRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarAuthenticationRecordAggregationHashRule');
   }
 

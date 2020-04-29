@@ -32,7 +32,7 @@ export class IntegerTag extends TlvTag {
    * Integer TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     const bytes: Uint8Array = tlvTag.getValueBytes();
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes, tlvTag.tlv16BitFlag);
     this.value = UnsignedLongCoder.decode(bytes, 0, bytes.length);

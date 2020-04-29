@@ -40,7 +40,7 @@ export class TlvTag {
    * @param valueBytes TLV value bytes.
    * @param tlv16BitFlag Is TLV with 16 bit length.
    */
-  constructor(
+  public constructor(
     id: number,
     nonCriticalFlag: boolean,
     forwardFlag: boolean,

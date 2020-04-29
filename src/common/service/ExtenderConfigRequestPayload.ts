@@ -29,7 +29,7 @@ export class ExtenderConfigRequestPayload extends PduPayload {
    * Extender configuration request payload TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
   }
 }

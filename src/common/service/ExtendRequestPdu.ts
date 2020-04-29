@@ -40,7 +40,7 @@ export class ExtendRequestPdu extends Pdu {
    * Extend request PDU TLV object constructor.
    * @param tlvTag TLV object.
    */
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));

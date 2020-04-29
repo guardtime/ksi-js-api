@@ -36,7 +36,7 @@ export class PublicationsFileVerificationPolicy extends VerificationPolicy {
   /**
    * Publications file verification policy constructor.
    */
-  constructor() {
+  public constructor() {
     const verificationRule: VerificationRule = new ExtendingPermittedVerificationRule() // Gen-02
       .onSuccess(
         new ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule() // Gen-02

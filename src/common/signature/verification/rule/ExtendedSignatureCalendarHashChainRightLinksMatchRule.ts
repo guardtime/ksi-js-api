@@ -31,7 +31,7 @@ import { VerificationRule } from '../VerificationRule';
  * Checks if extended signature calendar hash chain right links are equal to not extended signature right links.
  */
 export class ExtendedSignatureCalendarHashChainRightLinksMatchRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('ExtendedSignatureCalendarHashChainRightLinksMatchRule');
   }
 

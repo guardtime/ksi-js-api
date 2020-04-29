@@ -32,7 +32,7 @@ export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningS
    * HTTP signing service protocol constructor.
    * @param url Aggregator url.
    */
-  constructor(url: string) {
+  public constructor(url: string) {
     super(url);
   }
 

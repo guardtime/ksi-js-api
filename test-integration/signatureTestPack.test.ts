@@ -92,7 +92,7 @@ type CsvCastTypes = string | BigInteger | DataHash | PublicationData | number | 
 class TestExtendingService extends ExtendingService {
   private readonly requestId: BigInteger;
 
-  constructor(
+  public constructor(
     extendingServiceProtocol: IExtendingServiceProtocol,
     extendingServiceCredentials: IServiceCredentials,
     requestId: BigInteger

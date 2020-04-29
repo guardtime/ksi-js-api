@@ -29,12 +29,11 @@ import { KsiRequest } from './KsiRequest';
  * @deprecated Use common/service/ExtendingServiceProtocol instead.
  */
 export class ExtendingServiceProtocol extends KsiHttpProtocol implements IExtendingServiceProtocol {
-
   /**
    * HTTP extending service protocol constructor.
    * @param url Extender url.
    */
-  constructor(url: string) {
+  public constructor(url: string) {
     super(url);
   }
 

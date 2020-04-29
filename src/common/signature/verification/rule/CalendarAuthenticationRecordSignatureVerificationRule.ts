@@ -38,7 +38,7 @@ import { VerificationRule } from '../VerificationRule';
  * signature in calendar authentication record.
  */
 export class CalendarAuthenticationRecordSignatureVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarAuthenticationRecordSignatureVerificationRule');
   }
 

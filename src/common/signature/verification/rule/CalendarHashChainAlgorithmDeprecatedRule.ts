@@ -33,7 +33,7 @@ import { VerificationRule } from '../VerificationRule';
  * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
  */
 export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarHashChainAlgorithmDeprecatedRule');
   }
 

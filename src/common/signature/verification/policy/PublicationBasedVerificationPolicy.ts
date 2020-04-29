@@ -31,7 +31,7 @@ export class PublicationBasedVerificationPolicy extends VerificationPolicy {
   /**
    * Publication based verification policy constructor.
    */
-  constructor() {
+  public constructor() {
     super(
       new InternalVerificationPolicy().onSuccess(
         new UserProvidedPublicationExistenceRule() // Gen-02

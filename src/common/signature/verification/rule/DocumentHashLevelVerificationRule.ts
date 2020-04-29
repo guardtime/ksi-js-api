@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * If the level is equal to or less than expected then VerificationResultCode.Ok is returned.
  */
 export class DocumentHashLevelVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('DocumentHashLevelVerificationRule');
   }
 

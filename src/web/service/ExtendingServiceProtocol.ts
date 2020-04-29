@@ -32,7 +32,7 @@ export class ExtendingServiceProtocol extends KsiHttpProtocol implements IExtend
    * HTTP extending service protocol constructor.
    * @param url Extender url.
    */
-  constructor(url: string) {
+  public constructor(url: string) {
     super(url);
   }
 

@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * If input hash is not provided then <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export class InputHashAlgorithmVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('InputHashAlgorithmVerificationRule');
   }
 

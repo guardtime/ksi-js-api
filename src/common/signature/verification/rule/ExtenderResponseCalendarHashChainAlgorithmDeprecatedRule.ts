@@ -35,7 +35,7 @@ import { VerificationRule } from '../VerificationRule';
  * Verifies that extender response calendar hash chain right link hash algorithms are not deprecated.
  */
 export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule');
   }
 

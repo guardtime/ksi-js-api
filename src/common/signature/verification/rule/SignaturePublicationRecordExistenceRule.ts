@@ -29,7 +29,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks if KSI signature contains publication record.
  */
 export class SignaturePublicationRecordExistenceRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('SignaturePublicationRecordExistenceRule');
   }
 

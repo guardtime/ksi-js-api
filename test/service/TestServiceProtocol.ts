@@ -32,7 +32,7 @@ export class TestServiceProtocol
   implements ISigningServiceProtocol, IExtendingServiceProtocol, IPublicationsFileServiceProtocol {
   private readonly resultBytes: Uint8Array;
 
-  constructor(resultBytes: Uint8Array) {
+  public constructor(resultBytes: Uint8Array) {
     this.resultBytes = resultBytes;
   }
 

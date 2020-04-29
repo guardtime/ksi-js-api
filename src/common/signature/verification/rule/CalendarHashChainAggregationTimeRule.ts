@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * Without calendar authentication record <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export class CalendarHashChainAggregationTimeRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarHashChainAggregationTimeRule');
   }
 

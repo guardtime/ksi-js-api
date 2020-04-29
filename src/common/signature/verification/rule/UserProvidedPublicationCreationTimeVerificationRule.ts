@@ -31,7 +31,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that signature is created before user provided publication.
  */
 export class UserProvidedPublicationCreationTimeVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationCreationTimeVerificationRule');
   }
 

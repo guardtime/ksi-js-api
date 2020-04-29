@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * aggregation time equals to current one.
  */
 export class AggregationHashChainTimeConsistencyRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('AggregationHashChainTimeConsistencyRule');
   }
 

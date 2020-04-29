@@ -32,7 +32,7 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks if publications file and signature publication record match.
  */
 export class PublicationsFileSignaturePublicationMatchRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('PublicationsFileSignaturePublicationMatchRule');
   }
 

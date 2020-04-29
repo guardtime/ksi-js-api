@@ -26,10 +26,9 @@ import { VerificationRule } from '../VerificationRule';
  * Rule that always returns {@see VerificationResultCode.Ok}.
  */
 export class SuccessResultRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('SuccessResultRule');
   }
-
 
   /**
    * Verify current rule with given context.

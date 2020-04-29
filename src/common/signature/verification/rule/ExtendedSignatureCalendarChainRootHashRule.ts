@@ -33,7 +33,7 @@ import { VerificationRule } from '../VerificationRule';
  * does not contain calendar hash chain, VerificationResultCode.Ok is returned.
  */
 export class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('ExtendedSignatureCalendarChainRootHashRule');
   }
 

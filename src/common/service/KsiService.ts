@@ -42,7 +42,7 @@ export class KsiService {
    * @param extendingService Extending service.
    * @param publicationsFileService Publications file service.
    */
-  constructor(
+  public constructor(
     signingService: SigningService | null = null,
     extendingService: ExtendingService | null = null,
     publicationsFileService: PublicationsFileService | null
