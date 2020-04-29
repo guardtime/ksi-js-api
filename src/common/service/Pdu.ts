@@ -32,7 +32,7 @@ import { PduHeader } from './PduHeader';
 import { PduPayload } from './PduPayload';
 
 /**
- * PDU base classs
+ * PDU base classes TLV object.
  */
 export abstract class Pdu extends CompositeTag {
   protected payloads: PduPayload[] = [];
@@ -40,18 +40,31 @@ export abstract class Pdu extends CompositeTag {
   private header: PduHeader;
   private hmac: ImprintTag;
 
+  /**
+   * PDU base classes TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);
   }
 
+  /**
+   * Create PDU TLV object.
+   * @param {number} id TLV id.
+   * @param {PduHeader} header Pdu header.
+   * @param {PduPayload} payload Pdu payload.
+   * @param {HashAlgorithm} algorithm HMAC algorithm.
+   * @param {Uint8Array} key HMAC key.
+   * @returns PDU TLV object.
+   */
   protected static async CREATE_PDU(
-    tagType: number,
+    id: number,
     header: PduHeader,
     payload: PduPayload,
     algorithm: HashAlgorithm,
     key: Uint8Array
   ): Promise<TlvTag> {
-    const pduBytes: Uint8Array = CompositeTag.CREATE_FROM_LIST(tagType, false, false, [
+    const pduBytes: Uint8Array = CompositeTag.CREATE_FROM_LIST(id, false, false, [
       header,
       payload,
       ImprintTag.CREATE(
@@ -69,6 +82,11 @@ export abstract class Pdu extends CompositeTag {
     return new TlvInputStream(pduBytes).readTag();
   }
 
+  /**
+   * Verify PDU HMAC.
+   * @param {HashAlgorithm} algorithm Hash algorithm.
+   * @param {Uint8Array} key HMAC key.
+   */
   public async verifyHmac(algorithm: HashAlgorithm, key: Uint8Array): Promise<boolean> {
     const pduBytes = this.encode();
     const pduHmac = this.hmac.getValue();
@@ -79,14 +97,27 @@ export abstract class Pdu extends CompositeTag {
     return pduHmac.equals(calculatedHmac);
   }
 
+  /**
+   * Get PDU error payload.
+   * @returns {ErrorPayload|null} Error payload if exists, null otherwise.
+   */
   public getErrorPayload(): ErrorPayload | null {
     return this.errorPayload;
   }
 
+  /**
+   * Get all PDU payloads.
+   * @returns {PduPayload[]} All PDU payloads.
+   */
   public getPayloads(): PduPayload[] {
     return this.payloads;
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PDU_HEADER_CONSTANTS.TagType:
@@ -98,6 +129,9 @@ export abstract class Pdu extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   protected validate(): void {
     if (this.errorPayload != null) {
       return;

@@ -34,18 +34,28 @@ import { KsiServiceError } from './KsiServiceError';
 import { PduHeader } from './PduHeader';
 
 /**
- * Extending service
+ * Extending service for getting calendar hash chain.
  */
 export class ExtendingService {
   private requests: { [key: string]: KsiRequestBase } = {};
   private extendingServiceProtocol: IExtendingServiceProtocol;
   private extendingServiceCredentials: IServiceCredentials;
 
+  /**
+   * Extending service constructor.
+   * @param {IExtendingServiceProtocol} extendingServiceProtocol Extending service protocol.
+   * @param {IServiceCredentials} extendingServiceCredentials Extending service credentials.
+   */
   constructor(extendingServiceProtocol: IExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials) {
     this.extendingServiceProtocol = extendingServiceProtocol;
     this.extendingServiceCredentials = extendingServiceCredentials;
   }
 
+  /**
+   * Process extender response payload.
+   * @param {ExtendResponsePayload} payload Extender response payload.
+   * @returns {CalendarHashChain} Calendar hash chain.
+   */
   private static processPayload(payload: ExtendResponsePayload): CalendarHashChain {
     if (payload.getStatus().neq(0)) {
       throw new KsiServiceError(
@@ -56,6 +66,12 @@ export class ExtendingService {
     return payload.getCalendarHashChain();
   }
 
+  /**
+   * Get calendar hash chain for given aggregation and publication time.
+   * @param {BigInteger} aggregationTime Aggregation time.
+   * @param {BigInteger|null} publicationTime Publication time, by default null. If null get most recent calendar record.
+   * @returns {Promise<CalendarHashChain>} Calendar hash chain promise.
+   */
   public async extend(
     aggregationTime: BigInteger,
     publicationTime: BigInteger | null = null
@@ -137,6 +153,10 @@ export class ExtendingService {
     return ExtendingService.processPayload(currentExtendPayload);
   }
 
+  /**
+   * Generate request ID.
+   * @returns {BigInteger} Request ID.
+   */
   protected generateRequestId(): BigInteger {
     return pseudoRandomLong();
   }

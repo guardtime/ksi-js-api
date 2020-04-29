@@ -77,7 +77,7 @@ export class CertificateRecord extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format.
+   * Validate current TLV object format.
    */
   private validate(): void {
     if (this.getCount(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType) !== 1) {

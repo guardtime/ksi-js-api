@@ -22,9 +22,13 @@ import { TlvTag } from '../parser/TlvTag';
 import { ErrorPayload } from './ErrorPayload';
 
 /**
- * Extends Error payload TLV element.
+ * Extender error payload TLV object.
  */
 export class ExtendErrorPayload extends ErrorPayload {
+  /**
+   * Extender error payload TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 

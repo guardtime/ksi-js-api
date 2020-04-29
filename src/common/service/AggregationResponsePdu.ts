@@ -32,11 +32,15 @@ import { Pdu } from './Pdu';
 import { PduPayload } from './PduPayload';
 
 /**
- * Aggregation response PDU
+ * Aggregation response PDU TLV object.
  */
 export class AggregationResponsePdu extends Pdu {
-  private aggregatorConfigResponse: AggregatorConfigResponsePayload;
+  private aggregatorConfigResponse: AggregatorConfigResponsePayload | null = null;
 
+  /**
+   * Aggregation response PDU TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -46,10 +50,27 @@ export class AggregationResponsePdu extends Pdu {
     Object.freeze(this);
   }
 
+  /**
+   * Get all aggregation response payloads.
+   * @returns {PduPayload[]} Aggregation response payloads.
+   */
   public getAggregationResponsePayloads(): PduPayload[] {
     return this.payloads.filter(payload => payload.id === AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType);
   }
 
+  /**
+   * Get aggregator config response payload.
+   * @returns {AggregatorConfigResponsePayload|null} Aggregator config response, if missing then null.
+   */
+  public getAggregatorConfigResponsePayload(): AggregatorConfigResponsePayload | null {
+    return this.aggregatorConfigResponse;
+  }
+
+  /**
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType:

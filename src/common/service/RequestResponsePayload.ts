@@ -26,19 +26,32 @@ import { TlvTag } from '../parser/TlvTag';
 import { ResponsePayload } from './ResponsePayload';
 
 /**
- * PDU payload base class for requested responses
+ * PDU payload base class for requested responses TLV object .
  */
 export abstract class RequestResponsePayload extends ResponsePayload {
   private requestId: IntegerTag;
 
+  /**
+   * PDU payload base for requested responses TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);
   }
 
+  /**
+   * Get request ID.
+   * @returns {BigInteger} Request ID.
+   */
   public getRequestId(): BigInteger {
     return this.requestId.getValue();
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
@@ -48,6 +61,9 @@ export abstract class RequestResponsePayload extends ResponsePayload {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   protected validate(): void {
     super.validate();
 

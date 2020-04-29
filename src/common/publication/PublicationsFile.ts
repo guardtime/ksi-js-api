@@ -189,7 +189,7 @@ export class PublicationsFile extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format.
+   * Validate current TLV object format.
    */
   private validate(): void {
     if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType) !== 1) {

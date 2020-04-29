@@ -115,7 +115,7 @@ export class PublicationRecord extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format.
+   * Validate current TLV object format.
    */
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {

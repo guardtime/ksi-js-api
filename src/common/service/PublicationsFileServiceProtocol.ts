@@ -23,13 +23,21 @@ import 'isomorphic-unfetch';
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 
 /**
- * HTTP publications file service protocol
+ * HTTP publications file service protocol.
  */
 export class PublicationsFileServiceProtocol extends KsiHttpProtocol {
+  /**
+   * HTTP publications file service protocol constructor.
+   * @param {string} url Publications file url.
+   */
   constructor(url: string) {
     super(url);
   }
 
+  /**
+   * Get publications file.
+   * @returns {Promise<Uint8Array>} Publications file bytes.
+   */
   public async getPublicationsFile(): Promise<Uint8Array> {
     return this.download();
   }

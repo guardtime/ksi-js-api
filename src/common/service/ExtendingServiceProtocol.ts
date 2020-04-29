@@ -26,13 +26,20 @@ import { KsiHttpProtocol } from './KsiHttpProtocol';
 import { KsiRequest } from './KsiRequest';
 
 /**
- * HTTP extending service protocol
+ * HTTP extending service protocol.
  */
 export class ExtendingServiceProtocol extends KsiHttpProtocol implements IExtendingServiceProtocol {
+  /**
+   * HTTP extending service protocol constructor.
+   * @param {string} url Extender url.
+   */
   constructor(url: string) {
     super(url);
   }
 
+  /**
+   * @inheritDoc
+   */
   public extend(requestBytes: Uint8Array): KsiRequestBase {
     const abortController: AbortController = new AbortController();
 

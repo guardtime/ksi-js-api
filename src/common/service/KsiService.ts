@@ -29,13 +29,19 @@ import { PublicationsFileService } from './PublicationsFileService';
 import { SigningService } from './SigningService';
 
 /**
- * KSI service.
+ * KSI service for signing, extending and fetching publications file.
  */
 export class KsiService {
   private readonly signingService: SigningService | null;
   private readonly extendingService: ExtendingService | null;
   private readonly publicationsFileService: PublicationsFileService | null;
 
+  /**
+   * KSI service constructor.
+   * @param {SigningService} signingService Signing service.
+   * @param {ExtendingService} extendingService Extending service.
+   * @param {PublicationsFileService} publicationsFileService Publications file service.
+   */
   constructor(
     signingService: SigningService | null = null,
     extendingService: ExtendingService | null = null,
@@ -46,6 +52,12 @@ export class KsiService {
     this.publicationsFileService = publicationsFileService;
   }
 
+  /**
+   * Sign given data hash.
+   * @param {DataHash} hash Data hash.
+   * @param {BigInteger} level Base level for aggregation chain, by default its 0
+   * @returns {Promise<KsiSignature>} KSI signature promise.
+   */
   public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
     if (!this.signingService) {
       throw new KsiServiceError('Signing protocol not defined. Cannot use signing.');
@@ -54,6 +66,12 @@ export class KsiService {
     return this.signingService.sign(hash, level);
   }
 
+  /**
+   * Get calendar hash chain for given aggregation time and publication time.
+   * @param {BigInteger} aggregationTime Aggregation time.
+   * @param {BigInteger|null} publicationTime Publication time, by default null. If null get most recent calendar record.
+   * @returns {Promise<CalendarHashChain>} Calendar hash chain promise.
+   */
   public async extend(
     aggregationTime: BigInteger,
     publicationTime: BigInteger | null = null
@@ -65,6 +83,10 @@ export class KsiService {
     return this.extendingService.extend(aggregationTime, publicationTime);
   }
 
+  /**
+   * Get publications file.
+   * @returns {Promise<PublicationsFile>} Publications file promise.
+   */
   public async getPublicationsFile(): Promise<PublicationsFile> {
     if (!this.publicationsFileService) {
       throw new KsiServiceError('Publications file service not defined. Cannot get publications file.');

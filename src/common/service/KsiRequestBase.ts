@@ -26,17 +26,37 @@ import { PduPayload } from './PduPayload';
 export abstract class KsiRequestBase {
   private readonly response: Promise<Uint8Array | null>;
 
+  /**
+   * KSI request base class constructor.
+   * @param response
+   */
   protected constructor(response: Promise<Uint8Array | null>) {
     this.response = response;
   }
 
+  /**
+   * Get successful KSI request response.
+   * @returns {Promise<Uint8Array | null>} Response bytes.
+   */
   public async getResponse(): Promise<Uint8Array | null> {
     return this.response;
   }
 
+  /**
+   * Get abort response.
+   * @returns {PduPayload} Abort response.
+   */
   public abstract getAbortResponse(): PduPayload;
 
+  /**
+   * Is request aborted.
+   * @returns {boolean} True if request was aborted.
+   */
   public abstract isAborted(): boolean;
 
-  public abstract abort(responsePdu: PduPayload): void;
+  /**
+   * Abort a request with response payload.
+   * @param {PduPayload} payload Payload to use for response.
+   */
+  public abstract abort(payload: PduPayload): void;
 }

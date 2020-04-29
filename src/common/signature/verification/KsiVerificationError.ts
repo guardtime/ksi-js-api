@@ -19,9 +19,13 @@
  */
 
 /**
- * KSI verification error
+ * KSI verification error.
  */
 export class KsiVerificationError extends Error {
+  /**
+   * KSI verification error constructor.
+   * @param {string} message Error message.
+   */
   constructor(message: string) {
     super(message);
 

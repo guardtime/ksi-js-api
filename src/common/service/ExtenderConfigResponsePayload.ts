@@ -18,6 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
+import { BigInteger } from 'big-integer';
 import { EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS } from '../Constants';
 import { IntegerTag } from '../parser/IntegerTag';
 import { StringTag } from '../parser/StringTag';
@@ -26,14 +27,18 @@ import { TlvTag } from '../parser/TlvTag';
 import { PduPayload } from './PduPayload';
 
 /**
- * Aggregator configuration response payload.
+ * Extender configuration response payload TLV object.
  */
 export class ExtenderConfigResponsePayload extends PduPayload {
-  private maxRequests: IntegerTag;
+  private maxRequests: IntegerTag | null = null;
   private parentUriList: StringTag[] = [];
-  private calendarFirstTime: IntegerTag;
-  private calendarLastTime: IntegerTag;
+  private calendarFirstTime: IntegerTag | null = null;
+  private calendarLastTime: IntegerTag | null = null;
 
+  /**
+   * Extender configuration response payload TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -43,6 +48,45 @@ export class ExtenderConfigResponsePayload extends PduPayload {
     Object.freeze(this);
   }
 
+  /**
+   * Get calendar beginning.
+   * @returns {BigInteger|null} Calendar beginning, null if value is not set.
+   */
+  public getCalendarFirstTime(): BigInteger | null {
+    return this.calendarFirstTime === null ? null : this.calendarFirstTime.getValue();
+  }
+
+  /**
+   * Get calendar ending.
+   * @returns {BigInteger|null} Calendar ending, null if value is not set.
+   */
+  public getCalendarLastTime(): BigInteger | null {
+    return this.calendarLastTime === null ? null : this.calendarLastTime.getValue();
+  }
+
+  /**
+   * Get max amount of requests.
+   * @returns {BigInteger} Amount of requests.
+   */
+  public getMaxRequests(): BigInteger | null {
+    return this.maxRequests === null ? null : this.maxRequests.getValue();
+  }
+
+  /**
+   * Get parent URI list.
+   * @returns {string[]} Parent URI list.
+   */
+  public getParentUriList(): string[] {
+    return this.parentUriList.map((parentUri: StringTag) => {
+      return parentUri.getValue();
+    });
+  }
+
+  /**
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType:
@@ -61,6 +105,9 @@ export class ExtenderConfigResponsePayload extends PduPayload {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   protected validate(): void {
     if (this.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType) > 1) {
       throw new TlvError('Only one max requests tag is allowed in extender config response payload.');

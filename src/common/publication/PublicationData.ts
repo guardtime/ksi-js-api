@@ -128,7 +128,7 @@ export class PublicationData extends CompositeTag {
   }
 
   /**
-   * Validate TLV object format.
+   * Validate current TLV object format.
    */
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType) !== 1) {

@@ -18,6 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
+import { BigInteger } from 'big-integer';
 import { AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS } from '../Constants';
 import { IntegerTag } from '../parser/IntegerTag';
 import { StringTag } from '../parser/StringTag';
@@ -26,15 +27,19 @@ import { TlvTag } from '../parser/TlvTag';
 import { PduPayload } from './PduPayload';
 
 /**
- * Aggregator configuration response payload.
+ * Aggregator configuration response payload TLV object.
  */
 export class AggregatorConfigResponsePayload extends PduPayload {
-  private aggregationPeriod: IntegerTag;
-  private aggregationAlgorithm: IntegerTag;
-  private maxLevel: IntegerTag;
-  private maxRequests: IntegerTag;
+  private aggregationPeriod: IntegerTag | null = null;
+  private aggregationAlgorithm: IntegerTag | null = null;
+  private maxLevel: IntegerTag | null = null;
+  private maxRequests: IntegerTag | null = null;
   private parentUriList: StringTag[] = [];
 
+  /**
+   * Aggregator configuration response payload TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -44,6 +49,53 @@ export class AggregatorConfigResponsePayload extends PduPayload {
     Object.freeze(this);
   }
 
+  /**
+   * Get aggregation period.
+   * @returns {BigInteger|null} Aggregation period, null if value is not set.
+   */
+  public getAggregationPeriod(): BigInteger | null {
+    return this.aggregationPeriod === null ? null : this.aggregationPeriod.getValue();
+  }
+
+  /**
+   * Get aggregation algorithm.
+   * @returns {BigInteger|null} Aggregation algorithm, null if value is not set.
+   */
+  public getAggregationAlgorithm(): BigInteger | null {
+    return this.aggregationAlgorithm === null ? null : this.aggregationAlgorithm.getValue();
+  }
+
+  /**
+   * Get max level.
+   * @returns {BigInteger|null} Max level, null if value is not set.
+   */
+  public getMaxLevel(): BigInteger | null {
+    return this.maxLevel === null ? null : this.maxLevel.getValue();
+  }
+
+  /**
+   * Get max amount of requests.
+   * @returns {BigInteger} Amount of requests.
+   */
+  public getMaxRequests(): BigInteger | null {
+    return this.maxRequests === null ? null : this.maxRequests.getValue();
+  }
+
+  /**
+   * Get parent URI list.
+   * @returns {string[]} Parent URI list.
+   */
+  public getParentUriList(): string[] {
+    return this.parentUriList.map((parentUri: StringTag) => {
+      return parentUri.getValue();
+    });
+  }
+
+  /**
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType:
@@ -64,6 +116,9 @@ export class AggregatorConfigResponsePayload extends PduPayload {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   protected validate(): void {
     if (this.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType) > 1) {
       throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');

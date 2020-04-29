@@ -22,9 +22,13 @@ import { TlvTag } from '../parser/TlvTag';
 import { PduPayload } from './PduPayload';
 
 /**
- * Extender configuration request payload.
+ * Extender configuration request payload TLV object.
  */
 export class ExtenderConfigRequestPayload extends PduPayload {
+  /**
+   * Extender configuration request payload TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
   }

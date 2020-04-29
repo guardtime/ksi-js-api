@@ -35,18 +35,29 @@ import { KsiServiceError } from './KsiServiceError';
 import { PduHeader } from './PduHeader';
 
 /**
- * Signing service
+ * Signing service for signing data.
  */
 export class SigningService {
   private requests: { [key: string]: KsiRequestBase } = {};
   private signingServiceProtocol: ISigningServiceProtocol;
   private signingServiceCredentials: IServiceCredentials;
 
+  /**
+   * Signing service constructor.
+   * @param {ISigningServiceProtocol} signingServiceProtocol Signing service protocol.
+   * @param {IServiceCredentials} signingServiceCredentials Service credentials.
+   */
   constructor(signingServiceProtocol: ISigningServiceProtocol, signingServiceCredentials: IServiceCredentials) {
     this.signingServiceProtocol = signingServiceProtocol;
     this.signingServiceCredentials = signingServiceCredentials;
   }
 
+  /**
+   * Process aggregation response payload.
+   * @param {AggregationResponsePayload} payload Aggregation response payload.
+   * @returns {KsiSignature} KSI signature.
+   * @throws {KsiServiceError} If server payload status is invalid.
+   */
   private static processPayload(payload: AggregationResponsePayload): KsiSignature {
     if (payload.getStatus().neq(0)) {
       throw new KsiServiceError(
@@ -57,6 +68,12 @@ export class SigningService {
     return KsiSignature.CREATE(payload);
   }
 
+  /**
+   * Sign data hash on given base level of aggregation tree.
+   * @param {DataHash} hash Data hash.
+   * @param {BigInteger} level Aggregation tree level. By default its 0.
+   * @returns {Promise<KsiSignature>} KSI signature promise.
+   */
   public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
     const header: PduHeader = PduHeader.CREATE_FROM_LOGIN_ID(this.signingServiceCredentials.getLoginId());
     const requestId: BigInteger = this.generateRequestId();
@@ -133,6 +150,10 @@ export class SigningService {
   }
 
   // noinspection JSMethodCanBeStatic
+  /**
+   * Generate request ID.
+   * @returns {BigInteger} Request ID.
+   */
   protected generateRequestId(): BigInteger {
     return pseudoRandomLong();
   }

@@ -22,9 +22,13 @@ import { TlvTag } from '../parser/TlvTag';
 import { PduPayload } from './PduPayload';
 
 /**
- * Aggregator configuration request payload.
+ * Aggregator configuration request payload TLV object.
  */
 export class AggregatorConfigRequestPayload extends PduPayload {
+  /**
+   * Aggregator configuration request payload TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   public constructor(tlvTag: TlvTag) {
     super(tlvTag);
   }

@@ -32,11 +32,15 @@ import { Pdu } from './Pdu';
 import { PduHeader } from './PduHeader';
 
 /**
- * Aggregation request PDU
+ * Aggregation request PDU TLV object.
  */
 export class AggregationRequestPdu extends Pdu {
   private aggregatorConfigRequest: AggregatorConfigRequestPayload;
 
+  /**
+   * Aggregation request PDU TLV object constructor.
+   * @param {TlvTag} tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -46,6 +50,14 @@ export class AggregationRequestPdu extends Pdu {
     Object.freeze(this);
   }
 
+  /**
+   * Create aggregation request PDU TLV object from aggregation request payload.
+   * @param {PduHeader} header PDU header.
+   * @param {AggregationRequestPayload} payload Aggregation request payload.
+   * @param {HashAlgorithm} algorithm HMAC algorithm.
+   * @param {Uint8Array} key HMAC key.
+   * @returns {Promise<AggregationRequestPdu>} Aggregation request PDU promise.
+   */
   public static async CREATE(
     header: PduHeader,
     payload: AggregationRequestPayload,
@@ -57,6 +69,11 @@ export class AggregationRequestPdu extends Pdu {
     );
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param {TlvTag} tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType:
@@ -65,12 +82,18 @@ export class AggregationRequestPdu extends Pdu {
 
         return aggregationRequestPayload;
       case AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
-        return (this.aggregatorConfigRequest = new AggregatorConfigRequestPayload(tlvTag));
+        this.aggregatorConfigRequest = new AggregatorConfigRequestPayload(tlvTag);
+        this.payloads.push(this.aggregatorConfigRequest);
+
+        return this.aggregatorConfigRequest;
       default:
         return super.parseChild(tlvTag);
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   protected validate(): void {
     super.validate();
 
