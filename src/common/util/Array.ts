@@ -19,9 +19,10 @@
  */
 
 /**
- * Compare typed arrays
- * @param arr1 Typed array 1
- * @param arr2 Typed array 2
+ * Compare byte arrays.
+ * @param arr1 Typed array 1.
+ * @param arr2 Typed array 2.
+ * @returns True if arrays are equal.
  */
 export function compareTypedArray(arr1: Uint8Array, arr2: Uint8Array): boolean {
   if (arr1.length !== arr2.length) {
@@ -37,6 +38,12 @@ export function compareTypedArray(arr1: Uint8Array, arr2: Uint8Array): boolean {
   return true;
 }
 
+/**
+ * Compare arrays.
+ * @param arr1 First array.
+ * @param arr2 Second array.
+ * @returns True if arrays are equal.
+ */
 export function compareArrayEquals<T extends IEquals>(arr1: T[], arr2: T[]): boolean {
   if (arr1.length !== arr2.length) {
     return false;
@@ -51,6 +58,9 @@ export function compareArrayEquals<T extends IEquals>(arr1: T[], arr2: T[]): boo
   return true;
 }
 
+/**
+ * Equality checking interface.
+ */
 interface IEquals {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   equals(object: any): boolean;
