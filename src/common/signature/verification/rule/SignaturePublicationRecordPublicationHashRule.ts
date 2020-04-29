@@ -22,7 +22,6 @@ import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/veri
 import { PublicationRecord } from '../../../publication/PublicationRecord';
 import { CalendarHashChain } from '../../CalendarHashChain';
 import { KsiSignature } from '../../KsiSignature';
-import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 import { VerificationResult } from '../VerificationResult';
@@ -47,11 +46,7 @@ export class SignaturePublicationRecordPublicationHashRule extends VerificationR
 
     const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();
     if (calendarHashChain === null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('Calendar hash chain is missing from signature.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     return !publicationRecord.getPublicationHash().equals(await calendarHashChain.calculateOutputHash())

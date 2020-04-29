@@ -21,7 +21,6 @@
 import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
 import { BigInteger } from 'big-integer';
 import { PublicationData } from '../../../publication/PublicationData';
-import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 import { VerificationResult } from '../VerificationResult';
@@ -40,21 +39,13 @@ export class UserProvidedPublicationCreationTimeVerificationRule extends Verific
     const userPublication: PublicationData | null = context.getUserPublication();
 
     if (userPublication == null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     const userPublicationTime: BigInteger = userPublication.getPublicationTime();
 
     return aggregationTime.geq(userPublicationTime)
-      ? new VerificationResult(
-          this.getRuleName(),
-          VerificationResultCode.NA,
-          VerificationError.GEN_02(new KsiVerificationError('User publication is created before signature.'))
-        )
+      ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02())
       : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
   }
 }

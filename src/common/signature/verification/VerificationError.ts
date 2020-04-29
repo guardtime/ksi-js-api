@@ -42,8 +42,8 @@ export class VerificationError {
   /**
    * Verification inconclusive error.
    */
-  public static GEN_02(error: Error): VerificationError {
-    return new VerificationError('GEN-02', `Verification inconclusive: ${error}`);
+  public static GEN_02(): VerificationError {
+    return new VerificationError('GEN-02', 'Verification inconclusive');
   }
 
   /**
@@ -137,10 +137,10 @@ export class VerificationError {
   }
 
   /**
-   * The meta-data record in the aggregation hash chain may not be trusted error.
+   * The metadata record in the aggregation hash chain may not be trusted error.
    */
   public static INT_11(): VerificationError {
-    return new VerificationError('INT-11', 'The meta-data record in the aggregation hash chain may not be trusted');
+    return new VerificationError('INT-11', 'The metadata record in the aggregation hash chain may not be trusted');
   }
 
   /**
@@ -227,13 +227,6 @@ export class VerificationError {
    */
   public static PUB_05(): VerificationError {
     return new VerificationError('PUB-05', 'Publication record hash and publications file publication hash mismatch');
-  }
-
-  /**
-   * Certificate not found error.
-   */
-  public static KEY_01(): VerificationError {
-    return new VerificationError('KEY-01', 'Certificate not found');
   }
 
   /**

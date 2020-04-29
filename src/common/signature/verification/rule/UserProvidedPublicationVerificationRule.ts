@@ -22,7 +22,6 @@ import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/veri
 import { PublicationData } from '../../../publication/PublicationData';
 import { PublicationRecord } from '../../../publication/PublicationRecord';
 import { KsiSignature } from '../../KsiSignature';
-import { KsiVerificationError } from '../KsiVerificationError';
 import { VerificationContext } from '../VerificationContext';
 import { VerificationError } from '../VerificationError';
 import { VerificationResult } from '../VerificationResult';
@@ -40,20 +39,12 @@ export class UserProvidedPublicationVerificationRule extends VerificationRule {
     const signature: KsiSignature = context.getSignature();
     const userPublication: PublicationData | null = context.getUserPublication();
     if (userPublication === null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('User publication is missing from context.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     const publicationRecord: PublicationRecord | null = signature.getPublicationRecord();
     if (publicationRecord === null) {
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(new KsiVerificationError('Publications record is missing from signature.'))
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     if (userPublication.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
@@ -61,13 +52,7 @@ export class UserProvidedPublicationVerificationRule extends VerificationRule {
         `User provided publication time does not equal to signature publication time. User provided publication time: ${userPublication.getPublicationTime()}; Signature publication time: ${publicationRecord.getPublicationTime()}.`
       );
 
-      return new VerificationResult(
-        this.getRuleName(),
-        VerificationResultCode.NA,
-        VerificationError.GEN_02(
-          new KsiVerificationError('User publication publication time is not equal to signature publication time.')
-        )
-      );
+      return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
     return !userPublication.getPublicationHash().equals(publicationRecord.getPublicationHash())
