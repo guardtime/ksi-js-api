@@ -21,14 +21,30 @@
 import { BigInteger } from 'big-integer';
 
 /**
- * Ksi identity interface
+ * Ksi identity interface.
  */
 export interface IKsiIdentity {
+  /**
+   * Get client ID.
+   * @returns Client ID.
+   */
   getClientId(): string;
 
+  /**
+   * Get machine ID if exists, otherwise null.
+   * @returns Machine ID.
+   */
   getMachineId(): string | null;
 
+  /**
+   * Get sequence number if exists, otherwise null.
+   * @returns Sequence number.
+   */
   getSequenceNumber(): BigInteger | null;
 
+  /**
+   * Get request time if exists, otherwise null.
+   * @returns Request time.
+   */
   getRequestTime(): BigInteger | null;
 }

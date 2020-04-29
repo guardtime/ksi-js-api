@@ -31,7 +31,7 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * RFC 3161 Record TLV Object
+ * RFC 3161 Record TLV object.
  */
 export class Rfc3161Record extends CompositeTag {
   private aggregationTime: IntegerTag;
@@ -44,6 +44,10 @@ export class Rfc3161Record extends CompositeTag {
   private signedAttributesSuffix: RawTag;
   private signedAttributesAlgorithm: HashAlgorithm;
 
+  /**
+   * RFC 3161 Record TLV object constructor.
+   * @param tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -53,24 +57,41 @@ export class Rfc3161Record extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Get input hash.
+   * @returns Input hash.
+   */
   public getInputHash(): DataHash {
     return this.inputHash.getValue();
   }
 
+  /**
+   * Get TST info hash algorithm.
+   * @returns TST info hash algorithm.
+   */
   public getTstInfoAlgorithm(): HashAlgorithm {
     return this.tstInfoAlgorithm;
   }
 
+  /**
+   * Get signed attributes hash algorithm.
+   * @returns Signed attributes hash algorithm.
+   */
   public getSignedAttributesAlgorithm(): HashAlgorithm {
     return this.signedAttributesAlgorithm;
   }
 
+  /**
+   * Get aggregation time.
+   * @returns Aggregation time.
+   */
   public getAggregationTime(): BigInteger {
     return this.aggregationTime.getValue();
   }
 
   /**
-   * Get chain index values
+   * Get chain index values.
+   * @returns Chain indexes.
    */
   public getChainIndex(): BigInteger[] {
     const result: BigInteger[] = [];
@@ -81,6 +102,10 @@ export class Rfc3161Record extends CompositeTag {
     return result;
   }
 
+  /**
+   * Calculate output hash.
+   * @returns Output hash.
+   */
   public async getOutputHash(): Promise<DataHash> {
     let hasher: DataHasher = new DataHasher(this.tstInfoAlgorithm);
     hasher.update(this.tstInfoPrefix.getValue());
@@ -97,6 +122,11 @@ export class Rfc3161Record extends CompositeTag {
     return hasher.digest();
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType:
@@ -145,6 +175,9 @@ export class Rfc3161Record extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(RFC_3161_RECORD_CONSTANTS.AggregationTimeTagType) !== 1) {
       throw new TlvError('Exactly one aggregation time must exist in RFC#3161 record.');

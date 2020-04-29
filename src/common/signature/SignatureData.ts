@@ -26,7 +26,7 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * Signature data TLV Object
+ * Signature data TLV object.
  */
 export class SignatureData extends CompositeTag {
   private certificateId: RawTag;
@@ -34,6 +34,10 @@ export class SignatureData extends CompositeTag {
   private signatureType: StringTag;
   private signatureValue: RawTag;
 
+  /**
+   * Signature data TLV object constructor.
+   * @param tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -43,22 +47,43 @@ export class SignatureData extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Get signature type.
+   * @returns Signature type.
+   */
   public getSignatureType(): string {
     return this.signatureType.getValue();
   }
 
+  /**
+   * Get certificate ID.
+   * @returns Certificate ID.
+   */
   public getCertificateId(): Uint8Array {
     return this.certificateId.getValue();
   }
 
+  /**
+   * Get signature value.
+   * @returns Signature value.
+   */
   public getSignatureValue(): Uint8Array {
     return this.signatureValue.getValue();
   }
 
+  /**
+   * Get certificate repository URI.
+   * @returns Repository URI.
+   */
   public getCertificateRepositoryUri(): string {
     return this.certificateRepositoryUri.getValue();
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType:
@@ -74,6 +99,9 @@ export class SignatureData extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType) !== 1) {
       throw new TlvError('Exactly one signature type must exist in signature data.');

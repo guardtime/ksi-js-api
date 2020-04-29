@@ -26,12 +26,16 @@ import { PublicationData } from '../publication/PublicationData';
 import { SignatureData } from './SignatureData';
 
 /**
- * Calendar Authentication Record TLV Object
+ * Calendar Authentication Record TLV object.
  */
 export class CalendarAuthenticationRecord extends CompositeTag {
   private publicationData: PublicationData;
   private signatureData: SignatureData;
 
+  /**
+   * Calendar Authentication Record TLV object constructor.
+   * @param tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -41,14 +45,27 @@ export class CalendarAuthenticationRecord extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Get publications data.
+   * @returns Publcations data.
+   */
   public getPublicationData(): PublicationData {
     return this.publicationData;
   }
 
+  /**
+   * Get signature data.
+   * @returns Signature data.
+   */
   public getSignatureData(): SignatureData {
     return this.signatureData;
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PUBLICATION_DATA_CONSTANTS.TagType:
@@ -60,6 +77,9 @@ export class CalendarAuthenticationRecord extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
       throw new TlvError('Exactly one published data must exist in calendar authentication record.');

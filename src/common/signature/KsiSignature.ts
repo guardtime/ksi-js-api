@@ -45,7 +45,7 @@ import { IKsiIdentity } from './IKsiIdentity';
 import { Rfc3161Record } from './Rfc3161Record';
 
 /**
- * KSI Signature TLV object
+ * KSI signature TLV object.
  */
 export class KsiSignature extends CompositeTag {
   private aggregationHashChains: AggregationHashChain[] = [];
@@ -54,6 +54,10 @@ export class KsiSignature extends CompositeTag {
   private calendarHashChain: CalendarHashChain | null = null;
   private rfc3161Record: Rfc3161Record | null = null;
 
+  /**
+   * KSI signature TLV object constructor.
+   * @param tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -67,34 +71,61 @@ export class KsiSignature extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Create KSI signature from aggregation response payload.
+   * @param payload Aggregation response payload.
+   * @returns KSI signature.
+   */
   public static CREATE(payload: AggregationResponsePayload): KsiSignature {
     return new KsiSignature(
       CompositeTag.CREATE_FROM_LIST(KSI_SIGNATURE_CONSTANTS.TagType, false, false, payload.getSignatureTags())
     );
   }
 
+  /**
+   * Create KSI signature from base64 encoding string.
+   * @param value Base64 encoded string.
+   * @returns KSI signature.
+   */
   public static CREATE_FROM_BASE64(value: string): KsiSignature {
     return new KsiSignature(new TlvInputStream(Base64Coder.decode(value)).readTag());
   }
 
+  /**
+   * Get publication record if exists, otherwise null.
+   * @returns Publication record.
+   */
   public getPublicationRecord(): PublicationRecord | null {
     return this.publicationRecord;
   }
 
+  /**
+   * Get calendar hash chain if exists, otherwise null.
+   * @returns Calendar hash chain.
+   */
   public getCalendarHashChain(): CalendarHashChain | null {
     return this.calendarHashChain;
   }
 
+  /**
+   * Get aggregation time.
+   * @returns Aggregation time.
+   */
   public getAggregationTime(): BigInteger {
     return this.aggregationHashChains[0].getAggregationTime();
   }
 
+  /**
+   * Get aggregation hash chains.
+   * @returns Aggregation hash chains.
+   */
   public getAggregationHashChains(): AggregationHashChain[] {
     return this.aggregationHashChains.slice();
   }
 
   /**
-   * Get last aggregation hash chain output hash that is calculated from all aggregation hash chains
+   * Get last aggregation hash chain output hash that is calculated from all aggregation hash chains.
+   * @returns Resulting hash chains output hash.
    */
   public async getLastAggregationHashChainRootHash(): Promise<DataHash> {
     let lastResult: AggregationHashResult = {
@@ -108,20 +139,36 @@ export class KsiSignature extends CompositeTag {
     return lastResult.hash;
   }
 
+  /**
+   * Get signature input hash.
+   * @returns Input hash.
+   */
   public getInputHash(): DataHash {
     return this.rfc3161Record !== null
       ? this.rfc3161Record.getInputHash()
       : this.aggregationHashChains[0].getInputHash();
   }
 
+  /**
+   * Get RFC3161 record if exists, otherwise null.
+   * @returns RFC3161 record
+   */
   public getRfc3161Record(): Rfc3161Record | null {
     return this.rfc3161Record;
   }
 
+  /**
+   * Get calendar authentication record if exists, otherwise null.
+   * @returns Calendar authentication record.
+   */
   public getCalendarAuthenticationRecord(): CalendarAuthenticationRecord | null {
     return this.calendarAuthenticationRecord;
   }
 
+  /**
+   * Get KSI signature aggregation chain identity.
+   * @returns Aggregation chain identity.
+   */
   public getIdentity(): IKsiIdentity[] {
     const identity: IKsiIdentity[] = [];
     for (let i: number = this.aggregationHashChains.length - 1; i >= 0; i -= 1) {
@@ -131,10 +178,18 @@ export class KsiSignature extends CompositeTag {
     return identity;
   }
 
+  /**
+   * Is signature extended.
+   * @returns True if extended.
+   */
   public isExtended(): boolean {
     return this.publicationRecord != null;
   }
 
+  /**
+   * Get signature UUID.
+   * @returns Signature UUID.
+   */
   public getUuid(): string {
     const valueBytes: number[] = Array.from(UnsignedLongCoder.encodeWithPadding(this.getAggregationTime()));
 
@@ -166,6 +221,12 @@ export class KsiSignature extends CompositeTag {
     return uuid(valueBytes, Array(16));
   }
 
+  /**
+   * Use given calendar hash chain and publication record for creating new KSI signature.
+   * @param calendarHashChain Calendar hash chain
+   * @param publicationRecord Publication record
+   * @returns KSI signature.
+   */
   public extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord): KsiSignature {
     const stream: TlvOutputStream = new TlvOutputStream();
 
@@ -188,6 +249,11 @@ export class KsiSignature extends CompositeTag {
     return new KsiSignature(new TlvTag(KSI_SIGNATURE_CONSTANTS.TagType, false, false, stream.getData()));
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:
@@ -208,6 +274,9 @@ export class KsiSignature extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.aggregationHashChains.length === 0) {
       throw new TlvError('Aggregation hash chains must exist in KSI signature.');

@@ -36,7 +36,7 @@ import { IKsiIdentity } from './IKsiIdentity';
 import { LegacyIdentity } from './LegacyIdentity';
 
 /**
- * Aggregation Hash Chain Link Metadata TLV Object
+ * Aggregation Hash Chain Link Metadata TLV object.
  */
 export class AggregationHashChainLinkMetaData extends CompositeTag implements IKsiIdentity {
   private padding: RawTag | null = null;
@@ -45,6 +45,10 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
   private sequenceNumber: IntegerTag | null = null;
   private requestTime: IntegerTag | null = null;
 
+  /**
+   * Aggregation Hash Chain Link Metadata TLV object constructor.
+   * @param tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -54,26 +58,47 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
     Object.freeze(this);
   }
 
+  /**
+   * @inheritDoc
+   */
   public getClientId(): string {
     return this.clientId.getValue();
   }
 
+  /**
+   * @inheritDoc
+   */
   public getMachineId(): string | null {
     return this.machineId === null ? null : this.machineId.getValue();
   }
 
+  /**
+   * @inheritDoc
+   */
   public getSequenceNumber(): BigInteger | null {
     return this.sequenceNumber === null ? null : this.sequenceNumber.getValue();
   }
 
+  /**
+   * @inheritDoc
+   */
   public getRequestTime(): BigInteger | null {
     return this.requestTime === null ? null : this.requestTime.getValue();
   }
 
+  /**
+   * Get padding TLV object.
+   * @returns Padding TLV object.
+   */
   public getPaddingTag(): RawTag | null {
     return this.padding;
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingTagType:
@@ -91,6 +116,9 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType) !== 1) {
       throw new TlvError('Exactly one client id must exist in aggregation hash chain link metadata.');
@@ -111,7 +139,7 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
 }
 
 /**
- * Aggregation Hash Chain Link TLV Object
+ * Aggregation Hash Chain Link TLV object.
  */
 export class AggregationHashChainLink extends CompositeTag {
   private static readonly LEGACY_ID_FIRST_OCTET: number = 0x3;
@@ -124,6 +152,10 @@ export class AggregationHashChainLink extends CompositeTag {
   private legacyIdString: string;
   private metadata: AggregationHashChainLinkMetaData | null = null;
 
+  /**
+   * Aggregation Hash Chain Link TLV object constructor.
+   * @param tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -144,6 +176,11 @@ export class AggregationHashChainLink extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Get legacy ID string.
+   * @param bytes Legacy ID bytes.
+   * @returns Legacy ID string.
+   */
   private static getLegacyIdString(bytes: Uint8Array): string {
     if (bytes.length === 0) {
       throw new TlvError('Invalid legacy id tag: empty.');
@@ -176,10 +213,18 @@ export class AggregationHashChainLink extends CompositeTag {
     return Utf8Converter.ToString(bytes.slice(3, idStringLength + 3));
   }
 
+  /**
+   * Get level correction.
+   * @returns Link level correction.
+   */
   public getLevelCorrection(): BigInteger {
     return this.levelCorrection === null ? bigInteger(0) : this.levelCorrection.getValue();
   }
 
+  /**
+   * Get link metadata.
+   * @returns Link metadata.
+   */
   public getMetadata(): AggregationHashChainLinkMetaData | null {
     return this.metadata;
   }
@@ -188,6 +233,10 @@ export class AggregationHashChainLink extends CompositeTag {
     return this.direction;
   }
 
+  /**
+   * Get link sibling data.
+   * @returns Sibling data.
+   */
   public getSiblingData(): Uint8Array {
     if (this.siblingHash !== null) {
       return this.siblingHash.getValue().imprint;
@@ -200,6 +249,10 @@ export class AggregationHashChainLink extends CompositeTag {
     return (this.metadata as AggregationHashChainLinkMetaData).getValueBytes();
   }
 
+  /**
+   * Get link identity.
+   * @returns Link identity.
+   */
   public getIdentity(): IKsiIdentity | null {
     if (this.legacyId !== null) {
       return new LegacyIdentity(this.legacyIdString);
@@ -208,6 +261,11 @@ export class AggregationHashChainLink extends CompositeTag {
     return this.metadata;
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType:
@@ -228,6 +286,9 @@ export class AggregationHashChainLink extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType) > 1) {
       throw new TlvError('Only one LevelCorrection value is allowed in aggregation hash chain link.');
@@ -249,7 +310,7 @@ export class AggregationHashChainLink extends CompositeTag {
 export type AggregationHashResult = Readonly<{ level: BigInteger; hash: DataHash }>;
 
 /**
- * Aggregation Hash Chain TLV Object
+ * Aggregation Hash Chain TLV object.
  */
 export class AggregationHashChain extends CompositeTag {
   private chainIndexes: IntegerTag[] = [];
@@ -259,6 +320,10 @@ export class AggregationHashChain extends CompositeTag {
   private inputHash: ImprintTag;
   private inputData: RawTag | null = null;
 
+  /**
+   * Aggregation Hash Chain TLV object.
+   * @param tlvTag TLV object.
+   */
   constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
@@ -268,12 +333,17 @@ export class AggregationHashChain extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Get chain links.
+   * @returns Aggregation chain links.
+   */
   public getChainLinks(): AggregationHashChainLink[] {
     return this.chainLinks;
   }
 
   /**
-   * Get chain index values
+   * Get chain index values.
+   * @returns Chain index values.
    */
   public getChainIndex(): BigInteger[] {
     const result: BigInteger[] = [];
@@ -284,14 +354,26 @@ export class AggregationHashChain extends CompositeTag {
     return result;
   }
 
+  /**
+   * Get aggregation time of current chain.
+   * @returns Aggregation time.
+   */
   public getAggregationTime(): BigInteger {
     return this.aggregationTime.getValue();
   }
 
+  /**
+   * Get chain hash algorithm.
+   * @returns Aggregation chain hash algorithm.
+   */
   public getAggregationAlgorithm(): HashAlgorithm {
     return this.aggregationAlgorithm;
   }
 
+  /**
+   * Get aggregation hash chain identity.
+   * @returns Aggregation hash chain identity.
+   */
   public getIdentity(): IKsiIdentity[] {
     const identity: IKsiIdentity[] = [];
     for (let i: number = this.chainLinks.length - 1; i >= 0; i -= 1) {
@@ -304,6 +386,11 @@ export class AggregationHashChain extends CompositeTag {
     return identity;
   }
 
+  /**
+   * Calculate current hash chain output hash from previous chain output hash and level.
+   * @param result Previous aggregation hash chain level and output hash.
+   * @returns Current aggregation hash chain level and output hash.
+   */
   public async getOutputHash(result: AggregationHashResult): Promise<AggregationHashResult> {
     let level: BigInteger = result.level;
     let lastHash: DataHash = result.hash;
@@ -322,16 +409,25 @@ export class AggregationHashChain extends CompositeTag {
     return Object.freeze({ level: level, hash: lastHash });
   }
 
+  /**
+   * Get input hash.
+   * @returns Input hash.
+   */
   public getInputHash(): DataHash {
     return this.inputHash.getValue();
   }
 
+  /**
+   * Get input data if exists.
+   * @returns Input data bytes if input data exists, otherwise null.
+   */
   public getInputData(): Uint8Array | null {
     return this.inputData === null ? null : this.inputData.getValue();
   }
 
   /**
-   * Returns location pointer based on aggregation hash chain links
+   * Returns location pointer based on aggregation hash chain links.
+   * @returns Location pointer.
    */
   public calculateLocationPointer(): BigInteger {
     let result: BigInteger = bigInteger(0);
@@ -346,6 +442,13 @@ export class AggregationHashChain extends CompositeTag {
     return result.or(bigInteger(1).shiftLeft(links.length));
   }
 
+  /**
+   * Get current link step hash.
+   * @param hashA First hash.
+   * @param hashB Second hash.
+   * @param level Link level.
+   * @returns Result data hash.
+   */
   private async getStepHash(hashA: Uint8Array, hashB: Uint8Array, level: BigInteger): Promise<DataHash> {
     const hasher: DataHasher = new DataHasher(this.aggregationAlgorithm);
     hasher.update(hashA);
@@ -355,6 +458,11 @@ export class AggregationHashChain extends CompositeTag {
     return hasher.digest();
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType:
@@ -389,6 +497,9 @@ export class AggregationHashChain extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationTimeTagType) !== 1) {
       throw new TlvError('Exactly one aggregation time must exist in aggregation hash chain.');
