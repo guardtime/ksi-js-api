@@ -32,10 +32,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule for checking if KSI signature contains calendar hash chain. Used for key-based and publication-based verification policies.
  */
 export class CertificateExistenceRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CertificateExistenceRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const calendarAuthenticationRecord: CalendarAuthenticationRecord | null = signature.getCalendarAuthenticationRecord();

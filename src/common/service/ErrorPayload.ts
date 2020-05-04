@@ -22,9 +22,13 @@ import { TlvTag } from '../parser/TlvTag';
 import { ResponsePayload } from './ResponsePayload';
 
 /**
- * KSI service error response payload.
+ * KSI service error response payload TLV object.
  */
 export abstract class ErrorPayload extends ResponsePayload {
+  /**
+   * KSI service error response payload TLV object constructor.
+   * @param tlvTag TLV object.
+   */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);
   }

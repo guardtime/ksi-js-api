@@ -3,6 +3,7 @@ coverage/
 dist/
 lib/
 node_modules/
+docs/
 
 .DS_Store
 *.iml

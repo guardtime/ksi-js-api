@@ -22,21 +22,41 @@ import HexCoder from '@guardtime/common/lib/coders/HexCoder';
 import { TlvTag } from './TlvTag';
 
 /**
- * Byte array TLV object
+ * Byte array TLV object.
  */
 export class RawTag extends TlvTag {
+  /**
+   * Get TLV object value.
+   * @returns Value bytes
+   */
   public getValue: () => Uint8Array;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Byte array TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, tlvTag.getValueBytes(), tlvTag.tlv16BitFlag);
     this.getValue = (): Uint8Array => tlvTag.getValueBytes();
     Object.freeze(this);
   }
 
+  /**
+   * Create byte array TLV object from value bytes.
+   * @param id TLV id.
+   * @param nonCriticalFlag Is TLV non critical.
+   * @param forwardFlag Is TLV forwarded.
+   * @param value Value bytes.
+   * @returns Byte array TLV object.
+   */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: Uint8Array): RawTag {
     return new RawTag(new TlvTag(id, nonCriticalFlag, forwardFlag, value));
   }
 
+  /**
+   * Serialize current byte array TLV object to string.
+   * @returns Serialized TLV object.
+   */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;
     if (this.nonCriticalFlag) {

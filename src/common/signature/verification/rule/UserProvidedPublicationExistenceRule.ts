@@ -28,10 +28,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that user has provided a publication.
  */
 export class UserProvidedPublicationExistenceRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationExistenceRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.getUserPublication() === null
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02())

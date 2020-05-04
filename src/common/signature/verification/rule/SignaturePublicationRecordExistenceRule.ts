@@ -28,10 +28,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks if KSI signature contains publication record.
  */
 export class SignaturePublicationRecordExistenceRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('SignaturePublicationRecordExistenceRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.getSignature().getPublicationRecord() === null
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02())

@@ -27,14 +27,18 @@ import { TlvTag } from '../parser/TlvTag';
 import { PduPayload } from './PduPayload';
 
 /**
- * Aggregation request payload
+ * Extend request payload TLV object.
  */
 export class ExtendRequestPayload extends PduPayload {
   private requestId: IntegerTag;
   private aggregationTime: IntegerTag;
   private publicationTime: IntegerTag;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Extend request payload TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -43,6 +47,13 @@ export class ExtendRequestPayload extends PduPayload {
     Object.freeze(this);
   }
 
+  /**
+   * Create extend request payload TLV object from data.
+   * @param requestId Request ID.
+   * @param aggregationTime Aggregation time.
+   * @param publicationTime Publication time, by default null.
+   * @returns {ExtendRequestPayload} Extend request payload.
+   */
   public static CREATE(
     requestId: BigInteger,
     aggregationTime: BigInteger,
@@ -64,6 +75,11 @@ export class ExtendRequestPayload extends PduPayload {
     );
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
@@ -77,6 +93,9 @@ export class ExtendRequestPayload extends PduPayload {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
       throw new TlvError('Exactly one request id must exist in extend request payload.');

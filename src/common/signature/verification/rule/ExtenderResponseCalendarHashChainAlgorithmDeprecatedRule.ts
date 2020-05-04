@@ -34,10 +34,15 @@ import { VerificationRule } from '../VerificationRule';
  * Verifies that extender response calendar hash chain right link hash algorithms are not deprecated.
  */
 export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const userPublication: PublicationData | null = context.getUserPublication();

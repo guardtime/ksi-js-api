@@ -31,7 +31,11 @@ import { VerificationPolicy } from './VerificationPolicy';
  * Policy for verifying KSI signature with PKI.
  */
 export class KeyBasedVerificationPolicy extends VerificationPolicy {
-  constructor(skipInternalVerification = false) {
+  /**
+   * Key based verification policy constructor.
+   * @param skipInternalVerification True if internal verification is skipped.
+   */
+  public constructor(skipInternalVerification = false) {
     let verificationRule: VerificationRule = new CalendarHashChainExistenceRule() // Gen-02
       .onSuccess(
         new CalendarHashChainAlgorithmDeprecatedRule() // Gen-02

@@ -29,10 +29,17 @@ import { KsiRequest } from './KsiRequest';
  * @deprecated Use common/service/ExtendingServiceProtocol instead.
  */
 export class ExtendingServiceProtocol extends KsiHttpProtocol implements IExtendingServiceProtocol {
-  constructor(url: string) {
+  /**
+   * HTTP extending service protocol constructor.
+   * @param url Extender url.
+   */
+  public constructor(url: string) {
     super(url);
   }
 
+  /**
+   * @inheritDoc
+   */
   public extend(requestBytes: Uint8Array): KsiRequestBase {
     const eventEmitter: EventEmitter = new EventEmitter();
 

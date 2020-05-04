@@ -19,6 +19,6 @@
  */
 
 /**
- * KSI Javascript API externally visible classes
+ * KSI Javascript API externally visible classes.
  */
 export * from '../common/main';

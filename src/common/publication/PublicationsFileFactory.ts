@@ -26,13 +26,18 @@ import { PublicationsFileError } from './PublicationsFileError';
 import { PUBLICATIONS_FILE_SIGNATURE_CONSTANTS } from '../Constants';
 
 /**
- * Publications file factory for publications file creation from byte array
+ * Publications file factory for publications file creation from byte array.
  */
 export class PublicationsFileFactory {
   private readonly trustedCertificates: string;
   private readonly signatueSubjectToVerify: string;
 
-  constructor(
+  /**
+   * Publications file factory constructor.
+   * @param trustedCertificates Trusted certificates, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#TrustedCertificates}.
+   * @param signatureSubjectToVerify Subject string to verify, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#GuardtimeSignatureSubjectEmail}.
+   */
+  public constructor(
     trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates,
     signatureSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail
   ) {
@@ -40,6 +45,11 @@ export class PublicationsFileFactory {
     this.signatueSubjectToVerify = signatureSubjectToVerify;
   }
 
+  /**
+   * Create publications file from bytes.
+   * @param publicationFileBytes Publications file bytes.
+   * @returns Publications File.
+   */
   public create(publicationFileBytes: Uint8Array): PublicationsFile {
     const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
     if (!compareTypedArray(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {

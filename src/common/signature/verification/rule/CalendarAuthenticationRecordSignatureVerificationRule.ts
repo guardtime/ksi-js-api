@@ -36,10 +36,15 @@ import { VerificationRule } from '../VerificationRule';
  * signature in calendar authentication record.
  */
 export class CalendarAuthenticationRecordSignatureVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarAuthenticationRecordSignatureVerificationRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const calendarAuthenticationRecord: CalendarAuthenticationRecord | null = signature.getCalendarAuthenticationRecord();

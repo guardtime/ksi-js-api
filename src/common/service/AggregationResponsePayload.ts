@@ -28,10 +28,14 @@ import { TlvTag } from '../parser/TlvTag';
 import { RequestResponsePayload } from './RequestResponsePayload';
 
 /**
- * Aggregation response payload
+ * Aggregation response payload TLV object.
  */
 export class AggregationResponsePayload extends RequestResponsePayload {
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Aggregation response payload TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -40,6 +44,10 @@ export class AggregationResponsePayload extends RequestResponsePayload {
     Object.freeze(this);
   }
 
+  /**
+   * Get signature TLV objects from response.
+   * @returns Signature TLV objects.
+   */
   public getSignatureTags(): TlvTag[] {
     const tlvList: TlvTag[] = [];
     for (const tlvTag of this.value) {
@@ -51,6 +59,11 @@ export class AggregationResponsePayload extends RequestResponsePayload {
     return tlvList;
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case AGGREGATION_HASH_CHAIN_CONSTANTS.TagType:

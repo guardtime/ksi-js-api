@@ -34,18 +34,31 @@ import { KsiServiceError } from './KsiServiceError';
 import { PduHeader } from './PduHeader';
 
 /**
- * Extending service
+ * Extending service for getting calendar hash chain.
  */
 export class ExtendingService {
   private requests: { [key: string]: KsiRequestBase } = {};
   private extendingServiceProtocol: IExtendingServiceProtocol;
   private extendingServiceCredentials: IServiceCredentials;
 
-  constructor(extendingServiceProtocol: IExtendingServiceProtocol, extendingServiceCredentials: IServiceCredentials) {
+  /**
+   * Extending service constructor.
+   * @param extendingServiceProtocol Extending service protocol.
+   * @param extendingServiceCredentials Extending service credentials.
+   */
+  public constructor(
+    extendingServiceProtocol: IExtendingServiceProtocol,
+    extendingServiceCredentials: IServiceCredentials
+  ) {
     this.extendingServiceProtocol = extendingServiceProtocol;
     this.extendingServiceCredentials = extendingServiceCredentials;
   }
 
+  /**
+   * Process extender response payload.
+   * @param payload Extender response payload.
+   * @returns Calendar hash chain.
+   */
   private static processPayload(payload: ExtendResponsePayload): CalendarHashChain {
     if (payload.getStatus().neq(0)) {
       throw new KsiServiceError(
@@ -56,6 +69,12 @@ export class ExtendingService {
     return payload.getCalendarHashChain();
   }
 
+  /**
+   * Get calendar hash chain for given aggregation and publication time.
+   * @param aggregationTime Aggregation time.
+   * @param publicationTime Publication time, by default null. If null get most recent calendar record.
+   * @returns Calendar hash chain promise.
+   */
   public async extend(
     aggregationTime: BigInteger,
     publicationTime: BigInteger | null = null
@@ -137,6 +156,10 @@ export class ExtendingService {
     return ExtendingService.processPayload(currentExtendPayload);
   }
 
+  /**
+   * Generate request ID.
+   * @returns Request ID.
+   */
   protected generateRequestId(): BigInteger {
     return pseudoRandomLong();
   }

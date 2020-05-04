@@ -19,12 +19,17 @@
  */
 
 /**
- * Verification error
+ * Verification error.
  */
 export class VerificationError {
   public readonly code: string;
   public readonly message: string;
 
+  /**
+   * Verification error constructor.
+   * @param code Error code.
+   * @param message Error message.
+   */
   private constructor(code: string, message: string) {
     this.code = code;
     this.message = message;
@@ -33,7 +38,7 @@ export class VerificationError {
   }
 
   /**
-   * Wrong document error
+   * Wrong document error.
    */
   public static GEN_01(): VerificationError {
     return new VerificationError('GEN-01', 'Wrong document');

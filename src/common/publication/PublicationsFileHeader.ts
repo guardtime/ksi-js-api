@@ -27,14 +27,18 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * Publications File Header TLV Object
+ * Publications File Header TLV Object.
  */
 export class PublicationsFileHeader extends CompositeTag {
   private version: IntegerTag;
   private creationTime: IntegerTag;
   private repositoryUri: StringTag | null = null;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Publications file header TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -42,18 +46,35 @@ export class PublicationsFileHeader extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Get publications file version.
+   * @returns File version.
+   */
   public getVersion(): BigInteger {
     return this.version.getValue();
   }
 
+  /**
+   * Get publications file creation time.
+   * @returns Unix time.
+   */
   public getCreationTime(): BigInteger {
     return this.creationTime.getValue();
   }
 
+  /**
+   * Get publications file repository uri.
+   * @returns Repository uri.
+   */
   public getRepositoryUri(): string | null {
     return this.repositoryUri === null ? null : this.repositoryUri.getValue();
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType:
@@ -67,6 +88,9 @@ export class PublicationsFileHeader extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType) !== 1) {
       throw new TlvError('Exactly one version must exist in publications file header.');

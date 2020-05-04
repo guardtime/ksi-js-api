@@ -28,10 +28,17 @@ import { KsiRequest } from '../../common/service/KsiRequest';
  * @deprecated Use common/service/SigningServiceProtocol instead.
  */
 export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
-  constructor(url: string) {
+  /**
+   * HTTP signing service protocol constructor.
+   * @param url Aggregator url.
+   */
+  public constructor(url: string) {
     super(url);
   }
 
+  /**
+   * @inheritDoc
+   */
   public sign(requestBytes: Uint8Array): KsiRequestBase {
     const abortController: AbortController = new AbortController();
 

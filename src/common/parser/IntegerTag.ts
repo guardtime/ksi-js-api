@@ -19,30 +19,50 @@
  */
 
 import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
-import bigInteger, { BigInteger } from 'big-integer';
+import { BigInteger } from 'big-integer';
 import { TlvTag } from './TlvTag';
 
 /**
- * Long TLV object
+ * Integer TLV object.
  */
 export class IntegerTag extends TlvTag {
-  private readonly value: bigInteger.BigInteger;
+  private readonly value: BigInteger;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Integer TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     const bytes: Uint8Array = tlvTag.getValueBytes();
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes, tlvTag.tlv16BitFlag);
     this.value = UnsignedLongCoder.decode(bytes, 0, bytes.length);
     Object.freeze(this);
   }
 
+  /**
+   * Create integer TLV object from value.
+   * @param id TLV id.
+   * @param nonCriticalFlag Is TLV non critical.
+   * @param forwardFlag Is TLV forwarded.
+   * @param value.
+   * @returns Integer TLV object.
+   */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: BigInteger): IntegerTag {
     return new IntegerTag(new TlvTag(id, nonCriticalFlag, forwardFlag, UnsignedLongCoder.encode(value)));
   }
 
-  public getValue(): bigInteger.BigInteger {
+  /**
+   * Get TLV object value
+   * @returns TLV object value.
+   */
+  public getValue(): BigInteger {
     return this.value;
   }
 
+  /**
+   * Serialize current integer TLV object to string.
+   * @returns Serialized TLV object.
+   */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;
     if (this.nonCriticalFlag) {

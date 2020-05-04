@@ -28,14 +28,18 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * Aggregation request payload
+ * Aggregation request payload TLV object.
  */
 export class AggregationRequestPayload extends CompositeTag {
   private requestId: IntegerTag;
   private requestHash: ImprintTag;
   private requestLevel: IntegerTag;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Aggregation request payload TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -44,6 +48,13 @@ export class AggregationRequestPayload extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Create aggregation request payload TLV object from data.
+   * @param requestId Request ID.
+   * @param hash Request hash.
+   * @param level Request level, default value 0.
+   * @returns Aggregation request payload.
+   */
   public static CREATE(
     requestId: BigInteger,
     hash: DataHash,
@@ -63,6 +74,11 @@ export class AggregationRequestPayload extends CompositeTag {
     );
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PDU_PAYLOAD_CONSTANTS.RequestIdTagType:
@@ -76,6 +92,9 @@ export class AggregationRequestPayload extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
       throw new TlvError('Exactly one request id must exist in aggregation request payload.');

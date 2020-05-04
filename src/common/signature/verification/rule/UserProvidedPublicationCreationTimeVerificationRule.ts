@@ -30,10 +30,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that signature is created before user provided publication.
  */
 export class UserProvidedPublicationCreationTimeVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationCreationTimeVerificationRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const aggregationTime: BigInteger = context.getSignature().getAggregationTime();
     const userPublication: PublicationData | null = context.getUserPublication();

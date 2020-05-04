@@ -27,24 +27,41 @@ import { TlvTag } from '../parser/TlvTag';
 import { PduPayload } from './PduPayload';
 
 /**
- * PDU payload base class for responses
+ * PDU payload base TLV object class for responses.
  */
 export abstract class ResponsePayload extends PduPayload {
   private status: IntegerTag;
   private errorMessage: StringTag | null = null;
 
+  /**
+   * PDU payload base TLV object class constructor.
+   * @param tlvTag TLV object.
+   */
   protected constructor(tlvTag: TlvTag) {
     super(tlvTag);
   }
 
+  /**
+   * Get payload status.
+   * @returns Payload status.
+   */
   public getStatus(): BigInteger {
     return this.status.getValue();
   }
 
+  /**
+   * Get error message.
+   * @returns Error message.
+   */
   public getErrorMessage(): string | null {
     return this.errorMessage !== null ? this.errorMessage.getValue() : null;
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PDU_PAYLOAD_CONSTANTS.StatusTagType:
@@ -56,6 +73,9 @@ export abstract class ResponsePayload extends PduPayload {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   protected validate(): void {
     if (this.getCount(PDU_PAYLOAD_CONSTANTS.StatusTagType) !== 1) {
       throw new TlvError('Exactly one status code must exist in response payload.');

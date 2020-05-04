@@ -27,27 +27,44 @@ import { PduPayload } from '../../common/service/PduPayload';
  * @deprecated Use common/service/KsiRequest instead and make sure to polyfill fetch.
  */
 export class KsiRequest extends KsiRequestBase {
+  /**
+   * Event name for aborting request.
+   */
   public static readonly ABORT_EVENT: string = 'ABORT';
 
   private aborted = false;
   private readonly eventEmitter: EventEmitter;
   private responsePayload: PduPayload;
 
-  constructor(response: Promise<Uint8Array | null>, eventEmitter: EventEmitter) {
+  /**
+   * KSI request constructor.
+   * @param response Response promise.
+   * @param eventEmitter Event emitter for cancelling request.
+   */
+  public constructor(response: Promise<Uint8Array | null>, eventEmitter: EventEmitter) {
     super(response);
 
     this.eventEmitter = eventEmitter;
   }
 
+  /**
+   * @inheritDoc
+   */
   public abort(responsePdu: PduPayload): void {
     this.responsePayload = responsePdu;
     this.eventEmitter.emit(KsiRequest.ABORT_EVENT);
   }
 
+  /**
+   * @inheritDoc
+   */
   public getAbortResponse(): PduPayload {
     return this.responsePayload;
   }
 
+  /**
+   * @inheritDoc
+   */
   public isAborted(): boolean {
     return this.aborted;
   }

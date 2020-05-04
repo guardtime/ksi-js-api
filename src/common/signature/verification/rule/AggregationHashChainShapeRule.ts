@@ -31,10 +31,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that shape of the aggregation hash chain matches with chain index.
  */
 export class AggregationHashChainShapeRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('AggregationHashChainShapeRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();

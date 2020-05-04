@@ -29,10 +29,13 @@ import { InternalVerificationPolicy } from './InternalVerificationPolicy';
 import { VerificationPolicy } from './VerificationPolicy';
 
 /**
- * Calendar based verification policy
+ * Calendar based verification policy.
  */
 export class CalendarBasedVerificationPolicy extends VerificationPolicy {
-  constructor() {
+  /**
+   * Calendar based verification policy constructor.
+   */
+  public constructor() {
     const verificationRule: VerificationRule = new ExtendedSignatureCalendarChainInputHashRule() // Cal-02
       .onSuccess(new ExtendedSignatureCalendarChainAggregationTimeRule()); // Cal-03
 

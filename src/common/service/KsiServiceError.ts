@@ -19,10 +19,14 @@
  */
 
 /**
- * KSI Service related error
+ * KSI Service related error.
  */
 export class KsiServiceError extends Error {
-  constructor(message: string) {
+  /**
+   * KSI service error constructor.
+   * @param message Error message.
+   */
+  public constructor(message: string) {
     super(message);
     this.name = 'KsiServiceError';
 

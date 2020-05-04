@@ -21,12 +21,24 @@
 import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 
 /**
- * Service credentials interface
+ * Service credentials interface.
  */
 export interface IServiceCredentials {
+  /**
+   * Get login ID.
+   * @returns Login ID.
+   */
   getLoginId(): string;
 
+  /**
+   * Get login key for HMAC.
+   * @returns Login key.
+   */
   getLoginKey(): Uint8Array;
 
+  /**
+   * Get login HMAC algorithm.
+   * @returns HMAC algorithm.
+   */
   getHmacAlgorithm(): HashAlgorithm;
 }

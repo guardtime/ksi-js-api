@@ -22,10 +22,14 @@ import { TlvTag } from '../parser/TlvTag';
 import { ErrorPayload } from './ErrorPayload';
 
 /**
- * Aggregation Error payload TLV element.
+ * Aggregation error payload TLV object.
  */
 export class AggregationErrorPayload extends ErrorPayload {
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Aggregation error payload TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));

@@ -22,26 +22,46 @@ import DataHash from '@guardtime/common/lib/hash/DataHash';
 import { TlvTag } from './TlvTag';
 
 /**
- * DataHash TLV object
+ * Imprint TLV object.
  */
 export class ImprintTag extends TlvTag {
   private readonly value: DataHash;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Imprint TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     const valueBytes: Uint8Array = tlvTag.getValueBytes();
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, valueBytes, tlvTag.tlv16BitFlag);
     this.value = new DataHash(valueBytes);
     Object.freeze(this);
   }
 
+  /**
+   * Create imprint TLV object from data hash.
+   * @param id TLV id.
+   * @param nonCriticalFlag Is TLV non critical.
+   * @param forwardFlag Is TLV forwarded.
+   * @param value Data hash.
+   * @returns Imprint TLV object.
+   */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: DataHash): ImprintTag {
     return new ImprintTag(new TlvTag(id, nonCriticalFlag, forwardFlag, value.imprint));
   }
 
+  /**
+   * Get TLV object value.
+   * @returns Data hash.
+   */
   public getValue(): DataHash {
     return this.value;
   }
 
+  /**
+   * Serialize current imprint TLV object to string.
+   * @returns Serialized TLV object.
+   */
   public toString(): string {
     let result = `TLV[0x${this.id.toString(16)}`;
     if (this.nonCriticalFlag) {

@@ -19,10 +19,14 @@
  */
 
 /**
- * KSI verification error
+ * KSI verification error.
  */
 export class KsiVerificationError extends Error {
-  constructor(message: string) {
+  /**
+   * KSI verification error constructor.
+   * @param message Error message.
+   */
+  public constructor(message: string) {
     super(message);
 
     this.name = 'KsiVerificationError';

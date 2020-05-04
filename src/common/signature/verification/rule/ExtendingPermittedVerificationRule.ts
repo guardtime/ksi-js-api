@@ -28,10 +28,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that extending is permitted by user.
  */
 export class ExtendingPermittedVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('ExtendingPermittedVerificationRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.isExtendingAllowed()
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.OK)

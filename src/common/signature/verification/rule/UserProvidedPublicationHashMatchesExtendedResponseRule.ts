@@ -27,13 +27,18 @@ import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
- * RRule checks that user provided publication hash matches extender response calendar hash chain root hash.
+ * Rule checks that user provided publication hash matches extender response calendar hash chain root hash.
  */
 export class UserProvidedPublicationHashMatchesExtendedResponseRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationHashMatchesExtendedResponseRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const userPublication: PublicationData | null = context.getUserPublication();
     if (userPublication === null) {

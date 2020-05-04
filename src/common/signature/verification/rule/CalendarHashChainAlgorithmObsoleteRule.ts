@@ -32,10 +32,15 @@ import { VerificationRule } from '../VerificationRule';
  * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
  */
 export class CalendarHashChainAlgorithmObsoleteRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarHashChainAlgorithmObsoleteRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();

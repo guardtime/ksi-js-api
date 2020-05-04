@@ -33,7 +33,10 @@ import { VerificationPolicy } from './VerificationPolicy';
  * Policy for verifying KSI signature with publications file.
  */
 export class PublicationsFileVerificationPolicy extends VerificationPolicy {
-  constructor() {
+  /**
+   * Publications file verification policy constructor.
+   */
+  public constructor() {
     const verificationRule: VerificationRule = new ExtendingPermittedVerificationRule() // Gen-02
       .onSuccess(
         new ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule() // Gen-02

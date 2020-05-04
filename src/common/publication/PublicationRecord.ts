@@ -28,14 +28,18 @@ import { TlvTag } from '../parser/TlvTag';
 import { PublicationData } from './PublicationData';
 
 /**
- * Publication Record TLV object
+ * Publication Record TLV object.
  */
 export class PublicationRecord extends CompositeTag {
   private publicationData: PublicationData;
   private publicationReferences: StringTag[] = [];
   private repositoryUri: StringTag[] = [];
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Publication record TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -44,30 +48,53 @@ export class PublicationRecord extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * @see PublicationData#getPublicationHash()
+   */
   public getPublicationHash(): DataHash {
     return this.publicationData.getPublicationHash();
   }
 
+  /**
+   * @see PublicationData#getPublicationTime()
+   */
   public getPublicationTime(): bigInteger.BigInteger {
     return this.publicationData.getPublicationTime();
   }
 
+  /**
+   * Get publication data.
+   * @returns publication data.
+   */
   public getPublicationData(): PublicationData {
     return this.publicationData;
   }
 
+  /**
+   * Get publication references.
+   * @returns [string} Publication references.
+   */
   public getPublicationReferences(): string[] {
     return this.publicationReferences.map((reference: StringTag) => {
       return reference.getValue();
     });
   }
 
+  /**
+   * Get publication repositories.
+   * @returns {string[]} Publication repositories.
+   */
   public getPublicationRepositories(): string[] {
     return this.repositoryUri.map((repository: StringTag) => {
       return repository.getValue();
     });
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns {TlvTag} TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PUBLICATION_DATA_CONSTANTS.TagType:
@@ -87,6 +114,9 @@ export class PublicationRecord extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(PUBLICATION_DATA_CONSTANTS.TagType) !== 1) {
       throw new TlvError('Exactly one published data must exist in publication record.');

@@ -112,7 +112,7 @@ type AggregationRequestPayloadConstants = Readonly<{
 }>;
 
 /**
- * TLV stream constants
+ * TLV stream constants.
  */
 export const TLV_CONSTANTS: TlvConstants = Object.freeze({
   ForwardFlagBit: 0b00100000,
@@ -123,7 +123,7 @@ export const TLV_CONSTANTS: TlvConstants = Object.freeze({
 });
 
 /**
- * Certificate Record TLV constants
+ * Certificate record TLV constants.
  */
 export const CERTIFICATE_RECORD_CONSTANTS: CertificateRecordConstants = Object.freeze({
   TagType: 0x702,
@@ -133,7 +133,7 @@ export const CERTIFICATE_RECORD_CONSTANTS: CertificateRecordConstants = Object.f
 });
 
 /**
- * Publication Data TLV constants
+ * Publication data TLV constants.
  */
 export const PUBLICATION_DATA_CONSTANTS: PublicationDataConstants = Object.freeze({
   TagType: 0x10,
@@ -143,7 +143,7 @@ export const PUBLICATION_DATA_CONSTANTS: PublicationDataConstants = Object.freez
 });
 
 /**
- * Publication Record TLV constants
+ * Publication record TLV constants.
  */
 export const PUBLICATION_RECORD_CONSTANTS: PublicationRecordConstants = Object.freeze({
   PublicationReferencesTagType: 0x9,
@@ -151,7 +151,7 @@ export const PUBLICATION_RECORD_CONSTANTS: PublicationRecordConstants = Object.f
 });
 
 /**
- * Publications File Header TLV constants
+ * Publications file header TLV constants.
  */
 export const PUBLICATIONS_FILE_HEADER_CONSTANTS: PublicationsFileHeaderConstants = Object.freeze({
   TagType: 0x701,
@@ -162,13 +162,16 @@ export const PUBLICATIONS_FILE_HEADER_CONSTANTS: PublicationsFileHeaderConstants
 });
 
 /**
- * Publications File Constants
+ * Publications file constants.
  */
 export const PUBLICATIONS_FILE_CONSTANTS: PublicationsFileConstants = Object.freeze({
   CmsSignatureTagType: 0x704,
   PublicationRecordTagType: 0x703
 });
 
+/**
+ * Aggregation hash chain constants.
+ */
 export const AGGREGATION_HASH_CHAIN_CONSTANTS: AggregationHashChainConstants = Object.freeze({
   LINK: Object.freeze({
     LevelCorrectionTagType: 0x1,
@@ -197,6 +200,9 @@ export const AGGREGATION_HASH_CHAIN_CONSTANTS: AggregationHashChainConstants = O
   AggregationAlgorithmIdTagType: 0x6
 });
 
+/**
+ * Calendar hash chain constants.
+ */
 export const CALENDAR_HASH_CHAIN_CONSTANTS: CalendarHashChainConstants = Object.freeze({
   TagType: 0x802,
 
@@ -205,16 +211,25 @@ export const CALENDAR_HASH_CHAIN_CONSTANTS: CalendarHashChainConstants = Object.
   InputHashTagType: 0x5
 });
 
+/**
+ * KSI signature constants.
+ */
 export const KSI_SIGNATURE_CONSTANTS: Readonly<{ TagType: number; PublicationRecordTagType: number }> = Object.freeze({
   TagType: 0x800,
 
   PublicationRecordTagType: 0x803
 });
 
+/**
+ * Calendar authentication record constants.
+ */
 export const CALENDAR_AUTHENTICATION_RECORD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x805
 });
 
+/**
+ * RFC 3161 record constants.
+ */
 export const RFC_3161_RECORD_CONSTANTS: Rfc3161RecordConstants = Object.freeze({
   TagType: 0x806,
 
@@ -229,6 +244,9 @@ export const RFC_3161_RECORD_CONSTANTS: Rfc3161RecordConstants = Object.freeze({
   SignedAttributesAlgorithmTagType: 0x15
 });
 
+/**
+ * Signature data constants.
+ */
 export const SIGNATURE_DATA_CONSTANTS: SignatureDataConstants = Object.freeze({
   TagType: 0xb,
 
@@ -238,6 +256,9 @@ export const SIGNATURE_DATA_CONSTANTS: SignatureDataConstants = Object.freeze({
   CertificateRepositoryUriTagType: 0x4
 });
 
+/**
+ * PDU header constants.
+ */
 export const PDU_HEADER_CONSTANTS: PduHeaderConstants = Object.freeze({
   TagType: 0x1,
 
@@ -246,12 +267,18 @@ export const PDU_HEADER_CONSTANTS: PduHeaderConstants = Object.freeze({
   MessageIdTagType: 0x3
 });
 
+/**
+ * PDU payload constants.
+ */
 export const PDU_PAYLOAD_CONSTANTS: PduPayloadConstants = Object.freeze({
   RequestIdTagType: 0x1,
   StatusTagType: 0x4,
   ErrorMessageTagType: 0x5
 });
 
+/**
+ * Aggregation request payload constants.
+ */
 export const AGGREGATION_REQUEST_PAYLOAD_CONSTANTS: AggregationRequestPayloadConstants = Object.freeze({
   TagType: 0x2,
 
@@ -259,18 +286,30 @@ export const AGGREGATION_REQUEST_PAYLOAD_CONSTANTS: AggregationRequestPayloadCon
   RequestLevelTagType: 0x3
 });
 
+/**
+ * Aggregation request PDU constants.
+ */
 export const AGGREGATION_REQUEST_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x220
 });
 
+/**
+ * Aggregation response PDU constants.
+ */
 export const AGGREGATION_RESPONSE_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x221
 });
 
+/**
+ * Aggregation response payload constants.
+ */
 export const AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x2
 });
 
+/**
+ * Error payload constants.
+ */
 export const ERROR_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x3
 });
@@ -283,6 +322,10 @@ type AggregatorConfigResponsePayloadConstants = Readonly<{
   MaxRequestsTagType: number;
   ParentUriTagType: number;
 }>;
+
+/**
+ * Aggregator config response payload constants.
+ */
 export const AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: AggregatorConfigResponsePayloadConstants = Object.freeze({
   TagType: 0x4,
 
@@ -293,10 +336,16 @@ export const AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: AggregatorConfigRespo
   ParentUriTagType: 0x10
 });
 
+/**
+ * Aggregation acknowledgment response payload constants.
+ */
 export const AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x5
 });
 
+/**
+ * Aggregator config request payload constants.
+ */
 export const AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x4
 });
@@ -306,6 +355,10 @@ type ExtendRequestPayloadConstants = Readonly<{
   AggregationTimeTagType: number;
   PublicationTimeTagType: number;
 }>;
+
+/**
+ * Extend request payload constants.
+ */
 export const EXTEND_REQUEST_PAYLOAD_CONSTANTS: ExtendRequestPayloadConstants = Object.freeze({
   TagType: 0x2,
 
@@ -313,14 +366,23 @@ export const EXTEND_REQUEST_PAYLOAD_CONSTANTS: ExtendRequestPayloadConstants = O
   PublicationTimeTagType: 0x3
 });
 
+/**
+ * Extend request PDU constants.
+ */
 export const EXTEND_REQUEST_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x320
 });
 
+/**
+ * Extend response PDU constants.
+ */
 export const EXTEND_RESPONSE_PDU_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x321
 });
 
+/**
+ * Extend response payload constants.
+ */
 export const EXTEND_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{
   TagType: number;
   CalendarLastTimeTagType: number;
@@ -330,6 +392,9 @@ export const EXTEND_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{
   CalendarLastTimeTagType: 0x12
 });
 
+/**
+ * Extender config request payload constants.
+ */
 export const EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x4
 });
@@ -341,6 +406,10 @@ type ExtenderConfigResponsePayloadConstants = Readonly<{
   CalendarFirstTimeTagType: number;
   CalendarLastTimeTagType: number;
 }>;
+
+/**
+ * Extender config response payload constants.
+ */
 export const EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: ExtenderConfigResponsePayloadConstants = Object.freeze({
   TagType: 0x4,
 
@@ -350,15 +419,24 @@ export const EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: ExtenderConfigResponseP
   CalendarLastTimeTagType: 0x12
 });
 
+/**
+ * PDU constants.
+ */
 export const PDU_CONSTANTS: Readonly<{ MacTagType: number }> = Object.freeze({
   MacTagType: 0x1f
 });
 
+/**
+ * Link direction.
+ */
 export enum LinkDirection {
   Left = 0x7,
   Right = 0x8
 }
 
+/**
+ * Publications file signature constants.
+ */
 export const PUBLICATIONS_FILE_SIGNATURE_CONSTANTS: Readonly<{
   TrustedCertificates: string;
   GuardtimeSignatureSubjectEmail: string;

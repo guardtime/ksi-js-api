@@ -28,10 +28,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule verifies that KSI signature contains calendar authentication record.
  */
 export class CalendarAuthenticationRecordExistenceRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarAuthenticationRecordExistenceRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.getSignature().getCalendarAuthenticationRecord() === null
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02())

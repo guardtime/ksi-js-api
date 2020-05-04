@@ -22,13 +22,18 @@ import { PublicationsFile } from '../publication/PublicationsFile';
 import { PublicationsFileFactory } from '../publication/PublicationsFileFactory';
 import { IPublicationsFileServiceProtocol } from './IPublicationsFileServiceProtocol';
 /**
- * Publications file service
+ * Publications file service.
  */
 export class PublicationsFileService {
   private publicationsFileServiceProtocol: IPublicationsFileServiceProtocol;
   private publicationsFileFactory: PublicationsFileFactory;
 
-  constructor(
+  /**
+   * Publications file service constructor.
+   * @param publicationsFileServiceProtocol Publications file service protocol.
+   * @param publicationsFileFactory Publications file factory for publications file creation.
+   */
+  public constructor(
     publicationsFileServiceProtocol: IPublicationsFileServiceProtocol,
     publicationsFileFactory: PublicationsFileFactory
   ) {
@@ -36,6 +41,10 @@ export class PublicationsFileService {
     this.publicationsFileFactory = publicationsFileFactory;
   }
 
+  /**
+   * Get publications file.
+   * @returns Publications file promise.
+   */
   public async getPublicationsFile(): Promise<PublicationsFile> {
     return this.publicationsFileFactory.create(await this.publicationsFileServiceProtocol.getPublicationsFile());
   }

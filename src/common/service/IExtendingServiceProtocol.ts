@@ -21,8 +21,13 @@
 import { KsiRequestBase } from './KsiRequestBase';
 
 /**
- * Extending service protocol interface
+ * Extending service protocol interface.
  */
 export interface IExtendingServiceProtocol {
+  /**
+   * Make a extending request.
+   * @param requestBytes Extending request bytes.
+   * @returns Request for getting response.
+   */
   extend(requestBytes: Uint8Array): KsiRequestBase;
 }

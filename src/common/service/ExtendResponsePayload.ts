@@ -18,6 +18,7 @@
  * reserves and retains all trademark rights.
  */
 
+import { BigInteger } from 'big-integer';
 import { CALENDAR_HASH_CHAIN_CONSTANTS, EXTEND_RESPONSE_PAYLOAD_CONSTANTS } from '../Constants';
 import { IntegerTag } from '../parser/IntegerTag';
 import { TlvError } from '../parser/TlvError';
@@ -26,13 +27,17 @@ import { CalendarHashChain } from '../signature/CalendarHashChain';
 import { RequestResponsePayload } from './RequestResponsePayload';
 
 /**
- * Extend response payload
+ * Extend response payload TLV object.
  */
 export class ExtendResponsePayload extends RequestResponsePayload {
-  private calendarLastTime: IntegerTag;
+  private calendarLastTime: IntegerTag | null = null;
   private calendarHashChain: CalendarHashChain;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Extend response payload TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -41,10 +46,27 @@ export class ExtendResponsePayload extends RequestResponsePayload {
     Object.freeze(this);
   }
 
+  /**
+   * Get calendar hash chain.
+   * @returns Calendar hash chain.
+   */
   public getCalendarHashChain(): CalendarHashChain {
     return this.calendarHashChain;
   }
 
+  /**
+   * Get calendar ending.
+   * @returns Calendar ending, null if value is not set.
+   */
+  public getCalendarLastTime(): BigInteger | null {
+    return this.calendarLastTime === null ? null : this.calendarLastTime.getValue();
+  }
+
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case EXTEND_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType:
@@ -56,6 +78,9 @@ export class ExtendResponsePayload extends RequestResponsePayload {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   protected validate(): void {
     super.validate();
 

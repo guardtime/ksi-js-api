@@ -30,10 +30,15 @@ import { VerificationRule } from '../VerificationRule';
  * Checks if extended signature calendar hash chain right links are equal to not extended signature right links.
  */
 export class ExtendedSignatureCalendarHashChainRightLinksMatchRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('ExtendedSignatureCalendarHashChainRightLinksMatchRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();

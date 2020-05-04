@@ -31,10 +31,15 @@ import { VerificationRule } from '../VerificationRule';
  * hash chain is missing, status VerificationResultCode.Ok is returned.
  */
 export class CalendarHashChainInputHashVerificationRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarHashChainInputHashVerificationRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();

@@ -23,27 +23,43 @@ import { TlvError } from './TlvError';
 import { TlvTag } from './TlvTag';
 
 /**
- * Specialized input stream for decoding TLV data from bytes
+ * Specialized input stream for decoding TLV data from bytes.
  */
 export class TlvInputStream {
   private readonly data: Uint8Array;
   private position: number;
   private readonly length: number;
 
-  constructor(bytes: Uint8Array) {
+  /**
+   * TLV input stream constructor.
+   * @param bytes Data bytes.
+   */
+  public constructor(bytes: Uint8Array) {
     this.data = new Uint8Array(bytes);
     this.position = 0;
     this.length = bytes.length;
   }
 
+  /**
+   * Get stream position.
+   * @returns Stream position.
+   */
   public getPosition(): number {
     return this.position;
   }
 
+  /**
+   * Get stream length.
+   * @returns Stream length.
+   */
   public getLength(): number {
     return this.length;
   }
 
+  /**
+   * Read next TLV object from stream.
+   * @returns TLV object.
+   */
   public readTag(): TlvTag {
     const firstByte: number = this.readByte();
     const tlv16BitFlag: boolean = (firstByte & TLV_CONSTANTS.Tlv16BitFlagBit) !== 0;
@@ -63,6 +79,10 @@ export class TlvInputStream {
     return new TlvTag(id, nonCriticalFlag, forwardFlag, data, tlv16BitFlag);
   }
 
+  /**
+   * Read next byte from stream.
+   * @throws {TlvError} If available bytes is shorter than read bytes length.
+   */
   private readByte(): number {
     if (this.length <= this.position) {
       throw new TlvError('Could not read byte: Premature end of data');
@@ -74,10 +94,18 @@ export class TlvInputStream {
     return byte;
   }
 
+  /**
+   * Read next short int from stream.
+   */
   private readShort(): number {
     return (this.readByte() << 8) | this.readByte();
   }
 
+  /**
+   * Read number of bytes from stream.
+   * @param length Read bytes length.
+   * @throws {TlvError} If available bytes is shorter than read bytes length.
+   */
   private read(length: number): Uint8Array {
     if (this.length < this.position + length) {
       throw new TlvError(`Could not read ${length} bytes: Premature end of data`);

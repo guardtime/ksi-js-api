@@ -22,27 +22,43 @@ import { BigInteger } from 'big-integer';
 import { IKsiIdentity } from './IKsiIdentity';
 
 /**
- * Legacy version of identity
+ * Legacy version of identity.
  */
 export class LegacyIdentity implements IKsiIdentity {
   private readonly clientId: string;
 
+  /**
+   * Legacy version of identity constructor.
+   * @param clientId Client id.
+   */
   public constructor(clientId: string) {
     this.clientId = clientId;
   }
 
+  /**
+   * @inheritDoc
+   */
   public getClientId(): string {
     return this.clientId;
   }
 
+  /**
+   * @inheritDoc
+   */
   public getMachineId(): string | null {
     return null;
   }
 
+  /**
+   * @inheritDoc
+   */
   public getSequenceNumber(): BigInteger | null {
     return null;
   }
 
+  /**
+   * @inheritDoc
+   */
   public getRequestTime(): BigInteger | null {
     return null;
   }

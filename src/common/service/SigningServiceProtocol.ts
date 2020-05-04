@@ -26,13 +26,20 @@ import { KsiHttpProtocol } from './KsiHttpProtocol';
 import { KsiRequest } from './KsiRequest';
 
 /**
- * HTTP signing service protocol
+ * HTTP signing service protocol.
  */
 export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
-  constructor(url: string) {
+  /**
+   * HTTP signing service protocol constructor.
+   * @param url Aggregator url.
+   */
+  public constructor(url: string) {
     super(url);
   }
 
+  /**
+   * @inheritDoc
+   */
   public sign(requestBytes: Uint8Array): KsiRequestBase {
     const abortController: AbortController = new AbortController();
 

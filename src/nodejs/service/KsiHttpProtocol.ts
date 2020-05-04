@@ -32,10 +32,20 @@ import { KsiRequest } from './KsiRequest';
 export class KsiHttpProtocol {
   private readonly url: URL;
 
-  constructor(url: string) {
+  /**
+   * HTTP protocol for requests constructor.
+   * @param url
+   */
+  public constructor(url: string) {
     this.url = new URL(url);
   }
 
+  /**
+   * Make a KSI request.
+   * @param requestBytes Request bytes.
+   * @param eventEmitter Event emitter for cancelling request event.
+   * @returns {Promise<Uint8Array | null>} Returns promise for response bytes or null if request was cancelled.
+   */
   public requestKsi(requestBytes: Uint8Array, eventEmitter: EventEmitter): Promise<Uint8Array | null> {
     return new Promise(
       (
@@ -81,6 +91,10 @@ export class KsiHttpProtocol {
     );
   }
 
+  /**
+   * Download bytes from url.
+   * @returns {Promise<Uint8Array>} Response bytes promise.
+   */
   public download(): Promise<Uint8Array> {
     return new Promise(
       (resolve: (value?: PromiseLike<Uint8Array> | Uint8Array) => void, reject: (reason?: string) => void): void => {
@@ -112,6 +126,11 @@ export class KsiHttpProtocol {
     );
   }
 
+  /**
+   * Make request with given options and callback for response.
+   * @param options Request options.
+   * @param callback Callback for incoming result.
+   */
   private makeRequest(options: RequestOptions, callback: (response: IncomingMessage) => void): ClientRequest {
     if (this.url.protocol === 'https:') {
       return httpsRequest(options, callback);

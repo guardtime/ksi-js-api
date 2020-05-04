@@ -7,7 +7,7 @@ import { TlvTag } from '../../src/common/parser/TlvTag';
  * Test Composite TLV object
  */
 export class TestCompositeTag extends CompositeTag {
-  constructor(tlvTag: TlvTag) {
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));

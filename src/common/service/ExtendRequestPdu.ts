@@ -31,12 +31,16 @@ import { Pdu } from './Pdu';
 import { PduHeader } from './PduHeader';
 
 /**
- * Extend request PDU
+ * Extend request PDU TLV object.
  */
 export class ExtendRequestPdu extends Pdu {
   private extenderConfigRequest: ExtenderConfigRequestPayload;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Extend request PDU TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -45,6 +49,14 @@ export class ExtendRequestPdu extends Pdu {
     Object.freeze(this);
   }
 
+  /**
+   * Create extend request PDU TLV object from extend request payload.
+   * @param header PDU header.
+   * @param payload Extend request payload.
+   * @param algorithm HMAC algorithm.
+   * @param key HMAC key.
+   * @returns Extend request PDU promise.
+   */
   public static async CREATE(
     header: PduHeader,
     payload: ExtendRequestPayload,
@@ -56,6 +68,11 @@ export class ExtendRequestPdu extends Pdu {
     );
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   protected parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType:
@@ -64,7 +81,10 @@ export class ExtendRequestPdu extends Pdu {
 
         return extendRequestPayload;
       case EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType:
-        return (this.extenderConfigRequest = new ExtenderConfigRequestPayload(tlvTag));
+        this.extenderConfigRequest = new ExtenderConfigRequestPayload(tlvTag);
+        this.payloads.push(this.extenderConfigRequest);
+
+        return this.extenderConfigRequest;
       default:
         return super.parseChild(tlvTag);
     }

@@ -28,10 +28,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule for checking if KSI signature contains calendar hash chain. Used for key-based and publication-based verification policies.
  */
 export class CalendarHashChainExistenceRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarHashChainExistenceRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     return context.getSignature().getCalendarHashChain() === null
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02())

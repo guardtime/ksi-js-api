@@ -32,10 +32,15 @@ import { VerificationRule } from '../VerificationRule';
  * Without calendar authentication record <see cref="VerificationResultCode.Ok" /> is returned.
  */
 export class CalendarHashChainAggregationTimeRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('CalendarHashChainAggregationTimeRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const calendarHashChain: CalendarHashChain | null = signature.getCalendarHashChain();

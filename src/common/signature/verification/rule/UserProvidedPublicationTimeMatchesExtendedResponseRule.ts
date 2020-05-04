@@ -31,10 +31,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that user provided publication time matches extender response calendar hash chain shape.
  */
 export class UserProvidedPublicationTimeMatchesExtendedResponseRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('UserProvidedPublicationTimeMatchesExtendedResponseRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const userPublication: PublicationData | null = context.getUserPublication();

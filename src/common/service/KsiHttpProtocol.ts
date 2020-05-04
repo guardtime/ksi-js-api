@@ -21,15 +21,25 @@
 import { KsiServiceError } from './KsiServiceError';
 
 /**
- * Http protocol for requests
+ * HTTP protocol for requests.
  */
 export class KsiHttpProtocol {
   private readonly url: string;
 
-  constructor(url: string) {
+  /**
+   * HTTP protocol for requests constructor.
+   * @param url
+   */
+  public constructor(url: string) {
     this.url = url;
   }
 
+  /**
+   * Make a KSI request.
+   * @param requestBytes Request bytes.
+   * @param abortController Abort controller for cancelling request.
+   * @returns {Promise<Uint8Array | null>} Returns promise for response bytes or null if request was cancelled.
+   */
   public async requestKsi(requestBytes: Uint8Array, abortController: AbortController): Promise<Uint8Array | null> {
     const response: Response = await fetch(this.url, {
       method: 'POST',
@@ -54,6 +64,10 @@ export class KsiHttpProtocol {
     return new Uint8Array(await response.arrayBuffer());
   }
 
+  /**
+   * Download bytes from url.
+   * @returns {Promise<Uint8Array>} Response bytes promise.
+   */
   public async download(): Promise<Uint8Array> {
     const response: Response = await fetch(this.url);
 

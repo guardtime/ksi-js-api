@@ -35,10 +35,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule verifies if all metadata tags in aggregation hash chains are valid.
  */
 export class AggregationHashChainMetadataRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('AggregationHashChainMetadataRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
     const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();

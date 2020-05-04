@@ -31,10 +31,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks if publications file and signature publication record match.
  */
 export class PublicationsFileSignaturePublicationMatchRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('PublicationsFileSignaturePublicationMatchRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
     if (publicationsFile === null) {

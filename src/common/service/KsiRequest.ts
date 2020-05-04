@@ -28,21 +28,35 @@ export class KsiRequest extends KsiRequestBase {
   private readonly abortController: AbortController;
   private abortResponse: PduPayload;
 
-  constructor(response: Promise<Uint8Array | null>, abortController: AbortController) {
+  /**
+   * KSI request constructor.
+   * @param response Response promise.
+   * @param abortController Abort controller for cancelling request.
+   */
+  public constructor(response: Promise<Uint8Array | null>, abortController: AbortController) {
     super(response);
 
     this.abortController = abortController;
   }
 
+  /**
+   * @inheritDoc
+   */
   public abort(payload: PduPayload): void {
     this.abortResponse = payload;
     this.abortController.abort();
   }
 
+  /**
+   * @inheritDoc
+   */
   public getAbortResponse(): PduPayload {
     return this.abortResponse;
   }
 
+  /**
+   * @inheritDoc
+   */
   public isAborted(): boolean {
     return this.abortController.signal.aborted;
   }

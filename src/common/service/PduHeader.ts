@@ -26,14 +26,18 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * PDU header class
+ * PDU header TLV object.
  */
 export class PduHeader extends CompositeTag {
   private loginId: StringTag;
   private instanceId: IntegerTag;
   private messageId: IntegerTag;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * PDU header TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -42,6 +46,11 @@ export class PduHeader extends CompositeTag {
     Object.freeze(this);
   }
 
+  /**
+   * Create PDU header from login ID.
+   * @param loginId Login ID.
+   * @returns PDU header.
+   */
   public static CREATE_FROM_LOGIN_ID(loginId: string): PduHeader {
     return new PduHeader(
       CompositeTag.CREATE_FROM_LIST(PDU_HEADER_CONSTANTS.TagType, false, false, [
@@ -50,6 +59,11 @@ export class PduHeader extends CompositeTag {
     );
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case PDU_HEADER_CONSTANTS.LoginIdTagType:
@@ -63,6 +77,9 @@ export class PduHeader extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(PDU_HEADER_CONSTANTS.LoginIdTagType) !== 1) {
       throw new TlvError('Exactly one login id must exist in PDU header.');

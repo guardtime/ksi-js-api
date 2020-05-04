@@ -32,7 +32,7 @@ import { TlvTag } from '../parser/TlvTag';
 import { PublicationData } from '../publication/PublicationData';
 
 /**
- * Calendar Hash Chain TLV Object
+ * Calendar hash chain TLV object.
  */
 export class CalendarHashChain extends CompositeTag {
   private chainLinks: ImprintTag[] = [];
@@ -40,7 +40,11 @@ export class CalendarHashChain extends CompositeTag {
   private aggregationTime: IntegerTag;
   private inputHash: ImprintTag;
 
-  constructor(tlvTag: TlvTag) {
+  /**
+   * Calendar hash chain TLV object constructor.
+   * @param tlvTag TLV object.
+   */
+  public constructor(tlvTag: TlvTag) {
     super(tlvTag);
 
     this.decodeValue(this.parseChild.bind(this));
@@ -51,6 +55,7 @@ export class CalendarHashChain extends CompositeTag {
 
   /**
    * Calculate highest bit.
+   * @returns Highest bit.
    */
   private static highBit(n: BigInteger): BigInteger {
     let v: BigInteger = n;
@@ -66,6 +71,7 @@ export class CalendarHashChain extends CompositeTag {
 
   /**
    * Hash two hashes together with algorithm.
+   * @returns Link step hash.
    */
   private static async getStepHash(algorithm: HashAlgorithm, hashA: Uint8Array, hashB: Uint8Array): Promise<DataHash> {
     const hasher: DataHasher = new DataHasher(algorithm);
@@ -78,6 +84,7 @@ export class CalendarHashChain extends CompositeTag {
 
   /**
    * Compare right links if they are equal.
+   * @returns True if right links are equal.
    */
   public areRightLinksEqual(calendarHashChain: CalendarHashChain): boolean {
     let i = 0;
@@ -104,6 +111,10 @@ export class CalendarHashChain extends CompositeTag {
     return true;
   }
 
+  /**
+   * Calculate registration time.
+   * @returns Registration time.
+   */
   public calculateRegistrationTime(): BigInteger {
     let r: BigInteger = this.publicationTime.getValue();
     let t: BigInteger = bigInteger(0);
@@ -133,24 +144,41 @@ export class CalendarHashChain extends CompositeTag {
     return t;
   }
 
+  /**
+   * Get calendar hash chain links.
+   * @returns Chain links.
+   */
   public getChainLinks(): ImprintTag[] {
     return this.chainLinks;
   }
 
+  /**
+   * Get publications time.
+   * @returns Publications time.
+   */
   public getPublicationTime(): bigInteger.BigInteger {
     return this.publicationTime.getValue();
   }
 
+  /**
+   * Get chain input hash.
+   * @returns Chain input hash.
+   */
   public getInputHash(): DataHash {
     return this.inputHash.getValue();
   }
 
+  /**
+   * Get aggregation time if exists, otherwise publications time.
+   * @returns Aggregation time.
+   */
   public getAggregationTime(): bigInteger.BigInteger {
     return this.aggregationTime ? this.aggregationTime.getValue() : this.getPublicationTime();
   }
 
   /**
-   * Calculate output hash.
+   * Calculate chain output hash.
+   * @returns Links output hash
    */
   public async calculateOutputHash(): Promise<DataHash> {
     let inputHash: DataHash = this.getInputHash();
@@ -177,10 +205,19 @@ export class CalendarHashChain extends CompositeTag {
     return inputHash;
   }
 
+  /**
+   * Get publications data.
+   * @returns Publications data.
+   */
   public async getPublicationData(): Promise<PublicationData> {
     return PublicationData.CREATE(this.publicationTime.getValue(), await this.calculateOutputHash());
   }
 
+  /**
+   * Parse child element to correct object.
+   * @param tlvTag TLV object.
+   * @returns TLV object.
+   */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
       case CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType:
@@ -200,6 +237,9 @@ export class CalendarHashChain extends CompositeTag {
     }
   }
 
+  /**
+   * Validate current TLV object format.
+   */
   private validate(): void {
     if (this.getCount(CALENDAR_HASH_CHAIN_CONSTANTS.PublicationTimeTagType) !== 1) {
       throw new TlvError('Exactly one publication time must exist in calendar hash chain.');

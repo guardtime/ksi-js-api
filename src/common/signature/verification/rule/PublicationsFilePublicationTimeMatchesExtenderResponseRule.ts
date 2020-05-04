@@ -32,10 +32,15 @@ import { VerificationRule } from '../VerificationRule';
  * Rule checks that publications file publication time matches with extender response calendar hash chain shape.
  */
 export class PublicationsFilePublicationTimeMatchesExtenderResponseRule extends VerificationRule {
-  constructor() {
+  public constructor() {
     super('PublicationsFilePublicationTimeMatchesExtenderResponseRule');
   }
 
+  /**
+   * Verify current rule with given context.
+   * @param context Verification context.
+   * @returns Verification result.
+   */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const publicationsFile: PublicationsFile | null = context.getPublicationsFile();
     if (publicationsFile === null) {
