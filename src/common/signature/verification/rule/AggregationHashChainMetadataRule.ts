@@ -84,7 +84,9 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
           }
 
           if (paddingTag.tlv16BitFlag) {
-            console.debug(`Metadata with padding may not be trusted. Padding is not TLV8. Metadata: ${metadata.toString()}.`);
+            console.debug(
+              `Metadata with padding may not be trusted. Padding is not TLV8. Metadata: ${metadata.toString()}.`
+            );
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11());
           }
@@ -107,7 +109,9 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
               AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd
             )
           ) {
-            console.debug(`Metadata with padding may not be trusted. Unknown padding value. Metadata: ${metadata.toString()}.`);
+            console.debug(
+              `Metadata with padding may not be trusted. Unknown padding value. Metadata: ${metadata.toString()}.`
+            );
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11());
           }
@@ -115,7 +119,9 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
           const stream: TlvOutputStream = new TlvOutputStream();
           stream.writeTag(metadata);
           if (stream.getData().length % 2 !== 0) {
-            console.debug(`Metadata with padding may not be trusted. Invalid padding value. Metadata: ${metadata.toString()}.`);
+            console.debug(
+              `Metadata with padding may not be trusted. Invalid padding value. Metadata: ${metadata.toString()}.`
+            );
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11());
           }

@@ -53,9 +53,9 @@ export class AggregationHashChainConsistencyRule extends VerificationRule {
 
       if (!chain.getInputHash().equals(chainHashResult.hash)) {
         console.debug(
-          `Aggregation hash chains not consistent. Aggregation hash chain input hash ${chain.getInputHash().toString()} does not match previous aggregation hash chain output hash ${
-            chainHashResult.hash.toString()
-          }.`
+          `Aggregation hash chains not consistent. Aggregation hash chain input hash ${chain
+            .getInputHash()
+            .toString()} does not match previous aggregation hash chain output hash ${chainHashResult.hash.toString()}.`
         );
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_01());
