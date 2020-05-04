@@ -86,7 +86,7 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
         return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
       }
     } catch (error) {
-      console.debug(error);
+      console.debug(`Calendar authentication record signature verification failed: ${error}`);
     }
 
     return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_02());

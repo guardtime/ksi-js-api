@@ -51,7 +51,7 @@ export class DocumentHashVerificationRule extends VerificationRule {
 
     const inputHash: DataHash = signature.getInputHash();
     if (!documentHash.equals(inputHash)) {
-      console.debug(`Invalid document hash. Expected ${documentHash}, found ${inputHash}.`);
+      console.debug(`Invalid document hash. Expected ${documentHash.toString()}, found ${inputHash.toString()}.`);
 
       return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_01());
     }
