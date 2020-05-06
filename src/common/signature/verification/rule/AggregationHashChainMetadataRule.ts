@@ -20,10 +20,10 @@
 
 import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
 import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
 import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../../Constants';
 import { RawTag } from '../../../parser/RawTag';
 import { TlvOutputStream } from '../../../parser/TlvOutputStream';
-import { compareTypedArray } from '../../../util/Array';
 import { AggregationHashChain, AggregationHashChainLinkMetaData } from '../../AggregationHashChain';
 import { KsiSignature } from '../../KsiSignature';
 import { VerificationContext } from '../VerificationContext';
@@ -98,11 +98,11 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
           }
 
           if (
-            !compareTypedArray(
+            !compareUint8Arrays(
               paddingTag.getValueBytes(),
               AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven
             ) &&
-            !compareTypedArray(
+            !compareUint8Arrays(
               paddingTag.getValueBytes(),
               AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd
             )

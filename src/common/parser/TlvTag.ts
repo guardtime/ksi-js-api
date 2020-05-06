@@ -18,8 +18,8 @@
  * reserves and retains all trademark rights.
  */
 
+import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
 import { TLV_CONSTANTS } from '../Constants';
-import { compareTypedArray } from '../util/Array';
 import { TlvError } from './TlvError';
 
 /**
@@ -83,7 +83,7 @@ export class TlvTag {
       x.id !== y.id ||
       x.forwardFlag !== y.forwardFlag ||
       x.nonCriticalFlag !== y.nonCriticalFlag ||
-      !compareTypedArray(x.getValueBytes(), y.getValueBytes())
+      !compareUint8Arrays(x.getValueBytes(), y.getValueBytes())
     );
   }
 

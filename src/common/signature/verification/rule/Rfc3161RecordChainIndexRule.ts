@@ -20,7 +20,7 @@
 
 import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
 import bigInteger from 'big-integer';
-import { compareArrayEquals } from '../../../util/Array';
+import { compareArrayEquals } from '@guardtime/common/lib/utils/Array';
 import { AggregationHashChain } from '../../AggregationHashChain';
 import { KsiSignature } from '../../KsiSignature';
 import { Rfc3161Record } from '../../Rfc3161Record';

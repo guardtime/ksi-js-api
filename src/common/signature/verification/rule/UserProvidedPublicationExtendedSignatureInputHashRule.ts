@@ -51,7 +51,7 @@ export class UserProvidedPublicationExtendedSignatureInputHashRule extends Verif
     try {
       extendedCalendarHashChain = await context.getExtendedCalendarHashChain(userPublication.getPublicationTime());
     } catch (e) {
-      console.warn(e);
+      console.warn(`Calendar extending failed: ${e}`);
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 

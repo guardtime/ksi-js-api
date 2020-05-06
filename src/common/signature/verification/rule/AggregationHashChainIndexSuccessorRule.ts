@@ -19,8 +19,8 @@
  */
 
 import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
+import { compareArrayEquals } from '@guardtime/common/lib/utils/Array';
 import { BigInteger } from 'big-integer';
-import { compareArrayEquals } from '../../../util/Array';
 import { AggregationHashChain } from '../../AggregationHashChain';
 import { KsiSignature } from '../../KsiSignature';
 import { VerificationContext } from '../VerificationContext';

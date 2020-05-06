@@ -19,6 +19,7 @@
  */
 
 import { BigInteger } from 'big-integer';
+import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
 import {
   CERTIFICATE_RECORD_CONSTANTS,
   PUBLICATIONS_FILE_CONSTANTS,
@@ -28,7 +29,6 @@ import { CompositeTag } from '../parser/CompositeTag';
 import { RawTag } from '../parser/RawTag';
 import { TlvOutputStream } from '../parser/TlvOutputStream';
 import { TlvTag } from '../parser/TlvTag';
-import { compareTypedArray } from '../util/Array';
 import { CertificateRecord } from './CertificateRecord';
 import { PublicationRecord } from './PublicationRecord';
 import { PublicationsFileError } from './PublicationsFileError';
@@ -75,7 +75,7 @@ export class PublicationsFile extends CompositeTag {
    */
   public findCertificateById(certificateId: Uint8Array): CertificateRecord | null {
     for (const certificateRecord of this.certificateRecordList) {
-      if (compareTypedArray(certificateId, certificateRecord.getCertificateId())) {
+      if (compareUint8Arrays(certificateId, certificateRecord.getCertificateId())) {
         return certificateRecord;
       }
     }
