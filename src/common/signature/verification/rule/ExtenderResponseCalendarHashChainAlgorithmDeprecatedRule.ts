@@ -71,6 +71,7 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
     try {
       extendedCalendarHashChain = await context.getExtendedCalendarHashChain(publicationData.getPublicationTime());
     } catch (e) {
+      console.warn(`Calendar extending failed: ${e}`);
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 

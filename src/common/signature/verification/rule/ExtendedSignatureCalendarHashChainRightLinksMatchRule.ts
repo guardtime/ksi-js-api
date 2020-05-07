@@ -51,6 +51,7 @@ export class ExtendedSignatureCalendarHashChainRightLinksMatchRule extends Verif
     try {
       extendedCalendarHashChain = await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
     } catch (e) {
+      console.warn(`Calendar extending failed: ${e}`);
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
