@@ -23,7 +23,7 @@ import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
 import {
   CERTIFICATE_RECORD_CONSTANTS,
   PUBLICATIONS_FILE_CONSTANTS,
-  PUBLICATIONS_FILE_HEADER_CONSTANTS
+  PUBLICATIONS_FILE_HEADER_CONSTANTS,
 } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';
 import { RawTag } from '../parser/RawTag';

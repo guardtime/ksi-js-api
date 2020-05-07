@@ -22,7 +22,7 @@ import {
   AGGREGATION_HASH_CHAIN_CONSTANTS,
   CALENDAR_AUTHENTICATION_RECORD_CONSTANTS,
   CALENDAR_HASH_CHAIN_CONSTANTS,
-  KSI_SIGNATURE_CONSTANTS
+  KSI_SIGNATURE_CONSTANTS,
 } from '../Constants';
 import { TlvTag } from '../parser/TlvTag';
 import { RequestResponsePayload } from './RequestResponsePayload';

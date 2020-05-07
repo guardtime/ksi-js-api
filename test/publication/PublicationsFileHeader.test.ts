@@ -35,7 +35,12 @@ describe('PublicationsFileHeader', () => {
       CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
         IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
         IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
-        StringTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType, false, false, 'http://localhost/test')
+        StringTag.CREATE(
+          PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
+          false,
+          false,
+          'http://localhost/test'
+        ),
       ])
     );
 
@@ -48,7 +53,7 @@ describe('PublicationsFileHeader', () => {
     const publicationsFileHeader: PublicationsFileHeader = new PublicationsFileHeader(
       CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
         IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
-        IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1))
+        IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
       ])
     );
 
@@ -59,7 +64,7 @@ describe('PublicationsFileHeader', () => {
     expect(() => {
       return new PublicationsFileHeader(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
-          IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1))
+          IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
         ])
       );
     }).toThrow('Exactly one version must exist in publications file header.');
@@ -69,7 +74,7 @@ describe('PublicationsFileHeader', () => {
     expect(() => {
       return new PublicationsFileHeader(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
-          IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5))
+          IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
         ])
       );
     }).toThrow('Exactly one creation time must exist in publications file header.');
@@ -81,7 +86,7 @@ describe('PublicationsFileHeader', () => {
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(6)),
-          IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1))
+          IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
         ])
       );
     }).toThrow('Exactly one version must exist in publications file header.');
@@ -93,7 +98,7 @@ describe('PublicationsFileHeader', () => {
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
-          IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(2))
+          IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(2)),
         ])
       );
     }).toThrow('Exactly one creation time must exist in publications file header.');
@@ -116,7 +121,7 @@ describe('PublicationsFileHeader', () => {
             false,
             false,
             'http://localhost/broken'
-          )
+          ),
         ])
       );
     }).toThrow('Only one repository uri is allowed in publications file header.');

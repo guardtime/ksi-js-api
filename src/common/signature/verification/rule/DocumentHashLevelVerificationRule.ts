@@ -46,10 +46,7 @@ export class DocumentHashLevelVerificationRule extends VerificationRule {
     const levelCorrection: bigInteger.BigInteger =
       signature.getRfc3161Record() !== null
         ? bigInteger(0)
-        : signature
-            .getAggregationHashChains()[0]
-            .getChainLinks()[0]
-            .getLevelCorrection();
+        : signature.getAggregationHashChains()[0].getChainLinks()[0].getLevelCorrection();
 
     return context.getDocumentHashLevel() > levelCorrection
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.GEN_03())

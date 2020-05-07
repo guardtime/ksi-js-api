@@ -61,8 +61,8 @@ export class KsiHttpProtocol {
             method: 'POST',
             headers: {
               'Content-Type': 'application/ksi-request',
-              'Content-Length': requestBytes.length.toString()
-            }
+              'Content-Length': requestBytes.length.toString(),
+            },
           },
           (response: IncomingMessage): void => {
             let data: Buffer = Buffer.alloc(0);
@@ -103,7 +103,7 @@ export class KsiHttpProtocol {
             protocol: this.url.protocol,
             hostname: this.url.hostname,
             port: this.url.port,
-            path: this.url.pathname
+            path: this.url.pathname,
           },
           (response: IncomingMessage): void => {
             let data: Buffer = Buffer.alloc(0);

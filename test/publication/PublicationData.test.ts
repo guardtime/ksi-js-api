@@ -41,7 +41,7 @@ describe('PublicationData', () => {
         false,
         false,
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-      )
+      ),
     ]);
 
     const publicationData: PublicationData = new PublicationData(tlvTag);
@@ -65,7 +65,7 @@ describe('PublicationData', () => {
         false,
         false,
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-      )
+      ),
     ]);
 
     expect(() => {
@@ -75,7 +75,7 @@ describe('PublicationData', () => {
 
   it('Creation with missing publication hash', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
-      IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, bigInteger(2))
+      IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, bigInteger(2)),
     ]);
 
     expect(() => {
@@ -92,7 +92,7 @@ describe('PublicationData', () => {
         false,
         false,
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-      )
+      ),
     ]);
 
     expect(() => {
@@ -114,7 +114,7 @@ describe('PublicationData', () => {
         false,
         false,
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-      )
+      ),
     ]);
 
     expect(() => {

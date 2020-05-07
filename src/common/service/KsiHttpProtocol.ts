@@ -46,9 +46,9 @@ export class KsiHttpProtocol {
       body: requestBytes,
       headers: {
         'Content-Type': 'application/ksi-request',
-        'Content-Length': requestBytes.length.toString()
+        'Content-Length': requestBytes.length.toString(),
       },
-      signal: abortController.signal
+      signal: abortController.signal,
     });
 
     if (!response.ok) {

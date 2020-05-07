@@ -22,7 +22,7 @@ import {
   AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS,
   ERROR_PAYLOAD_CONSTANTS,
   EXTEND_RESPONSE_PAYLOAD_CONSTANTS,
-  EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS
+  EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS,
 } from '../Constants';
 import { TlvTag } from '../parser/TlvTag';
 import { ExtenderConfigResponsePayload } from './ExtenderConfigResponsePayload';
@@ -56,7 +56,7 @@ export class ExtendResponsePdu extends Pdu {
    * @returns Aggregation response payloads.
    */
   public getExtendResponsePayloads(): PduPayload[] {
-    return this.payloads.filter(payload => payload.id === EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType);
+    return this.payloads.filter((payload) => payload.id === EXTEND_RESPONSE_PAYLOAD_CONSTANTS.TagType);
   }
 
   /**

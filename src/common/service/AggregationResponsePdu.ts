@@ -22,7 +22,7 @@ import {
   AGGREGATION_ACKNOWLEDGMENT_RESPONSE_PAYLOAD_CONSTANTS,
   AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS,
   AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS,
-  ERROR_PAYLOAD_CONSTANTS
+  ERROR_PAYLOAD_CONSTANTS,
 } from '../Constants';
 import { TlvTag } from '../parser/TlvTag';
 import { AggregationErrorPayload } from './AggregationErrorPayload';
@@ -55,7 +55,7 @@ export class AggregationResponsePdu extends Pdu {
    * @returns Aggregation response payloads.
    */
   public getAggregationResponsePayloads(): PduPayload[] {
-    return this.payloads.filter(payload => payload.id === AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType);
+    return this.payloads.filter((payload) => payload.id === AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS.TagType);
   }
 
   /**

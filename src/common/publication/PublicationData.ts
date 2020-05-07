@@ -31,7 +31,6 @@ import { IntegerTag } from '../parser/IntegerTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
-
 /**
  * Publication Data TLV object.
  */
@@ -61,7 +60,7 @@ export class PublicationData extends CompositeTag {
     return new PublicationData(
       CompositeTag.CREATE_FROM_LIST(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
         IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
-        ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash)
+        ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash),
       ])
     );
   }

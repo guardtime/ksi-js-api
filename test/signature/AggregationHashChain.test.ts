@@ -41,8 +41,8 @@ describe('AggregationHashChain', () => {
     const links: TlvTag[] = [
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -50,13 +50,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ];
 
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
@@ -84,7 +84,7 @@ describe('AggregationHashChain', () => {
         false,
         bigInteger(HashAlgorithm.SHA2_256.id)
       ),
-      ...links
+      ...links,
     ]);
 
     const chain: AggregationHashChain = new AggregationHashChain(tlvTag);
@@ -107,7 +107,7 @@ describe('AggregationHashChain', () => {
       hash: DataHash.create(
         HashAlgorithm.SHA2_256,
         HexCoder.decode('E5321A7C33863817393744EDB04A2F8D32CD5801AD88816515125D1162577D4B')
-      )
+      ),
     });
     expect(chain.getAggregationAlgorithm()).toEqual(HashAlgorithm.SHA2_256);
   });
@@ -134,8 +134,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -143,13 +143,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     const chain: AggregationHashChain = new AggregationHashChain(tlvTag);
@@ -176,7 +176,7 @@ describe('AggregationHashChain', () => {
       hash: DataHash.create(
         HashAlgorithm.SHA2_256,
         HexCoder.decode('E5321A7C33863817393744EDB04A2F8D32CD5801AD88816515125D1162577D4B')
-      )
+      ),
     });
     expect(chain.getAggregationAlgorithm()).toEqual(HashAlgorithm.SHA2_256);
   });
@@ -202,8 +202,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -211,13 +211,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     expect(() => {
@@ -248,8 +248,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -257,13 +257,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     expect(() => {
@@ -291,8 +291,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -300,13 +300,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     expect(() => {
@@ -348,8 +348,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -357,13 +357,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     expect(() => {
@@ -384,8 +384,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -393,13 +393,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     expect(() => {
@@ -438,8 +438,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -447,13 +447,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     expect(() => {
@@ -477,8 +477,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -486,13 +486,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     expect(() => {
@@ -528,8 +528,8 @@ describe('AggregationHashChain', () => {
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me')
-        ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'me'),
+        ]),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         ImprintTag.CREATE(
@@ -537,13 +537,13 @@ describe('AggregationHashChain', () => {
           false,
           false,
           DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-        )
+        ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test')
-        ])
-      ])
+          StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test'),
+        ]),
+      ]),
     ]);
 
     expect(() => {
@@ -570,7 +570,7 @@ describe('AggregationHashChain', () => {
         false,
         false,
         bigInteger(HashAlgorithm.SHA2_256.id)
-      )
+      ),
     ]);
 
     expect(() => {

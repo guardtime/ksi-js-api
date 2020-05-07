@@ -22,7 +22,7 @@ import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import {
   AGGREGATION_REQUEST_PAYLOAD_CONSTANTS,
   AGGREGATION_REQUEST_PDU_CONSTANTS,
-  AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS
+  AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS,
 } from '../Constants';
 import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';

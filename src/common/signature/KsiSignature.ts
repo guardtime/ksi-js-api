@@ -29,7 +29,7 @@ import {
   CALENDAR_HASH_CHAIN_CONSTANTS,
   KSI_SIGNATURE_CONSTANTS,
   LinkDirection,
-  RFC_3161_RECORD_CONSTANTS
+  RFC_3161_RECORD_CONSTANTS,
 } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';
 import { TlvError } from '../parser/TlvError';
@@ -130,7 +130,7 @@ export class KsiSignature extends CompositeTag {
   public async getLastAggregationHashChainRootHash(): Promise<DataHash> {
     let lastResult: AggregationHashResult = {
       level: bigInteger(0),
-      hash: this.aggregationHashChains[0].getInputHash()
+      hash: this.aggregationHashChains[0].getInputHash(),
     };
     for (const chain of this.aggregationHashChains) {
       lastResult = await chain.getOutputHash(lastResult);

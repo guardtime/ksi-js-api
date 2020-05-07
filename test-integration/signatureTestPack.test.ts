@@ -39,7 +39,7 @@ import {
   PublicationsFileService,
   ServiceCredentials,
   SigningService,
-  VerificationContext
+  VerificationContext,
 } from '../src/common/main';
 import { TlvInputStream } from '../src/common/parser/TlvInputStream';
 import { PublicationData } from '../src/common/publication/PublicationData';
@@ -62,7 +62,7 @@ const config: {
 } = {
   publicationsFile: null,
   testDirectory: null,
-  ksiService: null
+  ksiService: null,
 };
 
 type SignatureTestRow = {
@@ -209,7 +209,7 @@ describe.each([
     __dirname,
     './resources/signature-test-pack/policy-verification-signatures/policy-verification-results.csv'
   ),
-  path.join(__dirname, './resources/signature-test-pack/valid-signatures/signature-results.csv')
+  path.join(__dirname, './resources/signature-test-pack/valid-signatures/signature-results.csv'),
 ])('Signature Test Pack: %s', (resultFile: string): void => {
   beforeAll(() => {
     config.ksiService = new KsiService(
@@ -254,7 +254,7 @@ describe.each([
           'resourceFile',
           'publicationsFilePath',
           'certFilePath',
-          'rowIndex'
+          'rowIndex',
         ];
       },
       cast: (value: string, context: CastingContext): CsvCastTypes => {
@@ -281,7 +281,7 @@ describe.each([
           default:
             return value;
         }
-      }
+      },
     }) as SignatureTestRow[]).map((row: SignatureTestRow) => [path.basename(row.signatureFile), row])
   )('%s', (filename: string, row: SignatureTestRow) => {
     console.debug(`
