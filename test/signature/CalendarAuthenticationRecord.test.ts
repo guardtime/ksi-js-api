@@ -39,7 +39,7 @@ describe('CalendarAuthenticationRecord', () => {
     const signatureDataTlv: TlvTag = CompositeTag.CREATE_FROM_LIST(SIGNATURE_DATA_CONSTANTS.TagType, false, false, [
       RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([0x1, 0x2])),
       StringTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType, false, false, 'signature_type'),
-      RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4]))
+      RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4])),
     ]);
 
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(
@@ -48,7 +48,7 @@ describe('CalendarAuthenticationRecord', () => {
       false,
       [
         PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
-        signatureDataTlv
+        signatureDataTlv,
       ]
     );
 
@@ -70,8 +70,8 @@ describe('CalendarAuthenticationRecord', () => {
         CompositeTag.CREATE_FROM_LIST(SIGNATURE_DATA_CONSTANTS.TagType, false, false, [
           RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([0x1, 0x2])),
           StringTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType, false, false, 'signature_type'),
-          RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4]))
-        ])
+          RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4])),
+        ]),
       ]
     );
 
@@ -91,8 +91,8 @@ describe('CalendarAuthenticationRecord', () => {
         CompositeTag.CREATE_FROM_LIST(SIGNATURE_DATA_CONSTANTS.TagType, false, false, [
           RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([0x1, 0x2])),
           StringTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType, false, false, 'signature_type'),
-          RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4]))
-        ])
+          RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4])),
+        ]),
       ]
     );
 
@@ -124,13 +124,13 @@ describe('CalendarAuthenticationRecord', () => {
         CompositeTag.CREATE_FROM_LIST(SIGNATURE_DATA_CONSTANTS.TagType, false, false, [
           RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([0x1, 0x2])),
           StringTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType, false, false, 'signature_type'),
-          RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4]))
+          RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4])),
         ]),
         CompositeTag.CREATE_FROM_LIST(SIGNATURE_DATA_CONSTANTS.TagType, false, false, [
           RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([0x5, 0x6])),
           StringTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType, false, false, 'signature_type2'),
-          RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x7, 0x8]))
-        ])
+          RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x7, 0x8])),
+        ]),
       ]
     );
 

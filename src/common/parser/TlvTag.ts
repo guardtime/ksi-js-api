@@ -18,8 +18,9 @@
  * reserves and retains all trademark rights.
  */
 
+import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
+import HexCoder from '@guardtime/common/lib/coders/HexCoder';
 import { TLV_CONSTANTS } from '../Constants';
-import { compareTypedArray } from '../util/Array';
 import { TlvError } from './TlvError';
 
 /**
@@ -83,7 +84,7 @@ export class TlvTag {
       x.id !== y.id ||
       x.forwardFlag !== y.forwardFlag ||
       x.nonCriticalFlag !== y.nonCriticalFlag ||
-      !compareTypedArray(x.getValueBytes(), y.getValueBytes())
+      !compareUint8Arrays(x.getValueBytes(), y.getValueBytes())
     );
   }
 
@@ -133,5 +134,24 @@ export class TlvTag {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public equals(tag: any): boolean {
     return TlvTag.EQUALS(this, tag);
+  }
+
+  /**
+   * Serialize current byte array TLV object to string.
+   * @returns Serialized TLV object.
+   */
+  public toString(): string {
+    let result = `TLV[0x${this.id.toString(16)}`;
+    if (this.nonCriticalFlag) {
+      result += ',N';
+    }
+
+    if (this.forwardFlag) {
+      result += ',F';
+    }
+
+    result += `]:${HexCoder.encode(this.getValueBytes())}`;
+
+    return result;
   }
 }

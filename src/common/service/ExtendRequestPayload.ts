@@ -61,7 +61,7 @@ export class ExtendRequestPayload extends PduPayload {
   ): ExtendRequestPayload {
     const childTlv: TlvTag[] = [
       IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
-      IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType, false, false, aggregationTime)
+      IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType, false, false, aggregationTime),
     ];
 
     if (publicationTime !== null) {

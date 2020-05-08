@@ -52,6 +52,7 @@ export class ExtendedSignatureCalendarChainAggregationTimeRule extends Verificat
           ? await context.getExtendedLatestCalendarHashChain()
           : await context.getExtendedCalendarHashChain(calendarHashChain.getPublicationTime());
     } catch (e) {
+      console.warn(`Calendar extending failed: ${e}`);
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 

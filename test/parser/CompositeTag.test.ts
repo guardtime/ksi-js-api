@@ -33,7 +33,7 @@ describe('CompositeTag', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(CERTIFICATE_RECORD_CONSTANTS.TagType, false, false, [
       RawTag.CREATE(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([1, 2])),
       RawTag.CREATE(CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType, true, false, new Uint8Array([3, 4])),
-      RawTag.CREATE(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([5, 6]))
+      RawTag.CREATE(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([5, 6])),
     ]);
 
     const compositeTag: TestCompositeTag = new TestCompositeTag(tlvTag);
@@ -43,7 +43,7 @@ describe('CompositeTag', () => {
   it('Creation with unknown child tag', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(CERTIFICATE_RECORD_CONSTANTS.TagType, false, false, [
       RawTag.CREATE(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType, false, false, new Uint8Array([1, 2])),
-      RawTag.CREATE(CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType, false, false, new Uint8Array([3, 4]))
+      RawTag.CREATE(CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType, false, false, new Uint8Array([3, 4])),
     ]);
 
     expect(() => {

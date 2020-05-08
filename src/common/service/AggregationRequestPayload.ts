@@ -62,7 +62,7 @@ export class AggregationRequestPayload extends CompositeTag {
   ): AggregationRequestPayload {
     const childTlv: TlvTag[] = [
       IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
-      ImprintTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType, false, false, hash)
+      ImprintTag.CREATE(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType, false, false, hash),
     ];
 
     if (level.neq(0)) {

@@ -31,7 +31,7 @@ import { StringTag } from '../../src/common/parser/StringTag';
 import { TlvTag } from '../../src/common/parser/TlvTag';
 import {
   AggregationHashChainLink,
-  AggregationHashChainLinkMetaData
+  AggregationHashChainLinkMetaData,
 } from '../../src/common/signature/AggregationHashChain';
 import { LegacyIdentity } from '../../src/common/signature/LegacyIdentity';
 
@@ -47,7 +47,7 @@ describe('AggregationHashChainLink', () => {
         false,
         false,
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-      )
+      ),
     ]);
 
     const link: AggregationHashChainLink = new AggregationHashChainLink(tlvTag);
@@ -64,7 +64,7 @@ describe('AggregationHashChainLink', () => {
 
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     const link: AggregationHashChainLink = new AggregationHashChainLink(tlvTag);
@@ -85,7 +85,7 @@ describe('AggregationHashChainLink', () => {
 
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
-      metadata
+      metadata,
     ]);
 
     const link: AggregationHashChainLink = new AggregationHashChainLink(tlvTag);
@@ -106,8 +106,8 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(0x1, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')
-      ])
+        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
+      ]),
     ]);
 
     expect(() => {
@@ -126,7 +126,7 @@ describe('AggregationHashChainLink', () => {
         false,
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
       ),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     expect(() => {
@@ -145,8 +145,8 @@ describe('AggregationHashChainLink', () => {
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
       ),
       CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')
-      ])
+        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
+      ]),
     ]);
 
     expect(() => {
@@ -163,8 +163,8 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
       CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')
-      ])
+        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
+      ]),
     ]);
 
     expect(() => {
@@ -188,7 +188,7 @@ describe('AggregationHashChainLink', () => {
         false,
         false,
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-      )
+      ),
     ]);
 
     expect(() => {
@@ -205,7 +205,7 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     expect(() => {
@@ -219,11 +219,11 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')
+        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
       ]),
       CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
-        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')
-      ])
+        StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
+      ]),
     ]);
 
     expect(() => {
@@ -245,7 +245,7 @@ describe('AggregationHashChainLink', () => {
         false,
         false,
         DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
-      )
+      ),
     ]);
 
     expect(() => {
@@ -255,7 +255,7 @@ describe('AggregationHashChainLink', () => {
 
   it('Creation with TlvTag containing only level correction', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
-      IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1))
+      IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
     ]);
 
     expect(() => {
@@ -271,7 +271,7 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     expect(() => {
@@ -286,7 +286,7 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     expect(() => {
@@ -301,7 +301,7 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     expect(() => {
@@ -316,7 +316,7 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     expect(() => {
@@ -331,7 +331,7 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     expect(() => {
@@ -346,7 +346,7 @@ describe('AggregationHashChainLink', () => {
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
       IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LevelCorrectionTagType, false, false, bigInteger(1)),
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
-      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId)
+      RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
 
     expect(() => {

@@ -42,7 +42,12 @@ describe('PublicationRecord', () => {
         PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
         StringTag.CREATE(PUBLICATION_RECORD_CONSTANTS.PublicationReferencesTagType, false, false, 'Test'),
         StringTag.CREATE(PUBLICATION_RECORD_CONSTANTS.PublicationReferencesTagType, false, false, 'Kuki'),
-        StringTag.CREATE(PUBLICATION_RECORD_CONSTANTS.PublicationRepositoryUriTagType, false, false, 'http://localhost')
+        StringTag.CREATE(
+          PUBLICATION_RECORD_CONSTANTS.PublicationRepositoryUriTagType,
+          false,
+          false,
+          'http://localhost'
+        ),
       ]
     );
 
@@ -88,7 +93,7 @@ describe('PublicationRecord', () => {
       false,
       [
         PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
-        PublicationData.CREATE(bigInteger(3), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+        PublicationData.CREATE(bigInteger(3), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
       ]
     );
 

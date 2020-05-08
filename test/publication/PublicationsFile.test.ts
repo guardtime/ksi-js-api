@@ -26,7 +26,7 @@ import bigInteger from 'big-integer';
 import {
   CERTIFICATE_RECORD_CONSTANTS,
   PUBLICATIONS_FILE_CONSTANTS,
-  PUBLICATIONS_FILE_HEADER_CONSTANTS
+  PUBLICATIONS_FILE_HEADER_CONSTANTS,
 } from '../../src/common/Constants';
 import { CompositeTag } from '../../src/common/parser/CompositeTag';
 import { IntegerTag } from '../../src/common/parser/IntegerTag';
@@ -57,7 +57,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -76,7 +76,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             new Uint8Array([0x3, 0x4, 0x5])
-          )
+          ),
         ])
       )
     );
@@ -95,7 +95,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             new Uint8Array([0x1, 0x2, 0x3])
-          )
+          ),
         ])
       )
     );
@@ -103,7 +103,7 @@ describe('PublicationsFile', () => {
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
-          PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+          PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
         ])
       )
     );
@@ -111,7 +111,7 @@ describe('PublicationsFile', () => {
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
-          PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1)))
+          PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1))),
         ])
       )
     );
@@ -163,7 +163,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -190,7 +190,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -198,7 +198,7 @@ describe('PublicationsFile', () => {
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
-          PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1)))
+          PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1))),
         ])
       )
     );
@@ -227,7 +227,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -266,7 +266,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -289,7 +289,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -303,7 +303,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -329,7 +329,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -362,7 +362,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             new Uint8Array([0x3, 0x4, 0x5])
-          )
+          ),
         ])
       )
     );
@@ -377,7 +377,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -405,7 +405,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -417,7 +417,7 @@ describe('PublicationsFile', () => {
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
-          PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+          PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
         ])
       )
     );
@@ -441,7 +441,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             'http://localhost/test'
-          )
+          ),
         ])
       )
     );
@@ -449,7 +449,7 @@ describe('PublicationsFile', () => {
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
-          PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))
+          PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
         ])
       )
     );
@@ -468,7 +468,7 @@ describe('PublicationsFile', () => {
             false,
             false,
             new Uint8Array([0x3, 0x4, 0x5])
-          )
+          ),
         ])
       )
     );

@@ -18,7 +18,6 @@
  * reserves and retains all trademark rights.
  */
 
-import HexCoder from '@guardtime/common/lib/coders/HexCoder';
 import { TlvTag } from './TlvTag';
 
 /**
@@ -51,24 +50,5 @@ export class RawTag extends TlvTag {
    */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: Uint8Array): RawTag {
     return new RawTag(new TlvTag(id, nonCriticalFlag, forwardFlag, value));
-  }
-
-  /**
-   * Serialize current byte array TLV object to string.
-   * @returns Serialized TLV object.
-   */
-  public toString(): string {
-    let result = `TLV[0x${this.id.toString(16)}`;
-    if (this.nonCriticalFlag) {
-      result += ',N';
-    }
-
-    if (this.forwardFlag) {
-      result += ',F';
-    }
-
-    result += `]:${HexCoder.encode(this.getValue())}`;
-
-    return result;
   }
 }

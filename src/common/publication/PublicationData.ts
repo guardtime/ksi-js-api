@@ -22,6 +22,7 @@ import Base32Coder from '@guardtime/common/lib/coders/Base32Coder';
 import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
 import CRC32 from '@guardtime/common/lib/crc/CRC32';
 import DataHash from '@guardtime/common/lib/hash/DataHash';
+import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
 import { BigInteger } from 'big-integer';
 import { PUBLICATION_DATA_CONSTANTS } from '../Constants';
 import { CompositeTag } from '../parser/CompositeTag';
@@ -29,7 +30,6 @@ import { ImprintTag } from '../parser/ImprintTag';
 import { IntegerTag } from '../parser/IntegerTag';
 import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
-import { compareTypedArray } from '../util/Array';
 
 /**
  * Publication Data TLV object.
@@ -60,7 +60,7 @@ export class PublicationData extends CompositeTag {
     return new PublicationData(
       CompositeTag.CREATE_FROM_LIST(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
         IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
-        ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash)
+        ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash),
       ])
     );
   }
@@ -81,7 +81,7 @@ export class PublicationData extends CompositeTag {
     const calculatedCrc32: Uint8Array = UnsignedLongCoder.encode(CRC32.create(bytesWithCrc32.slice(0, -4)));
     const messageCrc32: Uint8Array = bytesWithCrc32.slice(-4);
 
-    if (!compareTypedArray(calculatedCrc32, messageCrc32)) {
+    if (!compareUint8Arrays(calculatedCrc32, messageCrc32)) {
       throw new TlvError(
         `Publication string CRC 32 check failed. Calculated: ${JSON.stringify(
           calculatedCrc32

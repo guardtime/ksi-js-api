@@ -72,7 +72,7 @@ export abstract class Pdu extends CompositeTag {
         false,
         false,
         DataHash.create(algorithm, new Uint8Array(algorithm.length))
-      )
+      ),
     ]).encode();
     pduBytes.set(
       await HMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length)),
