@@ -69,7 +69,7 @@ export class SigningService {
   /**
    * Sign data hash on given base level of aggregation tree.
    * @param hash Data hash.
-   * @param level Aggregation tree level. By default its 0.
+   * @param level Aggregation tree level. By default 0.
    * @returns KSI signature promise.
    */
   public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
@@ -122,7 +122,7 @@ export class SigningService {
       const aggregationPayload: AggregationResponsePayload = responsePayload as AggregationResponsePayload;
       const payloadRequestId: string = aggregationPayload.getRequestId().toString();
       if (!this.requests.hasOwnProperty(payloadRequestId)) {
-        console.warn('Aggregation response request ID does not match any request id.');
+        console.warn('Aggregation response request ID does not match any request ID.');
         continue;
       }
 

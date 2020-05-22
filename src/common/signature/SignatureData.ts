@@ -111,11 +111,11 @@ export class SignatureData extends CompositeTag {
     }
 
     if (this.getCount(SIGNATURE_DATA_CONSTANTS.CertificateIdTagType) !== 1) {
-      throw new TlvError('Exactly one certificate id must exist in signature data.');
+      throw new TlvError('Exactly one certificate ID must exist in signature data.');
     }
 
     if (this.getCount(SIGNATURE_DATA_CONSTANTS.CertificateRepositoryUriTagType) > 1) {
-      throw new TlvError('Only one certificate repository uri is allowed in signature data.');
+      throw new TlvError('Only one certificate repository URI is allowed in signature data.');
     }
   }
 }

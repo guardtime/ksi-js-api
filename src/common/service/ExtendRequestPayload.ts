@@ -97,7 +97,7 @@ export class ExtendRequestPayload extends PduPayload {
    */
   private validate(): void {
     if (this.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
-      throw new TlvError('Exactly one request id must exist in extend request payload.');
+      throw new TlvError('Exactly one request ID must exist in extend request payload.');
     }
 
     if (this.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType) !== 1) {

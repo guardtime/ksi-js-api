@@ -49,9 +49,9 @@ export abstract class Pdu extends CompositeTag {
 
   /**
    * Create PDU TLV object.
-   * @param id TLV id.
-   * @param header Pdu header.
-   * @param payload Pdu payload.
+   * @param id TLV ID.
+   * @param header PDU header.
+   * @param payload PDU payload.
    * @param algorithm HMAC algorithm.
    * @param key HMAC key.
    * @returns PDU TLV object.

@@ -96,7 +96,7 @@ export class AggregationRequestPayload extends CompositeTag {
    */
   private validate(): void {
     if (this.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
-      throw new TlvError('Exactly one request id must exist in aggregation request payload.');
+      throw new TlvError('Exactly one request ID must exist in aggregation request payload.');
     }
 
     if (this.getCount(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.RequestHashTagType) !== 1) {

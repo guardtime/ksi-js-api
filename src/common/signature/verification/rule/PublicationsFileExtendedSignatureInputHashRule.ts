@@ -28,7 +28,7 @@ import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
- * Rule checks that extender response calendar hash chain input hash matches with signature aggregation root hash.
+ * Rule checks that Extender response calendar hash chain input hash matches with signature aggregation root hash.
  */
 export class PublicationsFileExtendedSignatureInputHashRule extends VerificationRule {
   public constructor() {

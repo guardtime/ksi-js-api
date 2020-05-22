@@ -84,7 +84,7 @@ export class VerificationContext {
   }
 
   /**
-   * Set dodument hash.
+   * Set document hash.
    * @param documentHash Document hash.
    */
   public setDocumentHash(documentHash: DataHash | null): void {
@@ -109,7 +109,7 @@ export class VerificationContext {
 
   /**
    * Set document base hash level.
-   * @param documentHashLevel document hash level.
+   * @param documentHashLevel Document hash level.
    */
   public setDocumentHashLevel(documentHashLevel: BigInteger): void {
     this.documentHashLevel = documentHashLevel;

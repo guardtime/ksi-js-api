@@ -34,7 +34,7 @@ import { PublicationsFileError } from './PublicationsFileError';
 import { PublicationsFileHeader } from './PublicationsFileHeader';
 
 /**
- * Publications File TLV object.
+ * Publications file TLV object.
  */
 export class PublicationsFile extends CompositeTag {
   /**
@@ -68,8 +68,8 @@ export class PublicationsFile extends CompositeTag {
   }
 
   /**
-   * Find certificate by its id.
-   * @param certificateId Certificate id as bytes.
+   * Find certificate by its ID.
+   * @param certificateId Certificate ID as bytes.
    * @returns Certificate record or null if none found.
    */
   public findCertificateById(certificateId: Uint8Array): CertificateRecord | null {

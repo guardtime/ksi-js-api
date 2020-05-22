@@ -27,7 +27,7 @@ import { VerificationRule } from '../VerificationRule';
 
 /**
  * Rule verifies that last aggregation hash chain output hash is equal to calendar hash chain input hash. If calendar
- * hash chain is missing, status VerificationResultCode.Ok is returned.
+ * hash chain is missing, {@see VerificationResultCode.OK} is returned.
  */
 export class CalendarHashChainInputHashVerificationRule extends VerificationRule {
   public constructor() {

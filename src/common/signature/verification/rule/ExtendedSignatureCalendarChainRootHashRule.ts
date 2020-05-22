@@ -26,9 +26,9 @@ import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
- * Rule checks that extender response calendar hash chain (extension request with current calendar hash chain
+ * Rule checks that Extender response calendar hash chain (extension request with current calendar hash chain
  * aggregation and publication time is used) matches with current calendar hash chain root hash. If current signature
- * does not contain calendar hash chain, VerificationResultCode.Ok is returned.
+ * does not contain calendar hash chain, {@see VerificationResultCode.OK} is returned.
  */
 export class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule {
   public constructor() {

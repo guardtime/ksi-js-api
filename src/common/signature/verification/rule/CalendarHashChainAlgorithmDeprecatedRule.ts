@@ -28,7 +28,7 @@ import { VerificationRule } from '../VerificationRule';
 
 /**
  * Verifies that calendar hash chain right link hash algorithms were not deprecated at the publication time.
- * If calendar hash chain is missing then status VerificationResultCode.Ok is returned.
+ * If calendar hash chain is missing, {@see VerificationResultCode.Ok} is returned.
  */
 export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
   public constructor() {

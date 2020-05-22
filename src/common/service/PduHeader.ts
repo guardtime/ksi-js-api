@@ -81,15 +81,15 @@ export class PduHeader extends CompositeTag {
    */
   private validate(): void {
     if (this.getCount(PDU_HEADER_CONSTANTS.LoginIdTagType) !== 1) {
-      throw new TlvError('Exactly one login id must exist in PDU header.');
+      throw new TlvError('Exactly one login ID must exist in PDU header.');
     }
 
     if (this.getCount(PDU_HEADER_CONSTANTS.InstanceIdTagType) > 1) {
-      throw new TlvError('Only one instance id is allowed in PDU header.');
+      throw new TlvError('Only one instance ID is allowed in PDU header.');
     }
 
     if (this.getCount(PDU_HEADER_CONSTANTS.MessageIdTagType) > 1) {
-      throw new TlvError('Only one message id is allowed in PDU header.');
+      throw new TlvError('Only one message ID is allowed in PDU header.');
     }
   }
 }

@@ -24,7 +24,7 @@ import { KsiRequestBase } from './KsiRequestBase';
  */
 export interface IExtendingServiceProtocol {
   /**
-   * Make a extending request.
+   * Make an extending request.
    * @param requestBytes Extending request bytes.
    * @returns Request for getting response.
    */

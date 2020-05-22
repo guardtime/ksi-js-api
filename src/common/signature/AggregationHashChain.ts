@@ -35,7 +35,7 @@ import { IKsiIdentity } from './IKsiIdentity';
 import { LegacyIdentity } from './LegacyIdentity';
 
 /**
- * Aggregation Hash Chain Link Metadata TLV object.
+ * Aggregation hash chain link metadata TLV object.
  */
 export class AggregationHashChainLinkMetaData extends CompositeTag implements IKsiIdentity {
   private padding: RawTag | null = null;
@@ -45,7 +45,7 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
   private requestTime: IntegerTag | null = null;
 
   /**
-   * Aggregation Hash Chain Link Metadata TLV object constructor.
+   * Aggregation hash chain link metadata TLV object constructor.
    * @param tlvTag TLV object.
    */
   public constructor(tlvTag: TlvTag) {
@@ -120,11 +120,11 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
    */
   private validate(): void {
     if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType) !== 1) {
-      throw new TlvError('Exactly one client id must exist in aggregation hash chain link metadata.');
+      throw new TlvError('Exactly one client ID must exist in aggregation hash chain link metadata.');
     }
 
     if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType) > 1) {
-      throw new TlvError('Only one machine id is allowed in aggregation hash chain link metadata.');
+      throw new TlvError('Only one machine ID is allowed in aggregation hash chain link metadata.');
     }
 
     if (this.getCount(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType) > 1) {
@@ -138,7 +138,7 @@ export class AggregationHashChainLinkMetaData extends CompositeTag implements IK
 }
 
 /**
- * Aggregation Hash Chain Link TLV object.
+ * Aggregation hash chain link TLV object.
  */
 export class AggregationHashChainLink extends CompositeTag {
   private static readonly LEGACY_ID_FIRST_OCTET: number = 0x3;
@@ -152,7 +152,7 @@ export class AggregationHashChainLink extends CompositeTag {
   private metadata: AggregationHashChainLinkMetaData | null = null;
 
   /**
-   * Aggregation Hash Chain Link TLV object constructor.
+   * Aggregation hash chain link TLV object constructor.
    * @param tlvTag TLV object.
    */
   public constructor(tlvTag: TlvTag) {
@@ -169,7 +169,7 @@ export class AggregationHashChainLink extends CompositeTag {
         this.direction = LinkDirection.Right;
         break;
       default:
-        throw new TlvError('Invalid Link direction.');
+        throw new TlvError('Invalid link direction.');
     }
 
     Object.freeze(this);
@@ -182,25 +182,25 @@ export class AggregationHashChainLink extends CompositeTag {
    */
   private static getLegacyIdString(bytes: Uint8Array): string {
     if (bytes.length === 0) {
-      throw new TlvError('Invalid legacy id tag: empty.');
+      throw new TlvError('Invalid legacy ID tag: empty.');
     }
 
     if (bytes[0] !== AggregationHashChainLink.LEGACY_ID_FIRST_OCTET) {
-      throw new TlvError(`Invalid first octet in legacy id tag: 0x${bytes[0].toString(16)}.`);
+      throw new TlvError(`Invalid first octet in legacy ID tag: 0x${bytes[0].toString(16)}.`);
     }
 
     if (bytes[1] !== 0x0) {
-      throw new TlvError(`Invalid second octet in legacy id tag: 0x${bytes[1].toString(16)}.`);
+      throw new TlvError(`Invalid second octet in legacy ID tag: 0x${bytes[1].toString(16)}.`);
     }
 
     if (bytes.length !== AggregationHashChainLink.LEGACY_ID_LENGTH) {
-      throw new TlvError(`Invalid legacy id tag length. Length: ${bytes.length}.`);
+      throw new TlvError(`Invalid legacy ID tag length. Length: ${bytes.length}.`);
     }
 
     const idStringLength: number = bytes[2];
 
     if (bytes.length <= idStringLength + 3) {
-      throw new TlvError(`Invalid legacy id length value: ${idStringLength}.`);
+      throw new TlvError(`Invalid legacy ID length value: ${idStringLength}.`);
     }
 
     for (let i: number = idStringLength + 3; i < bytes.length; i += 1) {
@@ -300,7 +300,7 @@ export class AggregationHashChainLink extends CompositeTag {
       1
     ) {
       throw new TlvError(
-        'Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.'
+        'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
       );
     }
   }
@@ -309,7 +309,7 @@ export class AggregationHashChainLink extends CompositeTag {
 export type AggregationHashResult = Readonly<{ level: BigInteger; hash: DataHash }>;
 
 /**
- * Aggregation Hash Chain TLV object.
+ * Aggregation hash chain TLV object.
  */
 export class AggregationHashChain extends CompositeTag {
   private chainIndexes: IntegerTag[] = [];
@@ -320,7 +320,7 @@ export class AggregationHashChain extends CompositeTag {
   private inputData: RawTag | null = null;
 
   /**
-   * Aggregation Hash Chain TLV object.
+   * Aggregation hash chain TLV object.
    * @param tlvTag TLV object.
    */
   public constructor(tlvTag: TlvTag) {

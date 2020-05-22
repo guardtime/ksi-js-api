@@ -41,8 +41,8 @@ export class RawTag extends TlvTag {
 
   /**
    * Create byte array TLV object from value bytes.
-   * @param id TLV id.
-   * @param nonCriticalFlag Is TLV non critical.
+   * @param id TLV ID.
+   * @param nonCriticalFlag Is TLV non-critical.
    * @param forwardFlag Is TLV forwarded.
    * @param value Value bytes.
    * @returns Byte array TLV object.

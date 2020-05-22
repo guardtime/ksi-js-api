@@ -94,7 +94,7 @@ export class TlvInputStream {
   }
 
   /**
-   * Read next short int from stream.
+   * Read next short integer from stream.
    */
   private readShort(): number {
     return (this.readByte() << 8) | this.readByte();

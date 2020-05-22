@@ -40,8 +40,8 @@ export class IntegerTag extends TlvTag {
 
   /**
    * Create integer TLV object from value.
-   * @param id TLV id.
-   * @param nonCriticalFlag Is TLV non critical.
+   * @param id TLV ID.
+   * @param nonCriticalFlag Is TLV non-critical.
    * @param forwardFlag Is TLV forwarded.
    * @param value.
    * @returns Integer TLV object.

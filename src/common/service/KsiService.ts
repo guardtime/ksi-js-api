@@ -54,7 +54,7 @@ export class KsiService {
   /**
    * Sign given data hash.
    * @param hash Data hash.
-   * @param level Base level for aggregation chain, by default its 0
+   * @param level Base level for aggregation chain, by default 0.
    * @returns KSI signature promise.
    */
   public async sign(hash: DataHash, level: BigInteger = bigInteger(0)): Promise<KsiSignature> {
@@ -68,7 +68,7 @@ export class KsiService {
   /**
    * Get calendar hash chain for given aggregation time and publication time.
    * @param aggregationTime Aggregation time.
-   * @param publicationTime Publication time, by default null. If null get most recent calendar record.
+   * @param publicationTime Publication time, by default null. If null, get most recent calendar record.
    * @returns Calendar hash chain promise.
    */
   public async extend(

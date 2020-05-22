@@ -150,7 +150,7 @@ export class KsiSignature extends CompositeTag {
 
   /**
    * Get RFC3161 record if exists, otherwise null.
-   * @returns RFC3161 record
+   * @returns RFC3161 record.
    */
   public getRfc3161Record(): Rfc3161Record | null {
     return this.rfc3161Record;
@@ -222,8 +222,8 @@ export class KsiSignature extends CompositeTag {
 
   /**
    * Use given calendar hash chain and publication record for creating new KSI signature.
-   * @param calendarHashChain Calendar hash chain
-   * @param publicationRecord Publication record
+   * @param calendarHashChain Calendar hash chain.
+   * @param publicationRecord Publication record.
    * @returns KSI signature.
    */
   public extend(calendarHashChain: CalendarHashChain, publicationRecord: PublicationRecord): KsiSignature {

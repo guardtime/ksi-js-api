@@ -28,7 +28,7 @@ import { VerificationRule } from '../VerificationRule';
 
 /**
  * Rule verifies that calendar authentication record publication time equals to calendar hash chain publication time.
- * Without calendar authentication record VerificationResultCode.Ok is returned.
+ * Without calendar authentication record, {@see VerificationResultCode.OK} is returned.
  */
 export class CalendarAuthenticationRecordPublicationTimeRule extends VerificationRule {
   public constructor() {

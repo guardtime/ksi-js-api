@@ -30,7 +30,7 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * RFC 3161 Record TLV object.
+ * RFC 3161 record TLV object.
  */
 export class Rfc3161Record extends CompositeTag {
   private aggregationTime: IntegerTag;
@@ -44,7 +44,7 @@ export class Rfc3161Record extends CompositeTag {
   private signedAttributesAlgorithm: HashAlgorithm;
 
   /**
-   * RFC 3161 Record TLV object constructor.
+   * RFC 3161 record TLV object constructor.
    * @param tlvTag TLV object.
    */
   public constructor(tlvTag: TlvTag) {

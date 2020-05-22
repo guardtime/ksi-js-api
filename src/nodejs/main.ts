@@ -18,6 +18,6 @@
  */
 
 /**
- * KSI Javascript API externally visible classes.
+ * KSI JavaScript API externally visible classes.
  */
 export * from '../common/main';

@@ -34,11 +34,11 @@ export class TlvTag {
 
   /**
    * TlvTag constructor.
-   * @param id TLV id.
-   * @param nonCriticalFlag Is TLV non critical.
+   * @param id TLV ID.
+   * @param nonCriticalFlag Is TLV non-critical.
    * @param forwardFlag Is TLV forwarded.
    * @param valueBytes TLV value bytes.
-   * @param tlv16BitFlag Is TLV with 16 bit length.
+   * @param tlv16BitFlag Is TLV with 16-bit length.
    */
   public constructor(
     id: number,
@@ -93,7 +93,7 @@ export class TlvTag {
    */
   public encode(): Uint8Array {
     if (this.id > TLV_CONSTANTS.MaxType) {
-      throw new TlvError('Could not write TlvTag: Type is larger than max id');
+      throw new TlvError('Could not write TlvTag: Type is larger than max ID');
     }
 
     const valueBytes: Uint8Array = this.getValueBytes();

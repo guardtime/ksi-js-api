@@ -49,11 +49,11 @@ export abstract class CompositeTag extends TlvTag {
 
   /**
    * Create composite TLV object from TLV list.
-   * @param id TLV id.
-   * @param nonCriticalFlag Is TLV non critical.
+   * @param id TLV ID.
+   * @param nonCriticalFlag Is TLV non-critical.
    * @param forwardFlag Is TLV forwarded.
    * @param value TLV object list.
-   * @param tlv16BitFlag Is TLV with 16 bit length.
+   * @param tlv16BitFlag Is TLV with 16-bit length.
    * @returns TLV object.
    */
   public static CREATE_FROM_LIST(
@@ -73,7 +73,7 @@ export abstract class CompositeTag extends TlvTag {
 
   /**
    * Create new TLV object from composite TLV object.
-   * @param id TLV id.
+   * @param id TLV ID.
    * @param tlvTag Composite TLV object.
    * @returns TLV object.
    */
@@ -82,7 +82,7 @@ export abstract class CompositeTag extends TlvTag {
   }
 
   /**
-   * Validate unknown TLV object, if critical throw TLVError
+   * Validate unknown TLV object, if critical throw TLVError.
    * @param tlvTag TLV object.
    * @returns TLV object.
    */
@@ -145,8 +145,8 @@ export abstract class CompositeTag extends TlvTag {
   }
 
   /**
-   * Get TLV object count by its id.
-   * @param id TLV object id.
+   * Get TLV object count by its ID.
+   * @param id TLV object ID.
    * @returns TLV object count.
    */
   public getCount(id: number): number {

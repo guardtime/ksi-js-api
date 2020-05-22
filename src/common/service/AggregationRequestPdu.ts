@@ -97,7 +97,7 @@ export class AggregationRequestPdu extends Pdu {
     super.validate();
 
     if (this.getCount(AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS.TagType) > 1) {
-      throw new TlvError('Only one aggregator config request payload is allowed in PDU.');
+      throw new TlvError('Only one Aggregator config request payload is allowed in PDU.');
     }
   }
 }

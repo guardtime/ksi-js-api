@@ -27,7 +27,7 @@ import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
- * Rule checks that user provided publication time matches extender response calendar hash chain shape.
+ * Rule checks that user provided publication time matches Extender response calendar hash chain shape.
  */
 export class UserProvidedPublicationTimeMatchesExtendedResponseRule extends VerificationRule {
   public constructor() {
