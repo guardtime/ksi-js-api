@@ -43,7 +43,7 @@ export class IntegerTag extends TlvTag {
    * @param id TLV ID.
    * @param nonCriticalFlag Is TLV non-critical.
    * @param forwardFlag Is TLV forwarded.
-   * @param value.
+   * @param value Unsigned long value.
    * @returns Integer TLV object.
    */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: BigInteger): IntegerTag {

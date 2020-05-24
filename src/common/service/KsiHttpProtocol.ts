@@ -27,7 +27,7 @@ export class KsiHttpProtocol {
 
   /**
    * HTTP protocol for requests constructor.
-   * @param url
+   * @param url Endpoint URL.
    */
   public constructor(url: string) {
     this.url = url;

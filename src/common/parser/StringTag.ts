@@ -51,7 +51,7 @@ export class StringTag extends TlvTag {
    * @param id TLV ID.
    * @param nonCriticalFlag Is TLV non-critical.
    * @param forwardFlag Is TLV forwarded.
-   * @param value
+   * @param value String value.
    * @returns String TLV object.
    */
   public static CREATE(id: number, nonCriticalFlag: boolean, forwardFlag: boolean, value: string): StringTag {
