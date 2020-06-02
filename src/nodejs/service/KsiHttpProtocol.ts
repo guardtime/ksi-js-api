@@ -43,7 +43,7 @@ export class KsiHttpProtocol {
    * Make a KSI request.
    * @param requestBytes Request bytes.
    * @param eventEmitter Event emitter for cancelling request event.
-   * @returns {Promise<Uint8Array | null>} Returns promise for response bytes or null if request was cancelled.
+   * @returns Returns promise for response bytes or null if request was cancelled.
    */
   public requestKsi(requestBytes: Uint8Array, eventEmitter: EventEmitter): Promise<Uint8Array | null> {
     return new Promise(

@@ -72,7 +72,7 @@ export class PublicationsFileHeader extends CompositeTag {
   /**
    * Parse child element to correct object.
    * @param tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @returns TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
