@@ -71,7 +71,8 @@
     "typescript": "^3.8.3",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
-    "typedoc": "^0.17.6"
+    "typedoc": "^0.17.7",
+    "license-checker-webpack-plugin": "^0.1.4"
   },
   "jest-junit": {
     "outputDirectory": "./coverage",

@@ -20,6 +20,7 @@
 const path = require('path');
 
 const outputPath = path.resolve(__dirname, 'dist');
+const LicenseCheckerWebpackPlugin = require("license-checker-webpack-plugin");
 
 const web = {
   mode: 'production',
@@ -39,6 +40,16 @@ const web = {
       }
     ]
   },
+  plugins: [new LicenseCheckerWebpackPlugin(
+    {
+      outputFilename: "ThirdPartyNotices.txt",
+      allow: "(Apache-2.0 OR BSD-3-Clause OR MIT OR ISC OR Unlicense)",
+      override: {
+        "isomorphic-unfetch@^3.0.0": { licenseName: "MIT" }
+      }
+    }
+  )
+  ],
   resolve: {
     extensions: ['.ts', '.js', '.json']
   },
@@ -73,6 +84,16 @@ const nodejs = {
       }
     ]
   },
+  plugins: [new LicenseCheckerWebpackPlugin(
+    {
+      outputFilename: "ThirdPartyNotices.txt",
+      allow: "(Apache-2.0 OR BSD-3-Clause OR MIT OR ISC OR Unlicense)",
+      override: {
+        "isomorphic-unfetch@^3.0.0": { licenseName: "MIT" }
+      }
+    }
+    )
+  ],
   resolve: {
     extensions: ['.ts', '.js', '.json']
   },
