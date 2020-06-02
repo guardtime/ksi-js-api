@@ -90,7 +90,7 @@ describe('AggregationHashChainLinkMetaData', () => {
 
     expect(() => {
       return new AggregationHashChainLinkMetaData(tlvTag);
-    }).toThrow('Exactly one client id must exist in aggregation hash chain link metadata.');
+    }).toThrow('Exactly one client ID must exist in aggregation hash chain link metadata.');
   });
 
   it('Creation with TlvTag containing multiple client id', () => {
@@ -109,7 +109,7 @@ describe('AggregationHashChainLinkMetaData', () => {
 
     expect(() => {
       return new AggregationHashChainLinkMetaData(tlvTag);
-    }).toThrow('Exactly one client id must exist in aggregation hash chain link metadata.');
+    }).toThrow('Exactly one client ID must exist in aggregation hash chain link metadata.');
   });
 
   it('Creation with TlvTag containing multiple machine id', () => {
@@ -128,7 +128,7 @@ describe('AggregationHashChainLinkMetaData', () => {
 
     expect(() => {
       return new AggregationHashChainLinkMetaData(tlvTag);
-    }).toThrow('Only one machine id is allowed in aggregation hash chain link metadata.');
+    }).toThrow('Only one machine ID is allowed in aggregation hash chain link metadata.');
   });
 
   it('Creation with TlvTag containing multiple sequence number', () => {

@@ -111,7 +111,7 @@ describe('AggregationHashChainLink', () => {
 
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
-    }).toThrow('Invalid Link direction.');
+    }).toThrow('Invalid link direction.');
   });
 
   it('Creation with TlvTag containing sibling hash and legacy id', () => {
@@ -131,7 +131,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
     );
   });
 
@@ -151,7 +151,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
     );
   });
 
@@ -169,7 +169,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
     );
   });
 
@@ -193,7 +193,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
     );
   });
 
@@ -210,7 +210,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
     );
   });
 
@@ -228,7 +228,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
     );
   });
 
@@ -260,7 +260,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy id or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
     );
   });
 
@@ -275,7 +275,7 @@ describe('AggregationHashChainLink', () => {
 
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
-    }).toThrow('Invalid legacy id tag: empty.');
+    }).toThrow('Invalid legacy ID tag: empty.');
   });
 
   it('Creation with TlvTag with legacy id invalid first octet', () => {
@@ -290,7 +290,7 @@ describe('AggregationHashChainLink', () => {
 
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
-    }).toThrow('Invalid first octet in legacy id tag: 0x4.');
+    }).toThrow('Invalid first octet in legacy ID tag: 0x4.');
   });
 
   it('Creation with TlvTag with legacy id invalid second octet', () => {
@@ -305,7 +305,7 @@ describe('AggregationHashChainLink', () => {
 
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
-    }).toThrow('Invalid second octet in legacy id tag: 0x1.');
+    }).toThrow('Invalid second octet in legacy ID tag: 0x1.');
   });
 
   it('Creation with TlvTag with legacy id invalid length', () => {
@@ -320,7 +320,7 @@ describe('AggregationHashChainLink', () => {
 
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
-    }).toThrow('Invalid legacy id tag length. Length: 30.');
+    }).toThrow('Invalid legacy ID tag length. Length: 30.');
   });
 
   it('Creation with TlvTag with legacy id invalid string length', () => {
@@ -335,7 +335,7 @@ describe('AggregationHashChainLink', () => {
 
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
-    }).toThrow('Invalid legacy id length value: 26.');
+    }).toThrow('Invalid legacy ID length value: 26.');
   });
 
   it('Creation with TlvTag with legacy id invalid octet after string', () => {
