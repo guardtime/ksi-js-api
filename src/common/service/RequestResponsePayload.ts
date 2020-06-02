@@ -67,7 +67,7 @@ export abstract class RequestResponsePayload extends ResponsePayload {
     super.validate();
 
     if (this.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
-      throw new TlvError('Exactly one request id must exist in response payload.');
+      throw new TlvError('Exactly one request ID must exist in response payload.');
     }
   }
 }

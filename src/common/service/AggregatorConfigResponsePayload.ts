@@ -120,19 +120,19 @@ export class AggregatorConfigResponsePayload extends PduPayload {
    */
   protected validate(): void {
     if (this.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxLevelTagType) > 1) {
-      throw new TlvError('Only one max level tag is allowed in aggregator config response payload.');
+      throw new TlvError('Only one max level tag is allowed in Aggregator config response payload.');
     }
 
     if (this.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationAlgorithmTagType) > 1) {
-      throw new TlvError('Only one aggregation algorithm tag is allowed in aggregator config response payload.');
+      throw new TlvError('Only one aggregation algorithm tag is allowed in Aggregator config response payload.');
     }
 
     if (this.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.AggregationPeriodTagType) > 1) {
-      throw new TlvError('Only one aggregation period tag is allowed in aggregator config response payload.');
+      throw new TlvError('Only one aggregation period tag is allowed in Aggregator config response payload.');
     }
 
     if (this.getCount(AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType) > 1) {
-      throw new TlvError('Only one max requests tag is allowed in aggregator config response payload.');
+      throw new TlvError('Only one max requests tag is allowed in Aggregator config response payload.');
     }
   }
 }

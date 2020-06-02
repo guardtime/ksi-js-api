@@ -28,7 +28,7 @@ import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
- * This rule checks that chain index of a aggregation hash chain is successor to it's parent aggregation hash chain index.
+ * This rule checks that chain index of an aggregation hash chain is successor to its parent aggregation hash chain index.
  */
 export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
   public constructor() {

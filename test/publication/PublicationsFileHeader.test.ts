@@ -103,7 +103,7 @@ describe('PublicationsFileHeader', () => {
     }).toThrow('Exactly one creation time must exist in publications file header.');
   });
 
-  it('Creation with multiple creation time', () => {
+  it('Creation with multiple URI', () => {
     expect(() => {
       return new PublicationsFileHeader(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
@@ -123,6 +123,6 @@ describe('PublicationsFileHeader', () => {
           ),
         ])
       );
-    }).toThrow('Only one repository uri is allowed in publications file header.');
+    }).toThrow('Only one repository URI is allowed in publications file header.');
   });
 });

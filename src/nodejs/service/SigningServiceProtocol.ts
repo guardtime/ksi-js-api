@@ -24,13 +24,13 @@ import { KsiHttpProtocol } from './KsiHttpProtocol';
 import { KsiRequest } from './KsiRequest';
 
 /**
- * HTTP signing service protocol
+ * HTTP signing service protocol.
  * @deprecated Use common/service/SigningServiceProtocol instead.
  */
 export class SigningServiceProtocol extends KsiHttpProtocol implements ISigningServiceProtocol {
   /**
    * HTTP signing service protocol constructor.
-   * @param url Aggregator url.
+   * @param url Aggregator URL.
    */
   public constructor(url: string) {
     super(url);

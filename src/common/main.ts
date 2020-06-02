@@ -18,7 +18,7 @@
  */
 
 /**
- * KSI Javascript API externally visible classes.
+ * KSI JavaScript API externally visible classes.
  */
 export { CompositeTag } from '../common/parser/CompositeTag';
 export { ImprintTag } from '../common/parser/ImprintTag';

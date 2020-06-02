@@ -31,7 +31,7 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * Publication Data TLV object.
+ * Publication data TLV object.
  */
 export class PublicationData extends CompositeTag {
   private publicationTime: IntegerTag;

@@ -28,7 +28,7 @@ import { VerificationRule } from '../VerificationRule';
 
 /**
  * This rule verifies that aggregation hash chain aggregation time and RFC3161 record aggregation time match.
- * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
+ * If RFC3161 record is not present, {@see VerificationResultCode.OK} is returned.
  */
 export class Rfc3161RecordAggregationTimeRule extends VerificationRule {
   public constructor() {

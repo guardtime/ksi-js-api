@@ -27,7 +27,7 @@ import { TlvTag } from '../parser/TlvTag';
 import { PublicationData } from './PublicationData';
 
 /**
- * Publication Record TLV object.
+ * Publication record TLV object.
  */
 export class PublicationRecord extends CompositeTag {
   private publicationData: PublicationData;
@@ -63,7 +63,7 @@ export class PublicationRecord extends CompositeTag {
 
   /**
    * Get publication data.
-   * @returns publication data.
+   * @returns Publication data.
    */
   public getPublicationData(): PublicationData {
     return this.publicationData;
@@ -71,7 +71,7 @@ export class PublicationRecord extends CompositeTag {
 
   /**
    * Get publication references.
-   * @returns [string} Publication references.
+   * @returns Publication references.
    */
   public getPublicationReferences(): string[] {
     return this.publicationReferences.map((reference: StringTag) => {
@@ -81,7 +81,7 @@ export class PublicationRecord extends CompositeTag {
 
   /**
    * Get publication repositories.
-   * @returns {string[]} Publication repositories.
+   * @returns Publication repositories.
    */
   public getPublicationRepositories(): string[] {
     return this.repositoryUri.map((repository: StringTag) => {
@@ -92,7 +92,7 @@ export class PublicationRecord extends CompositeTag {
   /**
    * Parse child element to correct object.
    * @param tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @returns TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {

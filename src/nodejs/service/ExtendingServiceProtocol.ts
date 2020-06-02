@@ -24,13 +24,13 @@ import { KsiHttpProtocol } from './KsiHttpProtocol';
 import { KsiRequest } from './KsiRequest';
 
 /**
- * HTTP extending service protocol
+ * HTTP extending service protocol.
  * @deprecated Use common/service/ExtendingServiceProtocol instead.
  */
 export class ExtendingServiceProtocol extends KsiHttpProtocol implements IExtendingServiceProtocol {
   /**
    * HTTP extending service protocol constructor.
-   * @param url Extender url.
+   * @param url Extender URL.
    */
   public constructor(url: string) {
     super(url);

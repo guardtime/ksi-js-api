@@ -18,7 +18,7 @@
  */
 
 /**
- * Publications File related error.
+ * Publications file related error.
  */
 export class PublicationsFileError extends Error {
   /**

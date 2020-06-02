@@ -20,7 +20,7 @@
 import { BigInteger } from 'big-integer';
 
 /**
- * Ksi identity interface.
+ * KSI identity interface.
  */
 export interface IKsiIdentity {
   /**

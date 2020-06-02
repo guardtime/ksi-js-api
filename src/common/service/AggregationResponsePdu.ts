@@ -58,7 +58,7 @@ export class AggregationResponsePdu extends Pdu {
   }
 
   /**
-   * Get aggregator config response payload.
+   * Get Aggregator config response payload.
    * @returns Aggregator config response, if missing then null.
    */
   public getAggregatorConfigResponsePayload(): AggregatorConfigResponsePayload | null {

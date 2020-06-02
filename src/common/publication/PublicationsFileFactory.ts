@@ -47,7 +47,7 @@ export class PublicationsFileFactory {
   /**
    * Create publications file from bytes.
    * @param publicationFileBytes Publications file bytes.
-   * @returns Publications File.
+   * @returns Publications file.
    */
   public create(publicationFileBytes: Uint8Array): PublicationsFile {
     const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
@@ -67,7 +67,7 @@ export class PublicationsFileFactory {
     );
 
     if (!verified) {
-      throw new PublicationsFileError('The signature on the publications file is not valid. ');
+      throw new PublicationsFileError('The signature on the publications file is not valid.');
     }
 
     return pubFile;

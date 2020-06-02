@@ -26,7 +26,7 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * Publications File Header TLV Object.
+ * Publications file header TLV object.
  */
 export class PublicationsFileHeader extends CompositeTag {
   private version: IntegerTag;
@@ -62,8 +62,8 @@ export class PublicationsFileHeader extends CompositeTag {
   }
 
   /**
-   * Get publications file repository uri.
-   * @returns Repository uri.
+   * Get publications file repository URI.
+   * @returns Repository URI.
    */
   public getRepositoryUri(): string | null {
     return this.repositoryUri === null ? null : this.repositoryUri.getValue();
@@ -72,7 +72,7 @@ export class PublicationsFileHeader extends CompositeTag {
   /**
    * Parse child element to correct object.
    * @param tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @returns TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
@@ -100,7 +100,7 @@ export class PublicationsFileHeader extends CompositeTag {
     }
 
     if (this.getCount(PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType) > 1) {
-      throw new TlvError('Only one repository uri is allowed in publications file header.');
+      throw new TlvError('Only one repository URI is allowed in publications file header.');
     }
   }
 }

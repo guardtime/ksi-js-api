@@ -59,7 +59,7 @@ export class ExtendResponsePdu extends Pdu {
   }
 
   /**
-   * Get extender config response payload.
+   * Get Extender config response payload.
    * @returns Extender config response, if missing then null.
    */
   public getExtenderConfigResponsePayload(): ExtenderConfigResponsePayload | null {

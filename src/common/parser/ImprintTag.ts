@@ -39,8 +39,8 @@ export class ImprintTag extends TlvTag {
 
   /**
    * Create imprint TLV object from data hash.
-   * @param id TLV id.
-   * @param nonCriticalFlag Is TLV non critical.
+   * @param id TLV ID.
+   * @param nonCriticalFlag Is TLV non-critical.
    * @param forwardFlag Is TLV forwarded.
    * @param value Data hash.
    * @returns Imprint TLV object.

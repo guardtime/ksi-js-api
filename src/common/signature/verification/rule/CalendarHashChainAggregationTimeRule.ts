@@ -28,7 +28,7 @@ import { VerificationRule } from '../VerificationRule';
 
 /**
  * Rule verifies calendar hash chain aggregation time equality to last aggregation hash chain aggregation time.
- * Without calendar authentication record <see cref="VerificationResultCode.Ok" /> is returned.
+ * Without calendar authentication record, {@see VerificationResultCode.OK} is returned.
  */
 export class CalendarHashChainAggregationTimeRule extends VerificationRule {
   public constructor() {

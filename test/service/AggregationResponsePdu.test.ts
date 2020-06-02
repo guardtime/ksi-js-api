@@ -87,6 +87,6 @@ describe('AggregationResponsePdu', () => {
 
     expect(() => {
       return new AggregationResponsePdu(new TlvInputStream(responseBytes).readTag());
-    }).toThrow('Exactly one request id must exist in response payload.');
+    }).toThrow('Exactly one request ID must exist in response payload.');
   });
 });

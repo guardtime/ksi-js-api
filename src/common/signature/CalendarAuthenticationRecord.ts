@@ -25,14 +25,14 @@ import { PublicationData } from '../publication/PublicationData';
 import { SignatureData } from './SignatureData';
 
 /**
- * Calendar Authentication Record TLV object.
+ * Calendar authentication record TLV object.
  */
 export class CalendarAuthenticationRecord extends CompositeTag {
   private publicationData: PublicationData;
   private signatureData: SignatureData;
 
   /**
-   * Calendar Authentication Record TLV object constructor.
+   * Calendar authentication record TLV object constructor.
    * @param tlvTag TLV object.
    */
   public constructor(tlvTag: TlvTag) {
@@ -46,7 +46,7 @@ export class CalendarAuthenticationRecord extends CompositeTag {
 
   /**
    * Get publications data.
-   * @returns Publcations data.
+   * @returns Publications data.
    */
   public getPublicationData(): PublicationData {
     return this.publicationData;

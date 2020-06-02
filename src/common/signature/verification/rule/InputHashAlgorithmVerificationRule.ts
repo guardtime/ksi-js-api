@@ -26,9 +26,9 @@ import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
- * This rule verifies input hash algorithm. If RFC3161 record is present then intput hash algorithm must equal
+ * This rule verifies input hash algorithm. If RFC3161 record is present then input hash algorithm must equal
  * to RFC3161 record input hash algorithm. Otherwise input hash algorithm is compared to aggregation hash chain input hash algorithm.
- * If input hash is not provided then <see cref="VerificationResultCode.Ok" /> is returned.
+ * If input hash is not provided, {@see VerificationResultCode.OK} is returned.
  */
 export class InputHashAlgorithmVerificationRule extends VerificationRule {
   public constructor() {

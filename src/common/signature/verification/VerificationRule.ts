@@ -27,7 +27,7 @@ import { VerificationContext } from './VerificationContext';
 import { VerificationError } from './VerificationError';
 
 /**
- * Verification Rule for KSI Signature.
+ * Verification rule for KSI signature.
  */
 export abstract class VerificationRule extends Rule<VerificationContext, VerificationError> {
   /**

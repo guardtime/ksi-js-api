@@ -109,15 +109,15 @@ export class ExtenderConfigResponsePayload extends PduPayload {
    */
   protected validate(): void {
     if (this.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.MaxRequestsTagType) > 1) {
-      throw new TlvError('Only one max requests tag is allowed in extender config response payload.');
+      throw new TlvError('Only one max requests tag is allowed in Extender config response payload.');
     }
 
     if (this.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarFirstTimeTagType) > 1) {
-      throw new TlvError('Only one calendar first time tag is allowed in extender config response payload.');
+      throw new TlvError('Only one calendar first time tag is allowed in Extender config response payload.');
     }
 
     if (this.getCount(EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS.CalendarLastTimeTagType) > 1) {
-      throw new TlvError('Only one calendar last time tag is allowed in extender config response payload.');
+      throw new TlvError('Only one calendar last time tag is allowed in Extender config response payload.');
     }
   }
 }

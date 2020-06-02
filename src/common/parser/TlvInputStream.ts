@@ -80,7 +80,7 @@ export class TlvInputStream {
 
   /**
    * Read next byte from stream.
-   * @throws {TlvError} If available bytes is shorter than read bytes length.
+   * @throws If available bytes is shorter than read bytes length.
    */
   private readByte(): number {
     if (this.length <= this.position) {
@@ -94,7 +94,7 @@ export class TlvInputStream {
   }
 
   /**
-   * Read next short int from stream.
+   * Read next short integer from stream.
    */
   private readShort(): number {
     return (this.readByte() << 8) | this.readByte();
@@ -103,7 +103,7 @@ export class TlvInputStream {
   /**
    * Read number of bytes from stream.
    * @param length Read bytes length.
-   * @throws {TlvError} If available bytes is shorter than read bytes length.
+   * @throws If available bytes is shorter than read bytes length.
    */
   private read(length: number): Uint8Array {
     if (this.length < this.position + length) {

@@ -45,7 +45,7 @@ describe('CertificateRecord', () => {
 
     expect(() => {
       return new CertificateRecord(tlvTag);
-    }).toThrow('Exactly one certificate id must exist in certificate record.');
+    }).toThrow('Exactly one certificate ID must exist in certificate record.');
   });
 
   it('Creation with missing x509 certificate', () => {
@@ -67,7 +67,7 @@ describe('CertificateRecord', () => {
 
     expect(() => {
       return new CertificateRecord(tlvTag);
-    }).toThrow('Exactly one certificate id must exist in certificate record.');
+    }).toThrow('Exactly one certificate ID must exist in certificate record.');
   });
 
   it('Creation with multiple x509 certificate', () => {

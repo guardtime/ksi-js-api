@@ -51,7 +51,7 @@ export class ExtendRequestPayload extends PduPayload {
    * @param requestId Request ID.
    * @param aggregationTime Aggregation time.
    * @param publicationTime Publication time, by default null.
-   * @returns {ExtendRequestPayload} Extend request payload.
+   * @returns Extend request payload.
    */
   public static CREATE(
     requestId: BigInteger,
@@ -77,7 +77,7 @@ export class ExtendRequestPayload extends PduPayload {
   /**
    * Parse child element to correct object.
    * @param tlvTag TLV object.
-   * @returns {TlvTag} TLV object.
+   * @returns TLV object.
    */
   private parseChild(tlvTag: TlvTag): TlvTag {
     switch (tlvTag.id) {
@@ -97,7 +97,7 @@ export class ExtendRequestPayload extends PduPayload {
    */
   private validate(): void {
     if (this.getCount(PDU_PAYLOAD_CONSTANTS.RequestIdTagType) !== 1) {
-      throw new TlvError('Exactly one request id must exist in extend request payload.');
+      throw new TlvError('Exactly one request ID must exist in extend request payload.');
     }
 
     if (this.getCount(EXTEND_REQUEST_PAYLOAD_CONSTANTS.AggregationTimeTagType) !== 1) {

@@ -24,7 +24,7 @@ import { TlvError } from '../parser/TlvError';
 import { TlvTag } from '../parser/TlvTag';
 
 /**
- * Certificate Record TLV object.
+ * Certificate record TLV object.
  */
 export class CertificateRecord extends CompositeTag {
   private certificateId: RawTag;
@@ -44,7 +44,7 @@ export class CertificateRecord extends CompositeTag {
   }
 
   /**
-   * Get X509 certificate bytes.
+   * Get X.509 certificate bytes.
    * @returns Certificate bytes.
    */
   public getX509Certificate(): Uint8Array {
@@ -52,8 +52,8 @@ export class CertificateRecord extends CompositeTag {
   }
 
   /**
-   * Get X509 certificate id.
-   * @returns Certificate id.
+   * Get X.509 certificate ID.
+   * @returns Certificate ID.
    */
   public getCertificateId(): Uint8Array {
     return this.certificateId.getValue();
@@ -80,7 +80,7 @@ export class CertificateRecord extends CompositeTag {
    */
   private validate(): void {
     if (this.getCount(CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType) !== 1) {
-      throw new TlvError('Exactly one certificate id must exist in certificate record.');
+      throw new TlvError('Exactly one certificate ID must exist in certificate record.');
     }
 
     if (this.getCount(CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType) !== 1) {

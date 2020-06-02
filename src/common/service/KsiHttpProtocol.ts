@@ -27,7 +27,7 @@ export class KsiHttpProtocol {
 
   /**
    * HTTP protocol for requests constructor.
-   * @param url
+   * @param url Endpoint URL.
    */
   public constructor(url: string) {
     this.url = url;
@@ -64,7 +64,7 @@ export class KsiHttpProtocol {
   }
 
   /**
-   * Download bytes from url.
+   * Download bytes from URL.
    * @returns {Promise<Uint8Array>} Response bytes promise.
    */
   public async download(): Promise<Uint8Array> {

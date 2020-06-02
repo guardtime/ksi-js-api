@@ -392,7 +392,7 @@ export const EXTEND_RESPONSE_PAYLOAD_CONSTANTS: Readonly<{
 });
 
 /**
- * Extender config request payload constants.
+ * Extender configuration request payload constants.
  */
 export const EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS: Readonly<{ TagType: number }> = Object.freeze({
   TagType: 0x4,
@@ -407,7 +407,7 @@ type ExtenderConfigResponsePayloadConstants = Readonly<{
 }>;
 
 /**
- * Extender config response payload constants.
+ * Extender configuration response payload constants.
  */
 export const EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS: ExtenderConfigResponsePayloadConstants = Object.freeze({
   TagType: 0x4,

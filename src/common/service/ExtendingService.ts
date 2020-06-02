@@ -54,7 +54,7 @@ export class ExtendingService {
   }
 
   /**
-   * Process extender response payload.
+   * Process Extender response payload.
    * @param payload Extender response payload.
    * @returns Calendar hash chain.
    */
@@ -71,7 +71,7 @@ export class ExtendingService {
   /**
    * Get calendar hash chain for given aggregation and publication time.
    * @param aggregationTime Aggregation time.
-   * @param publicationTime Publication time, by default null. If null get most recent calendar record.
+   * @param publicationTime Publication time, by default null. If null, get most recent calendar record.
    * @returns Calendar hash chain promise.
    */
   public async extend(
@@ -130,7 +130,7 @@ export class ExtendingService {
       const extendPayload: ExtendResponsePayload = responsePayload as ExtendResponsePayload;
       const payloadRequestId: string = extendPayload.getRequestId().toString();
       if (!this.requests.hasOwnProperty(payloadRequestId)) {
-        console.warn('Extend response request ID does not match any request id.');
+        console.warn('Extend response request ID does not match any request ID.');
         continue;
       }
 

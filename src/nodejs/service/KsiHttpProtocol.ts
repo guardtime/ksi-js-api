@@ -25,7 +25,7 @@ import { KsiServiceError } from '../../common/service/KsiServiceError';
 import { KsiRequest } from './KsiRequest';
 
 /**
- * Http protocol for requests
+ * HTTP protocol for requests.
  * @deprecated Use common/service/KsiHttpProtocol instead and make sure to polyfill fetch.
  */
 export class KsiHttpProtocol {
@@ -43,7 +43,7 @@ export class KsiHttpProtocol {
    * Make a KSI request.
    * @param requestBytes Request bytes.
    * @param eventEmitter Event emitter for cancelling request event.
-   * @returns {Promise<Uint8Array | null>} Returns promise for response bytes or null if request was cancelled.
+   * @returns Returns promise for response bytes or null if request was cancelled.
    */
   public requestKsi(requestBytes: Uint8Array, eventEmitter: EventEmitter): Promise<Uint8Array | null> {
     return new Promise(
@@ -91,7 +91,7 @@ export class KsiHttpProtocol {
   }
 
   /**
-   * Download bytes from url.
+   * Download bytes from URL.
    * @returns {Promise<Uint8Array>} Response bytes promise.
    */
   public download(): Promise<Uint8Array> {

@@ -26,7 +26,7 @@ import { VerificationResult } from '../VerificationResult';
 import { VerificationRule } from '../VerificationRule';
 
 /**
- * Rule checks that user provided publication hash matches extender response calendar hash chain root hash.
+ * Rule checks that user provided publication hash matches Extender response calendar hash chain root hash.
  */
 export class UserProvidedPublicationHashMatchesExtendedResponseRule extends VerificationRule {
   public constructor() {

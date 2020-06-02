@@ -29,7 +29,7 @@ import { VerificationRule } from '../VerificationRule';
 
 /**
  * Verifies that RFC3161 record output hash algorithm was not deprecated at the aggregation time.
- * If RFC3161 record is not present then <see cref="VerificationResultCode.Ok" /> is returned.
+ * If RFC3161 record is not present, {@see VerificationResultCode.OK} is returned.
  */
 export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends VerificationRule {
   public constructor() {

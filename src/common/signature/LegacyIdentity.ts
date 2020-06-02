@@ -28,7 +28,7 @@ export class LegacyIdentity implements IKsiIdentity {
 
   /**
    * Legacy version of identity constructor.
-   * @param clientId Client id.
+   * @param clientId Client ID.
    */
   public constructor(clientId: string) {
     this.clientId = clientId;

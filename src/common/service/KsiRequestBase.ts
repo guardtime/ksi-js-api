@@ -27,7 +27,7 @@ export abstract class KsiRequestBase {
 
   /**
    * KSI request base class constructor.
-   * @param response
+   * @param response Response promise.
    */
   protected constructor(response: Promise<Uint8Array | null>) {
     this.response = response;
