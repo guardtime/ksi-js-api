@@ -13,11 +13,11 @@
     "test": "jest test/",
     "test:ci": "jest test/ --ci --reporters=default --reporters=jest-junit",
     "integration-test": "jest test-integration/",
+    "integration-test:ci": "jest test-integration/ --ci --reporters=default --reporters=jest-junit",
     "build": "rimraf lib && tsc -t ES6 -d  && webpack",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\" --fix",
-    "typedoc": "rimraf docs && typedoc --mode file --out docs/ src/common",
-    "publish:ci": "npm --no-git-tag-version version $npm_package_version-$SHORT_COMMIT && npm publish"
+    "typedoc": "rimraf docs && typedoc --mode file --out docs/ src/common"
   },
   "jest": {
     "collectCoverage": true,
