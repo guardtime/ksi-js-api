@@ -23,6 +23,7 @@ pipeline {
                     sh 'npm ci'
                     configFileProvider([configFile(fileId: 'b14b75f0-639c-4512-b868-2631b97fced9', targetLocation: "./config/ksi-config.js")]) {
                         sh 'npm run test:ci'
+                        sh 'npm run integration-test:ci'
                     }
                     sh 'npm run lint'
                     sh 'npm run build'
@@ -35,16 +36,6 @@ pipeline {
                     cloverReportFileName: 'clover.xml'
                 ])
             }
-        }
-        stage('Publish') {
-                when {
-                    branch 'master'
-                }
-                steps {
-                    nodejs(nodeJSInstallationName: 'node1320', configId: '7f0f5e1c-f542-433b-98ca-7cb938e79aac') {
-                        sh "npm run publish:ci"
-                    }
-                }
         }
     }
     post {
