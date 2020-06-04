@@ -1,0 +1,41 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+        registry-url: https://registry.npmjs.org/
+    - run: npm ci
+    - run: npm run test:ci
+    - if: github.event_name != 'release'
+      run: |
+        NPM_PACKAGE_VERSION=`node -e "const fs = require('fs'); console.log(JSON.parse(fs.readFileSync('package.json')).version);"`
+        SHORT_SHA=`node -e "const sha = \"$GITHUB_SHA\"; console.log(sha.substring(0, 7));"`
+        npm run build
+        npm --no-git-tag-version  version $NPM_PACKAGE_VERSION-rc.$SHORT_SHA
+        npm publish --access public --tag dev
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPMJS_PUBLISH }}
+        CI: true
+        GITHUB_SHA: $${{github.sha}}
+    - if: github.event_name == 'release'
+      run: |
+        npm run build
+        npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPMJS_PUBLISH }}
+        CI: true
