@@ -1,10 +1,18 @@
 .idea/
+.github/
 node_modules/
 
 .DS_Store
 .npmrc
 config/ksi-config.js
 tools/proxy/httpd/01-ksi-proxy.conf
+
+.eslintrc.js
+.prettierrc
+babel.config.js
+jest-environment.js
+tsconfig.json
+webpack.config.js
 
 src/
 test/
@@ -13,3 +21,4 @@ jenkins/
 nodejs/
 web/
 tools/
+coverage/
