@@ -29,7 +29,6 @@ import { ExtendErrorPayload } from './ExtendErrorPayload';
 import { ExtendResponsePayload } from './ExtendResponsePayload';
 import { Pdu } from './Pdu';
 import { PduPayload } from './PduPayload';
-import { AggregatorConfigResponsePayload } from './AggregatorConfigResponsePayload';
 
 /**
  * Extend response PDU TLV object.
