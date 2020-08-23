@@ -14,7 +14,8 @@
       "es6",
       "es2015",
       "dom"
-    ]
+    ],
+    "typeRoots": [ "./types", "./node_modules/@types"]
   },
   "exclude": [
     "node_modules",
