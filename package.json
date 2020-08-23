@@ -53,7 +53,6 @@
     "@types/big-integer": "^0.0.31",
     "@types/csv-parse": "^1.2.2",
     "@types/jest": "^25.2.1",
-    "@types/node-fetch": "^2.5.7",
     "@types/uuid": "^7.0.3",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
@@ -80,9 +79,9 @@
   },
   "dependencies": {
     "@guardtime/common": "1.0.2",
-    "abortcontroller-polyfill": "^1.4.0",
+    "abortcontroller-polyfill": "^1.5.0",
     "big-integer": "^1.6.48",
-    "isomorphic-unfetch": "^3.0.0",
+    "cross-fetch": "^3.0.5",
     "uuid": "^7.0.2"
   }
 }
