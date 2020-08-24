@@ -19,8 +19,7 @@
 
 import { ISigningServiceProtocol } from './ISigningServiceProtocol';
 import { KsiRequestBase } from './KsiRequestBase';
-import 'isomorphic-unfetch';
-import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
+import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
 import { KsiHttpProtocol } from './KsiHttpProtocol';
 import { KsiRequest } from './KsiRequest';
 
