@@ -26,7 +26,7 @@ import { CastingContext, ColumnOption } from 'csv-parse';
 import parseCsv from 'csv-parse/lib/sync';
 import fs from 'fs';
 import * as path from 'path';
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import ksiConfig from '../config/ksi-config';
 import {
@@ -233,7 +233,6 @@ describe.each([
 
   it.each(
     (parseCsv(fs.readFileSync(resultFile).toString(), {
-      // eslint-disable-next-line @typescript-eslint/camelcase
       from_line: 2,
       delimiter: ';',
       columns: (): ColumnOption[] => {

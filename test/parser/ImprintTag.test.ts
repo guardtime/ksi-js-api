@@ -77,7 +77,7 @@ describe('ImprintTag', () => {
     );
 
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       objectTag.value = DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32));
     }).toThrow(TypeError);

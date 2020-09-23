@@ -57,7 +57,7 @@ describe('StringTag', () => {
   it('Value cannot be changed', () => {
     const objectTag: StringTag = StringTag.CREATE(0x1, false, false, 'TEST');
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       objectTag.value = 'FAIL';
     }).toThrow(TypeError);
