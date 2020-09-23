@@ -39,19 +39,19 @@ describe('TlvTag', () => {
     const tlvTag: TlvTag = new TlvTag(0x1, true, true, bytes);
     expect(tlvTag.id).toEqual(0x1);
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       tlvTag.id = 1;
     }).toThrow(TypeError);
     expect(tlvTag.nonCriticalFlag).toBeTruthy();
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       tlvTag.nonCriticalFlag = false;
     }).toThrow(TypeError);
     expect(tlvTag.forwardFlag).toBeTruthy();
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       tlvTag.forwardFlag = false;
     }).toThrow(TypeError);

@@ -65,7 +65,7 @@ export class TlvTag {
    * @param y Second object to test as TLV.
    * @returns If 2 TLV are equal return true.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
   public static EQUALS(x: any, y: any): boolean {
     if (!(x instanceof TlvTag) || !(y instanceof TlvTag)) {
       return false;
@@ -130,7 +130,7 @@ export class TlvTag {
    * @param tag TLV object.
    * @returns If tested TLV header and value are equal.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
   public equals(tag: any): boolean {
     return TlvTag.EQUALS(this, tag);
   }

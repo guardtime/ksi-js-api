@@ -52,7 +52,7 @@ describe('IntegerTag', () => {
   it('Value cannot be changed', () => {
     const objectTag: IntegerTag = IntegerTag.CREATE(0x1, false, false, bigInteger(25000));
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
       objectTag.value = 5000;
     }).toThrow(TypeError);
