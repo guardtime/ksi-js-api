@@ -17,6 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
+import HexCoder from '@guardtime/common/lib/coders/HexCoder';
 import DataHash from '@guardtime/common/lib/hash/DataHash';
 import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
 import bigInteger from 'big-integer';
@@ -55,6 +56,24 @@ describe('PublicationData', () => {
     );
     expect(publicationData.getPublicationTime()).toEqual(bigInteger(2));
     expect(publicationData.getPublicationHash()).toEqual(DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)));
+  });
+
+  it('Creation with publication string', () => {
+    const publicationData: PublicationData = PublicationData.CREATE_FROM_PUBLICATION_STRING(
+      'AAAAAA-C7Q6IQ-AAJBF7-G2ZDFT-AIIUEE-KBHEIR-NHV74X-PKLM6G-JJM6ZC-BIKJEX-VDWBZP-ZYJ4IB'.replace(/-/g, '')
+    );
+
+    expect(publicationData.getPublicationTime().toString()).toEqual('1602720000');
+    expect(publicationData.getPublicationHash()).toEqual(
+      new DataHash(HexCoder.decode('01212FCDAC8CB302114211413911169EBFE5DEA5B3C64A59EC882852497A8EC1CB'))
+    );
+
+    expect(
+      publicationData
+        .toPublicationString()
+        .match(/.{1,6}/g)
+        ?.join('-')
+    ).toEqual('AAAAAA-C7Q6IQ-AAJBF7-G2ZDFT-AIIUEE-KBHEIR-NHV74X-PKLM6G-JJM6ZC-BIKJEX-VDWBZP-ZYJ4IB');
   });
 
   it('Creation with missing publication time', () => {
