@@ -6,9 +6,8 @@
     "url": "git@github.com:guardtime/ksi-js-api.git"
   },
   "license": "SEE LICENSE IN 'LICENSE'",
-  "main": "./dist/main.node.js",
-  "browser": "./dist/main.js",
-  "types": "./lib/nodejs/main.d.ts",
+  "main": "./dist/main.js",
+  "types": "./lib/common/main.d.ts",
   "scripts": {
     "test": "jest test/",
     "test:ci": "jest test/ --ci --reporters=default --reporters=jest-junit",
