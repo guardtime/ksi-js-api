@@ -138,4 +138,16 @@ export class PublicationData extends CompositeTag {
       throw new TlvError('Exactly one published hash must exist in published data.');
     }
   }
+
+  public toPublicationString(): string {
+    const bytes = new Uint8Array(this.getPublicationHash().hashAlgorithm.length + 13);
+    const timeBytes = UnsignedLongCoder.encode(this.getPublicationTime());
+    bytes.set(timeBytes, 8 - timeBytes.length);
+    bytes.set(this.getPublicationHash().imprint, 8);
+    const crcInputBytes = bytes.slice(0, -4);
+    const crcBytes = UnsignedLongCoder.encode(CRC32.create(crcInputBytes));
+    bytes.set(crcBytes, this.getPublicationHash().hashAlgorithm.length + 13 - crcBytes.length);
+
+    return Base32Coder.encode(bytes);
+  }
 }
