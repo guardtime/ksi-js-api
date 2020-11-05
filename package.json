@@ -6,14 +6,19 @@
     "url": "git@github.com:guardtime/ksi-js-api.git"
   },
   "license": "SEE LICENSE IN 'LICENSE'",
-  "main": "./dist/main.js",
+  "main": "./dist/main.node.js",
+  "browser": "./dist/main.js",
   "types": "./lib/common/main.d.ts",
   "scripts": {
+    "clean": "rimraf lib",
     "test": "jest test/",
     "test:ci": "jest test/ --ci --reporters=default --reporters=jest-junit",
     "integration-test": "jest test-integration/",
     "integration-test:ci": "jest test-integration/ --ci --reporters=default --reporters=jest-junit",
-    "build": "rimraf lib && tsc -t ES6 -d  && webpack",
+    "build:lib": "tsc -t ES6 -d",
+    "build:web": "webpack --config webpack.config.js",
+    "build:node": "webpack --config webpack.node.config.js",
+    "build": "npm run clean && npm run build:lib && npm run build:web && npm run build:node",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\" --fix",
     "typedoc": "rimraf docs && typedoc --mode file --out docs/ src/common"
@@ -80,9 +85,7 @@
     "@guardtime/common": "^1.0.3",
     "abortcontroller-polyfill": "^1.5.0",
     "big-integer": "^1.6.48",
-    "core-js": "^3.6.5",
-    "cross-fetch": "^3.0.6",
-    "regenerator-runtime": "^0.13.7",
+    "node-fetch": "^2.6.1",
     "uuid": "^8.3.1"
   }
 }

@@ -18,8 +18,8 @@
  */
 
 const path = require('path');
-const outputPath = path.resolve(__dirname, 'dist');
 
+const outputPath = path.resolve(__dirname, 'dist');
 module.exports = {
   mode: 'production',
   entry: './src/common/main.ts',
@@ -40,16 +40,13 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js', '.json'],
-    fallback: {
-      crypto: false,
-    },
   },
   output: {
-    filename: 'main.js',
+    filename: 'main.node.js',
     path: outputPath,
     libraryTarget: 'umd',
     globalObject: 'this',
     library: 'KSI',
   },
-  target: 'web',
+  target: 'node',
 };

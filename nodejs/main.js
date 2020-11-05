@@ -19,7 +19,7 @@
 
 const fs = require('fs');
 const CONFIG = require('../config/ksi-config.js');
-const KSI = require('../dist/main.node');
+const KSI = require('../');
 
 const service = new KSI.KsiService(
     new KSI.SigningService(
@@ -37,7 +37,7 @@ const service = new KSI.KsiService(
 
 service.sign(KSI.DataHash.create(KSI.HashAlgorithm.SHA2_256, new Uint8Array(32)))
     .then((signature) => {
-        console.log(signature);
+        console.log(signature.toString());
     })
     .catch((err) => {
         console.log(err);
@@ -49,7 +49,7 @@ fs.readFile('../web/sig.ksig', (_, data) => {
     const signature = new KSI.KsiSignature(tlvTag);
     service.extend(signature.getAggregationTime())
         .then(calendarHashChain => {
-            console.log(calendarHashChain);
+            console.log(calendarHashChain.toString());
         })
         .catch((err) => {
             console.log(err);
@@ -65,7 +65,7 @@ fs.readFile('../web/sig.ksig', (_, data) => {
         context.setKsiService(service);
         policy.verify(context)
             .then((result) => {
-                console.log(result);
+                console.log(result.toString());
             })
             .catch((error) => {
                 console.log(error);
