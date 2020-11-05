@@ -51,5 +51,4 @@ module.exports = {
     globalObject: 'this',
     library: 'KSI',
   },
-  target: 'web',
 };
