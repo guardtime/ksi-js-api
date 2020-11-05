@@ -80,7 +80,9 @@
     "@guardtime/common": "^1.0.3",
     "abortcontroller-polyfill": "^1.5.0",
     "big-integer": "^1.6.48",
+    "core-js": "^3.6.5",
     "cross-fetch": "^3.0.6",
+    "regenerator-runtime": "^0.13.7",
     "uuid": "^8.3.1"
   }
 }
