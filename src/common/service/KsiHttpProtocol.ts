@@ -19,7 +19,7 @@
 
 import { KsiServiceError } from './KsiServiceError';
 import { abortableFetch } from 'abortcontroller-polyfill/dist/cjs-ponyfill';
-import _fetch from 'cross-fetch';
+import _fetch from 'node-fetch';
 const { fetch } = abortableFetch(_fetch);
 
 /**

@@ -8,13 +8,17 @@
   "license": "SEE LICENSE IN 'LICENSE'",
   "main": "./dist/main.node.js",
   "browser": "./dist/main.js",
-  "types": "./lib/nodejs/main.d.ts",
+  "types": "./lib/common/main.d.ts",
   "scripts": {
+    "clean": "rimraf lib",
     "test": "jest test/",
     "test:ci": "jest test/ --ci --reporters=default --reporters=jest-junit",
     "integration-test": "jest test-integration/",
     "integration-test:ci": "jest test-integration/ --ci --reporters=default --reporters=jest-junit",
-    "build": "rimraf lib && tsc -t ES6 -d  && webpack",
+    "build:lib": "tsc -t ES6 -d",
+    "build:web": "webpack --target web",
+    "build:node": "webpack --output-filename main.node.js --target node",
+    "build": "npm run clean && npm run build:lib && npm run build:web && npm run build:node",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\" --fix",
     "typedoc": "rimraf docs && typedoc --mode file --out docs/ src/common"
@@ -50,6 +54,7 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.12.1",
     "@babel/runtime": "^7.12.1",
+    "@types/node-fetch": "^2.5.7",
     "@types/big-integer": "^0.0.31",
     "@types/csv-parse": "^1.2.2",
     "@types/jest": "^26.0.15",
@@ -81,7 +86,7 @@
     "@guardtime/common": "^1.0.3",
     "abortcontroller-polyfill": "^1.5.0",
     "big-integer": "^1.6.48",
-    "cross-fetch": "^3.0.6",
+    "node-fetch": "^2.6.1",
     "uuid": "^8.3.1"
   }
 }

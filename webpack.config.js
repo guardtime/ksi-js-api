@@ -17,14 +17,12 @@
  * reserves and retains all trademark rights.
  */
 
-const LicenseCheckerWebpackPlugin = require('license-checker-webpack-plugin');
 const path = require('path');
-
 const outputPath = path.resolve(__dirname, 'dist');
 
-const web = {
+module.exports = {
   mode: 'production',
-  entry: './src/web/main.ts',
+  entry: './src/common/main.ts',
   module: {
     rules: [
       {
@@ -40,17 +38,6 @@ const web = {
       },
     ],
   },
-  // TODO: Currently broken with latest webpack
-  // plugins: [new LicenseCheckerWebpackPlugin(
-  //   {
-  //     outputFilename: "ThirdPartyNotices.txt",
-  //     allow: "(Apache-2.0 OR BSD-3-Clause OR MIT OR ISC OR Unlicense)",
-  //     override: {
-  //       "isomorphic-unfetch@^3.0.0": { licenseName: "MIT" }
-  //     }
-  //   }
-  // )
-  // ],
   resolve: {
     extensions: ['.ts', '.js', '.json'],
     fallback: {
@@ -64,55 +51,4 @@ const web = {
     globalObject: 'this',
     library: 'KSI',
   },
-  devServer: {
-    contentBase: [path.join(__dirname, './web'), path.join(__dirname, './config')],
-    publicPath: '/dist/',
-  },
 };
-
-const nodejs = {
-  mode: 'production',
-  entry: './src/nodejs/main.ts',
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-typescript'],
-            plugins: ['@babel/plugin-proposal-class-properties'],
-          },
-        },
-        exclude: /node_modules/,
-      },
-    ],
-  },
-  // TODO: Currently broken with latest webpack
-  // plugins: [new LicenseCheckerWebpackPlugin(
-  //   {
-  //     outputFilename: "ThirdPartyNotices.txt",
-  //     allow: "(Apache-2.0 OR BSD-3-Clause OR MIT OR ISC OR Unlicense)",
-  //     override: {
-  //       "isomorphic-unfetch@^3.0.0": { licenseName: "MIT" }
-  //     }
-  //   }
-  //   )
-  // ],
-  resolve: {
-    extensions: ['.ts', '.js', '.json'],
-    fallback: {
-      crypto: false,
-    },
-  },
-  output: {
-    filename: 'main.node.js',
-    path: outputPath,
-    libraryTarget: 'commonjs2',
-    globalObject: 'this',
-    library: 'KSI',
-  },
-  target: 'node',
-};
-
-module.exports = [web, nodejs];

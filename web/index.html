@@ -24,8 +24,8 @@
     <title>Title</title>
 </head>
 <body>
-<script src="/ksi-config.js"></script>
-<script src="/dist/main.js"></script>
+<script src="../config/ksi-config.js"></script>
+<script src="../dist/main.js"></script>
 <script>
     const service = new KSI.KsiService(
         new KSI.SigningService(
@@ -45,7 +45,7 @@
         console.log(signature);
     });
 
-    fetch('/sig.ksig').then(async (response) => {
+    fetch('./sig.ksig').then(async (response) => {
         const data = await response.arrayBuffer();
         const stream = new KSI.TlvInputStream(data);
         const tlvTag = stream.readTag();
