@@ -50,7 +50,7 @@ export class InputHashAlgorithmVerificationRule extends VerificationRule {
 
     const inputHash: DataHash = signature.getInputHash();
 
-    if (documentHash.hashAlgorithm !== inputHash.hashAlgorithm) {
+    if (!documentHash.hashAlgorithm.isEqual(inputHash.hashAlgorithm)) {
       console.debug(
         `Wrong input hash algorithm. Expected ${documentHash.hashAlgorithm}, found ${inputHash.hashAlgorithm}.`
       );
