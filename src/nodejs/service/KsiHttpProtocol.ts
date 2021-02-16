@@ -46,6 +46,8 @@ export class KsiHttpProtocol {
    * @returns Returns promise for response bytes or null if request was cancelled.
    */
   public requestKsi(requestBytes: Uint8Array, eventEmitter: EventEmitter): Promise<Uint8Array | null> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new Promise(
       (
         resolve: (value?: PromiseLike<Uint8Array | null> | Uint8Array | null) => void,
@@ -95,6 +97,8 @@ export class KsiHttpProtocol {
    * @returns {Promise<Uint8Array>} Response bytes promise.
    */
   public download(): Promise<Uint8Array> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return new Promise(
       (resolve: (value?: PromiseLike<Uint8Array> | Uint8Array) => void, reject: (reason?: string) => void): void => {
         const request: ClientRequest = this.makeRequest(
