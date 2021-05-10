@@ -50,6 +50,7 @@ export class KsiHttpProtocol {
         'Content-Type': 'application/ksi-request',
       },
       signal: abortController.signal,
+      referrerPolicy: 'no-referrer',
     });
 
     if (!response.ok) {
@@ -70,7 +71,9 @@ export class KsiHttpProtocol {
    * @returns {Promise<Uint8Array>} Response bytes promise.
    */
   public async download(): Promise<Uint8Array> {
-    const response: Response = await fetch(this.url);
+    const response: Response = await fetch(this.url, {
+      referrerPolicy: 'no-referrer',
+    });
 
     return new Uint8Array(await response.arrayBuffer());
   }
