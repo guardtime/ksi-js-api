@@ -55,7 +55,7 @@
     "@babel/preset-env": "^7.14.1",
     "@babel/preset-typescript": "^7.13.0",
     "@babel/runtime": "^7.14.0",
-    "@guardtime/common": "^1.0.4-rc.b5ac062",
+    "@guardtime/common": "1.0.4",
     "@types/big-integer": "^0.0.31",
     "@types/csv-parse": "^1.2.2",
     "@types/jest": "^26.0.23",
@@ -90,7 +90,7 @@
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "@guardtime/common": "^1.0.4-rc.b5ac062",
+    "@guardtime/common": "1.0.4",
     "big-integer": "^1.6.48"
   }
 }
