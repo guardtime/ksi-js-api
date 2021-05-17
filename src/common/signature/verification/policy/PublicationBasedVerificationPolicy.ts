@@ -17,11 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
-import { UserProvidedPublicationExistenceRule } from '../rule/UserProvidedPublicationExistenceRule';
 import { InternalVerificationPolicy } from './InternalVerificationPolicy';
-import { PublicationsFileVerificationPolicy } from './PublicationsFileVerificationPolicy';
-import { UserProvidedPublicationBasedVerificationPolicy } from './UserProvidedPublicationBasedVerificationPolicy';
 import { VerificationPolicy } from './VerificationPolicy';
+import { UserProvidedPublicationExistenceRule } from '../rule/UserProvidedPublicationExistenceRule';
+import { UserProvidedPublicationBasedVerificationPolicy } from './UserProvidedPublicationBasedVerificationPolicy';
+import { PublicationsFileVerificationPolicy } from './PublicationsFileVerificationPolicy';
 
 /**
  * Policy for verifying KSI signature with publication.
@@ -32,11 +32,16 @@ export class PublicationBasedVerificationPolicy extends VerificationPolicy {
    */
   public constructor() {
     super(
-      new InternalVerificationPolicy().onSuccess(
-        new UserProvidedPublicationExistenceRule() // Gen-02
-          .onSuccess(new UserProvidedPublicationBasedVerificationPolicy()) // Gen-02
-          .onNa(new PublicationsFileVerificationPolicy())
-      ),
+      new InternalVerificationPolicy().onSuccess(PublicationBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY()),
+      'PublicationBasedVerificationPolicy'
+    );
+  }
+
+  public static CREATE_POLICY_WO_INTERNAL_POLICY(): VerificationPolicy {
+    return new VerificationPolicy(
+      new UserProvidedPublicationExistenceRule() // Gen-02
+        .onSuccess(new UserProvidedPublicationBasedVerificationPolicy()) // Gen-02
+        .onNa(new PublicationsFileVerificationPolicy()),
       'PublicationBasedVerificationPolicy'
     );
   }

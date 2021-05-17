@@ -22,7 +22,6 @@ import { CalendarAuthenticationRecordSignatureVerificationRule } from '../rule/C
 import { CalendarHashChainAlgorithmDeprecatedRule } from '../rule/CalendarHashChainAlgorithmDeprecatedRule';
 import { CalendarHashChainExistenceRule } from '../rule/CalendarHashChainExistenceRule';
 import { CertificateExistenceRule } from '../rule/CertificateExistenceRule';
-import { VerificationRule } from '../VerificationRule';
 import { InternalVerificationPolicy } from './InternalVerificationPolicy';
 import { VerificationPolicy } from './VerificationPolicy';
 
@@ -32,25 +31,28 @@ import { VerificationPolicy } from './VerificationPolicy';
 export class KeyBasedVerificationPolicy extends VerificationPolicy {
   /**
    * Key based verification policy constructor.
-   * @param skipInternalVerification True if internal verification is skipped.
    */
-  public constructor(skipInternalVerification = false) {
-    let verificationRule: VerificationRule = new CalendarHashChainExistenceRule() // Gen-02
-      .onSuccess(
-        new CalendarHashChainAlgorithmDeprecatedRule() // Gen-02
-          .onSuccess(
-            new CalendarAuthenticationRecordExistenceRule() // Gen-02
-              .onSuccess(
-                new CertificateExistenceRule() // Gen-02
-                  .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule())
-              )
-          )
-      ); // Key-02, Key-03
+  public constructor() {
+    super(
+      new InternalVerificationPolicy().onSuccess(KeyBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY()),
+      'KeyBasedVerificationPolicy'
+    );
+  }
 
-    if (!skipInternalVerification) {
-      verificationRule = new InternalVerificationPolicy().onSuccess(verificationRule);
-    }
-
-    super(verificationRule, 'KeyBasedVerificationPolicy');
+  public static CREATE_POLICY_WO_INTERNAL_POLICY(): VerificationPolicy {
+    return new VerificationPolicy(
+      new CalendarHashChainExistenceRule() // Gen-02
+        .onSuccess(
+          new CalendarHashChainAlgorithmDeprecatedRule() // Gen-02
+            .onSuccess(
+              new CalendarAuthenticationRecordExistenceRule() // Gen-02
+                .onSuccess(
+                  new CertificateExistenceRule() // Gen-02
+                    .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule())
+                )
+            )
+        ),
+      'KeyBasedVerificationPolicy'
+    );
   }
 }

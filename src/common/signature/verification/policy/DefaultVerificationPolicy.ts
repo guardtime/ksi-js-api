@@ -17,9 +17,10 @@
  * reserves and retains all trademark rights.
  */
 
-import { KeyBasedVerificationPolicy } from './KeyBasedVerificationPolicy';
-import { PublicationBasedVerificationPolicy } from './PublicationBasedVerificationPolicy';
 import { VerificationPolicy } from './VerificationPolicy';
+import { InternalVerificationPolicy } from './InternalVerificationPolicy';
+import { PublicationBasedVerificationPolicy } from './PublicationBasedVerificationPolicy';
+import { KeyBasedVerificationPolicy } from './KeyBasedVerificationPolicy';
 
 /**
  * Default verification policy.
@@ -30,7 +31,11 @@ export class DefaultVerificationPolicy extends VerificationPolicy {
    */
   public constructor() {
     super(
-      new PublicationBasedVerificationPolicy().onNa(new KeyBasedVerificationPolicy(true)),
+      new InternalVerificationPolicy().onSuccess(
+        PublicationBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY().onNa(
+          KeyBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY()
+        )
+      ),
       'DefaultVerificationPolicy'
     );
   }
