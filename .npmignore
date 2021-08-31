@@ -9,7 +9,7 @@ tools/proxy/httpd/01-ksi-proxy.conf
 
 .eslintrc.js
 .prettierrc
-babel.config.js
+babel.config.json
 jest-environment.js
 tsconfig.json
 webpack.config.js
