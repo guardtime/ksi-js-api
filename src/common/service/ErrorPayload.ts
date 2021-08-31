@@ -17,8 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { TlvTag } from '../parser/TlvTag';
-import { ResponsePayload } from './ResponsePayload';
+import { TlvTag } from '../parser/TlvTag.js';
+import { ResponsePayload } from './ResponsePayload.js';
 
 /**
  * KSI service error response payload TLV object.

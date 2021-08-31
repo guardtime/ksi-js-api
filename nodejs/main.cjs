@@ -18,7 +18,7 @@
  */
 
 const fs = require('fs');
-const CONFIG = require('../config/ksi-config.js');
+const CONFIG = require('../config/ksi-config.cjs');
 const KSI = require('../');
 
 const service = new KSI.KsiService(

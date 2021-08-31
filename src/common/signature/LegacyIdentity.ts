@@ -18,7 +18,7 @@
  */
 
 import { BigInteger } from 'big-integer';
-import { IKsiIdentity } from './IKsiIdentity';
+import { IKsiIdentity } from './IKsiIdentity.js';
 
 /**
  * Legacy version of identity.

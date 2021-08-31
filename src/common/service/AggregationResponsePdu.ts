@@ -22,13 +22,13 @@ import {
   AGGREGATION_RESPONSE_PAYLOAD_CONSTANTS,
   AGGREGATOR_CONFIG_RESPONSE_PAYLOAD_CONSTANTS,
   ERROR_PAYLOAD_CONSTANTS,
-} from '../Constants';
-import { TlvTag } from '../parser/TlvTag';
-import { AggregationErrorPayload } from './AggregationErrorPayload';
-import { AggregationResponsePayload } from './AggregationResponsePayload';
-import { AggregatorConfigResponsePayload } from './AggregatorConfigResponsePayload';
-import { Pdu } from './Pdu';
-import { PduPayload } from './PduPayload';
+} from '../Constants.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { AggregationErrorPayload } from './AggregationErrorPayload.js';
+import { AggregationResponsePayload } from './AggregationResponsePayload.js';
+import { AggregatorConfigResponsePayload } from './AggregatorConfigResponsePayload.js';
+import { Pdu } from './Pdu.js';
+import { PduPayload } from './PduPayload.js';
 
 /**
  * Aggregation response PDU TLV object.

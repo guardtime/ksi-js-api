@@ -17,12 +17,12 @@
  * reserves and retains all trademark rights.
  */
 
-import { PUBLICATION_DATA_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
-import { PublicationData } from '../publication/PublicationData';
-import { SignatureData } from './SignatureData';
+import { PUBLICATION_DATA_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { PublicationData } from '../publication/PublicationData.js';
+import { SignatureData } from './SignatureData.js';
 
 /**
  * Calendar authentication record TLV object.

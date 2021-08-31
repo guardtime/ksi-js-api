@@ -17,8 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
-import { IServiceCredentials } from './IServiceCredentials';
+import { HashAlgorithm } from '@guardtime/common';
+import { IServiceCredentials } from './IServiceCredentials.js';
 
 /**
  * Service credentials for KSI service.

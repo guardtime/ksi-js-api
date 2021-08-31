@@ -17,10 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
-import HexCoder from '@guardtime/common/lib/coders/HexCoder';
-import { TLV_CONSTANTS } from '../Constants';
-import { TlvError } from './TlvError';
+import { Array, HexCoder } from '@guardtime/common';
+import { TLV_CONSTANTS } from '../Constants.js';
+import { TlvError } from './TlvError.js';
 
 /**
  * TLV objects base class.
@@ -83,7 +82,7 @@ export class TlvTag {
       x.id !== y.id ||
       x.forwardFlag !== y.forwardFlag ||
       x.nonCriticalFlag !== y.nonCriticalFlag ||
-      !compareUint8Arrays(x.getValueBytes(), y.getValueBytes())
+      !Array.compareUint8Arrays(x.getValueBytes(), y.getValueBytes())
     );
   }
 

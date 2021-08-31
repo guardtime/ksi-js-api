@@ -17,17 +17,17 @@
  * reserves and retains all trademark rights.
  */
 
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import { HashAlgorithm } from '@guardtime/common';
 import {
   EXTEND_REQUEST_PAYLOAD_CONSTANTS,
   EXTEND_REQUEST_PDU_CONSTANTS,
   EXTENDER_CONFIG_REQUEST_PAYLOAD_CONSTANTS,
-} from '../Constants';
-import { TlvTag } from '../parser/TlvTag';
-import { ExtenderConfigRequestPayload } from './ExtenderConfigRequestPayload';
-import { ExtendRequestPayload } from './ExtendRequestPayload';
-import { Pdu } from './Pdu';
-import { PduHeader } from './PduHeader';
+} from '../Constants.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { ExtenderConfigRequestPayload } from './ExtenderConfigRequestPayload.js';
+import { ExtendRequestPayload } from './ExtendRequestPayload.js';
+import { Pdu } from './Pdu.js';
+import { PduHeader } from './PduHeader.js';
 
 /**
  * Extend request PDU TLV object.

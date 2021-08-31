@@ -1,14 +1,21 @@
 {
   "name": "@guardtime/ksi-js-api",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "git@github.com:guardtime/ksi-js-api.git"
   },
   "license": "SEE LICENSE IN 'LICENSE'",
-  "main": "./dist/main.node.js",
+  "main": "./dist/main.node.cjs",
   "browser": "./dist/main.js",
+  "module": "./lib/common/main.js",
   "types": "./lib/common/main.d.ts",
+  "type": "module",
+  "exports": {
+    ".": "./dist/main.node.cjs",
+    "./lib": "./lib/common/main.js",
+    "./lib/*": "./lib/*"
+  },
   "scripts": {
     "clean:lib": "node -e \"try { require('fs').rmdirSync('./lib', { recursive: true }); } catch(err) { console.log(err); }\"",
     "clean:docs": "node -e \"try { require('fs').rmdirSync('./docs', { recursive: true }); } catch(err) { console.log(err); }\"",
@@ -16,10 +23,10 @@
     "test:ci": "jest test/ --ci --reporters=default --reporters=jest-junit",
     "integration-test": "jest test-integration/",
     "integration-test:ci": "jest test-integration/ --ci --reporters=default --reporters=jest-junit",
-    "build:lib": "tsc -t ES6 -d",
-    "build:web": "webpack --target web",
-    "build:node": "webpack --output-filename main.node.js --target node",
-    "build": "npm run clean:lib && npm run build:lib && npm run build:web && npm run build:node",
+    "build:lib": "npm run clean:lib && tsc -t ES6 -d",
+    "build:web": "npm run build:lib && webpack --target web --output-library-name KSI",
+    "build:node": "npm run build:lib && webpack --output-filename main.node.cjs --target node --output-library-type commonjs2",
+    "build": "npm run build:lib && npm run build:web && npm run build:node",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"test/**/*.ts\" \"test-integration/**/*.ts\" --fix",
     "typedoc": "npm run clean:docs && typedoc --out docs/ src/common"
@@ -29,56 +36,45 @@
     "collectCoverageFrom": [
       "src/**/*.ts"
     ],
-    "transform": {
-      "^.+\\.ts$": "babel-jest",
-      "^.+\\.m?js$": "babel-jest"
-    },
     "testRegex": "(^.*\\.test)\\.(ts)$",
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json",
-      "tsx",
-      "jsx",
-      "node",
-      "mjs"
-    ],
     "transformIgnorePatterns": [
-      "/node_modules/(?!(@guardtime/common))"
+      "node_modules/(?!(@guardtime/common)|(abortcontroller-polyfill))"
     ],
-    "testEnvironment": "./jest-environment.js"
+    "testEnvironment": "./jest-environment.js",
+    "moduleNameMapper": {
+      "^(\\.\\.?/.*)\\.js$": "$1"
+    }
   },
   "devDependencies": {
-    "@babel/core": "^7.14.0",
-    "@babel/plugin-proposal-class-properties": "^7.13.0",
-    "@babel/plugin-transform-runtime": "^7.13.15",
-    "@babel/preset-env": "^7.14.1",
-    "@babel/preset-typescript": "^7.13.0",
-    "@babel/runtime": "^7.14.0",
-    "@guardtime/common": "1.0.4",
+    "@babel/core": "^7.15.0",
+    "@babel/plugin-proposal-class-properties": "^7.14.5",
+    "@babel/plugin-transform-runtime": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-typescript": "^7.15.0",
+    "@guardtime/common": "1.0.5",
     "@types/big-integer": "^0.0.31",
     "@types/csv-parse": "^1.2.2",
-    "@types/jest": "^26.0.23",
-    "@types/node-fetch": "^2.5.10",
-    "@types/uuid": "^8.3.0",
-    "@typescript-eslint/eslint-plugin": "^4.22.1",
-    "@typescript-eslint/parser": "^4.22.1",
-    "babel-jest": "^26.6.3",
+    "@types/jest": "^27.0.1",
+    "@types/node-fetch": "^2.5.12",
+    "@types/uuid": "^8.3.1",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
+    "babel-jest": "^27.1.0",
     "babel-loader": "^8.2.2",
     "big-integer": "^1.6.48",
-    "csv-parse": "^4.15.4",
-    "eslint": "^7.26.0",
+    "csv-parse": "^4.16.0",
+    "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "jest": "^26.6.3",
-    "jest-environment-node": "^26.6.2",
-    "jest-junit": "^12.0.0",
+    "eslint-plugin-prettier": "^3.4.1",
+    "jest": "^27.1.0",
+    "jest-environment-node": "^27.1.0",
+    "jest-junit": "^12.2.0",
     "license-checker-webpack-plugin": "^0.2.1",
-    "prettier": "^2.2.1",
-    "typedoc": "^0.20.36",
-    "typescript": "^4.2.4",
-    "webpack": "^5.36.2",
-    "webpack-cli": "^4.7.0"
+    "prettier": "^2.3.2",
+    "typedoc": "^0.21.7",
+    "typescript": "^4.4.2",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
   },
   "jest-junit": {
     "outputDirectory": "./coverage",
@@ -90,7 +86,7 @@
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "@guardtime/common": "1.0.4",
+    "@guardtime/common": "1.0.5",
     "big-integer": "^1.6.48"
   }
 }

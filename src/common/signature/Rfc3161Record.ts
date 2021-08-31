@@ -17,17 +17,15 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import DataHasher from '@guardtime/common/lib/hash/DataHasher';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import { DataHash, DataHasher, HashAlgorithm } from '@guardtime/common';
 import { BigInteger } from 'big-integer';
-import { RFC_3161_RECORD_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { ImprintTag } from '../parser/ImprintTag';
-import { IntegerTag } from '../parser/IntegerTag';
-import { RawTag } from '../parser/RawTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
+import { RFC_3161_RECORD_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { ImprintTag } from '../parser/ImprintTag.js';
+import { IntegerTag } from '../parser/IntegerTag.js';
+import { RawTag } from '../parser/RawTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
 
 /**
  * RFC 3161 record TLV object.

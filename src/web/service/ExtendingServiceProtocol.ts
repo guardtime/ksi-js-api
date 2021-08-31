@@ -17,10 +17,10 @@
  * reserves and retains all trademark rights.
  */
 
-import { IExtendingServiceProtocol } from '../../common/service/IExtendingServiceProtocol';
-import { KsiRequestBase } from '../../common/service/KsiRequestBase';
-import { KsiHttpProtocol } from '../../common/service/KsiHttpProtocol';
-import { KsiRequest } from '../../common/service/KsiRequest';
+import { IExtendingServiceProtocol } from '../../common/service/IExtendingServiceProtocol.js';
+import { KsiRequestBase } from '../../common/service/KsiRequestBase.js';
+import { KsiHttpProtocol } from '../../common/service/KsiHttpProtocol.js';
+import { KsiRequest } from '../../common/service/KsiRequest.js';
 
 /**
  * HTTP extending service protocol.

@@ -17,9 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { PublicationsFile } from '../publication/PublicationsFile';
-import { PublicationsFileFactory } from '../publication/PublicationsFileFactory';
-import { IPublicationsFileServiceProtocol } from './IPublicationsFileServiceProtocol';
+import { PublicationsFile } from '../publication/PublicationsFile.js';
+import { PublicationsFileFactory } from '../publication/PublicationsFileFactory.js';
+import { IPublicationsFileServiceProtocol } from './IPublicationsFileServiceProtocol.js';
 /**
  * Publications file service.
  */

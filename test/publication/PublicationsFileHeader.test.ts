@@ -19,11 +19,11 @@
 
 import bigInteger from 'big-integer';
 
-import { PUBLICATIONS_FILE_HEADER_CONSTANTS } from '../../src/common/Constants';
-import { CompositeTag } from '../../src/common/parser/CompositeTag';
-import { IntegerTag } from '../../src/common/parser/IntegerTag';
-import { StringTag } from '../../src/common/parser/StringTag';
-import { PublicationsFileHeader } from '../../src/common/publication/PublicationsFileHeader';
+import { PUBLICATIONS_FILE_HEADER_CONSTANTS } from '../../src/common/Constants.js';
+import { CompositeTag } from '../../src/common/parser/CompositeTag.js';
+import { IntegerTag } from '../../src/common/parser/IntegerTag.js';
+import { StringTag } from '../../src/common/parser/StringTag.js';
+import { PublicationsFileHeader } from '../../src/common/publication/PublicationsFileHeader.js';
 
 /**
  * Certificate record TLV tag tests

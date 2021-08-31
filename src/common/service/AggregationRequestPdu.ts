@@ -17,18 +17,18 @@
  * reserves and retains all trademark rights.
  */
 
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import { HashAlgorithm } from '@guardtime/common';
 import {
   AGGREGATION_REQUEST_PAYLOAD_CONSTANTS,
   AGGREGATION_REQUEST_PDU_CONSTANTS,
   AGGREGATOR_CONFIG_REQUEST_PAYLOAD_CONSTANTS,
-} from '../Constants';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
-import { AggregationRequestPayload } from './AggregationRequestPayload';
-import { AggregatorConfigRequestPayload } from './AggregatorConfigRequestPayload';
-import { Pdu } from './Pdu';
-import { PduHeader } from './PduHeader';
+} from '../Constants.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { AggregationRequestPayload } from './AggregationRequestPayload.js';
+import { AggregatorConfigRequestPayload } from './AggregatorConfigRequestPayload.js';
+import { Pdu } from './Pdu.js';
+import { PduHeader } from './PduHeader.js';
 
 /**
  * Aggregation request PDU TLV object.

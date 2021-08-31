@@ -17,12 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
-import CMSVerification from '@guardtime/common/lib/crypto/CMSVerification';
-import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
-import { RawTag } from '../parser/RawTag';
-import { PublicationsFile } from './PublicationsFile';
-import { PublicationsFileError } from './PublicationsFileError';
-import { PUBLICATIONS_FILE_SIGNATURE_CONSTANTS } from '../Constants';
+import { CMSVerification, Array } from '@guardtime/common';
+import { RawTag } from '../parser/RawTag.js';
+import { PublicationsFile } from './PublicationsFile.js';
+import { PublicationsFileError } from './PublicationsFileError.js';
+import { PUBLICATIONS_FILE_SIGNATURE_CONSTANTS } from '../Constants.js';
 
 /**
  * Publications file factory for publications file creation from byte array.
@@ -51,7 +50,7 @@ export class PublicationsFileFactory {
    */
   public create(publicationFileBytes: Uint8Array): PublicationsFile {
     const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
-    if (!compareUint8Arrays(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {
+    if (!Array.compareUint8Arrays(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {
       throw new PublicationsFileError('Publications file header is incorrect. Invalid publications file magic bytes.');
     }
 

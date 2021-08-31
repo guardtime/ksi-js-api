@@ -17,14 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import { ImprintTag } from '../../../parser/ImprintTag';
-import { CalendarHashChain } from '../../CalendarHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { ImprintTag } from '../../../parser/ImprintTag.js';
+import { CalendarHashChain } from '../../CalendarHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Verifies that calendar hash chain right link hash algorithms were not deprecated at the publication time.
@@ -48,9 +48,8 @@ export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
       return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
     }
 
-    const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(
-      calendarHashChain
-    );
+    const deprecatedLink: ImprintTag | null =
+      VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(calendarHashChain);
     if (deprecatedLink !== null) {
       console.debug(
         `Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${

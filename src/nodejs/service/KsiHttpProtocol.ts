@@ -21,8 +21,8 @@ import { EventEmitter } from 'events';
 import { ClientRequest, IncomingMessage, request as httpRequest, RequestOptions } from 'http';
 import { request as httpsRequest } from 'https';
 import { URL } from 'url';
-import { KsiServiceError } from '../../common/service/KsiServiceError';
-import { KsiRequest } from './KsiRequest';
+import { KsiServiceError } from '../../common/service/KsiServiceError.js';
+import { KsiRequest } from './KsiRequest.js';
 
 /**
  * HTTP protocol for requests.

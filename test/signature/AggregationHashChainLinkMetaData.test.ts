@@ -19,13 +19,13 @@
 
 import bigInteger from 'big-integer';
 
-import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../src/common/Constants';
-import { CompositeTag } from '../../src/common/parser/CompositeTag';
-import { IntegerTag } from '../../src/common/parser/IntegerTag';
-import { RawTag } from '../../src/common/parser/RawTag';
-import { StringTag } from '../../src/common/parser/StringTag';
-import { TlvTag } from '../../src/common/parser/TlvTag';
-import { AggregationHashChainLinkMetaData } from '../../src/common/signature/AggregationHashChain';
+import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../src/common/Constants.js';
+import { CompositeTag } from '../../src/common/parser/CompositeTag.js';
+import { IntegerTag } from '../../src/common/parser/IntegerTag.js';
+import { RawTag } from '../../src/common/parser/RawTag.js';
+import { StringTag } from '../../src/common/parser/StringTag.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
+import { AggregationHashChainLinkMetaData } from '../../src/common/signature/AggregationHashChain.js';
 
 /**
  * Aggregation hash chain link metadata TLV tag tests

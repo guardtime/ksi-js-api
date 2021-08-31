@@ -17,14 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
+import { DataHash } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
-import { AGGREGATION_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { ImprintTag } from '../parser/ImprintTag';
-import { IntegerTag } from '../parser/IntegerTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
+import { AGGREGATION_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { ImprintTag } from '../parser/ImprintTag.js';
+import { IntegerTag } from '../parser/IntegerTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
 
 /**
  * Aggregation request payload TLV object.

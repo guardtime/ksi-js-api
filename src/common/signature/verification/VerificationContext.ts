@@ -17,14 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
+import { DataHash } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
-import { PublicationData } from '../../publication/PublicationData';
-import { PublicationsFile } from '../../publication/PublicationsFile';
-import { KsiService } from '../../service/KsiService';
-import { CalendarHashChain } from '../CalendarHashChain';
-import { KsiSignature } from '../KsiSignature';
-import { KsiVerificationError } from './KsiVerificationError';
+import { PublicationData } from '../../publication/PublicationData.js';
+import { PublicationsFile } from '../../publication/PublicationsFile.js';
+import { KsiService } from '../../service/KsiService.js';
+import { CalendarHashChain } from '../CalendarHashChain.js';
+import { KsiSignature } from '../KsiSignature.js';
+import { KsiVerificationError } from './KsiVerificationError.js';
 
 /**
  * Verification context for KSI signature.

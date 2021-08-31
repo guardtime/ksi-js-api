@@ -22,13 +22,13 @@ import {
   ERROR_PAYLOAD_CONSTANTS,
   EXTEND_RESPONSE_PAYLOAD_CONSTANTS,
   EXTENDER_CONFIG_RESPONSE_PAYLOAD_CONSTANTS,
-} from '../Constants';
-import { TlvTag } from '../parser/TlvTag';
-import { ExtenderConfigResponsePayload } from './ExtenderConfigResponsePayload';
-import { ExtendErrorPayload } from './ExtendErrorPayload';
-import { ExtendResponsePayload } from './ExtendResponsePayload';
-import { Pdu } from './Pdu';
-import { PduPayload } from './PduPayload';
+} from '../Constants.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { ExtenderConfigResponsePayload } from './ExtenderConfigResponsePayload.js';
+import { ExtendErrorPayload } from './ExtendErrorPayload.js';
+import { ExtendResponsePayload } from './ExtendResponsePayload.js';
+import { Pdu } from './Pdu.js';
+import { PduPayload } from './PduPayload.js';
 
 /**
  * Extend response PDU TLV object.

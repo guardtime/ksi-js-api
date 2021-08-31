@@ -17,38 +17,20 @@
  * reserves and retains all trademark rights.
  */
 
-const path = require('path');
-const outputPath = path.resolve(__dirname, 'dist');
-
-module.exports = {
+export default {
   mode: 'production',
-  entry: './src/common/main.ts',
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-typescript'],
-            plugins: ['@babel/plugin-proposal-class-properties'],
-          },
-        },
-        exclude: /node_modules/,
-      },
-    ],
-  },
+  entry: './lib/common/main.js',
   resolve: {
-    extensions: ['.ts', '.js', '.json'],
+    extensions: ['.js', '.json'],
     fallback: {
       crypto: false,
     },
   },
   output: {
     filename: 'main.js',
-    path: outputPath,
-    libraryTarget: 'umd',
     globalObject: 'this',
-    library: 'KSI',
+    library: {
+      type: 'umd',
+    },
   },
 };

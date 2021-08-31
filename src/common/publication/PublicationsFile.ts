@@ -18,20 +18,20 @@
  */
 
 import { BigInteger } from 'big-integer';
-import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
+import { Array } from '@guardtime/common';
 import {
   CERTIFICATE_RECORD_CONSTANTS,
   PUBLICATIONS_FILE_CONSTANTS,
   PUBLICATIONS_FILE_HEADER_CONSTANTS,
-} from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { RawTag } from '../parser/RawTag';
-import { TlvOutputStream } from '../parser/TlvOutputStream';
-import { TlvTag } from '../parser/TlvTag';
-import { CertificateRecord } from './CertificateRecord';
-import { PublicationRecord } from './PublicationRecord';
-import { PublicationsFileError } from './PublicationsFileError';
-import { PublicationsFileHeader } from './PublicationsFileHeader';
+} from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { RawTag } from '../parser/RawTag.js';
+import { TlvOutputStream } from '../parser/TlvOutputStream.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { CertificateRecord } from './CertificateRecord.js';
+import { PublicationRecord } from './PublicationRecord.js';
+import { PublicationsFileError } from './PublicationsFileError.js';
+import { PublicationsFileHeader } from './PublicationsFileHeader.js';
 
 /**
  * Publications file TLV object.
@@ -74,7 +74,7 @@ export class PublicationsFile extends CompositeTag {
    */
   public findCertificateById(certificateId: Uint8Array): CertificateRecord | null {
     for (const certificateRecord of this.certificateRecordList) {
-      if (compareUint8Arrays(certificateId, certificateRecord.getCertificateId())) {
+      if (Array.compareUint8Arrays(certificateId, certificateRecord.getCertificateId())) {
         return certificateRecord;
       }
     }

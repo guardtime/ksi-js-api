@@ -17,18 +17,19 @@
  * reserves and retains all trademark rights.
  */
 
-import { ISigningServiceProtocol } from '../../src/common/service/ISigningServiceProtocol';
-import { IExtendingServiceProtocol } from '../../src/common/service/IExtendingServiceProtocol';
-import { IPublicationsFileServiceProtocol } from '../../src/common/service/IPublicationsFileServiceProtocol';
-import { KsiRequestBase } from '../../src/common/service/KsiRequestBase';
-import { KsiRequest } from '../../src/nodejs/service/KsiRequest';
+import { ISigningServiceProtocol } from '../../src/common/service/ISigningServiceProtocol.js';
+import { IExtendingServiceProtocol } from '../../src/common/service/IExtendingServiceProtocol.js';
+import { IPublicationsFileServiceProtocol } from '../../src/common/service/IPublicationsFileServiceProtocol.js';
+import { KsiRequestBase } from '../../src/common/service/KsiRequestBase.js';
+import { KsiRequest } from '../../src/nodejs/service/KsiRequest.js';
 import { EventEmitter } from 'events';
 
 /**
  * Test service protocol for mocking queries to server
  */
 export class TestServiceProtocol
-  implements ISigningServiceProtocol, IExtendingServiceProtocol, IPublicationsFileServiceProtocol {
+  implements ISigningServiceProtocol, IExtendingServiceProtocol, IPublicationsFileServiceProtocol
+{
   private readonly resultBytes: Uint8Array;
 
   public constructor(resultBytes: Uint8Array) {

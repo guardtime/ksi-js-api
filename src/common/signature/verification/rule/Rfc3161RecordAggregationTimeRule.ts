@@ -17,14 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import { AggregationHashChain } from '../../AggregationHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { Rfc3161Record } from '../../Rfc3161Record';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { AggregationHashChain } from '../../AggregationHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { Rfc3161Record } from '../../Rfc3161Record.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * This rule verifies that aggregation hash chain aggregation time and RFC3161 record aggregation time match.

@@ -17,15 +17,15 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
+import { DataHash } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
-import { PublicationsFile } from '../publication/PublicationsFile';
-import { CalendarHashChain } from '../signature/CalendarHashChain';
-import { KsiSignature } from '../signature/KsiSignature';
-import { ExtendingService } from './ExtendingService';
-import { KsiServiceError } from './KsiServiceError';
-import { PublicationsFileService } from './PublicationsFileService';
-import { SigningService } from './SigningService';
+import { PublicationsFile } from '../publication/PublicationsFile.js';
+import { CalendarHashChain } from '../signature/CalendarHashChain.js';
+import { KsiSignature } from '../signature/KsiSignature.js';
+import { ExtendingService } from './ExtendingService.js';
+import { KsiServiceError } from './KsiServiceError.js';
+import { PublicationsFileService } from './PublicationsFileService.js';
+import { SigningService } from './SigningService.js';
 
 /**
  * KSI service for signing, extending and fetching publications file.

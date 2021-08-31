@@ -17,22 +17,18 @@
  * reserves and retains all trademark rights.
  */
 
-import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import DataHasher from '@guardtime/common/lib/hash/DataHasher';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
-import Utf8Converter from '@guardtime/common/lib/strings/Utf8Converter';
+import { UnsignedLongCoder, DataHash, DataHasher, HashAlgorithm, Utf8Converter } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
-import { AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { ImprintTag } from '../parser/ImprintTag';
-import { IntegerTag } from '../parser/IntegerTag';
-import { RawTag } from '../parser/RawTag';
-import { StringTag } from '../parser/StringTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
-import { IKsiIdentity } from './IKsiIdentity';
-import { LegacyIdentity } from './LegacyIdentity';
+import { AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { ImprintTag } from '../parser/ImprintTag.js';
+import { IntegerTag } from '../parser/IntegerTag.js';
+import { RawTag } from '../parser/RawTag.js';
+import { StringTag } from '../parser/StringTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { IKsiIdentity } from './IKsiIdentity.js';
+import { LegacyIdentity } from './LegacyIdentity.js';
 
 /**
  * Aggregation hash chain link metadata TLV object.

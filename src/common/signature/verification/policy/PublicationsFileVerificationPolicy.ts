@@ -17,16 +17,16 @@
  * reserves and retains all trademark rights.
  */
 
-import { CalendarHashChainAlgorithmDeprecatedRule } from '../rule/CalendarHashChainAlgorithmDeprecatedRule';
-import { ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule } from '../rule/ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule';
-import { ExtendingPermittedVerificationRule } from '../rule/ExtendingPermittedVerificationRule';
-import { PublicationsFileExtendedSignatureInputHashRule } from '../rule/PublicationsFileExtendedSignatureInputHashRule';
-import { PublicationsFilePublicationHashMatchesExtenderResponseRule } from '../rule/PublicationsFilePublicationHashMatchesExtenderResponseRule';
-import { PublicationsFilePublicationTimeMatchesExtenderResponseRule } from '../rule/PublicationsFilePublicationTimeMatchesExtenderResponseRule';
-import { PublicationsFileSignaturePublicationMatchRule } from '../rule/PublicationsFileSignaturePublicationMatchRule';
-import { SignaturePublicationRecordExistenceRule } from '../rule/SignaturePublicationRecordExistenceRule';
-import { VerificationRule } from '../VerificationRule';
-import { VerificationPolicy } from './VerificationPolicy';
+import { CalendarHashChainAlgorithmDeprecatedRule } from '../rule/CalendarHashChainAlgorithmDeprecatedRule.js';
+import { ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule } from '../rule/ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule.js';
+import { ExtendingPermittedVerificationRule } from '../rule/ExtendingPermittedVerificationRule.js';
+import { PublicationsFileExtendedSignatureInputHashRule } from '../rule/PublicationsFileExtendedSignatureInputHashRule.js';
+import { PublicationsFilePublicationHashMatchesExtenderResponseRule } from '../rule/PublicationsFilePublicationHashMatchesExtenderResponseRule.js';
+import { PublicationsFilePublicationTimeMatchesExtenderResponseRule } from '../rule/PublicationsFilePublicationTimeMatchesExtenderResponseRule.js';
+import { PublicationsFileSignaturePublicationMatchRule } from '../rule/PublicationsFileSignaturePublicationMatchRule.js';
+import { SignaturePublicationRecordExistenceRule } from '../rule/SignaturePublicationRecordExistenceRule.js';
+import { VerificationRule } from '../VerificationRule.js';
+import { VerificationPolicy } from './VerificationPolicy.js';
 
 /**
  * Policy for verifying KSI signature with publications file.

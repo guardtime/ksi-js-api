@@ -27,4 +27,3 @@ interface KsiConfig {
 
 declare const ksiConfig: KsiConfig;
 export default ksiConfig;
-

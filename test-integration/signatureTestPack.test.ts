@@ -17,9 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import HexCoder from '@guardtime/common/lib/coders/HexCoder';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import Utf8Converter from '@guardtime/common/lib/strings/Utf8Converter';
+import { HexCoder, DataHash, Utf8Converter } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
 import { CastingContext, ColumnOption } from 'csv-parse';
 // tslint:disable-next-line:import-name
@@ -40,19 +38,23 @@ import {
   SigningService,
   VerificationContext,
 } from '../src/common/main';
-import { TlvInputStream } from '../src/common/parser/TlvInputStream';
-import { PublicationData } from '../src/common/publication/PublicationData';
-import { PublicationsFile } from '../src/common/publication/PublicationsFile';
-import { IExtendingServiceProtocol } from '../src/common/service/IExtendingServiceProtocol';
-import { IServiceCredentials } from '../src/common/service/IServiceCredentials';
-import { KsiSignature } from '../src/common/signature/KsiSignature';
-import { CalendarBasedVerificationPolicy } from '../src/common/signature/verification/policy/CalendarBasedVerificationPolicy';
-import { InternalVerificationPolicy } from '../src/common/signature/verification/policy/InternalVerificationPolicy';
-import { VerificationPolicy } from '../src/common/signature/verification/policy/VerificationPolicy';
-import { VerificationError } from '../src/common/signature/verification/VerificationError';
-import { VerificationResult } from '../src/common/signature/verification/VerificationResult';
-import { ExtendingServiceProtocol, PublicationsFileServiceProtocol, SigningServiceProtocol } from '../src/common/main';
-import { TestServiceProtocol } from '../test/service/TestServiceProtocol';
+import { TlvInputStream } from '../src/common/parser/TlvInputStream.js';
+import { PublicationData } from '../src/common/publication/PublicationData.js';
+import { PublicationsFile } from '../src/common/publication/PublicationsFile.js';
+import { IExtendingServiceProtocol } from '../src/common/service/IExtendingServiceProtocol.js';
+import { IServiceCredentials } from '../src/common/service/IServiceCredentials.js';
+import { KsiSignature } from '../src/common/signature/KsiSignature.js';
+import { CalendarBasedVerificationPolicy } from '../src/common/signature/verification/policy/CalendarBasedVerificationPolicy.js';
+import { InternalVerificationPolicy } from '../src/common/signature/verification/policy/InternalVerificationPolicy.js';
+import { VerificationPolicy } from '../src/common/signature/verification/policy/VerificationPolicy.js';
+import { VerificationError } from '../src/common/signature/verification/VerificationError.js';
+import { VerificationResult } from '../src/common/signature/verification/VerificationResult.js';
+import {
+  ExtendingServiceProtocol,
+  PublicationsFileServiceProtocol,
+  SigningServiceProtocol,
+} from '../src/common/main.js';
+import { TestServiceProtocol } from '../test/service/TestServiceProtocol.js';
 
 const config: {
   testDirectory: null | string;
@@ -232,55 +234,57 @@ describe.each([
   });
 
   it.each(
-    (parseCsv(fs.readFileSync(resultFile).toString(), {
-      from_line: 2,
-      delimiter: ';',
-      columns: (): ColumnOption[] => {
-        return [
-          'signatureFile',
-          'actionName',
-          'errorCode',
-          'errorMessage',
-          'inputHashLevel',
-          'inputHash',
-          'calendarHashChainInput',
-          'calendarHashChainOutput',
-          'aggregationTime',
-          'publicationTime',
-          'publicationData',
-          'isExtendingAllowed',
-          'resourceFile',
-          'publicationsFilePath',
-          'certFilePath',
-          'rowIndex',
-        ];
-      },
-      cast: (value: string, context: CastingContext): CsvCastTypes => {
-        if (context.lines === 0) {
-          return false;
-        }
+    (
+      parseCsv(fs.readFileSync(resultFile).toString(), {
+        from_line: 2,
+        delimiter: ';',
+        columns: (): ColumnOption[] => {
+          return [
+            'signatureFile',
+            'actionName',
+            'errorCode',
+            'errorMessage',
+            'inputHashLevel',
+            'inputHash',
+            'calendarHashChainInput',
+            'calendarHashChainOutput',
+            'aggregationTime',
+            'publicationTime',
+            'publicationData',
+            'isExtendingAllowed',
+            'resourceFile',
+            'publicationsFilePath',
+            'certFilePath',
+            'rowIndex',
+          ];
+        },
+        cast: (value: string, context: CastingContext): CsvCastTypes => {
+          if (context.lines === 0) {
+            return false;
+          }
 
-        switch (context.index) {
-          case 4:
-            return value ? bigInteger(value, 10) : bigInteger(0);
-          case 5:
-          case 6:
-          case 7:
-            return value ? new DataHash(HexCoder.decode(value)) : null;
-          case 8:
-          case 9:
-            return value ? bigInteger(value, 10) : null;
-          case 10:
-            return value ? PublicationData.CREATE_FROM_PUBLICATION_STRING(value) : null;
-          case 11:
-            return value.toUpperCase() === 'TRUE';
-          case 15:
-            return context.lines;
-          default:
-            return value;
-        }
-      },
-    }) as SignatureTestRow[]).map((row: SignatureTestRow) => [path.basename(row.signatureFile), row])
+          switch (context.index) {
+            case 4:
+              return value ? bigInteger(value, 10) : bigInteger(0);
+            case 5:
+            case 6:
+            case 7:
+              return value ? new DataHash(HexCoder.decode(value)) : null;
+            case 8:
+            case 9:
+              return value ? bigInteger(value, 10) : null;
+            case 10:
+              return value ? PublicationData.CREATE_FROM_PUBLICATION_STRING(value) : null;
+            case 11:
+              return value.toUpperCase() === 'TRUE';
+            case 15:
+              return context.lines;
+            default:
+              return value;
+          }
+        },
+      }) as SignatureTestRow[]
+    ).map((row: SignatureTestRow) => [path.basename(row.signatureFile), row])
   )('%s', (filename: string, row: SignatureTestRow) => {
     console.debug(`
 SignatureFile: ${row.signatureFile}

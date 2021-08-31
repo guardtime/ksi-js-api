@@ -17,35 +17,35 @@
  * reserves and retains all trademark rights.
  */
 
-import { AggregationHashChainAlgorithmDeprecatedRule } from '../rule/AggregationHashChainAlgorithmDeprecatedRule';
-import { AggregationHashChainConsistencyRule } from '../rule/AggregationHashChainConsistencyRule';
-import { AggregationHashChainIndexSuccessorRule } from '../rule/AggregationHashChainIndexSuccessorRule';
-import { AggregationHashChainMetadataRule } from '../rule/AggregationHashChainMetadataRule';
-import { AggregationHashChainShapeRule } from '../rule/AggregationHashChainShapeRule';
-import { AggregationHashChainTimeConsistencyRule } from '../rule/AggregationHashChainTimeConsistencyRule';
-import { CalendarAuthenticationRecordAggregationHashRule } from '../rule/CalendarAuthenticationRecordAggregationHashRule';
-import { CalendarAuthenticationRecordExistenceRule } from '../rule/CalendarAuthenticationRecordExistenceRule';
-import { CalendarAuthenticationRecordPublicationTimeRule } from '../rule/CalendarAuthenticationRecordPublicationTimeRule';
-import { CalendarHashChainAggregationTimeRule } from '../rule/CalendarHashChainAggregationTimeRule';
-import { CalendarHashChainAlgorithmObsoleteRule } from '../rule/CalendarHashChainAlgorithmObsoleteRule';
-import { CalendarHashChainExistenceRule } from '../rule/CalendarHashChainExistenceRule';
-import { CalendarHashChainInputHashVerificationRule } from '../rule/CalendarHashChainInputHashVerificationRule';
-import { CalendarHashChainRegistrationTimeRule } from '../rule/CalendarHashChainRegistrationTimeRule';
-import { DocumentHashLevelVerificationRule } from '../rule/DocumentHashLevelVerificationRule';
-import { DocumentHashVerificationRule } from '../rule/DocumentHashVerificationRule';
-import { InputHashAlgorithmDeprecatedRule } from '../rule/InputHashAlgorithmDeprecatedRule';
-import { InputHashAlgorithmVerificationRule } from '../rule/InputHashAlgorithmVerificationRule';
-import { Rfc3161RecordAggregationTimeRule } from '../rule/Rfc3161RecordAggregationTimeRule';
-import { Rfc3161RecordChainIndexRule } from '../rule/Rfc3161RecordChainIndexRule';
-import { Rfc3161RecordHashAlgorithmDeprecatedRule } from '../rule/Rfc3161RecordHashAlgorithmDeprecatedRule';
-import { Rfc3161RecordOutputHashAlgorithmDeprecatedRule } from '../rule/Rfc3161RecordOutputHashAlgorithmDeprecatedRule';
-import { Rfc3161RecordOutputHashVerificationRule } from '../rule/Rfc3161RecordOutputHashVerificationRule';
-import { SignaturePublicationRecordExistenceRule } from '../rule/SignaturePublicationRecordExistenceRule';
-import { SignaturePublicationRecordPublicationHashRule } from '../rule/SignaturePublicationRecordPublicationHashRule';
-import { SignaturePublicationRecordPublicationTimeRule } from '../rule/SignaturePublicationRecordPublicationTimeRule';
-import { SuccessResultRule } from '../rule/SuccessResultRule';
-import { VerificationRule } from '../VerificationRule';
-import { VerificationPolicy } from './VerificationPolicy';
+import { AggregationHashChainAlgorithmDeprecatedRule } from '../rule/AggregationHashChainAlgorithmDeprecatedRule.js';
+import { AggregationHashChainConsistencyRule } from '../rule/AggregationHashChainConsistencyRule.js';
+import { AggregationHashChainIndexSuccessorRule } from '../rule/AggregationHashChainIndexSuccessorRule.js';
+import { AggregationHashChainMetadataRule } from '../rule/AggregationHashChainMetadataRule.js';
+import { AggregationHashChainShapeRule } from '../rule/AggregationHashChainShapeRule.js';
+import { AggregationHashChainTimeConsistencyRule } from '../rule/AggregationHashChainTimeConsistencyRule.js';
+import { CalendarAuthenticationRecordAggregationHashRule } from '../rule/CalendarAuthenticationRecordAggregationHashRule.js';
+import { CalendarAuthenticationRecordExistenceRule } from '../rule/CalendarAuthenticationRecordExistenceRule.js';
+import { CalendarAuthenticationRecordPublicationTimeRule } from '../rule/CalendarAuthenticationRecordPublicationTimeRule.js';
+import { CalendarHashChainAggregationTimeRule } from '../rule/CalendarHashChainAggregationTimeRule.js';
+import { CalendarHashChainAlgorithmObsoleteRule } from '../rule/CalendarHashChainAlgorithmObsoleteRule.js';
+import { CalendarHashChainExistenceRule } from '../rule/CalendarHashChainExistenceRule.js';
+import { CalendarHashChainInputHashVerificationRule } from '../rule/CalendarHashChainInputHashVerificationRule.js';
+import { CalendarHashChainRegistrationTimeRule } from '../rule/CalendarHashChainRegistrationTimeRule.js';
+import { DocumentHashLevelVerificationRule } from '../rule/DocumentHashLevelVerificationRule.js';
+import { DocumentHashVerificationRule } from '../rule/DocumentHashVerificationRule.js';
+import { InputHashAlgorithmDeprecatedRule } from '../rule/InputHashAlgorithmDeprecatedRule.js';
+import { InputHashAlgorithmVerificationRule } from '../rule/InputHashAlgorithmVerificationRule.js';
+import { Rfc3161RecordAggregationTimeRule } from '../rule/Rfc3161RecordAggregationTimeRule.js';
+import { Rfc3161RecordChainIndexRule } from '../rule/Rfc3161RecordChainIndexRule.js';
+import { Rfc3161RecordHashAlgorithmDeprecatedRule } from '../rule/Rfc3161RecordHashAlgorithmDeprecatedRule.js';
+import { Rfc3161RecordOutputHashAlgorithmDeprecatedRule } from '../rule/Rfc3161RecordOutputHashAlgorithmDeprecatedRule.js';
+import { Rfc3161RecordOutputHashVerificationRule } from '../rule/Rfc3161RecordOutputHashVerificationRule.js';
+import { SignaturePublicationRecordExistenceRule } from '../rule/SignaturePublicationRecordExistenceRule.js';
+import { SignaturePublicationRecordPublicationHashRule } from '../rule/SignaturePublicationRecordPublicationHashRule.js';
+import { SignaturePublicationRecordPublicationTimeRule } from '../rule/SignaturePublicationRecordPublicationTimeRule.js';
+import { SuccessResultRule } from '../rule/SuccessResultRule.js';
+import { VerificationRule } from '../VerificationRule.js';
+import { VerificationPolicy } from './VerificationPolicy.js';
 
 /**
  * Policy for verifying KSI signature internal consistency.

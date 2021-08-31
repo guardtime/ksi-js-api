@@ -18,8 +18,8 @@
  */
 
 import bigInteger from 'big-integer';
-import { IntegerTag } from '../../src/common/parser/IntegerTag';
-import { TlvTag } from '../../src/common/parser/TlvTag';
+import { IntegerTag } from '../../src/common/parser/IntegerTag.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
 
 /**
  * IntegerTag tests

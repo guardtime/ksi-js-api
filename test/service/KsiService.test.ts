@@ -17,11 +17,16 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiService } from '../../src/common/service/KsiService';
-import { SigningService } from '../../src/common/service/SigningService';
-import { TestServiceProtocol } from './TestServiceProtocol';
-import { ServiceCredentials } from '../../src/common/service/ServiceCredentials';
-import { HashAlgorithm } from '../../src/common/main';
+import { KsiService } from '../../src/common/service/KsiService.js';
+import { SigningService } from '../../src/common/service/SigningService.js';
+import { TestServiceProtocol } from './TestServiceProtocol.js';
+import { ServiceCredentials } from '../../src/common/service/ServiceCredentials.js';
+import {
+  HashAlgorithm,
+  PublicationsFileFactory,
+  PublicationsFileService,
+  PublicationsFileServiceProtocol,
+} from '../../src/common/main.js';
 
 describe('KsiService', () => {
   it('example test', () => {
@@ -32,7 +37,7 @@ describe('KsiService', () => {
         new ServiceCredentials('', new Uint8Array(0), HashAlgorithm.SHA2_256)
       ),
       null,
-      null
+      new PublicationsFileService(new PublicationsFileServiceProtocol(''), new PublicationsFileFactory())
     );
   });
 });

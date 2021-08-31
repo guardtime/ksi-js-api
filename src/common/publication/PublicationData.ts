@@ -17,18 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import Base32Coder from '@guardtime/common/lib/coders/Base32Coder';
-import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
-import CRC32 from '@guardtime/common/lib/crc/CRC32';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
+import { Base32Coder, UnsignedLongCoder, CRC32, DataHash, Array } from '@guardtime/common';
 import { BigInteger } from 'big-integer';
-import { PUBLICATION_DATA_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { ImprintTag } from '../parser/ImprintTag';
-import { IntegerTag } from '../parser/IntegerTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
+import { PUBLICATION_DATA_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { ImprintTag } from '../parser/ImprintTag.js';
+import { IntegerTag } from '../parser/IntegerTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
 
 /**
  * Publication data TLV object.
@@ -80,7 +76,7 @@ export class PublicationData extends CompositeTag {
     const calculatedCrc32: Uint8Array = UnsignedLongCoder.encode(CRC32.create(bytesWithCrc32.slice(0, -4)));
     const messageCrc32: Uint8Array = bytesWithCrc32.slice(-4);
 
-    if (!compareUint8Arrays(calculatedCrc32, messageCrc32)) {
+    if (!Array.compareUint8Arrays(calculatedCrc32, messageCrc32)) {
       throw new TlvError(
         `Publication string CRC 32 check failed. Calculated: ${JSON.stringify(
           calculatedCrc32

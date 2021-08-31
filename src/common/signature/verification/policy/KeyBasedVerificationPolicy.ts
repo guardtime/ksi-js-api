@@ -17,13 +17,13 @@
  * reserves and retains all trademark rights.
  */
 
-import { CalendarAuthenticationRecordExistenceRule } from '../rule/CalendarAuthenticationRecordExistenceRule';
-import { CalendarAuthenticationRecordSignatureVerificationRule } from '../rule/CalendarAuthenticationRecordSignatureVerificationRule';
-import { CalendarHashChainAlgorithmDeprecatedRule } from '../rule/CalendarHashChainAlgorithmDeprecatedRule';
-import { CalendarHashChainExistenceRule } from '../rule/CalendarHashChainExistenceRule';
-import { CertificateExistenceRule } from '../rule/CertificateExistenceRule';
-import { InternalVerificationPolicy } from './InternalVerificationPolicy';
-import { VerificationPolicy } from './VerificationPolicy';
+import { CalendarAuthenticationRecordExistenceRule } from '../rule/CalendarAuthenticationRecordExistenceRule.js';
+import { CalendarAuthenticationRecordSignatureVerificationRule } from '../rule/CalendarAuthenticationRecordSignatureVerificationRule.js';
+import { CalendarHashChainAlgorithmDeprecatedRule } from '../rule/CalendarHashChainAlgorithmDeprecatedRule.js';
+import { CalendarHashChainExistenceRule } from '../rule/CalendarHashChainExistenceRule.js';
+import { CertificateExistenceRule } from '../rule/CertificateExistenceRule.js';
+import { InternalVerificationPolicy } from './InternalVerificationPolicy.js';
+import { VerificationPolicy } from './VerificationPolicy.js';
 
 /**
  * Policy for verifying KSI signature with PKI.

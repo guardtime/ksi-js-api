@@ -20,34 +20,33 @@
 /**
  * KSI JavaScript API externally visible classes.
  */
-export { CompositeTag } from '../common/parser/CompositeTag';
-export { ImprintTag } from '../common/parser/ImprintTag';
-export { IntegerTag } from '../common/parser/IntegerTag';
-export { RawTag } from '../common/parser/RawTag';
-export { StringTag } from '../common/parser/StringTag';
-export { TlvError } from '../common/parser/TlvError';
-export { TlvInputStream } from '../common/parser/TlvInputStream';
-export { TlvOutputStream } from '../common/parser/TlvOutputStream';
+export { CompositeTag } from '../common/parser/CompositeTag.js';
+export { ImprintTag } from '../common/parser/ImprintTag.js';
+export { IntegerTag } from '../common/parser/IntegerTag.js';
+export { RawTag } from '../common/parser/RawTag.js';
+export { StringTag } from '../common/parser/StringTag.js';
+export { TlvError } from '../common/parser/TlvError.js';
+export { TlvInputStream } from '../common/parser/TlvInputStream.js';
+export { TlvOutputStream } from '../common/parser/TlvOutputStream.js';
 
 export { default as BigInteger } from 'big-integer';
-export { default as HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm';
-export { default as DataHash } from '@guardtime/common/lib/hash/DataHash';
+export { HashAlgorithm, DataHash } from '@guardtime/common';
 
-export { KsiSignature } from '../common/signature/KsiSignature';
-export { VerificationContext } from '../common/signature/verification/VerificationContext';
-export { VerificationPolicy } from '../common/signature/verification/policy/VerificationPolicy';
-export { KeyBasedVerificationPolicy } from '../common/signature/verification/policy/KeyBasedVerificationPolicy';
-export { PublicationBasedVerificationPolicy } from '../common/signature/verification/policy/PublicationBasedVerificationPolicy';
-export { PublicationsFileVerificationPolicy } from '../common/signature/verification/policy/PublicationsFileVerificationPolicy';
-export { UserProvidedPublicationBasedVerificationPolicy } from '../common/signature/verification/policy/UserProvidedPublicationBasedVerificationPolicy';
-export { CalendarBasedVerificationPolicy } from '../common/signature/verification/policy/CalendarBasedVerificationPolicy';
-export { DefaultVerificationPolicy } from '../common/signature/verification/policy/DefaultVerificationPolicy';
-export { KsiService } from '../common/service/KsiService';
-export { SigningService } from '../common/service/SigningService';
-export { ExtendingService } from '../common/service/ExtendingService';
-export { PublicationsFileService } from '../common/service/PublicationsFileService';
-export { ServiceCredentials } from '../common/service/ServiceCredentials';
-export { PublicationsFileFactory } from '../common/publication/PublicationsFileFactory';
-export { SigningServiceProtocol } from '../common/service/SigningServiceProtocol';
-export { ExtendingServiceProtocol } from '../common/service/ExtendingServiceProtocol';
-export { PublicationsFileServiceProtocol } from '../common/service/PublicationsFileServiceProtocol';
+export { KsiSignature } from '../common/signature/KsiSignature.js';
+export { VerificationContext } from '../common/signature/verification/VerificationContext.js';
+export { VerificationPolicy } from '../common/signature/verification/policy/VerificationPolicy.js';
+export { KeyBasedVerificationPolicy } from '../common/signature/verification/policy/KeyBasedVerificationPolicy.js';
+export { PublicationBasedVerificationPolicy } from '../common/signature/verification/policy/PublicationBasedVerificationPolicy.js';
+export { PublicationsFileVerificationPolicy } from '../common/signature/verification/policy/PublicationsFileVerificationPolicy.js';
+export { UserProvidedPublicationBasedVerificationPolicy } from '../common/signature/verification/policy/UserProvidedPublicationBasedVerificationPolicy.js';
+export { CalendarBasedVerificationPolicy } from '../common/signature/verification/policy/CalendarBasedVerificationPolicy.js';
+export { DefaultVerificationPolicy } from '../common/signature/verification/policy/DefaultVerificationPolicy.js';
+export { KsiService } from '../common/service/KsiService.js';
+export { SigningService } from '../common/service/SigningService.js';
+export { ExtendingService } from '../common/service/ExtendingService.js';
+export { PublicationsFileService } from '../common/service/PublicationsFileService.js';
+export { ServiceCredentials } from '../common/service/ServiceCredentials.js';
+export { PublicationsFileFactory } from '../common/publication/PublicationsFileFactory.js';
+export { SigningServiceProtocol } from '../common/service/SigningServiceProtocol.js';
+export { ExtendingServiceProtocol } from '../common/service/ExtendingServiceProtocol.js';
+export { PublicationsFileServiceProtocol } from '../common/service/PublicationsFileServiceProtocol.js';

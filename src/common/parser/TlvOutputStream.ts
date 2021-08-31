@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { TlvTag } from './TlvTag';
+import { TlvTag } from './TlvTag.js';
 
 /**
  * Specialized output stream for encoding TLV data from TLVTag classes.

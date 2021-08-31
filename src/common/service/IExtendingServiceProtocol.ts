@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiRequestBase } from './KsiRequestBase';
+import { KsiRequestBase } from './KsiRequestBase.js';
 
 /**
  * Extending service protocol interface.

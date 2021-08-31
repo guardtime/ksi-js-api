@@ -17,14 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import { Rule } from '@guardtime/common/lib/verification/Rule';
-import { LinkDirection } from '../../Constants';
-import { ImprintTag } from '../../parser/ImprintTag';
-import { CalendarHashChain } from '../CalendarHashChain';
-import { KsiSignature } from '../KsiSignature';
-import { KsiVerificationError } from './KsiVerificationError';
-import { VerificationContext } from './VerificationContext';
-import { VerificationError } from './VerificationError';
+import { Rule } from '@guardtime/common';
+import { LinkDirection } from '../../Constants.js';
+import { ImprintTag } from '../../parser/ImprintTag.js';
+import { CalendarHashChain } from '../CalendarHashChain.js';
+import { KsiSignature } from '../KsiSignature.js';
+import { KsiVerificationError } from './KsiVerificationError.js';
+import { VerificationContext } from './VerificationContext.js';
+import { VerificationError } from './VerificationError.js';
 
 /**
  * Verification rule for KSI signature.

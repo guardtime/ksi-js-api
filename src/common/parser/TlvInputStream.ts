@@ -17,9 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { TLV_CONSTANTS } from '../Constants';
-import { TlvError } from './TlvError';
-import { TlvTag } from './TlvTag';
+import { TLV_CONSTANTS } from '../Constants.js';
+import { TlvError } from './TlvError.js';
+import { TlvTag } from './TlvTag.js';
 
 /**
  * Specialized input stream for decoding TLV data from bytes.

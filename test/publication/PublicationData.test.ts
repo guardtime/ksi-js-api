@@ -17,17 +17,15 @@
  * reserves and retains all trademark rights.
  */
 
-import HexCoder from '@guardtime/common/lib/coders/HexCoder';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import { HashAlgorithm, DataHash, HexCoder } from '@guardtime/common';
 import bigInteger from 'big-integer';
 
-import { PUBLICATION_DATA_CONSTANTS } from '../../src/common/Constants';
-import { CompositeTag } from '../../src/common/parser/CompositeTag';
-import { ImprintTag } from '../../src/common/parser/ImprintTag';
-import { IntegerTag } from '../../src/common/parser/IntegerTag';
-import { TlvTag } from '../../src/common/parser/TlvTag';
-import { PublicationData } from '../../src/common/publication/PublicationData';
+import { PUBLICATION_DATA_CONSTANTS } from '../../src/common/Constants.js';
+import { CompositeTag } from '../../src/common/parser/CompositeTag.js';
+import { ImprintTag } from '../../src/common/parser/ImprintTag.js';
+import { IntegerTag } from '../../src/common/parser/IntegerTag.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
+import { PublicationData } from '../../src/common/publication/PublicationData.js';
 
 /**
  * Certificate record TLV tag tests

@@ -18,12 +18,12 @@
  */
 
 import { BigInteger } from 'big-integer';
-import { CALENDAR_HASH_CHAIN_CONSTANTS, EXTEND_RESPONSE_PAYLOAD_CONSTANTS } from '../Constants';
-import { IntegerTag } from '../parser/IntegerTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
-import { CalendarHashChain } from '../signature/CalendarHashChain';
-import { RequestResponsePayload } from './RequestResponsePayload';
+import { CALENDAR_HASH_CHAIN_CONSTANTS, EXTEND_RESPONSE_PAYLOAD_CONSTANTS } from '../Constants.js';
+import { IntegerTag } from '../parser/IntegerTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { CalendarHashChain } from '../signature/CalendarHashChain.js';
+import { RequestResponsePayload } from './RequestResponsePayload.js';
 
 /**
  * Extend response payload TLV object.

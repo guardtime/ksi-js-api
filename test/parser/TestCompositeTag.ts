@@ -17,10 +17,10 @@
  * reserves and retains all trademark rights.
  */
 
-import { CERTIFICATE_RECORD_CONSTANTS } from '../../src/common/Constants';
-import { CompositeTag } from '../../src/common/parser/CompositeTag';
-import { RawTag } from '../../src/common/parser/RawTag';
-import { TlvTag } from '../../src/common/parser/TlvTag';
+import { CERTIFICATE_RECORD_CONSTANTS } from '../../src/common/Constants.js';
+import { CompositeTag } from '../../src/common/parser/CompositeTag.js';
+import { RawTag } from '../../src/common/parser/RawTag.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
 
 /**
  * Test Composite TLV object

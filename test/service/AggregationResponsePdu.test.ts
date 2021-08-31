@@ -20,16 +20,14 @@
 /**
  * Aggregation Response PDU tests
  */
-import Base64Coder from '@guardtime/common/lib/coders/Base64Coder';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
-import { TlvInputStream } from '../../src/common/parser/TlvInputStream';
-import { AggregationResponsePdu } from '../../src/common/service/AggregationResponsePdu';
-import { ErrorPayload } from '../../src/common/service/ErrorPayload';
-import { KsiService } from '../../src/common/service/KsiService';
-import { ServiceCredentials } from '../../src/common/service/ServiceCredentials';
-import { SigningService } from '../../src/common/service/SigningService';
-import { TestServiceProtocol } from './TestServiceProtocol';
+import { HashAlgorithm, DataHash, Base64Coder } from '@guardtime/common';
+import { TlvInputStream } from '../../src/common/parser/TlvInputStream.js';
+import { AggregationResponsePdu } from '../../src/common/service/AggregationResponsePdu.js';
+import { ErrorPayload } from '../../src/common/service/ErrorPayload.js';
+import { KsiService } from '../../src/common/service/KsiService.js';
+import { ServiceCredentials } from '../../src/common/service/ServiceCredentials.js';
+import { SigningService } from '../../src/common/service/SigningService.js';
+import { TestServiceProtocol } from './TestServiceProtocol.js';
 
 describe('AggregationResponsePdu', () => {
   it('Test with error pdu', () => {

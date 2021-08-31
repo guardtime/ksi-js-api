@@ -17,8 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { Result } from '@guardtime/common/lib/verification/Result';
-import { VerificationError } from './VerificationError';
+import { Result } from '@guardtime/common';
+import { VerificationError } from './VerificationError.js';
 
 /**
  * Verification result for KSI signature.

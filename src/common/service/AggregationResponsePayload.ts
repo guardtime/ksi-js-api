@@ -22,9 +22,9 @@ import {
   CALENDAR_AUTHENTICATION_RECORD_CONSTANTS,
   CALENDAR_HASH_CHAIN_CONSTANTS,
   KSI_SIGNATURE_CONSTANTS,
-} from '../Constants';
-import { TlvTag } from '../parser/TlvTag';
-import { RequestResponsePayload } from './RequestResponsePayload';
+} from '../Constants.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { RequestResponsePayload } from './RequestResponsePayload.js';
 
 /**
  * Aggregation response payload TLV object.
