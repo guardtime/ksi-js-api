@@ -18,7 +18,7 @@ To use the SDK in the browser, add the following `<script>` tag to your HTML pag
 
 To install the SDK for Node.js, use [npm](http://npmjs.org) package manager:
 ```shell
-npm install "git+ssh://git@github.com:guardtime/ksi-js-api.git"
+npm install "@guardtime/ksi-js-api"
 ```
 
 ## Usage

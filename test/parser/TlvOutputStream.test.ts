@@ -17,10 +17,10 @@
  * reserves and retains all trademark rights.
  */
 
-import { RawTag } from '../../src/common/parser/RawTag';
-import { TlvError } from '../../src/common/parser/TlvError';
-import { TlvOutputStream } from '../../src/common/parser/TlvOutputStream';
-import { TlvTag } from '../../src/common/parser/TlvTag';
+import { RawTag } from '../../src/common/parser/RawTag.js';
+import { TlvError } from '../../src/common/parser/TlvError.js';
+import { TlvOutputStream } from '../../src/common/parser/TlvOutputStream.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
 
 /**
  * TlvOutputStream tests

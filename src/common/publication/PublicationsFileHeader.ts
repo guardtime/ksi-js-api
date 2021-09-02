@@ -18,12 +18,12 @@
  */
 
 import { BigInteger } from 'big-integer';
-import { PUBLICATIONS_FILE_HEADER_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { IntegerTag } from '../parser/IntegerTag';
-import { StringTag } from '../parser/StringTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
+import { PUBLICATIONS_FILE_HEADER_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { IntegerTag } from '../parser/IntegerTag.js';
+import { StringTag } from '../parser/StringTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
 
 /**
  * Publications file header TLV object.

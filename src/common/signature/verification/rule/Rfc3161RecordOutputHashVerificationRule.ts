@@ -17,15 +17,13 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import DataHasher from '@guardtime/common/lib/hash/DataHasher';
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import { KsiSignature } from '../../KsiSignature';
-import { Rfc3161Record } from '../../Rfc3161Record';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode, DataHasher, DataHash } from '@guardtime/common';
+import { KsiSignature } from '../../KsiSignature.js';
+import { Rfc3161Record } from '../../Rfc3161Record.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * This rule verifies RFC3161 output hash equals to aggregation chain input hash.

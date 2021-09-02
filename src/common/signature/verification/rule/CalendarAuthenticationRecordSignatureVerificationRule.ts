@@ -17,17 +17,16 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import X509 from '@guardtime/common/lib/crypto/X509';
-import { CertificateRecord } from '../../../publication/CertificateRecord';
-import { PublicationsFile } from '../../../publication/PublicationsFile';
-import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord';
-import { KsiSignature } from '../../KsiSignature';
-import { SignatureData } from '../../SignatureData';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode, X509 } from '@guardtime/common';
+import { CertificateRecord } from '../../../publication/CertificateRecord.js';
+import { PublicationsFile } from '../../../publication/PublicationsFile.js';
+import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { SignatureData } from '../../SignatureData.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Rule validates calendar authentication record signature. Signature is made from calendar authentication record
@@ -46,7 +45,8 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
    */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
-    const calendarAuthenticationRecord: CalendarAuthenticationRecord | null = signature.getCalendarAuthenticationRecord();
+    const calendarAuthenticationRecord: CalendarAuthenticationRecord | null =
+      signature.getCalendarAuthenticationRecord();
 
     if (calendarAuthenticationRecord == null) {
       return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

@@ -17,14 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import { PublicationData } from '../../../publication/PublicationData';
-import { PublicationRecord } from '../../../publication/PublicationRecord';
-import { KsiSignature } from '../../KsiSignature';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { PublicationData } from '../../../publication/PublicationData.js';
+import { PublicationRecord } from '../../../publication/PublicationRecord.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Rule checks that user provided publication equals to publication in KSI signature.

@@ -17,10 +17,10 @@
  * reserves and retains all trademark rights.
  */
 
-import { ISigningServiceProtocol } from '../../common/service/ISigningServiceProtocol';
-import { KsiRequestBase } from '../../common/service/KsiRequestBase';
-import { KsiHttpProtocol } from '../../common/service/KsiHttpProtocol';
-import { KsiRequest } from '../../common/service/KsiRequest';
+import { ISigningServiceProtocol } from '../../common/service/ISigningServiceProtocol.js';
+import { KsiRequestBase } from '../../common/service/KsiRequestBase.js';
+import { KsiHttpProtocol } from '../../common/service/KsiHttpProtocol.js';
+import { KsiRequest } from '../../common/service/KsiRequest.js';
 
 /**
  * HTTP signing service protocol

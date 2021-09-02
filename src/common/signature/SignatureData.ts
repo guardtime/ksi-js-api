@@ -17,12 +17,12 @@
  * reserves and retains all trademark rights.
  */
 
-import { SIGNATURE_DATA_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { RawTag } from '../parser/RawTag';
-import { StringTag } from '../parser/StringTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
+import { SIGNATURE_DATA_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { RawTag } from '../parser/RawTag.js';
+import { StringTag } from '../parser/StringTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
 
 /**
  * Signature data TLV object.

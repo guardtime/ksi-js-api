@@ -17,11 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
-import { InternalVerificationPolicy } from './InternalVerificationPolicy';
-import { VerificationPolicy } from './VerificationPolicy';
-import { UserProvidedPublicationExistenceRule } from '../rule/UserProvidedPublicationExistenceRule';
-import { UserProvidedPublicationBasedVerificationPolicy } from './UserProvidedPublicationBasedVerificationPolicy';
-import { PublicationsFileVerificationPolicy } from './PublicationsFileVerificationPolicy';
+import { InternalVerificationPolicy } from './InternalVerificationPolicy.js';
+import { VerificationPolicy } from './VerificationPolicy.js';
+import { UserProvidedPublicationExistenceRule } from '../rule/UserProvidedPublicationExistenceRule.js';
+import { UserProvidedPublicationBasedVerificationPolicy } from './UserProvidedPublicationBasedVerificationPolicy.js';
+import { PublicationsFileVerificationPolicy } from './PublicationsFileVerificationPolicy.js';
 
 /**
  * Policy for verifying KSI signature with publication.

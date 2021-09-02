@@ -20,4 +20,4 @@
 /**
  * KSI JavaScript API externally visible classes.
  */
-export * from '../common/main';
+export * from '../common/main.js';

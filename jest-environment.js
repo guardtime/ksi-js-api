@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-const NodeEnvironment = require("jest-environment-node");
+import NodeEnvironment from 'jest-environment-node';
 
 class MyEnvironment extends NodeEnvironment {
   constructor(config) {
@@ -38,4 +38,4 @@ class MyEnvironment extends NodeEnvironment {
 
 }
 
-module.exports = MyEnvironment;
+export default MyEnvironment;

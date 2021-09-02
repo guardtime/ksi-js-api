@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { PduPayload } from './PduPayload';
+import { PduPayload } from './PduPayload.js';
 
 /**
  * KSI request base class for PDU exchanging with KSI servers.

@@ -17,21 +17,20 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import { pseudoRandomLong } from '@guardtime/common/lib/random/RandomUtil';
+import { DataHash, pseudoRandomLong } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
-import { TlvInputStream } from '../parser/TlvInputStream';
-import { KsiSignature } from '../signature/KsiSignature';
-import { AggregationRequestPayload } from './AggregationRequestPayload';
-import { AggregationRequestPdu } from './AggregationRequestPdu';
-import { AggregationResponsePayload } from './AggregationResponsePayload';
-import { AggregationResponsePdu } from './AggregationResponsePdu';
-import { ErrorPayload } from './ErrorPayload';
-import { IServiceCredentials } from './IServiceCredentials';
-import { ISigningServiceProtocol } from './ISigningServiceProtocol';
-import { KsiRequestBase } from './KsiRequestBase';
-import { KsiServiceError } from './KsiServiceError';
-import { PduHeader } from './PduHeader';
+import { TlvInputStream } from '../parser/TlvInputStream.js';
+import { KsiSignature } from '../signature/KsiSignature.js';
+import { AggregationRequestPayload } from './AggregationRequestPayload.js';
+import { AggregationRequestPdu } from './AggregationRequestPdu.js';
+import { AggregationResponsePayload } from './AggregationResponsePayload.js';
+import { AggregationResponsePdu } from './AggregationResponsePdu.js';
+import { ErrorPayload } from './ErrorPayload.js';
+import { IServiceCredentials } from './IServiceCredentials.js';
+import { ISigningServiceProtocol } from './ISigningServiceProtocol.js';
+import { KsiRequestBase } from './KsiRequestBase.js';
+import { KsiServiceError } from './KsiServiceError.js';
+import { PduHeader } from './PduHeader.js';
 
 /**
  * Signing service for signing data.

@@ -17,8 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { CompositeTag } from '../parser/CompositeTag';
-import { TlvTag } from '../parser/TlvTag';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { TlvTag } from '../parser/TlvTag.js';
 
 /**
  * Base class for PDU payloads TLV object.

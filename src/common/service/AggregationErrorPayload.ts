@@ -17,8 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { TlvTag } from '../parser/TlvTag';
-import { ErrorPayload } from './ErrorPayload';
+import { TlvTag } from '../parser/TlvTag.js';
+import { ErrorPayload } from './ErrorPayload.js';
 
 /**
  * Aggregation error payload TLV object.

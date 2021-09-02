@@ -17,20 +17,18 @@
  * reserves and retains all trademark rights.
  */
 
-import HexCoder from '@guardtime/common/lib/coders/HexCoder';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import { HashAlgorithm, DataHash, HexCoder } from '@guardtime/common';
 import bigInteger from 'big-integer';
 
-import { AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection } from '../../src/common/Constants';
-import { CompositeTag } from '../../src/common/parser/CompositeTag';
-import { ImprintTag } from '../../src/common/parser/ImprintTag';
-import { IntegerTag } from '../../src/common/parser/IntegerTag';
-import { RawTag } from '../../src/common/parser/RawTag';
-import { StringTag } from '../../src/common/parser/StringTag';
-import { TlvTag } from '../../src/common/parser/TlvTag';
-import { AggregationHashChain, AggregationHashChainLink } from '../../src/common/signature/AggregationHashChain';
-import { IKsiIdentity } from '../../src/common/signature/IKsiIdentity';
+import { AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection } from '../../src/common/Constants.js';
+import { CompositeTag } from '../../src/common/parser/CompositeTag.js';
+import { ImprintTag } from '../../src/common/parser/ImprintTag.js';
+import { IntegerTag } from '../../src/common/parser/IntegerTag.js';
+import { RawTag } from '../../src/common/parser/RawTag.js';
+import { StringTag } from '../../src/common/parser/StringTag.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
+import { AggregationHashChain, AggregationHashChainLink } from '../../src/common/signature/AggregationHashChain.js';
+import { IKsiIdentity } from '../../src/common/signature/IKsiIdentity.js';
 
 /**
  * Aggregation hash chain TLV tag tests

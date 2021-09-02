@@ -17,18 +17,18 @@
  * reserves and retains all trademark rights.
  */
 
-import { CalendarHashChainAlgorithmDeprecatedRule } from '../rule/CalendarHashChainAlgorithmDeprecatedRule';
-import { ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule } from '../rule/ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule';
-import { ExtendingPermittedVerificationRule } from '../rule/ExtendingPermittedVerificationRule';
-import { SignaturePublicationRecordExistenceRule } from '../rule/SignaturePublicationRecordExistenceRule';
-import { UserProvidedPublicationCreationTimeVerificationRule } from '../rule/UserProvidedPublicationCreationTimeVerificationRule';
-import { UserProvidedPublicationExistenceRule } from '../rule/UserProvidedPublicationExistenceRule';
-import { UserProvidedPublicationExtendedSignatureInputHashRule } from '../rule/UserProvidedPublicationExtendedSignatureInputHashRule';
-import { UserProvidedPublicationHashMatchesExtendedResponseRule } from '../rule/UserProvidedPublicationHashMatchesExtendedResponseRule';
-import { UserProvidedPublicationTimeMatchesExtendedResponseRule } from '../rule/UserProvidedPublicationTimeMatchesExtendedResponseRule';
-import { UserProvidedPublicationVerificationRule } from '../rule/UserProvidedPublicationVerificationRule';
-import { VerificationRule } from '../VerificationRule';
-import { VerificationPolicy } from './VerificationPolicy';
+import { CalendarHashChainAlgorithmDeprecatedRule } from '../rule/CalendarHashChainAlgorithmDeprecatedRule.js';
+import { ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule } from '../rule/ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule.js';
+import { ExtendingPermittedVerificationRule } from '../rule/ExtendingPermittedVerificationRule.js';
+import { SignaturePublicationRecordExistenceRule } from '../rule/SignaturePublicationRecordExistenceRule.js';
+import { UserProvidedPublicationCreationTimeVerificationRule } from '../rule/UserProvidedPublicationCreationTimeVerificationRule.js';
+import { UserProvidedPublicationExistenceRule } from '../rule/UserProvidedPublicationExistenceRule.js';
+import { UserProvidedPublicationExtendedSignatureInputHashRule } from '../rule/UserProvidedPublicationExtendedSignatureInputHashRule.js';
+import { UserProvidedPublicationHashMatchesExtendedResponseRule } from '../rule/UserProvidedPublicationHashMatchesExtendedResponseRule.js';
+import { UserProvidedPublicationTimeMatchesExtendedResponseRule } from '../rule/UserProvidedPublicationTimeMatchesExtendedResponseRule.js';
+import { UserProvidedPublicationVerificationRule } from '../rule/UserProvidedPublicationVerificationRule.js';
+import { VerificationRule } from '../VerificationRule.js';
+import { VerificationPolicy } from './VerificationPolicy.js';
 
 /**
  * Policy for verifying KSI signature with user provided publication.

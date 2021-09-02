@@ -17,18 +17,17 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import { HashAlgorithm, DataHash } from '@guardtime/common';
 import bigInteger from 'big-integer';
 
-import { CALENDAR_AUTHENTICATION_RECORD_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../../src/common/Constants';
-import { CompositeTag } from '../../src/common/parser/CompositeTag';
-import { RawTag } from '../../src/common/parser/RawTag';
-import { StringTag } from '../../src/common/parser/StringTag';
-import { TlvTag } from '../../src/common/parser/TlvTag';
-import { PublicationData } from '../../src/common/publication/PublicationData';
-import { CalendarAuthenticationRecord } from '../../src/common/signature/CalendarAuthenticationRecord';
-import { SignatureData } from '../../src/common/signature/SignatureData';
+import { CALENDAR_AUTHENTICATION_RECORD_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../../src/common/Constants.js';
+import { CompositeTag } from '../../src/common/parser/CompositeTag.js';
+import { RawTag } from '../../src/common/parser/RawTag.js';
+import { StringTag } from '../../src/common/parser/StringTag.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
+import { PublicationData } from '../../src/common/publication/PublicationData.js';
+import { CalendarAuthenticationRecord } from '../../src/common/signature/CalendarAuthenticationRecord.js';
+import { SignatureData } from '../../src/common/signature/SignatureData.js';
 
 /**
  * Aggregation hash chain TLV tag tests

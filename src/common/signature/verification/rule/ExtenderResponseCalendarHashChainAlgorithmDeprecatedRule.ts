@@ -17,17 +17,17 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import { ImprintTag } from '../../../parser/ImprintTag';
-import { PublicationData } from '../../../publication/PublicationData';
-import { PublicationRecord } from '../../../publication/PublicationRecord';
-import { PublicationsFile } from '../../../publication/PublicationsFile';
-import { CalendarHashChain } from '../../CalendarHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { ImprintTag } from '../../../parser/ImprintTag.js';
+import { PublicationData } from '../../../publication/PublicationData.js';
+import { PublicationRecord } from '../../../publication/PublicationRecord.js';
+import { PublicationsFile } from '../../../publication/PublicationsFile.js';
+import { CalendarHashChain } from '../../CalendarHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Verifies that Extender response calendar hash chain right link hash algorithms are not deprecated.
@@ -74,9 +74,8 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
-    const deprecatedLink: ImprintTag | null = VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(
-      extendedCalendarHashChain
-    );
+    const deprecatedLink: ImprintTag | null =
+      VerificationRule.getCalendarHashChainDeprecatedAlgorithmLink(extendedCalendarHashChain);
     if (deprecatedLink !== null) {
       console.debug(
         `Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${

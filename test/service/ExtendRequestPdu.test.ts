@@ -20,9 +20,9 @@
 /**
  * Aggregation Response PDU tests
  */
-import Base64Coder from '@guardtime/common/lib/coders/Base64Coder';
-import { TlvInputStream } from '../../src/common/parser/TlvInputStream';
-import { ExtendRequestPdu } from '../../src/common/service/ExtendRequestPdu';
+import { Base64Coder } from '@guardtime/common';
+import { TlvInputStream } from '../../src/common/parser/TlvInputStream.js';
+import { ExtendRequestPdu } from '../../src/common/service/ExtendRequestPdu.js';
 
 describe('ExtendRequestPdu', () => {
   it('Extender request must contain HMAC', () => {

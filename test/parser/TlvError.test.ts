@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { TlvError } from '../../src/common/parser/TlvError';
+import { TlvError } from '../../src/common/parser/TlvError.js';
 
 /**
  * TlvError tests

@@ -18,12 +18,12 @@
  */
 
 import { BigInteger } from 'big-integer';
-import { EXTEND_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { IntegerTag } from '../parser/IntegerTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
-import { PduPayload } from './PduPayload';
+import { EXTEND_REQUEST_PAYLOAD_CONSTANTS, PDU_PAYLOAD_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { IntegerTag } from '../parser/IntegerTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { PduPayload } from './PduPayload.js';
 
 /**
  * Extend request payload TLV object.

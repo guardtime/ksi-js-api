@@ -20,7 +20,7 @@
 /**
  * Aggregation hash chain TLV tag tests
  */
-import { KsiSignature } from '../../src/common/signature/KsiSignature';
+import { KsiSignature } from '../../src/common/signature/KsiSignature.js';
 
 describe('KsiSignature', () => {
   it('Check UUID', async () => {

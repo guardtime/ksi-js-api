@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiHttpProtocol } from './KsiHttpProtocol';
+import { KsiHttpProtocol } from './KsiHttpProtocol.js';
 
 /**
  * HTTP publications file service protocol.

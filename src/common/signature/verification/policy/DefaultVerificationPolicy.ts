@@ -17,10 +17,10 @@
  * reserves and retains all trademark rights.
  */
 
-import { VerificationPolicy } from './VerificationPolicy';
-import { InternalVerificationPolicy } from './InternalVerificationPolicy';
-import { PublicationBasedVerificationPolicy } from './PublicationBasedVerificationPolicy';
-import { KeyBasedVerificationPolicy } from './KeyBasedVerificationPolicy';
+import { VerificationPolicy } from './VerificationPolicy.js';
+import { InternalVerificationPolicy } from './InternalVerificationPolicy.js';
+import { PublicationBasedVerificationPolicy } from './PublicationBasedVerificationPolicy.js';
+import { KeyBasedVerificationPolicy } from './KeyBasedVerificationPolicy.js';
 
 /**
  * Default verification policy.

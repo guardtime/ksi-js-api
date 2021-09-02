@@ -17,11 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Rule verifies that KSI signature contains calendar authentication record.

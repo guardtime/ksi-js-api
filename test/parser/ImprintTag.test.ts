@@ -17,10 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
-import { ImprintTag } from '../../src/common/parser/ImprintTag';
-import { TlvTag } from '../../src/common/parser/TlvTag';
+import { DataHash, HashAlgorithm } from '@guardtime/common';
+import { ImprintTag } from '../../src/common/parser/ImprintTag.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
 
 /**
  * ImprintTag tests

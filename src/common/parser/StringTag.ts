@@ -17,9 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import Utf8Converter from '@guardtime/common/lib/strings/Utf8Converter';
-import { TlvError } from './TlvError';
-import { TlvTag } from './TlvTag';
+import { Utf8Converter } from '@guardtime/common';
+import { TlvError } from './TlvError.js';
+import { TlvTag } from './TlvTag.js';
 
 /**
  * String TLV object.

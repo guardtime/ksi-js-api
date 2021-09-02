@@ -17,15 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import { compareArrayEquals } from '@guardtime/common/lib/utils/Array';
+import { ResultCode as VerificationResultCode, Array } from '@guardtime/common';
 import { BigInteger } from 'big-integer';
-import { AggregationHashChain } from '../../AggregationHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { AggregationHashChain } from '../../AggregationHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * This rule checks that chain index of an aggregation hash chain is successor to its parent aggregation hash chain index.
@@ -50,7 +49,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
       if (
         parentChainIndex !== null &&
         (parentChainIndex.length <= chainIndex.length ||
-          !compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))
+          !Array.compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))
       ) {
         console.debug(
           `Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}.`

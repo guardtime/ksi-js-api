@@ -18,11 +18,11 @@
  */
 
 import { BigInteger } from 'big-integer';
-import { PDU_PAYLOAD_CONSTANTS } from '../Constants';
-import { IntegerTag } from '../parser/IntegerTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
-import { ResponsePayload } from './ResponsePayload';
+import { PDU_PAYLOAD_CONSTANTS } from '../Constants.js';
+import { IntegerTag } from '../parser/IntegerTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { ResponsePayload } from './ResponsePayload.js';
 
 /**
  * PDU payload base class for requested responses TLV object .

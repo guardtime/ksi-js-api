@@ -18,8 +18,8 @@
  */
 
 import { EventEmitter } from 'events';
-import { KsiRequestBase } from '../../common/service/KsiRequestBase';
-import { PduPayload } from '../../common/service/PduPayload';
+import { KsiRequestBase } from '../../common/service/KsiRequestBase.js';
+import { PduPayload } from '../../common/service/PduPayload.js';
 
 /**
  * KSI request for PDU exchanging with KSI servers.

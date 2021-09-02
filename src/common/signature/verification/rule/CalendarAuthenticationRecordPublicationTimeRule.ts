@@ -17,14 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord';
-import { CalendarHashChain } from '../../CalendarHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord.js';
+import { CalendarHashChain } from '../../CalendarHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Rule verifies that calendar authentication record publication time equals to calendar hash chain publication time.
@@ -42,7 +42,8 @@ export class CalendarAuthenticationRecordPublicationTimeRule extends Verificatio
    */
   public async verify(context: VerificationContext): Promise<VerificationResult> {
     const signature: KsiSignature = context.getSignature();
-    const calendarAuthenticationRecord: CalendarAuthenticationRecord | null = signature.getCalendarAuthenticationRecord();
+    const calendarAuthenticationRecord: CalendarAuthenticationRecord | null =
+      signature.getCalendarAuthenticationRecord();
 
     if (calendarAuthenticationRecord == null) {
       return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

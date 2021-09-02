@@ -17,11 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
-import { tabPrefix } from '@guardtime/common/lib/strings/StringUtils';
-import { TlvError } from './TlvError';
-import { TlvInputStream } from './TlvInputStream';
-import { TlvOutputStream } from './TlvOutputStream';
-import { TlvTag } from './TlvTag';
+import { tabPrefix } from '@guardtime/common';
+import { TlvError } from './TlvError.js';
+import { TlvInputStream } from './TlvInputStream.js';
+import { TlvOutputStream } from './TlvOutputStream.js';
+import { TlvTag } from './TlvTag.js';
 
 /**
  * Decode value callback to set parameters and create correct TLV objects.

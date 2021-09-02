@@ -17,15 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
+import { ResultCode as VerificationResultCode, HashAlgorithm } from '@guardtime/common';
 import { BigInteger } from 'big-integer';
-import { AggregationHashChain } from '../../AggregationHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { AggregationHashChain } from '../../AggregationHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Verifies that RFC3161 record output hash algorithm was not deprecated at the aggregation time.

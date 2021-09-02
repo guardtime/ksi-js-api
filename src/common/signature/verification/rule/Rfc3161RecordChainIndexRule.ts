@@ -17,16 +17,15 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
+import { ResultCode as VerificationResultCode, Array } from '@guardtime/common';
 import bigInteger from 'big-integer';
-import { compareArrayEquals } from '@guardtime/common/lib/utils/Array';
-import { AggregationHashChain } from '../../AggregationHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { Rfc3161Record } from '../../Rfc3161Record';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { AggregationHashChain } from '../../AggregationHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { Rfc3161Record } from '../../Rfc3161Record.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * This rule verifies that aggregation hash chain index and RFC3161 record chain index match.
@@ -54,7 +53,7 @@ export class Rfc3161RecordChainIndexRule extends VerificationRule {
     const rfc3161ChainIndex: bigInteger.BigInteger[] = rfc3161Record.getChainIndex();
     const aggregationChainIndex: bigInteger.BigInteger[] = aggregationHashChains[0].getChainIndex();
 
-    if (!compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
+    if (!Array.compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
       console.debug(
         `Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index ${JSON.stringify(
           rfc3161ChainIndex

@@ -17,26 +17,24 @@
  * reserves and retains all trademark rights.
  */
 
-import HexCoder from '@guardtime/common/lib/coders/HexCoder';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
+import { HashAlgorithm, DataHash, HexCoder } from '@guardtime/common';
 import bigInteger from 'big-integer';
 
 import {
   CERTIFICATE_RECORD_CONSTANTS,
   PUBLICATIONS_FILE_CONSTANTS,
   PUBLICATIONS_FILE_HEADER_CONSTANTS,
-} from '../../src/common/Constants';
-import { CompositeTag } from '../../src/common/parser/CompositeTag';
-import { IntegerTag } from '../../src/common/parser/IntegerTag';
-import { RawTag } from '../../src/common/parser/RawTag';
-import { StringTag } from '../../src/common/parser/StringTag';
-import { TlvOutputStream } from '../../src/common/parser/TlvOutputStream';
-import { CertificateRecord } from '../../src/common/publication/CertificateRecord';
-import { PublicationData } from '../../src/common/publication/PublicationData';
-import { PublicationRecord } from '../../src/common/publication/PublicationRecord';
-import { PublicationsFile } from '../../src/common/publication/PublicationsFile';
-import { PublicationsFileHeader } from '../../src/common/publication/PublicationsFileHeader';
+} from '../../src/common/Constants.js';
+import { CompositeTag } from '../../src/common/parser/CompositeTag.js';
+import { IntegerTag } from '../../src/common/parser/IntegerTag.js';
+import { RawTag } from '../../src/common/parser/RawTag.js';
+import { StringTag } from '../../src/common/parser/StringTag.js';
+import { TlvOutputStream } from '../../src/common/parser/TlvOutputStream.js';
+import { CertificateRecord } from '../../src/common/publication/CertificateRecord.js';
+import { PublicationData } from '../../src/common/publication/PublicationData.js';
+import { PublicationRecord } from '../../src/common/publication/PublicationRecord.js';
+import { PublicationsFile } from '../../src/common/publication/PublicationsFile.js';
+import { PublicationsFileHeader } from '../../src/common/publication/PublicationsFileHeader.js';
 import { TestPublicationsFileFactory } from './TestPublicationsFileFactory';
 
 /**

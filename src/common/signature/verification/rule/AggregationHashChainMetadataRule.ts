@@ -17,18 +17,16 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
-import { compareUint8Arrays } from '@guardtime/common/lib/utils/Array';
-import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../../Constants';
-import { RawTag } from '../../../parser/RawTag';
-import { TlvOutputStream } from '../../../parser/TlvOutputStream';
-import { AggregationHashChain, AggregationHashChainLinkMetaData } from '../../AggregationHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { ResultCode as VerificationResultCode, HashAlgorithm, Array } from '@guardtime/common';
+import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../../Constants.js';
+import { RawTag } from '../../../parser/RawTag.js';
+import { TlvOutputStream } from '../../../parser/TlvOutputStream.js';
+import { AggregationHashChain, AggregationHashChainLinkMetaData } from '../../AggregationHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Rule verifies if all metadata tags in aggregation hash chains are valid.
@@ -97,11 +95,11 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
           }
 
           if (
-            !compareUint8Arrays(
+            !Array.compareUint8Arrays(
               paddingTag.getValueBytes(),
               AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven
             ) &&
-            !compareUint8Arrays(
+            !Array.compareUint8Arrays(
               paddingTag.getValueBytes(),
               AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd
             )

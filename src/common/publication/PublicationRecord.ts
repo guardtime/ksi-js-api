@@ -17,14 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import DataHash from '@guardtime/common/lib/hash/DataHash';
+import { DataHash } from '@guardtime/common';
 import bigInteger from 'big-integer';
-import { PUBLICATION_DATA_CONSTANTS, PUBLICATION_RECORD_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { StringTag } from '../parser/StringTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvTag } from '../parser/TlvTag';
-import { PublicationData } from './PublicationData';
+import { PUBLICATION_DATA_CONSTANTS, PUBLICATION_RECORD_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { StringTag } from '../parser/StringTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { PublicationData } from './PublicationData.js';
 
 /**
  * Publication record TLV object.

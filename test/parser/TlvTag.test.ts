@@ -17,9 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { StringTag } from '../../src/common/parser/StringTag';
-import { TlvError } from '../../src/common/parser/TlvError';
-import { TlvTag } from '../../src/common/parser/TlvTag';
+import { StringTag } from '../../src/common/parser/StringTag.js';
+import { TlvError } from '../../src/common/parser/TlvError.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
 
 /**
  * TlvTag tests

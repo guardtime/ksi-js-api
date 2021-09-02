@@ -17,18 +17,16 @@
  * reserves and retains all trademark rights.
  */
 
-import HMAC from '@guardtime/common/lib/crypto/HMAC';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
-import { PDU_CONSTANTS, PDU_HEADER_CONSTANTS } from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { ImprintTag } from '../parser/ImprintTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvInputStream } from '../parser/TlvInputStream';
-import { TlvTag } from '../parser/TlvTag';
-import { ErrorPayload } from './ErrorPayload';
-import { PduHeader } from './PduHeader';
-import { PduPayload } from './PduPayload';
+import { HMAC, DataHash, HashAlgorithm } from '@guardtime/common';
+import { PDU_CONSTANTS, PDU_HEADER_CONSTANTS } from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { ImprintTag } from '../parser/ImprintTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvInputStream } from '../parser/TlvInputStream.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { ErrorPayload } from './ErrorPayload.js';
+import { PduHeader } from './PduHeader.js';
+import { PduPayload } from './PduPayload.js';
 
 /**
  * PDU base classes TLV object.

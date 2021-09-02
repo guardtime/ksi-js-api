@@ -17,8 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiRequestBase } from './KsiRequestBase';
-import { PduPayload } from './PduPayload';
+import { AbortController } from 'abortcontroller-polyfill/src/ponyfill.js';
+import { KsiRequestBase } from './KsiRequestBase.js';
+import { PduPayload } from './PduPayload.js';
 
 /**
  * KSI request for PDU exchanging with KSI servers.

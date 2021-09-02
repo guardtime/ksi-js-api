@@ -17,8 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { RawTag } from '../../src/common/parser/RawTag';
-import { TlvTag } from '../../src/common/parser/TlvTag';
+import { RawTag } from '../../src/common/parser/RawTag.js';
+import { TlvTag } from '../../src/common/parser/TlvTag.js';
 
 /**
  * RawTag tests

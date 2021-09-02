@@ -17,9 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import Base64Coder from '@guardtime/common/lib/coders/Base64Coder';
-import UnsignedLongCoder from '@guardtime/common/lib/coders/UnsignedLongCoder';
-import DataHash from '@guardtime/common/lib/hash/DataHash';
+import { Base64Coder, UnsignedLongCoder, DataHash } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
 import { v3 as uuid } from 'uuid';
 import {
@@ -29,19 +27,19 @@ import {
   KSI_SIGNATURE_CONSTANTS,
   LinkDirection,
   RFC_3161_RECORD_CONSTANTS,
-} from '../Constants';
-import { CompositeTag } from '../parser/CompositeTag';
-import { TlvError } from '../parser/TlvError';
-import { TlvInputStream } from '../parser/TlvInputStream';
-import { TlvOutputStream } from '../parser/TlvOutputStream';
-import { TlvTag } from '../parser/TlvTag';
-import { PublicationRecord } from '../publication/PublicationRecord';
-import { AggregationResponsePayload } from '../service/AggregationResponsePayload';
-import { AggregationHashChain, AggregationHashChainLink, AggregationHashResult } from './AggregationHashChain';
-import { CalendarAuthenticationRecord } from './CalendarAuthenticationRecord';
-import { CalendarHashChain } from './CalendarHashChain';
-import { IKsiIdentity } from './IKsiIdentity';
-import { Rfc3161Record } from './Rfc3161Record';
+} from '../Constants.js';
+import { CompositeTag } from '../parser/CompositeTag.js';
+import { TlvError } from '../parser/TlvError.js';
+import { TlvInputStream } from '../parser/TlvInputStream.js';
+import { TlvOutputStream } from '../parser/TlvOutputStream.js';
+import { TlvTag } from '../parser/TlvTag.js';
+import { PublicationRecord } from '../publication/PublicationRecord.js';
+import { AggregationResponsePayload } from '../service/AggregationResponsePayload.js';
+import { AggregationHashChain, AggregationHashChainLink, AggregationHashResult } from './AggregationHashChain.js';
+import { CalendarAuthenticationRecord } from './CalendarAuthenticationRecord.js';
+import { CalendarHashChain } from './CalendarHashChain.js';
+import { IKsiIdentity } from './IKsiIdentity.js';
+import { Rfc3161Record } from './Rfc3161Record.js';
 
 /**
  * KSI signature TLV object.

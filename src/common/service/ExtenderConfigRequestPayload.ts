@@ -17,8 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { TlvTag } from '../parser/TlvTag';
-import { PduPayload } from './PduPayload';
+import { TlvTag } from '../parser/TlvTag.js';
+import { PduPayload } from './PduPayload.js';
 
 /**
  * Extender configuration request payload TLV object.

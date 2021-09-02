@@ -17,15 +17,15 @@
  * reserves and retains all trademark rights.
  */
 
-import { CalendarHashChainExistenceRule } from '../rule/CalendarHashChainExistenceRule';
-import { ExtendedSignatureCalendarChainAggregationTimeRule } from '../rule/ExtendedSignatureCalendarChainAggregationTimeRule';
-import { ExtendedSignatureCalendarChainInputHashRule } from '../rule/ExtendedSignatureCalendarChainInputHashRule';
-import { ExtendedSignatureCalendarChainRootHashRule } from '../rule/ExtendedSignatureCalendarChainRootHashRule';
-import { ExtendedSignatureCalendarHashChainRightLinksMatchRule } from '../rule/ExtendedSignatureCalendarHashChainRightLinksMatchRule';
-import { SignaturePublicationRecordExistenceRule } from '../rule/SignaturePublicationRecordExistenceRule';
-import { VerificationRule } from '../VerificationRule';
-import { InternalVerificationPolicy } from './InternalVerificationPolicy';
-import { VerificationPolicy } from './VerificationPolicy';
+import { CalendarHashChainExistenceRule } from '../rule/CalendarHashChainExistenceRule.js';
+import { ExtendedSignatureCalendarChainAggregationTimeRule } from '../rule/ExtendedSignatureCalendarChainAggregationTimeRule.js';
+import { ExtendedSignatureCalendarChainInputHashRule } from '../rule/ExtendedSignatureCalendarChainInputHashRule.js';
+import { ExtendedSignatureCalendarChainRootHashRule } from '../rule/ExtendedSignatureCalendarChainRootHashRule.js';
+import { ExtendedSignatureCalendarHashChainRightLinksMatchRule } from '../rule/ExtendedSignatureCalendarHashChainRightLinksMatchRule.js';
+import { SignaturePublicationRecordExistenceRule } from '../rule/SignaturePublicationRecordExistenceRule.js';
+import { VerificationRule } from '../VerificationRule.js';
+import { InternalVerificationPolicy } from './InternalVerificationPolicy.js';
+import { VerificationPolicy } from './VerificationPolicy.js';
 
 /**
  * Calendar based verification policy.

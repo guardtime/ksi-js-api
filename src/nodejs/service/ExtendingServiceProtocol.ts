@@ -18,10 +18,10 @@
  */
 
 import { EventEmitter } from 'events';
-import { IExtendingServiceProtocol } from '../../common/service/IExtendingServiceProtocol';
-import { KsiRequestBase } from '../../common/service/KsiRequestBase';
-import { KsiHttpProtocol } from './KsiHttpProtocol';
-import { KsiRequest } from './KsiRequest';
+import { IExtendingServiceProtocol } from '../../common/service/IExtendingServiceProtocol.js';
+import { KsiRequestBase } from '../../common/service/KsiRequestBase.js';
+import { KsiHttpProtocol } from './KsiHttpProtocol.js';
+import { KsiRequest } from './KsiRequest.js';
 
 /**
  * HTTP extending service protocol.

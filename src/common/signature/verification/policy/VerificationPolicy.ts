@@ -17,9 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { Policy } from '@guardtime/common/lib/verification/Policy';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
+import { Policy } from '@guardtime/common';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
 
 /**
  * Verification policy for KSI signature.

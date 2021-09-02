@@ -17,8 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { KsiServiceError } from './KsiServiceError';
-import { abortableFetch } from 'abortcontroller-polyfill/dist/cjs-ponyfill';
+import { KsiServiceError } from './KsiServiceError.js';
+import { AbortController, abortableFetch } from 'abortcontroller-polyfill/src/ponyfill.js';
 import _fetch from 'node-fetch';
 const { fetch } = abortableFetch(_fetch);
 

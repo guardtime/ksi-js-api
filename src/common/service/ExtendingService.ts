@@ -17,20 +17,20 @@
  * reserves and retains all trademark rights.
  */
 
-import { pseudoRandomLong } from '@guardtime/common/lib/random/RandomUtil';
+import { pseudoRandomLong } from '@guardtime/common';
 import { BigInteger } from 'big-integer';
-import { TlvInputStream } from '../parser/TlvInputStream';
-import { CalendarHashChain } from '../signature/CalendarHashChain';
-import { ErrorPayload } from './ErrorPayload';
-import { ExtendRequestPayload } from './ExtendRequestPayload';
-import { ExtendRequestPdu } from './ExtendRequestPdu';
-import { ExtendResponsePayload } from './ExtendResponsePayload';
-import { ExtendResponsePdu } from './ExtendResponsePdu';
-import { IExtendingServiceProtocol } from './IExtendingServiceProtocol';
-import { IServiceCredentials } from './IServiceCredentials';
-import { KsiRequestBase } from './KsiRequestBase';
-import { KsiServiceError } from './KsiServiceError';
-import { PduHeader } from './PduHeader';
+import { TlvInputStream } from '../parser/TlvInputStream.js';
+import { CalendarHashChain } from '../signature/CalendarHashChain.js';
+import { ErrorPayload } from './ErrorPayload.js';
+import { ExtendRequestPayload } from './ExtendRequestPayload.js';
+import { ExtendRequestPdu } from './ExtendRequestPdu.js';
+import { ExtendResponsePayload } from './ExtendResponsePayload.js';
+import { ExtendResponsePdu } from './ExtendResponsePdu.js';
+import { IExtendingServiceProtocol } from './IExtendingServiceProtocol.js';
+import { IServiceCredentials } from './IServiceCredentials.js';
+import { KsiRequestBase } from './KsiRequestBase.js';
+import { KsiServiceError } from './KsiServiceError.js';
+import { PduHeader } from './PduHeader.js';
 
 /**
  * Extending service for getting calendar hash chain.

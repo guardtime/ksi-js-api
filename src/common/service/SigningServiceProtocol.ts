@@ -17,11 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
-import { ISigningServiceProtocol } from './ISigningServiceProtocol';
-import { KsiRequestBase } from './KsiRequestBase';
-import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
-import { KsiHttpProtocol } from './KsiHttpProtocol';
-import { KsiRequest } from './KsiRequest';
+import { ISigningServiceProtocol } from './ISigningServiceProtocol.js';
+import { KsiRequestBase } from './KsiRequestBase.js';
+import { AbortController } from 'abortcontroller-polyfill/src/ponyfill.js';
+import { KsiHttpProtocol } from './KsiHttpProtocol.js';
+import { KsiRequest } from './KsiRequest.js';
 
 /**
  * HTTP signing service protocol.

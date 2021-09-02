@@ -17,15 +17,15 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result';
+import { ResultCode as VerificationResultCode } from '@guardtime/common';
 import bigInteger from 'big-integer';
-import { AggregationHashChain } from '../../AggregationHashChain';
-import { CalendarHashChain } from '../../CalendarHashChain';
-import { KsiSignature } from '../../KsiSignature';
-import { VerificationContext } from '../VerificationContext';
-import { VerificationError } from '../VerificationError';
-import { VerificationResult } from '../VerificationResult';
-import { VerificationRule } from '../VerificationRule';
+import { AggregationHashChain } from '../../AggregationHashChain.js';
+import { CalendarHashChain } from '../../CalendarHashChain.js';
+import { KsiSignature } from '../../KsiSignature.js';
+import { VerificationContext } from '../VerificationContext.js';
+import { VerificationError } from '../VerificationError.js';
+import { VerificationResult } from '../VerificationResult.js';
+import { VerificationRule } from '../VerificationRule.js';
 
 /**
  * Rule checks that extended signature contains correct aggregation time.
@@ -56,9 +56,8 @@ export class ExtendedSignatureCalendarChainAggregationTimeRule extends Verificat
     }
 
     const aggregationHashChains: AggregationHashChain[] = signature.getAggregationHashChains();
-    const aggregationTime: bigInteger.BigInteger = aggregationHashChains[
-      aggregationHashChains.length - 1
-    ].getAggregationTime();
+    const aggregationTime: bigInteger.BigInteger =
+      aggregationHashChains[aggregationHashChains.length - 1].getAggregationTime();
 
     return !aggregationTime.equals(extendedCalendarHashChain.getAggregationTime())
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_03())

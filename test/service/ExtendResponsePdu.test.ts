@@ -21,13 +21,12 @@
  * Aggregation Response PDU tests
  */
 import bigInteger from 'big-integer';
-import Base64Coder from '@guardtime/common/lib/coders/Base64Coder';
-import HashAlgorithm from '@guardtime/common/lib/hash/HashAlgorithm';
-import { TlvInputStream } from '../../src/common/parser/TlvInputStream';
-import { ExtendingService } from '../../src/common/service/ExtendingService';
-import { ExtendResponsePdu } from '../../src/common/service/ExtendResponsePdu';
-import { KsiService } from '../../src/common/service/KsiService';
-import { ServiceCredentials } from '../../src/common/service/ServiceCredentials';
+import { HashAlgorithm, Base64Coder } from '@guardtime/common';
+import { TlvInputStream } from '../../src/common/parser/TlvInputStream.js';
+import { ExtendingService } from '../../src/common/service/ExtendingService.js';
+import { ExtendResponsePdu } from '../../src/common/service/ExtendResponsePdu.js';
+import { KsiService } from '../../src/common/service/KsiService.js';
+import { ServiceCredentials } from '../../src/common/service/ServiceCredentials.js';
 import { TestServiceProtocol } from './TestServiceProtocol';
 
 describe('ExtendResponsePdu', () => {
