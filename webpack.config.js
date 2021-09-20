@@ -24,7 +24,6 @@ export default {
     extensions: ['.js', '.json'],
     fallback: {
       crypto: false,
-      http: false,
     },
   },
   output: {
@@ -33,5 +32,6 @@ export default {
     library: {
       type: 'umd',
     },
+    clean: true,
   },
 };
