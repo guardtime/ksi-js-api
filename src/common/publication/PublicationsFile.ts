@@ -155,6 +155,7 @@ export class PublicationsFile extends CompositeTag {
   /**
    * Parse child element to correct object.
    * @param tlvTag TLV object.
+   * @param position TLV tag index.
    * @returns TLV object.
    */
   private parseChild(tlvTag: TlvTag, position: number): TlvTag {

@@ -31,7 +31,6 @@ export class SuccessResultRule extends VerificationRule {
 
   /**
    * Verify current rule with given context.
-   * @param context Verification context.
    * @returns Verification result.
    */
   public async verify(): Promise<VerificationResult> {
