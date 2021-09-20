@@ -24,6 +24,7 @@ export default {
     extensions: ['.js', '.json'],
     fallback: {
       crypto: false,
+      http: false,
     },
   },
   output: {

@@ -38,7 +38,7 @@
     ],
     "testRegex": "(^.*\\.test)\\.(ts)$",
     "transformIgnorePatterns": [
-      "node_modules/(?!(@guardtime/common)|(abortcontroller-polyfill))"
+      "node_modules/(?!(@guardtime/common)|(abortcontroller-polyfill)|(node-fetch)|(fetch-blob))"
     ],
     "testEnvironment": "./jest-environment.js",
     "moduleNameMapper": {
