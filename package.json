@@ -1,6 +1,6 @@
 {
   "name": "@guardtime/ksi-js-api",
-  "version": "1.1.1",
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "git@github.com:guardtime/ksi-js-api.git"
