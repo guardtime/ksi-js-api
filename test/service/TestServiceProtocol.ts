@@ -22,6 +22,7 @@ import { IExtendingServiceProtocol } from '../../src/common/service/IExtendingSe
 import { IPublicationsFileServiceProtocol } from '../../src/common/service/IPublicationsFileServiceProtocol.js';
 import { KsiRequestBase } from '../../src/common/service/KsiRequestBase.js';
 import { KsiRequest } from '../../src/common/service/KsiRequest.js';
+import { AbortController } from 'abortcontroller-polyfill/src/ponyfill.js';
 
 /**
  * Test service protocol for mocking queries to server
