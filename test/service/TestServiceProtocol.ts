@@ -21,7 +21,7 @@ import { ISigningServiceProtocol } from '../../src/common/service/ISigningServic
 import { IExtendingServiceProtocol } from '../../src/common/service/IExtendingServiceProtocol.js';
 import { IPublicationsFileServiceProtocol } from '../../src/common/service/IPublicationsFileServiceProtocol.js';
 import { KsiRequestBase } from '../../src/common/service/KsiRequestBase.js';
-import { KsiRequest } from '../../src/nodejs/service/KsiRequest.js';
+import { KsiRequest } from '../../src/common/service/KsiRequest.js';
 import { EventEmitter } from 'events';
 
 /**

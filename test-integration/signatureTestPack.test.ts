@@ -18,11 +18,13 @@
  */
 
 import { HexCoder, DataHash, Utf8Converter } from '@guardtime/common';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import bigInteger, { BigInteger } from 'big-integer';
 import { CastingContext, ColumnOption } from 'csv-parse';
 // tslint:disable-next-line:import-name
-import parseCsv from 'csv-parse/lib/sync';
-import fs from 'fs';
+import { parse as parseCsv } from 'csv-parse/lib/sync';
+import * as fs from 'fs';
 import * as path from 'path';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
