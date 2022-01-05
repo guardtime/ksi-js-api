@@ -21,8 +21,8 @@ import { ISigningServiceProtocol } from '../../src/common/service/ISigningServic
 import { IExtendingServiceProtocol } from '../../src/common/service/IExtendingServiceProtocol.js';
 import { IPublicationsFileServiceProtocol } from '../../src/common/service/IPublicationsFileServiceProtocol.js';
 import { KsiRequestBase } from '../../src/common/service/KsiRequestBase.js';
-import { KsiRequest } from '../../src/nodejs/service/KsiRequest.js';
-import { EventEmitter } from 'events';
+import { KsiRequest } from '../../src/common/service/KsiRequest.js';
+import { AbortController } from 'abortcontroller-polyfill/src/ponyfill.js';
 
 /**
  * Test service protocol for mocking queries to server
@@ -37,7 +37,7 @@ export class TestServiceProtocol
   }
 
   public extend(): KsiRequestBase {
-    return new KsiRequest(Promise.resolve(this.resultBytes), new EventEmitter());
+    return new KsiRequest(Promise.resolve(this.resultBytes), new AbortController());
   }
 
   public getPublicationsFile(): Promise<Uint8Array> {
@@ -45,6 +45,6 @@ export class TestServiceProtocol
   }
 
   public sign(): KsiRequestBase {
-    return new KsiRequest(Promise.resolve(this.resultBytes), new EventEmitter());
+    return new KsiRequest(Promise.resolve(this.resultBytes), new AbortController());
   }
 }

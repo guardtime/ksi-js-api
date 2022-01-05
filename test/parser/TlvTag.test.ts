@@ -41,18 +41,21 @@ describe('TlvTag', () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
+      // noinspection JSConstantReassignment
       tlvTag.id = 1;
     }).toThrow(TypeError);
     expect(tlvTag.nonCriticalFlag).toBeTruthy();
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
+      // noinspection JSConstantReassignment
       tlvTag.nonCriticalFlag = false;
     }).toThrow(TypeError);
     expect(tlvTag.forwardFlag).toBeTruthy();
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
+      // noinspection JSConstantReassignment
       tlvTag.forwardFlag = false;
     }).toThrow(TypeError);
     bytes.set([0x3, 0x4]);
