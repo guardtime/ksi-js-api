@@ -46,33 +46,32 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.16.5",
-    "@babel/plugin-proposal-class-properties": "^7.16.5",
-    "@babel/plugin-transform-runtime": "^7.16.5",
-    "@babel/preset-env": "^7.16.5",
-    "@babel/preset-typescript": "^7.16.5",
+    "@babel/core": "^7.17.5",
+    "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
     "@guardtime/common": "1.0.5",
     "@types/csv-parse": "^1.2.2",
-    "@types/jest": "^27.0.3",
-    "@types/uuid": "^8.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.8.0",
-    "@typescript-eslint/parser": "^5.8.0",
-    "babel-jest": "^27.4.5",
+    "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.13.0",
+    "@typescript-eslint/parser": "^5.13.0",
+    "babel-jest": "^28.0.0-alpha.6",
     "babel-loader": "^8.2.3",
     "big-integer": "^1.6.51",
-    "csv-parse": "^5.0.3",
-    "eslint": "^8.5.0",
-    "eslint-config-prettier": "^8.3.0",
+    "csv-parse": "^5.0.4",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.4.5",
-    "jest-environment-node": "^27.4.4",
+    "jest": "^28.0.0-alpha.6",
+    "jest-environment-node": "^27.5.1",
     "jest-junit": "^13.0.0",
     "license-checker-webpack-plugin": "^0.2.1",
     "prettier": "^2.5.1",
-    "typedoc": "^0.22.10",
-    "typescript": "^4.5.4",
-    "webpack": "^5.65.0",
-    "webpack-cli": "^4.9.1"
+    "typedoc": "^0.22.12",
+    "typescript": "^4.5.5",
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2"
   },
   "jest-junit": {
     "outputDirectory": "./coverage",
@@ -80,11 +79,11 @@
   },
   "dependencies": {
     "abortcontroller-polyfill": "^1.7.3",
-    "cross-fetch": "^3.1.4",
+    "cross-fetch": "^3.1.5",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "@guardtime/common": "1.0.5",
+    "@guardtime/common": "1.0.6-rc.7697d57",
     "big-integer": "^1.6.51"
   }
 }
