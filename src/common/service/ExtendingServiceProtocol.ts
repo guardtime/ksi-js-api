@@ -19,7 +19,6 @@
 
 import { IExtendingServiceProtocol } from './IExtendingServiceProtocol.js';
 import { KsiRequestBase } from './KsiRequestBase.js';
-import { AbortController } from 'abortcontroller-polyfill/src/ponyfill.js';
 import { KsiHttpProtocol } from './KsiHttpProtocol.js';
 import { KsiRequest } from './KsiRequest.js';
 

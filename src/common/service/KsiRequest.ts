@@ -17,7 +17,6 @@
  * reserves and retains all trademark rights.
  */
 
-import { AbortController } from 'abortcontroller-polyfill/src/ponyfill.js';
 import { KsiRequestBase } from './KsiRequestBase.js';
 import { PduPayload } from './PduPayload.js';
 

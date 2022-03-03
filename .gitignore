@@ -8,5 +8,4 @@ docs/
 .DS_Store
 *.iml
 config/ksi-config.js
-config/ksi-config.cjs
 tools/proxy/httpd/01-ksi-proxy.conf

@@ -18,9 +18,7 @@
  */
 
 import { KsiServiceError } from './KsiServiceError.js';
-import { AbortController, abortableFetch } from 'abortcontroller-polyfill/src/ponyfill.js';
-import _fetch from 'cross-fetch';
-const { fetch } = abortableFetch(_fetch);
+import fetch from 'cross-fetch';
 
 /**
  * HTTP protocol for requests.
