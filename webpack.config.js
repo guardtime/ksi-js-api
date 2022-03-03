@@ -31,6 +31,6 @@ export default {
     globalObject: 'this',
     library: {
       type: 'umd',
-    }
+    },
   },
 };

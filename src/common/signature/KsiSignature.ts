@@ -17,10 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { Base64Coder, UnsignedLongCoder, DataHash } from '@guardtime/common';
+import { Base64Coder, DataHash, UnsignedLongCoder } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { v3 as uuid } from 'uuid';
 import {
   AGGREGATION_HASH_CHAIN_CONSTANTS,

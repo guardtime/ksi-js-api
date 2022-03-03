@@ -19,7 +19,7 @@
 
 import { DataHash, HexCoder, Utf8Converter } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
-import { CastingContext, ColumnOption, parse as parseCsv } from 'csv-parse/browser/esm/sync';
+import { CastingContext, ColumnOption, parse as parseCsv } from 'csv-parse/dist/esm/sync.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirname } from 'path';
@@ -34,12 +34,12 @@ import {
   PublicationsFileService,
   ServiceCredentials,
   SigningService,
-  VerificationContext
+  VerificationContext,
 } from '../src/common/main';
 import {
   ExtendingServiceProtocol,
   PublicationsFileServiceProtocol,
-  SigningServiceProtocol
+  SigningServiceProtocol,
 } from '../src/common/main.js';
 import { TlvInputStream } from '../src/common/parser/TlvInputStream.js';
 import { PublicationData } from '../src/common/publication/PublicationData.js';
@@ -47,9 +47,7 @@ import { PublicationsFile } from '../src/common/publication/PublicationsFile.js'
 import { IExtendingServiceProtocol } from '../src/common/service/IExtendingServiceProtocol.js';
 import { IServiceCredentials } from '../src/common/service/IServiceCredentials.js';
 import { KsiSignature } from '../src/common/signature/KsiSignature.js';
-import {
-  CalendarBasedVerificationPolicy
-} from '../src/common/signature/verification/policy/CalendarBasedVerificationPolicy.js';
+import { CalendarBasedVerificationPolicy } from '../src/common/signature/verification/policy/CalendarBasedVerificationPolicy.js';
 import { InternalVerificationPolicy } from '../src/common/signature/verification/policy/InternalVerificationPolicy.js';
 import { VerificationPolicy } from '../src/common/signature/verification/policy/VerificationPolicy.js';
 import { VerificationError } from '../src/common/signature/verification/VerificationError.js';

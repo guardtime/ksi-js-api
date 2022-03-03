@@ -17,10 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
+import { AbortController } from '../AbortController.js';
 import { ISigningServiceProtocol } from './ISigningServiceProtocol.js';
-import { KsiRequestBase } from './KsiRequestBase.js';
 import { KsiHttpProtocol } from './KsiHttpProtocol.js';
 import { KsiRequest } from './KsiRequest.js';
+import { KsiRequestBase } from './KsiRequestBase.js';
 
 /**
  * HTTP signing service protocol.

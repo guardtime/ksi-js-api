@@ -17,11 +17,12 @@
  * reserves and retains all trademark rights.
  */
 
-import { ISigningServiceProtocol } from '../../src/common/service/ISigningServiceProtocol.js';
+import { AbortController } from '../../src/common/AbortController.js';
 import { IExtendingServiceProtocol } from '../../src/common/service/IExtendingServiceProtocol.js';
 import { IPublicationsFileServiceProtocol } from '../../src/common/service/IPublicationsFileServiceProtocol.js';
-import { KsiRequestBase } from '../../src/common/service/KsiRequestBase.js';
+import { ISigningServiceProtocol } from '../../src/common/service/ISigningServiceProtocol.js';
 import { KsiRequest } from '../../src/common/service/KsiRequest.js';
+import { KsiRequestBase } from '../../src/common/service/KsiRequestBase.js';
 
 /**
  * Test service protocol for mocking queries to server
