@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 Guardtime, Inc.
+ * Copyright 2013-2022 Guardtime, Inc.
  *
  * This file is part of the Guardtime client SDK.
  *
@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { Base64Coder, UnsignedLongCoder, DataHash } from '@guardtime/common';
+import { Base64Coder, DataHash, UnsignedLongCoder } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
 import { v3 as uuid } from 'uuid';
 import {

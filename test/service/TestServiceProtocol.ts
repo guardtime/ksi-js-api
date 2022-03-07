@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 Guardtime, Inc.
+ * Copyright 2013-2022 Guardtime, Inc.
  *
  * This file is part of the Guardtime client SDK.
  *
@@ -17,12 +17,12 @@
  * reserves and retains all trademark rights.
  */
 
-import { ISigningServiceProtocol } from '../../src/common/service/ISigningServiceProtocol.js';
+import { AbortController } from '../../src/common/AbortController.js';
 import { IExtendingServiceProtocol } from '../../src/common/service/IExtendingServiceProtocol.js';
 import { IPublicationsFileServiceProtocol } from '../../src/common/service/IPublicationsFileServiceProtocol.js';
-import { KsiRequestBase } from '../../src/common/service/KsiRequestBase.js';
+import { ISigningServiceProtocol } from '../../src/common/service/ISigningServiceProtocol.js';
 import { KsiRequest } from '../../src/common/service/KsiRequest.js';
-import { AbortController } from 'abortcontroller-polyfill/src/ponyfill.js';
+import { KsiRequestBase } from '../../src/common/service/KsiRequestBase.js';
 
 /**
  * Test service protocol for mocking queries to server

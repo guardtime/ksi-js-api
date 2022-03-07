@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 Guardtime, Inc.
+ * Copyright 2013-2022 Guardtime, Inc.
  *
  * This file is part of the Guardtime client SDK.
  *
@@ -17,11 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
+import { AbortController } from '../AbortController.js';
 import { ISigningServiceProtocol } from './ISigningServiceProtocol.js';
-import { KsiRequestBase } from './KsiRequestBase.js';
-import { AbortController } from 'abortcontroller-polyfill/src/ponyfill.js';
 import { KsiHttpProtocol } from './KsiHttpProtocol.js';
 import { KsiRequest } from './KsiRequest.js';
+import { KsiRequestBase } from './KsiRequestBase.js';
 
 /**
  * HTTP signing service protocol.

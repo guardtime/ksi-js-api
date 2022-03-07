@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2013-2020 Guardtime, Inc.
+  ~ Copyright 2013-2022 Guardtime, Inc.
   ~
   ~ This file is part of the Guardtime client SDK.
   ~
@@ -24,9 +24,9 @@
     <title>Title</title>
 </head>
 <body>
-<script src="../config/ksi-config.js"></script>
 <script src="../dist/main.js"></script>
-<script>
+<script type="module">
+    import { default as CONFIG } from '../config/ksi-config.js';
     const service = new KSI.KsiService(
         new KSI.SigningService(
             new KSI.SigningServiceProtocol(CONFIG.AGGREGATION_URL),

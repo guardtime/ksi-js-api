@@ -101,17 +101,13 @@ npm install
 Add KSI gateway configuration:
 ```shell
 cat << EOF > config/ksi-config.js
-const CONFIG = {
-    AGGREGATION_URL: 'http://tryout.guardtime.net:8080/gt-signingservice',
-    EXTENDER_URL: 'http://tryout-extender.guardtime.net:8081/gt-extendingservice',
-    LOGIN_ID: 'CHANGE_ME_KSI_GATEWAY_USERNAME',
-    LOGIN_KEY: new Uint8Array([0, 0, 0, 0, 0]),
-    PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin'
+export default {
+  AGGREGATION_URL: 'http://tryout.guardtime.net:8080/gt-signingservice',
+  EXTENDER_URL: 'http://tryout-extender.guardtime.net:8081/gt-extendingservice',
+  LOGIN_ID: 'CHANGE_ME_KSI_GATEWAY_USERNAME',
+  LOGIN_KEY: new Uint8Array([0, 0, 0, 0, 0]),
+  PUBLICATIONS_FILE_URL: 'https://verify.guardtime.com/ksi-publications.bin'
 };
-
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = CONFIG;
-}
 EOF
 ```
 

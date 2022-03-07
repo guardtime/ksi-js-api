@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 Guardtime, Inc.
+ * Copyright 2013-2022 Guardtime, Inc.
  *
  * This file is part of the Guardtime client SDK.
  *
@@ -17,18 +17,14 @@
  * reserves and retains all trademark rights.
  */
 
-import { HexCoder, DataHash, Utf8Converter } from '@guardtime/common';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+import { DataHash, HexCoder, Utf8Converter } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
-import { CastingContext, ColumnOption } from 'csv-parse';
-// tslint:disable-next-line:import-name
-import { parse as parseCsv } from 'csv-parse/lib/sync';
+import { CastingContext, ColumnOption, parse as parseCsv } from 'csv-parse/dist/esm/sync.js';
 import * as fs from 'fs';
 import * as path from 'path';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import ksiConfig from '../config/ksi-config';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { default as ksiConfig } from '../config/ksi-config.js';
 import {
   ExtendingService,
   KeyBasedVerificationPolicy,
@@ -40,6 +36,11 @@ import {
   SigningService,
   VerificationContext,
 } from '../src/common/main';
+import {
+  ExtendingServiceProtocol,
+  PublicationsFileServiceProtocol,
+  SigningServiceProtocol,
+} from '../src/common/main.js';
 import { TlvInputStream } from '../src/common/parser/TlvInputStream.js';
 import { PublicationData } from '../src/common/publication/PublicationData.js';
 import { PublicationsFile } from '../src/common/publication/PublicationsFile.js';
@@ -51,12 +52,9 @@ import { InternalVerificationPolicy } from '../src/common/signature/verification
 import { VerificationPolicy } from '../src/common/signature/verification/policy/VerificationPolicy.js';
 import { VerificationError } from '../src/common/signature/verification/VerificationError.js';
 import { VerificationResult } from '../src/common/signature/verification/VerificationResult.js';
-import {
-  ExtendingServiceProtocol,
-  PublicationsFileServiceProtocol,
-  SigningServiceProtocol,
-} from '../src/common/main.js';
 import { TestServiceProtocol } from '../test/service/TestServiceProtocol.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const config: {
   testDirectory: null | string;

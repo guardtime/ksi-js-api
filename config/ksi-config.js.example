@@ -1,7 +1,7 @@
 /*
  * GUARDTIME CONFIDENTIAL
  *
- * Copyright 2008-2020 Guardtime, Inc.
+ * Copyright 2008-2022 Guardtime, Inc.
  * All Rights Reserved.
  *
  * All information contained herein is, and remains, the property
@@ -18,15 +18,11 @@
  * reserves and retains all trademark rights.
  */
 
-const CONFIG = {
-    AGGREGATION_URL: 'http://URL:0000',
-    EXTENDER_URL: 'http://URL:0000',
-    LOGIN_ID: 'loginId',
-    LOGIN_KEY: new Uint8Array([0,0,0,0]),
-    PUBLICATIONS_FILE_URL: 'http://URL:0000'
+export default {
+  AGGREGATION_URL: 'http://URL:0000',
+  EXTENDER_URL: 'http://URL:0000',
+  LOGIN_ID: 'loginId',
+  LOGIN_KEY: new Uint8Array([0,0,0,0]),
+  PUBLICATIONS_FILE_URL: 'http://URL:0000'
 };
-
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = CONFIG;
-}
 

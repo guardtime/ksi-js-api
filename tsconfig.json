@@ -14,8 +14,7 @@
       "es6",
       "es2020",
       "dom"
-    ],
-    "typeRoots": [ "./types", "./node_modules/@types"]
+    ]
   },
   "exclude": [
     "node_modules",
