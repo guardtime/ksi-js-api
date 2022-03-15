@@ -20,7 +20,7 @@
 /**
  * Aggregation Response PDU tests
  */
-import { Base64Coder } from '@guardtime/common';
+import { Base64Coder } from '@guardtime/common/lib/coders/Base64Coder.js';
 import { TlvInputStream } from '../../src/common/parser/TlvInputStream.js';
 import { ExtendRequestPdu } from '../../src/common/service/ExtendRequestPdu.js';
 

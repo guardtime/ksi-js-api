@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { pseudoRandomLong } from '@guardtime/common';
+import { pseudoRandomLong } from '@guardtime/common/lib/random/RandomUtil.js';
 import { BigInteger } from 'big-integer';
 import { TlvInputStream } from '../parser/TlvInputStream.js';
 import { CalendarHashChain } from '../signature/CalendarHashChain.js';

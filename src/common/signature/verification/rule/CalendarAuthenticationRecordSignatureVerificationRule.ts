@@ -17,7 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode, X509 } from '@guardtime/common';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
+import { X509 } from '@guardtime/common/lib/crypto/X509.js';
 import { CertificateRecord } from '../../../publication/CertificateRecord.js';
 import { PublicationsFile } from '../../../publication/PublicationsFile.js';
 import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord.js';

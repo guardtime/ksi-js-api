@@ -17,7 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { HMAC, DataHash, HashAlgorithm } from '@guardtime/common';
+import { HMAC } from '@guardtime/common/lib/crypto/HMAC.js';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
 import { PDU_CONSTANTS, PDU_HEADER_CONSTANTS } from '../Constants.js';
 import { CompositeTag } from '../parser/CompositeTag.js';
 import { ImprintTag } from '../parser/ImprintTag.js';

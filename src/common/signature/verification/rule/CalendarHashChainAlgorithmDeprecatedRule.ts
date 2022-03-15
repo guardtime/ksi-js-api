@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
 import { ImprintTag } from '../../../parser/ImprintTag.js';
 import { CalendarHashChain } from '../../CalendarHashChain.js';
 import { KsiSignature } from '../../KsiSignature.js';

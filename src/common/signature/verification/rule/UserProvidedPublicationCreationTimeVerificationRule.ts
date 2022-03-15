@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
 import { BigInteger } from 'big-integer';
 import { PublicationData } from '../../../publication/PublicationData.js';
 import { VerificationContext } from '../VerificationContext.js';

@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { UnsignedLongCoder } from '@guardtime/common';
+import { UnsignedLongCoder } from '@guardtime/common/lib/coders/UnsignedLongCoder.js';
 import { BigInteger } from 'big-integer';
 import { TlvTag } from './TlvTag.js';
 

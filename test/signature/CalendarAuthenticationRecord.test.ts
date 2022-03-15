@@ -17,7 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { HashAlgorithm, DataHash } from '@guardtime/common';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
 import bigInteger from 'big-integer';
 
 import { CALENDAR_AUTHENTICATION_RECORD_CONSTANTS, SIGNATURE_DATA_CONSTANTS } from '../../src/common/Constants.js';

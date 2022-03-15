@@ -17,7 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHash, HexCoder, Utf8Converter } from '@guardtime/common';
+import { HexCoder } from '@guardtime/common/lib/coders/HexCoder.js';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+import { Utf8Converter } from '@guardtime/common/lib/strings/Utf8Converter.js';
 import bigInteger, { BigInteger } from 'big-integer';
 import { CastingContext, ColumnOption, parse as parseCsv } from 'csv-parse/dist/esm/sync.js';
 import * as fs from 'fs';

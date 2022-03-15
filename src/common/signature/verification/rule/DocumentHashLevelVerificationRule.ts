@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode } from '@guardtime/common';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
 import bigInteger from 'big-integer';
 import { KsiSignature } from '../../KsiSignature.js';
 import { VerificationContext } from '../VerificationContext.js';

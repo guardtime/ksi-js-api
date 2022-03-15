@@ -51,7 +51,7 @@
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@guardtime/common": "1.0.5",
+    "@guardtime/common": "1.1.0-rc.2eefd94",
     "@types/csv-parse": "^1.2.2",
     "@types/jest": "^27.4.1",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
@@ -85,7 +85,7 @@
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "@guardtime/common": "1.0.6-rc.7697d57",
+    "@guardtime/common": "1.1.0-rc.2eefd94",
     "big-integer": "^1.6.51"
   }
 }

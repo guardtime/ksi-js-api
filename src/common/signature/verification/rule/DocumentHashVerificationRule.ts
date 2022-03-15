@@ -17,7 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode, DataHash } from '@guardtime/common';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
 import { KsiSignature } from '../../KsiSignature.js';
 import { VerificationContext } from '../VerificationContext.js';
 import { VerificationError } from '../VerificationError.js';

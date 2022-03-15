@@ -17,7 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode, HashAlgorithm, Array } from '@guardtime/common';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
+import * as ArrayUtils from '@guardtime/common/lib/utils/Array.js';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
 import { AGGREGATION_HASH_CHAIN_CONSTANTS } from '../../../Constants.js';
 import { RawTag } from '../../../parser/RawTag.js';
 import { TlvOutputStream } from '../../../parser/TlvOutputStream.js';
@@ -95,11 +97,11 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
           }
 
           if (
-            !Array.compareUint8Arrays(
+            !ArrayUtils.compareUint8Arrays(
               paddingTag.getValueBytes(),
               AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven
             ) &&
-            !Array.compareUint8Arrays(
+            !ArrayUtils.compareUint8Arrays(
               paddingTag.getValueBytes(),
               AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd
             )

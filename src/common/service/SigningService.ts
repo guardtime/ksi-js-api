@@ -17,8 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHash, pseudoRandomLong } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+import { pseudoRandomLong } from '@guardtime/common/lib/random/RandomUtil.js';
 import { TlvInputStream } from '../parser/TlvInputStream.js';
 import { KsiSignature } from '../signature/KsiSignature.js';
 import { AggregationRequestPayload } from './AggregationRequestPayload.js';

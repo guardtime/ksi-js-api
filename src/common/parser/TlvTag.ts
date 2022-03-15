@@ -17,7 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { Array, HexCoder } from '@guardtime/common';
+import * as ArrayUtils from '@guardtime/common/lib/utils/Array.js';
+import { HexCoder } from '@guardtime/common/lib/coders/HexCoder.js';
 import { TLV_CONSTANTS } from '../Constants.js';
 import { TlvError } from './TlvError.js';
 
@@ -82,7 +83,7 @@ export class TlvTag {
       x.id !== y.id ||
       x.forwardFlag !== y.forwardFlag ||
       x.nonCriticalFlag !== y.nonCriticalFlag ||
-      !Array.compareUint8Arrays(x.getValueBytes(), y.getValueBytes())
+      !ArrayUtils.compareUint8Arrays(x.getValueBytes(), y.getValueBytes())
     );
   }
 

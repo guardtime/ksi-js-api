@@ -17,8 +17,10 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHasher, DataHash, HashAlgorithm } from '@guardtime/common';
 import bigInteger, { BigInteger } from 'big-integer';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+import { DataHasher } from '@guardtime/common/lib/hash/DataHasher.js';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
 
 import { CALENDAR_HASH_CHAIN_CONSTANTS, LinkDirection } from '../Constants.js';
 import { CompositeTag } from '../parser/CompositeTag.js';

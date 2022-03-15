@@ -17,7 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode, Array } from '@guardtime/common';
+import * as ArrayUtils from '@guardtime/common/lib/utils/Array.js';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
 import bigInteger from 'big-integer';
 import { AggregationHashChain } from '../../AggregationHashChain.js';
 import { KsiSignature } from '../../KsiSignature.js';
@@ -53,7 +54,7 @@ export class Rfc3161RecordChainIndexRule extends VerificationRule {
     const rfc3161ChainIndex: bigInteger.BigInteger[] = rfc3161Record.getChainIndex();
     const aggregationChainIndex: bigInteger.BigInteger[] = aggregationHashChains[0].getChainIndex();
 
-    if (!Array.compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
+    if (!ArrayUtils.compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
       console.debug(
         `Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index ${JSON.stringify(
           rfc3161ChainIndex
