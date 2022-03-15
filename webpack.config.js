@@ -17,6 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
+import TerserPlugin from 'terser-webpack-plugin';
+
 export default {
   mode: 'production',
   entry: './lib/common/main.js',
@@ -32,5 +34,15 @@ export default {
     library: {
       type: 'umd',
     },
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          keep_classnames: /AbortSignal/,
+        },
+      }),
+    ],
   },
 };
