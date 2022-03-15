@@ -18,7 +18,7 @@
  */
 
 import * as ArrayUtils from '@guardtime/common/lib/utils/Array.js';
-import { CMSVerification } from '../../../../js-common/lib/crypto/CMSVerification.js';
+import { CMSVerification } from '@guardtime/common/lib/crypto/CMSVerification.js';
 import { RawTag } from '../parser/RawTag.js';
 import { PublicationsFile } from './PublicationsFile.js';
 import { PublicationsFileError } from './PublicationsFileError.js';
