@@ -17,7 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { ResultCode as VerificationResultCode, Array } from '@guardtime/common';
+import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
+import * as ArrayUtils from '@guardtime/common/lib/utils/Array.js';
 import { BigInteger } from 'big-integer';
 import { AggregationHashChain } from '../../AggregationHashChain.js';
 import { KsiSignature } from '../../KsiSignature.js';
@@ -49,7 +50,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
       if (
         parentChainIndex !== null &&
         (parentChainIndex.length <= chainIndex.length ||
-          !Array.compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))
+          !ArrayUtils.compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))
       ) {
         console.debug(
           `Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}.`

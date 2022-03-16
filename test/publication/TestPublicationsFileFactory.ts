@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { Array } from '@guardtime/common';
+import * as ArrayUtils from '@guardtime/common/lib/utils/Array.js';
 import { RawTag } from '../../src/common/parser/RawTag.js';
 import { PublicationsFile } from '../../src/common/publication/PublicationsFile.js';
 import { PublicationsFileError } from '../../src/common/publication/PublicationsFileError.js';
@@ -25,7 +25,9 @@ import { PublicationsFileError } from '../../src/common/publication/Publications
 export class TestPublicationsFileFactory {
   public create(publicationFileBytes: Uint8Array): PublicationsFile {
     const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
-    if (!Array.compareUint8Arrays(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)) {
+    if (
+      !ArrayUtils.compareUint8Arrays(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)
+    ) {
       throw new PublicationsFileError('Publications file header is incorrect. Invalid publications file magic bytes.');
     }
 

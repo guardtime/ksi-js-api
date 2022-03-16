@@ -17,10 +17,9 @@
  * reserves and retains all trademark rights.
  */
 
-/**
- * Aggregation Response PDU tests
- */
-import { HashAlgorithm, DataHash, Base64Coder } from '@guardtime/common';
+import { Base64Coder } from '@guardtime/common/lib/coders/Base64Coder.js';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
 import { TlvInputStream } from '../../src/common/parser/TlvInputStream.js';
 import { AggregationResponsePdu } from '../../src/common/service/AggregationResponsePdu.js';
 import { ErrorPayload } from '../../src/common/service/ErrorPayload.js';
@@ -29,6 +28,9 @@ import { ServiceCredentials } from '../../src/common/service/ServiceCredentials.
 import { SigningService } from '../../src/common/service/SigningService.js';
 import { TestServiceProtocol } from './TestServiceProtocol.js';
 
+/**
+ * Aggregation Response PDU tests
+ */
 describe('AggregationResponsePdu', () => {
   it('Test with error pdu', () => {
     const responseBytes = Base64Coder.decode(

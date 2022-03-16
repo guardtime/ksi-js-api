@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { tabPrefix } from '@guardtime/common';
+import { tabPrefix } from '@guardtime/common/lib/strings/StringUtils.js';
 import { TlvError } from './TlvError.js';
 import { TlvInputStream } from './TlvInputStream.js';
 import { TlvOutputStream } from './TlvOutputStream.js';

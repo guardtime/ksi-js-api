@@ -18,7 +18,7 @@
  */
 
 import { BigInteger } from 'big-integer';
-import { Array } from '@guardtime/common';
+import * as ArrayUtils from '@guardtime/common/lib/utils/Array.js';
 import {
   CERTIFICATE_RECORD_CONSTANTS,
   PUBLICATIONS_FILE_CONSTANTS,
@@ -74,7 +74,7 @@ export class PublicationsFile extends CompositeTag {
    */
   public findCertificateById(certificateId: Uint8Array): CertificateRecord | null {
     for (const certificateRecord of this.certificateRecordList) {
-      if (Array.compareUint8Arrays(certificateId, certificateRecord.getCertificateId())) {
+      if (ArrayUtils.compareUint8Arrays(certificateId, certificateRecord.getCertificateId())) {
         return certificateRecord;
       }
     }

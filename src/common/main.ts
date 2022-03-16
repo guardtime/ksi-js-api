@@ -30,7 +30,8 @@ export { TlvInputStream } from '../common/parser/TlvInputStream.js';
 export { TlvOutputStream } from '../common/parser/TlvOutputStream.js';
 
 export { default as BigInteger } from 'big-integer';
-export { HashAlgorithm, DataHash } from '@guardtime/common';
+export { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+export { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
 
 export { KsiSignature } from '../common/signature/KsiSignature.js';
 export { VerificationContext } from '../common/signature/verification/VerificationContext.js';

@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { HashAlgorithm } from '@guardtime/common';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
 import { IServiceCredentials } from './IServiceCredentials.js';
 
 /**

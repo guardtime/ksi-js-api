@@ -17,7 +17,11 @@
  * reserves and retains all trademark rights.
  */
 
-import { UnsignedLongCoder, DataHash, DataHasher, HashAlgorithm, Utf8Converter } from '@guardtime/common';
+import { UnsignedLongCoder } from '@guardtime/common/lib/coders/UnsignedLongCoder.js';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
+import { DataHasher } from '@guardtime/common/lib/hash/DataHasher.js';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
+import { Utf8Converter } from '@guardtime/common/lib/strings/Utf8Converter.js';
 import bigInteger, { BigInteger } from 'big-integer';
 import { AGGREGATION_HASH_CHAIN_CONSTANTS, LinkDirection } from '../Constants.js';
 import { CompositeTag } from '../parser/CompositeTag.js';

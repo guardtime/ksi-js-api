@@ -51,14 +51,16 @@
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@guardtime/common": "1.0.5",
+    "@guardtime/common": "1.1.0-rc.0b5a8a0",
     "@types/csv-parse": "^1.2.2",
     "@types/jest": "^27.4.1",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.13.0",
     "babel-jest": "28.0.0-alpha.6",
     "babel-loader": "^8.2.3",
     "big-integer": "^1.6.51",
+    "cross-env": "^7.0.3",
     "csv-parse": "^5.0.4",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.4.0",
@@ -68,12 +70,11 @@
     "jest-junit": "^13.0.0",
     "license-checker-webpack-plugin": "^0.2.1",
     "prettier": "^2.5.1",
+    "terser-webpack-plugin": "^5.3.1",
     "typedoc": "^0.22.12",
     "typescript": "^4.5.5",
     "webpack": "^5.69.1",
-    "webpack-cli": "^4.9.2",
-    "cross-env": "^7.0.3",
-    "@types/uuid": "^8.3.4"
+    "webpack-cli": "^4.9.2"
   },
   "jest-junit": {
     "outputDirectory": "./coverage",
@@ -85,7 +86,7 @@
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "@guardtime/common": "1.0.6-rc.7697d57",
+    "@guardtime/common": "1.1.0-rc.0b5a8a0",
     "big-integer": "^1.6.51"
   }
 }

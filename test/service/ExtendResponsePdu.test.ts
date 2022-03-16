@@ -17,10 +17,8 @@
  * reserves and retains all trademark rights.
  */
 
-import { Base64Coder, HashAlgorithm } from '@guardtime/common';
-/**
- * Aggregation Response PDU tests
- */
+import { Base64Coder } from '@guardtime/common/lib/coders/Base64Coder.js';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
 import bigInteger from 'big-integer';
 import { TlvInputStream } from '../../src/common/parser/TlvInputStream.js';
 import { ExtendingService } from '../../src/common/service/ExtendingService.js';
@@ -29,6 +27,9 @@ import { KsiService } from '../../src/common/service/KsiService.js';
 import { ServiceCredentials } from '../../src/common/service/ServiceCredentials.js';
 import { TestServiceProtocol } from './TestServiceProtocol.js';
 
+/**
+ * Aggregation Response PDU tests
+ */
 describe('ExtendResponsePdu', () => {
   it('Throw error on header not being first in pdu', () => {
     const responseBytes = Base64Coder.decode(

@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { DataHash } from '@guardtime/common';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
 import bigInteger from 'big-integer';
 import { PUBLICATION_DATA_CONSTANTS, PUBLICATION_RECORD_CONSTANTS } from '../Constants.js';
 import { CompositeTag } from '../parser/CompositeTag.js';

@@ -17,7 +17,7 @@
  * reserves and retains all trademark rights.
  */
 
-import { Result } from '@guardtime/common';
+import { Result } from '@guardtime/common/lib/verification/Result.js';
 import { VerificationError } from './VerificationError.js';
 
 /**
