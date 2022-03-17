@@ -17,7 +17,6 @@
  * reserves and retains all trademark rights.
  */
 
-import { AbortController } from '../../src/common/AbortController.js';
 import { IExtendingServiceProtocol } from '../../src/common/service/IExtendingServiceProtocol.js';
 import { IPublicationsFileServiceProtocol } from '../../src/common/service/IPublicationsFileServiceProtocol.js';
 import { ISigningServiceProtocol } from '../../src/common/service/ISigningServiceProtocol.js';
