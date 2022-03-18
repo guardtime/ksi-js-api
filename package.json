@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": ">=14.17.0"
+  },
   "name": "@guardtime/ksi-js-api",
   "version": "1.1.0",
   "repository": {
@@ -51,7 +54,7 @@
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@guardtime/common": "1.1.0-rc.0b5a8a0",
+    "@guardtime/common": "1.1.0-rc.94b3e00",
     "@types/csv-parse": "^1.2.2",
     "@types/jest": "^27.4.1",
     "@types/uuid": "^8.3.4",
@@ -81,12 +84,11 @@
     "outputName": "junit.xml"
   },
   "dependencies": {
-    "abort-controller": "^3.0.0",
     "cross-fetch": "^3.1.5",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "@guardtime/common": "1.1.0-rc.0b5a8a0",
+    "@guardtime/common": "1.1.0-rc.94b3e00",
     "big-integer": "^1.6.51"
   }
 }

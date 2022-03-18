@@ -17,7 +17,6 @@
  * reserves and retains all trademark rights.
  */
 
-import { AbortController } from '../AbortController.js';
 import { IExtendingServiceProtocol } from './IExtendingServiceProtocol.js';
 import { KsiHttpProtocol } from './KsiHttpProtocol.js';
 import { KsiRequest } from './KsiRequest.js';

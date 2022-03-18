@@ -6,6 +6,9 @@ The KSI JavaScript SDK is a software development kit for developers who want to 
 
 ## Installation
 
+If using NodeJS 14 then ```--experimental-abortcontroller``` flag must be turned on. 
+AbortController is available from version 15.
+
 ### In the Browser
 
 To use the SDK in the browser, add the following `<script>` tag to your HTML pages:
