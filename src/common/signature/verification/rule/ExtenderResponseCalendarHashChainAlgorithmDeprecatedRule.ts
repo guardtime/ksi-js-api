@@ -56,7 +56,7 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
       }
 
       const publicationRecord: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(
-        signature.getAggregationTime()
+        signature.getAggregationTime(),
       );
 
       if (publicationRecord === null) {
@@ -80,7 +80,7 @@ export class ExtenderResponseCalendarHashChainAlgorithmDeprecatedRule extends Ve
       console.debug(
         `Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${
           deprecatedLink.getValue().hashAlgorithm.name
-        }; Publication time: ${publicationData.getPublicationTime()}.`
+        }; Publication time: ${publicationData.getPublicationTime()}.`,
       );
 
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());

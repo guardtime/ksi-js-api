@@ -34,6 +34,9 @@ export class IntegerTag extends TlvTag {
   public constructor(tlvTag: TlvTag) {
     const bytes: Uint8Array = tlvTag.getValueBytes();
     super(tlvTag.id, tlvTag.nonCriticalFlag, tlvTag.forwardFlag, bytes, tlvTag.tlv16BitFlag);
+    if (bytes.length > 8) {
+      throw new Error('Integers of at most 63 unsigned bits supported.');
+    }
     this.value = UnsignedLongCoder.decode(bytes, 0, bytes.length);
     Object.freeze(this);
   }

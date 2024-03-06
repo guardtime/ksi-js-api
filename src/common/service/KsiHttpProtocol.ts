@@ -53,7 +53,7 @@ export class KsiHttpProtocol {
 
     if (!response.ok) {
       throw new KsiServiceError(
-        `Request failed. Error code: ${response.status}. Error message: ${response.statusText}`
+        `Request failed. Error code: ${response.status}. Error message: ${response.statusText}`,
       );
     }
 

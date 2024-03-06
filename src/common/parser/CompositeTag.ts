@@ -61,7 +61,7 @@ export abstract class CompositeTag extends TlvTag {
     nonCriticalFlag: boolean,
     forwardFlag: boolean,
     value: TlvTag[],
-    tlv16BitFlag = false
+    tlv16BitFlag = false,
   ): TlvTag {
     const stream: TlvOutputStream = new TlvOutputStream();
     for (const tlvTag of value) {

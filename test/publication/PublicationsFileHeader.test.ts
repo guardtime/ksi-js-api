@@ -38,9 +38,9 @@ describe('PublicationsFileHeader', () => {
           PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
           false,
           false,
-          'http://localhost/test'
+          'http://localhost/test',
         ),
-      ])
+      ]),
     );
 
     expect(publicationsFileHeader.getVersion()).toEqual(bigInteger(5));
@@ -53,7 +53,7 @@ describe('PublicationsFileHeader', () => {
       CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
         IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
         IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
-      ])
+      ]),
     );
 
     expect(publicationsFileHeader.getRepositoryUri()).toEqual(null);
@@ -64,7 +64,7 @@ describe('PublicationsFileHeader', () => {
       return new PublicationsFileHeader(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
-        ])
+        ]),
       );
     }).toThrow('Exactly one version must exist in publications file header.');
   });
@@ -74,7 +74,7 @@ describe('PublicationsFileHeader', () => {
       return new PublicationsFileHeader(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_HEADER_CONSTANTS.TagType, false, false, [
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
-        ])
+        ]),
       );
     }).toThrow('Exactly one creation time must exist in publications file header.');
   });
@@ -86,7 +86,7 @@ describe('PublicationsFileHeader', () => {
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(6)),
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
-        ])
+        ]),
       );
     }).toThrow('Exactly one version must exist in publications file header.');
   });
@@ -98,7 +98,7 @@ describe('PublicationsFileHeader', () => {
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.VersionTagType, false, false, bigInteger(5)),
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(1)),
           IntegerTag.CREATE(PUBLICATIONS_FILE_HEADER_CONSTANTS.CreationTimeTagType, false, false, bigInteger(2)),
-        ])
+        ]),
       );
     }).toThrow('Exactly one creation time must exist in publications file header.');
   });
@@ -113,15 +113,15 @@ describe('PublicationsFileHeader', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
           StringTag.CREATE(
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/broken'
+            'http://localhost/broken',
           ),
-        ])
+        ]),
       );
     }).toThrow('Only one repository URI is allowed in publications file header.');
   });

@@ -59,7 +59,7 @@ export class SigningService {
   private static processPayload(payload: AggregationResponsePayload): KsiSignature {
     if (payload.getStatus().neq(0)) {
       throw new KsiServiceError(
-        `Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`
+        `Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`,
       );
     }
 
@@ -81,7 +81,7 @@ export class SigningService {
       header,
       requestPayload,
       this.signingServiceCredentials.getHmacAlgorithm(),
-      this.signingServiceCredentials.getLoginKey()
+      this.signingServiceCredentials.getLoginKey(),
     );
 
     const ksiRequest: KsiRequestBase = this.signingServiceProtocol.sign(requestPdu.encode());
@@ -100,7 +100,7 @@ export class SigningService {
     if (
       !(await responsePdu.verifyHmac(
         this.signingServiceCredentials.getHmacAlgorithm(),
-        this.signingServiceCredentials.getLoginKey()
+        this.signingServiceCredentials.getLoginKey(),
       ))
     ) {
       throw new KsiServiceError(`Response HMAC is not correct.`);
@@ -113,7 +113,7 @@ export class SigningService {
       }
 
       throw new KsiServiceError(
-        `Server responded with error message. Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`
+        `Server responded with error message. Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`,
       );
     }
 

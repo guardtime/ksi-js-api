@@ -32,7 +32,7 @@ export class TestPublicationsFileFactory {
     }
 
     return new PublicationsFile(
-      RawTag.CREATE(0x0, false, false, publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length))
+      RawTag.CREATE(0x0, false, false, publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length)),
     );
   }
 }

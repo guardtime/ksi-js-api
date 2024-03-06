@@ -45,9 +45,9 @@ describe('PublicationRecord', () => {
           PUBLICATION_RECORD_CONSTANTS.PublicationRepositoryUriTagType,
           false,
           false,
-          'http://localhost'
+          'http://localhost',
         ),
-      ]
+      ],
     );
 
     const publicationRecord: PublicationRecord = new PublicationRecord(tlvTag);
@@ -62,7 +62,7 @@ describe('PublicationRecord', () => {
       PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType,
       false,
       false,
-      [PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))]
+      [PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))],
     );
 
     const publicationRecord: PublicationRecord = new PublicationRecord(tlvTag);
@@ -77,7 +77,7 @@ describe('PublicationRecord', () => {
       PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType,
       false,
       false,
-      []
+      [],
     );
 
     expect(() => {
@@ -93,7 +93,7 @@ describe('PublicationRecord', () => {
       [
         PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
         PublicationData.CREATE(bigInteger(3), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
-      ]
+      ],
     );
 
     expect(() => {

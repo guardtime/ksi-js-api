@@ -61,7 +61,7 @@ export abstract class Pdu extends CompositeTag {
     header: PduHeader,
     payload: PduPayload,
     algorithm: HashAlgorithm,
-    key: Uint8Array
+    key: Uint8Array,
   ): Promise<TlvTag> {
     const pduBytes: Uint8Array = CompositeTag.CREATE_FROM_LIST(id, false, false, [
       header,
@@ -70,12 +70,12 @@ export abstract class Pdu extends CompositeTag {
         PDU_CONSTANTS.MacTagType,
         false,
         false,
-        DataHash.create(algorithm, new Uint8Array(algorithm.length))
+        DataHash.create(algorithm, new Uint8Array(algorithm.length)),
       ),
     ]).encode();
     pduBytes.set(
       await HMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length)),
-      pduBytes.length - algorithm.length
+      pduBytes.length - algorithm.length,
     );
 
     return new TlvInputStream(pduBytes).readTag();
@@ -91,7 +91,7 @@ export abstract class Pdu extends CompositeTag {
     const pduHmac = this.hmac.getValue();
     const calculatedHmac = DataHash.create(
       algorithm,
-      await HMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length))
+      await HMAC.digest(algorithm, key, pduBytes.slice(0, -algorithm.length)),
     );
     return pduHmac.equals(calculatedHmac);
   }

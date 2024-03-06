@@ -45,7 +45,7 @@ describe('AggregationHashChainLink', () => {
         AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
     ]);
 
@@ -79,7 +79,7 @@ describe('AggregationHashChainLink', () => {
       AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType,
       false,
       false,
-      [StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')]
+      [StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')],
     );
 
     const tlvTag: TlvTag = CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
@@ -91,13 +91,13 @@ describe('AggregationHashChainLink', () => {
     expect(link.getLevelCorrection()).toEqual(bigInteger(1));
     expect(link.getDirection()).toEqual(LinkDirection.Left);
     expect(link.getSiblingData()).toEqual(
-      new Uint8Array([1, 12, 116, 101, 115, 116, 95, 99, 108, 105, 101, 110, 116, 0])
+      new Uint8Array([1, 12, 116, 101, 115, 116, 95, 99, 108, 105, 101, 110, 116, 0]),
     );
     expect(
-      (link.getIdentity() as AggregationHashChainLinkMetaData).equals(new AggregationHashChainLinkMetaData(metadata))
+      (link.getIdentity() as AggregationHashChainLinkMetaData).equals(new AggregationHashChainLinkMetaData(metadata)),
     ).toBeTruthy();
     expect(
-      (link.getMetadata() as AggregationHashChainLinkMetaData).equals(new AggregationHashChainLinkMetaData(metadata))
+      (link.getMetadata() as AggregationHashChainLinkMetaData).equals(new AggregationHashChainLinkMetaData(metadata)),
     ).toBeTruthy();
   });
 
@@ -123,7 +123,7 @@ describe('AggregationHashChainLink', () => {
         AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
       RawTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.LegacyId, false, false, legacyId),
     ]);
@@ -131,7 +131,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.',
     );
   });
 
@@ -141,7 +141,7 @@ describe('AggregationHashChainLink', () => {
         AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
       CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
         StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
@@ -151,7 +151,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.',
     );
   });
 
@@ -169,7 +169,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.',
     );
   });
 
@@ -180,20 +180,20 @@ describe('AggregationHashChainLink', () => {
         AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
       ImprintTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
     ]);
 
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.',
     );
   });
 
@@ -210,7 +210,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.',
     );
   });
 
@@ -228,7 +228,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.',
     );
   });
 
@@ -243,7 +243,7 @@ describe('AggregationHashChainLink', () => {
         AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
     ]);
 
@@ -260,7 +260,7 @@ describe('AggregationHashChainLink', () => {
     expect(() => {
       return new AggregationHashChainLink(tlvTag);
     }).toThrow(
-      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
+      'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.',
     );
   });
 

@@ -10,7 +10,7 @@ def updateStatus(statusName, descriptionName){
 
 pipeline {
     agent {
-        label 'centos7'
+        docker { image 'node:20-alpine' }
     }
     environment {
         SHORT_COMMIT = "${GIT_COMMIT[0..7]}"
@@ -19,15 +19,13 @@ pipeline {
         stage('build') {
             steps {
                 updateStatus("PENDING", "Build pending")
-                nodejs(nodeJSInstallationName: 'node16141', configId: 'feb08d93-6888-4c30-9bd8-45aef7ae0db1') {
-                    sh 'npm ci'
-                    configFileProvider([configFile(fileId: '1b7cf923-c23c-4cbe-ad27-1ddb609a90cd', targetLocation: "./config/ksi-config.js")]) {
-                        sh 'npm run test:ci'
-                        sh 'npm run integration-test:ci'
-                    }
-                    sh 'npm run lint'
-                    sh 'npm run build'
+                sh 'npm ci'
+                configFileProvider([configFile(fileId: '1b7cf923-c23c-4cbe-ad27-1ddb609a90cd', targetLocation: "./config/ksi-config.js")]) {
+                    sh 'npm run test:ci'
+                    sh 'npm run integration-test:ci'
                 }
+                sh 'npm run lint'
+                sh 'npm run build'
                 archiveArtifacts artifacts: 'dist/**', fingerprint: true
                 junit testResults: 'coverage/junit.xml'
                 step([

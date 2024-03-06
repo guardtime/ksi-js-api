@@ -21,12 +21,11 @@ import { KsiService } from '../../src/common/service/KsiService.js';
 import { SigningService } from '../../src/common/service/SigningService.js';
 import { TestServiceProtocol } from './TestServiceProtocol.js';
 import { ServiceCredentials } from '../../src/common/service/ServiceCredentials.js';
-import {
-  HashAlgorithm,
-  PublicationsFileFactory,
-  PublicationsFileService,
-  PublicationsFileServiceProtocol,
-} from '../../src/common/main.js';
+import { PublicationsFileService } from '../../src/common/service/PublicationsFileService.js';
+import { PublicationsFileServiceProtocol } from '../../src/common/service/PublicationsFileServiceProtocol.js';
+import { PublicationsFileFactory } from '../../src/common/publication/PublicationsFileFactory.js';
+import { HashAlgorithm } from '@guardtime/common/lib/hash/HashAlgorithm.js';
+import { NodeSpkiFactory } from '@guardtime/common/lib/crypto/pkcs7/NodeSpkiFactory.js';
 
 describe('KsiService', () => {
   it('example test', () => {
@@ -34,10 +33,13 @@ describe('KsiService', () => {
     const ksiService = new KsiService(
       new SigningService(
         new TestServiceProtocol(new Uint8Array(0)),
-        new ServiceCredentials('', new Uint8Array(0), HashAlgorithm.SHA2_256)
+        new ServiceCredentials('', new Uint8Array(0), HashAlgorithm.SHA2_256),
       ),
       null,
-      new PublicationsFileService(new PublicationsFileServiceProtocol(''), new PublicationsFileFactory())
+      new PublicationsFileService(
+        new PublicationsFileServiceProtocol(''),
+        new PublicationsFileFactory(new NodeSpkiFactory()),
+      ),
     );
   });
 });

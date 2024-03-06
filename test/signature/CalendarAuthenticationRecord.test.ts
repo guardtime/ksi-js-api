@@ -48,14 +48,14 @@ describe('CalendarAuthenticationRecord', () => {
       [
         PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
         signatureDataTlv,
-      ]
+      ],
     );
 
     const record: CalendarAuthenticationRecord = new CalendarAuthenticationRecord(tlvTag);
     expect(
       record
         .getPublicationData()
-        .equals(PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))))
+        .equals(PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))),
     ).toBeTruthy();
     expect(record.getSignatureData().equals(new SignatureData(signatureDataTlv))).toBeTruthy();
   });
@@ -71,7 +71,7 @@ describe('CalendarAuthenticationRecord', () => {
           StringTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType, false, false, 'signature_type'),
           RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4])),
         ]),
-      ]
+      ],
     );
 
     expect(() => {
@@ -92,7 +92,7 @@ describe('CalendarAuthenticationRecord', () => {
           StringTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType, false, false, 'signature_type'),
           RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x3, 0x4])),
         ]),
-      ]
+      ],
     );
 
     expect(() => {
@@ -105,7 +105,7 @@ describe('CalendarAuthenticationRecord', () => {
       CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType,
       false,
       false,
-      [PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))]
+      [PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)))],
     );
 
     expect(() => {
@@ -130,7 +130,7 @@ describe('CalendarAuthenticationRecord', () => {
           StringTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureTypeTagType, false, false, 'signature_type2'),
           RawTag.CREATE(SIGNATURE_DATA_CONSTANTS.SignatureValueTagType, false, false, new Uint8Array([0x7, 0x8])),
         ]),
-      ]
+      ],
     );
 
     expect(() => {

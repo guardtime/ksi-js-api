@@ -55,7 +55,7 @@ export class CalendarAuthenticationRecordAggregationHashRule extends Verificatio
     }
 
     return !(await calendarHashChain.calculateOutputHash()).equals(
-      calendarAuthenticationRecord.getPublicationData().getPublicationHash()
+      calendarAuthenticationRecord.getPublicationData().getPublicationHash(),
     )
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_08())
       : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

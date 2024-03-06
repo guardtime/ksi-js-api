@@ -47,7 +47,7 @@ export class InputHashAlgorithmDeprecatedRule extends VerificationRule {
       console.debug(
         `Input hash algorithm was deprecated at aggregation time. Algorithm: ${
           inputHash.hashAlgorithm.name
-        }; Aggregation time: ${signature.getAggregationTime()}.`
+        }; Aggregation time: ${signature.getAggregationTime()}.`,
       );
 
       return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_13());

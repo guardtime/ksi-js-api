@@ -47,7 +47,7 @@ describe('KsiSignature', () => {
         'UTApAgRcpcx/BCEBeLI0AM0xMvnNmHLupTjeVScT91B1JUAFPV1hydshzRuACwEiARYxLjIuODQwLjExMzU0OS4xLjEuMTEAgAIBAIlJgwhTOeOZ2hTCgnqnBl' +
         'oaOMP0LDGePdZOO4XQyIANr8uzdJD6t1bJvlIqBBbCbCQJMAkFmbvCEfFd5I81UjU19jxuLl7jlHiI+tK2pwenbCSmQMi/Su7N58mtg/SaL/B2NxyqfZmppZCk' +
         'sx00kSE6+P1+N/82G6CGArnPeBTp4/ytyr+7GXS4Vl0gbw9T2CQeXepkgOXVcnqGYN48aT6p7F+zJL2iFA+JvWpIgLbgIei2/BEL5HYXS2lw514Uh8FYdlIScN' +
-        'DJsbb5o9jVplzYJI885qVLrxH4Mt22EZXbc8CFfbR/KXFve+LOcJPrWm73g6KQpEIv2tP1oa0pwpkDBBmLGyc='
+        'DJsbb5o9jVplzYJI885qVLrxH4Mt22EZXbc8CFfbR/KXFve+LOcJPrWm73g6KQpEIv2tP1oa0pwpkDBBmLGyc=',
     );
 
     expect(signature.getUuid()).toEqual('176cb373-5c52-38c4-9296-28b2fb713540');

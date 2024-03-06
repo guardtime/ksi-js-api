@@ -159,7 +159,7 @@ export class Rfc3161Record extends CompositeTag {
       case RFC_3161_RECORD_CONSTANTS.SignedAttributesAlgorithmTagType:
         const signedAttributesAlgorithmTag: IntegerTag = new IntegerTag(tlvTag);
         const signedAttributesAlgorithm: HashAlgorithm | null = HashAlgorithm.getById(
-          signedAttributesAlgorithmTag.getValue().valueOf()
+          signedAttributesAlgorithmTag.getValue().valueOf(),
         );
 
         if (signedAttributesAlgorithm === null) {

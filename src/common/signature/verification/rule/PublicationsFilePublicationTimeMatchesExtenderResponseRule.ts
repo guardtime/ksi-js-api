@@ -48,7 +48,7 @@ export class PublicationsFilePublicationTimeMatchesExtenderResponseRule extends 
 
     const signature: KsiSignature = context.getSignature();
     const publicationRecord: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(
-      signature.getAggregationTime()
+      signature.getAggregationTime(),
     );
 
     if (publicationRecord == null) {

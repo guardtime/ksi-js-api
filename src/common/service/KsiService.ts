@@ -44,7 +44,7 @@ export class KsiService {
   public constructor(
     signingService: SigningService | null = null,
     extendingService: ExtendingService | null = null,
-    publicationsFileService: PublicationsFileService | null
+    publicationsFileService: PublicationsFileService | null,
   ) {
     this.signingService = signingService;
     this.extendingService = extendingService;
@@ -73,7 +73,7 @@ export class KsiService {
    */
   public async extend(
     aggregationTime: BigInteger,
-    publicationTime: BigInteger | null = null
+    publicationTime: BigInteger | null = null,
   ): Promise<CalendarHashChain> {
     if (!this.extendingService) {
       throw new KsiServiceError('Extending service not defined. Cannot use extending.');

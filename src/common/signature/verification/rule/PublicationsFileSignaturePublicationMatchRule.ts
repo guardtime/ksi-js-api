@@ -52,7 +52,7 @@ export class PublicationsFileSignaturePublicationMatchRule extends VerificationR
     }
 
     const publicationRecordInPublicationFile: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(
-      publicationRecord.getPublicationTime()
+      publicationRecord.getPublicationTime(),
     );
 
     if (

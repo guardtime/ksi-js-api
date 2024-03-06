@@ -52,7 +52,7 @@ export class AggregationHashChainTimeConsistencyRule extends VerificationRule {
 
       if (!chain.getAggregationTime().equals(time)) {
         console.debug(
-          `Previous aggregation hash chain aggregation time ${time} does not match current aggregation time ${chain.getAggregationTime()}.`
+          `Previous aggregation hash chain aggregation time ${time} does not match current aggregation time ${chain.getAggregationTime()}.`,
         );
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_02());

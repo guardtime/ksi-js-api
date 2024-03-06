@@ -48,7 +48,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -66,7 +66,7 @@ describe('AggregationHashChain', () => {
         AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType,
         false,
         false,
-        new Uint8Array([0x74, 0x65, 0x73, 0x74])
+        new Uint8Array([0x74, 0x65, 0x73, 0x74]),
       ),
       ImprintTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType,
@@ -74,14 +74,14 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       ...links,
     ]);
@@ -92,20 +92,20 @@ describe('AggregationHashChain', () => {
     expect(chain.getChainIndex()).toEqual([bigInteger(1), bigInteger(2)]);
     expect(chain.getAggregationTime()).toEqual(bigInteger(1000));
     expect(JSON.stringify(chain.getChainLinks())).toEqual(
-      JSON.stringify(links.map((tag: TlvTag) => new AggregationHashChainLink(tag)))
+      JSON.stringify(links.map((tag: TlvTag) => new AggregationHashChainLink(tag))),
     );
     expect(chain.getInputHash()).toEqual(
       DataHash.create(
         HashAlgorithm.SHA2_256,
-        HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-      )
+        HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+      ),
     );
     expect(chain.getInputData()).toEqual(new Uint8Array([0x74, 0x65, 0x73, 0x74]));
     expect(await chain.getOutputHash({ level: bigInteger(0), hash: chain.getInputHash() })).toEqual({
       level: bigInteger(3),
       hash: DataHash.create(
         HashAlgorithm.SHA2_256,
-        HexCoder.decode('E5321A7C33863817393744EDB04A2F8D32CD5801AD88816515125D1162577D4B')
+        HexCoder.decode('E5321A7C33863817393744EDB04A2F8D32CD5801AD88816515125D1162577D4B'),
       ),
     });
     expect(chain.getAggregationAlgorithm()).toEqual(HashAlgorithm.SHA2_256);
@@ -122,14 +122,14 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -141,7 +141,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -160,21 +160,21 @@ describe('AggregationHashChain', () => {
       chain
         .getChainLinks()
         .map((link: AggregationHashChainLink) =>
-          link.getIdentity() === null ? null : (link.getIdentity() as IKsiIdentity).getClientId()
-        )
+          link.getIdentity() === null ? null : (link.getIdentity() as IKsiIdentity).getClientId(),
+        ),
     ).toEqual(['me', null, 'test']);
     expect(chain.getInputHash()).toEqual(
       DataHash.create(
         HashAlgorithm.SHA2_256,
-        HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-      )
+        HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+      ),
     );
     expect(chain.getInputData()).toEqual(null);
     expect(await chain.getOutputHash({ level: bigInteger(0), hash: chain.getInputHash() })).toEqual({
       level: bigInteger(3),
       hash: DataHash.create(
         HashAlgorithm.SHA2_256,
-        HexCoder.decode('E5321A7C33863817393744EDB04A2F8D32CD5801AD88816515125D1162577D4B')
+        HexCoder.decode('E5321A7C33863817393744EDB04A2F8D32CD5801AD88816515125D1162577D4B'),
       ),
     });
     expect(chain.getAggregationAlgorithm()).toEqual(HashAlgorithm.SHA2_256);
@@ -190,14 +190,14 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -209,7 +209,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -236,14 +236,14 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -255,7 +255,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -279,14 +279,14 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -298,7 +298,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -322,13 +322,13 @@ describe('AggregationHashChain', () => {
         AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType,
         false,
         false,
-        new Uint8Array([0x74, 0x65, 0x73, 0x74])
+        new Uint8Array([0x74, 0x65, 0x73, 0x74]),
       ),
       RawTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.InputDataTagType,
         false,
         false,
-        new Uint8Array([0x74, 0x65, 0x73, 0x74])
+        new Uint8Array([0x74, 0x65, 0x73, 0x74]),
       ),
       ImprintTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType,
@@ -336,14 +336,14 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -355,7 +355,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -379,7 +379,7 @@ describe('AggregationHashChain', () => {
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -391,7 +391,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -417,8 +417,8 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       ImprintTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.InputHashTagType,
@@ -426,14 +426,14 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -445,7 +445,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -471,8 +471,8 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -484,7 +484,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -510,20 +510,20 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Left, false, false, [
         CompositeTag.CREATE_FROM_LIST(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType, false, false, [
@@ -535,7 +535,7 @@ describe('AggregationHashChain', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.LINK.SiblingHashTagType,
           false,
           false,
-          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+          DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
         ),
       ]),
       CompositeTag.CREATE_FROM_LIST(LinkDirection.Right, false, false, [
@@ -561,14 +561,14 @@ describe('AggregationHashChain', () => {
         false,
         DataHash.create(
           HashAlgorithm.SHA2_256,
-          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08')
-        )
+          HexCoder.decode('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08'),
+        ),
       ),
       IntegerTag.CREATE(
         AGGREGATION_HASH_CHAIN_CONSTANTS.AggregationAlgorithmIdTagType,
         false,
         false,
-        bigInteger(HashAlgorithm.SHA2_256.id)
+        bigInteger(HashAlgorithm.SHA2_256.id),
       ),
     ]);
 

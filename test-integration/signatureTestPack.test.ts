@@ -19,9 +19,8 @@
 
 import { HexCoder } from '@guardtime/common/lib/coders/HexCoder.js';
 import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
-import { Utf8Converter } from '@guardtime/common/lib/strings/Utf8Converter.js';
 import bigInteger, { BigInteger } from 'big-integer';
-import { CastingContext, ColumnOption, parse as parseCsv } from 'csv-parse/dist/esm/sync.js';
+import { CastingContext, ColumnOption, parse as parseCsv } from 'csv-parse/browser/esm/sync';
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirname } from 'path';
@@ -55,6 +54,9 @@ import { VerificationPolicy } from '../src/common/signature/verification/policy/
 import { VerificationError } from '../src/common/signature/verification/VerificationError.js';
 import { VerificationResult } from '../src/common/signature/verification/VerificationResult.js';
 import { TestServiceProtocol } from '../test/service/TestServiceProtocol.js';
+import { NodeSpkiFactory } from '@guardtime/common/lib/crypto/pkcs7/NodeSpkiFactory.js';
+import { ASCIIConverter } from '@guardtime/common/lib/strings/ASCIIConverter.js';
+import { Base64Coder } from '@guardtime/common/lib/coders/Base64Coder.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -98,7 +100,7 @@ class TestExtendingService extends ExtendingService {
   public constructor(
     extendingServiceProtocol: IExtendingServiceProtocol,
     extendingServiceCredentials: IServiceCredentials,
-    requestId: BigInteger
+    requestId: BigInteger,
   ) {
     super(extendingServiceProtocol, extendingServiceCredentials);
     this.requestId = requestId;
@@ -123,7 +125,7 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
       policy = new PublicationBasedVerificationPolicy();
       break;
     case 'KEY':
-      policy = new KeyBasedVerificationPolicy();
+      policy = new KeyBasedVerificationPolicy(new NodeSpkiFactory());
       break;
     case 'INTERNAL':
       policy = new InternalVerificationPolicy();
@@ -135,7 +137,6 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
       expect(() => {
         return new KsiSignature(new TlvInputStream(signatureBytes).readTag());
       }).toThrow();
-
       return;
     case 'NOT-IMPLEMENTED':
       return;
@@ -144,7 +145,7 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
   }
 
   const verificationContext: VerificationContext = new VerificationContext(
-    new KsiSignature(new TlvInputStream(signatureBytes).readTag())
+    new KsiSignature(new TlvInputStream(signatureBytes).readTag()),
   );
 
   verificationContext.setDocumentHash(row.inputHash);
@@ -153,9 +154,14 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
   verificationContext.setDocumentHashLevel(row.inputHashLevel);
   verificationContext.setExtendingAllowed(row.isExtendingAllowed);
 
-  let certFile;
+  let certFile: Uint8Array | undefined;
   if (row.certFilePath) {
-    certFile = Utf8Converter.ToString(fs.readFileSync(path.join(testBasePath, row.certFilePath)));
+    certFile = Base64Coder.decode(
+      ASCIIConverter.ToString(fs.readFileSync(path.join(testBasePath, row.certFilePath)))
+        .replace('-----BEGIN CERTIFICATE-----', '')
+        .replace('-----END CERTIFICATE-----', '')
+        .replace(/[\n\t\r]/g, ''),
+    );
   }
 
   if (userPublication === null) {
@@ -163,9 +169,9 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
       verificationContext.setPublicationsFile(config.publicationsFile);
     } else {
       verificationContext.setPublicationsFile(
-        new PublicationsFileFactory(certFile).create(
-          new Uint8Array(fs.readFileSync(path.join(testBasePath, row.publicationsFilePath)))
-        )
+        await new PublicationsFileFactory(new NodeSpkiFactory(), certFile).create(
+          new Uint8Array(fs.readFileSync(path.join(testBasePath, row.publicationsFilePath))),
+        ),
       );
     }
   }
@@ -175,18 +181,18 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
       new KsiService(
         new SigningService(
           new TestServiceProtocol(fs.readFileSync(path.join(testBasePath, row.resourceFile))),
-          new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY)
+          new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY),
         ),
         new TestExtendingService(
           new TestServiceProtocol(fs.readFileSync(path.join(testBasePath, row.resourceFile))),
           new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY),
-          bigInteger(1)
+          bigInteger(1),
         ),
         new PublicationsFileService(
           new TestServiceProtocol(fs.readFileSync(path.join(testBasePath, row.resourceFile))),
-          new PublicationsFileFactory(certFile)
-        )
-      )
+          new PublicationsFileFactory(new NodeSpkiFactory(), certFile),
+        ),
+      ),
     );
   } else {
     verificationContext.setKsiService(config.ksiService);
@@ -210,7 +216,7 @@ describe.each([
   path.join(__dirname, './resources/signature-test-pack/invalid-signatures/invalid-signature-results.csv'),
   path.join(
     __dirname,
-    './resources/signature-test-pack/policy-verification-signatures/policy-verification-results.csv'
+    './resources/signature-test-pack/policy-verification-signatures/policy-verification-results.csv',
   ),
   path.join(__dirname, './resources/signature-test-pack/valid-signatures/signature-results.csv'),
 ])('Signature Test Pack: %s', (resultFile: string): void => {
@@ -218,16 +224,16 @@ describe.each([
     config.ksiService = new KsiService(
       new SigningService(
         new SigningServiceProtocol(ksiConfig.AGGREGATION_URL),
-        new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY)
+        new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY),
       ),
       new ExtendingService(
         new ExtendingServiceProtocol(ksiConfig.EXTENDER_URL),
-        new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY)
+        new ServiceCredentials(ksiConfig.LOGIN_ID, ksiConfig.LOGIN_KEY),
       ),
       new PublicationsFileService(
         new PublicationsFileServiceProtocol(ksiConfig.PUBLICATIONS_FILE_URL),
-        new PublicationsFileFactory()
-      )
+        new PublicationsFileFactory(new NodeSpkiFactory()),
+      ),
     );
 
     return config.ksiService.getPublicationsFile().then((publicationsFile: PublicationsFile) => {
@@ -286,7 +292,7 @@ describe.each([
           }
         },
       }) as SignatureTestRow[]
-    ).map((row: SignatureTestRow) => [path.basename(row.signatureFile), row])
+    ).map((row: SignatureTestRow) => [path.basename(row.signatureFile), row]),
   )('%s', (filename: string, row: SignatureTestRow) => {
     console.debug(`
 SignatureFile: ${row.signatureFile}

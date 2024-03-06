@@ -21,6 +21,7 @@ import { VerificationPolicy } from './VerificationPolicy.js';
 import { InternalVerificationPolicy } from './InternalVerificationPolicy.js';
 import { PublicationBasedVerificationPolicy } from './PublicationBasedVerificationPolicy.js';
 import { KeyBasedVerificationPolicy } from './KeyBasedVerificationPolicy.js';
+import { SpkiFactory } from '@guardtime/common/lib/crypto/pkcs7/SpkiFactory.js';
 
 /**
  * Default verification policy.
@@ -28,15 +29,16 @@ import { KeyBasedVerificationPolicy } from './KeyBasedVerificationPolicy.js';
 export class DefaultVerificationPolicy extends VerificationPolicy {
   /**
    * Default verification policy constructor.
+   * @param spkiFactory Public key factory to create key from SPKI
    */
-  public constructor() {
+  public constructor(spkiFactory: SpkiFactory) {
     super(
       new InternalVerificationPolicy().onSuccess(
         PublicationBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY().onNa(
-          KeyBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY()
-        )
+          KeyBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY(spkiFactory),
+        ),
       ),
-      'DefaultVerificationPolicy'
+      'DefaultVerificationPolicy',
     );
   }
 }

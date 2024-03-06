@@ -32,7 +32,7 @@ const service = new KSI.KsiService(
   ),
   new KSI.PublicationsFileService(
     new KSI.PublicationsFileServiceProtocol(CONFIG.PUBLICATIONS_FILE_URL),
-    new KSI.PublicationsFileFactory()
+    new KSI.PublicationsFileFactory(new KSI.BrowserSpkiFactory())
   ));
 
 service.sign(KSI.DataHash.create(KSI.HashAlgorithm.SHA2_256, new Uint8Array(32)))
@@ -43,34 +43,20 @@ service.sign(KSI.DataHash.create(KSI.HashAlgorithm.SHA2_256, new Uint8Array(32))
     console.log(err);
   });
 
-fs.readFile('../web/sig.ksig', (_, data) => {
+fs.readFile('../web/sig.ksig', async (_, data) => {
   const stream = new KSI.TlvInputStream(data);
   const tlvTag = stream.readTag();
   const signature = new KSI.KsiSignature(tlvTag);
-  service.extend(signature.getAggregationTime())
-    .then(calendarHashChain => {
-      console.log(calendarHashChain.toString());
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  const calendarHashChain = await service.extend(signature.getAggregationTime());
+  console.log(calendarHashChain.toString());
 
-  service.getPublicationsFile().then((publicationsFile) => {
-    console.log(publicationsFile);
+  const publicationsFile = await service.getPublicationsFile();
 
-    const policy = new KSI.DefaultVerificationPolicy();
-    const context = new KSI.VerificationContext(signature);
-    context.setPublicationsFile(publicationsFile);
-    context.setExtendingAllowed(false);
-    context.setKsiService(service);
-    policy.verify(context)
-      .then((result) => {
-        console.log(result.toString());
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }).catch((err) => {
-    console.log(err);
-  });
+  const policy = new KSI.DefaultVerificationPolicy(new KSI.BrowserSpkiFactory());
+  const context = new KSI.VerificationContext(signature);
+  context.setPublicationsFile(publicationsFile);
+  context.setExtendingAllowed(false);
+  context.setKsiService(service);
+  console.log((await policy.verify(context)).toString());
+
 });

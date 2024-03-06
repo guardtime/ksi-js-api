@@ -60,7 +60,7 @@ export class PublicationData extends CompositeTag {
       CompositeTag.CREATE_FROM_LIST(PUBLICATION_DATA_CONSTANTS.TagType, false, false, [
         IntegerTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
         ImprintTag.CREATE(PUBLICATION_DATA_CONSTANTS.PublicationHashTagType, false, false, publicationHash),
-      ])
+      ]),
     );
   }
 
@@ -83,14 +83,14 @@ export class PublicationData extends CompositeTag {
     if (!ArrayUtils.compareUint8Arrays(calculatedCrc32, messageCrc32)) {
       throw new TlvError(
         `Publication string CRC 32 check failed. Calculated: ${JSON.stringify(
-          calculatedCrc32
-        )}; From Message: ${JSON.stringify(messageCrc32)}`
+          calculatedCrc32,
+        )}; From Message: ${JSON.stringify(messageCrc32)}`,
       );
     }
 
     return PublicationData.CREATE(
       UnsignedLongCoder.decode(bytesWithCrc32, 0, 8),
-      new DataHash(bytesWithCrc32.slice(8, -4))
+      new DataHash(bytesWithCrc32.slice(8, -4)),
     );
   }
 

@@ -54,7 +54,7 @@ export class Rfc3161RecordOutputHashAlgorithmDeprecatedRule extends Verification
 
     if (hashAlgorithm.isDeprecated(aggregationTime.valueOf())) {
       console.debug(
-        `RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: ${hashAlgorithm}; Aggregation time: ${aggregationTime}.`
+        `RFC3161 output hash algorithm was deprecated at aggregation time. Algorithm: ${hashAlgorithm}; Aggregation time: ${aggregationTime}.`,
       );
 
       return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_17());

@@ -60,10 +60,10 @@ export class ExtendRequestPdu extends Pdu {
     header: PduHeader,
     payload: ExtendRequestPayload,
     algorithm: HashAlgorithm,
-    key: Uint8Array
+    key: Uint8Array,
   ): Promise<ExtendRequestPdu> {
     return new ExtendRequestPdu(
-      await Pdu.CREATE_PDU(EXTEND_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key)
+      await Pdu.CREATE_PDU(EXTEND_REQUEST_PDU_CONSTANTS.TagType, header, payload, algorithm, key),
     );
   }
 

@@ -54,7 +54,7 @@ export class PduHeader extends CompositeTag {
     return new PduHeader(
       CompositeTag.CREATE_FROM_LIST(PDU_HEADER_CONSTANTS.TagType, false, false, [
         StringTag.CREATE(PDU_HEADER_CONSTANTS.LoginIdTagType, false, false, loginId),
-      ])
+      ]),
     );
   }
 
