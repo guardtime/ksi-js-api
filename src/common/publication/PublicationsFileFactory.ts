@@ -39,7 +39,7 @@ export class PublicationsFileFactory {
   /**
    * Publications file factory constructor.
    * @param spkiFactory Public key factory to create key from SPKI
-   * @param trustedCertificate Trusted certificates, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#TrustedCertificates}.
+   * @param trustedCertificate Trusted certificate, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#TrustedCertificates}.
    * @param signatureSubjectToVerify Subject string to verify, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#GuardtimeSignatureSubjectEmail}.
    */
   public constructor(

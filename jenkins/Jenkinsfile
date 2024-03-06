@@ -10,7 +10,10 @@ def updateStatus(statusName, descriptionName){
 
 pipeline {
     agent {
-        docker { image 'node:20-alpine' }
+        docker {
+            image 'node:20-alpine'
+            label 'centos7'
+        }
     }
     environment {
         SHORT_COMMIT = "${GIT_COMMIT[0..7]}"
