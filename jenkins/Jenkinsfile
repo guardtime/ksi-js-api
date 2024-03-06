@@ -11,7 +11,7 @@ def updateStatus(statusName, descriptionName){
 pipeline {
     agent {
         docker {
-            image 'node:20-alpine'
+            image 'node:18'
             label 'centos7'
         }
     }
