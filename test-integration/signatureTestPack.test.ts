@@ -17,31 +17,15 @@
  * reserves and retains all trademark rights.
  */
 
-import { HexCoder } from '@guardtime/common/lib/coders/HexCoder.js';
-import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
 import bigInteger, { BigInteger } from 'big-integer';
 import { CastingContext, ColumnOption, parse as parseCsv } from 'csv-parse/browser/esm/sync';
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { HexCoder } from '@guardtime/common/lib/coders/HexCoder.js';
+import { DataHash } from '@guardtime/common/lib/hash/DataHash.js';
 import { default as ksiConfig } from '../config/ksi-config.js';
-import {
-  ExtendingService,
-  KeyBasedVerificationPolicy,
-  KsiService,
-  PublicationBasedVerificationPolicy,
-  PublicationsFileFactory,
-  PublicationsFileService,
-  ServiceCredentials,
-  SigningService,
-  VerificationContext,
-} from '../src/common/main';
-import {
-  ExtendingServiceProtocol,
-  PublicationsFileServiceProtocol,
-  SigningServiceProtocol,
-} from '../src/common/main.js';
 import { TlvInputStream } from '../src/common/parser/TlvInputStream.js';
 import { PublicationData } from '../src/common/publication/PublicationData.js';
 import { PublicationsFile } from '../src/common/publication/PublicationsFile.js';
@@ -57,6 +41,18 @@ import { TestServiceProtocol } from '../test/service/TestServiceProtocol.js';
 import { NodeSpkiFactory } from '@guardtime/common/lib/crypto/pkcs7/NodeSpkiFactory.js';
 import { ASCIIConverter } from '@guardtime/common/lib/strings/ASCIIConverter.js';
 import { Base64Coder } from '@guardtime/common/lib/coders/Base64Coder.js';
+import { KsiService } from '../src/common/service/KsiService.js';
+import { ExtendingService } from '../src/common/service/ExtendingService.js';
+import { PublicationBasedVerificationPolicy } from '../src/common/signature/verification/policy/PublicationBasedVerificationPolicy.js';
+import { KeyBasedVerificationPolicy } from '../src/common/signature/verification/policy/KeyBasedVerificationPolicy.js';
+import { VerificationContext } from '../src/common/signature/verification/VerificationContext.js';
+import { PublicationsFileFactory } from '../src/common/publication/PublicationsFileFactory.js';
+import { SigningService } from '../src/common/service/SigningService.js';
+import { ServiceCredentials } from '../src/common/service/ServiceCredentials.js';
+import { PublicationsFileService } from '../src/common/service/PublicationsFileService.js';
+import { SigningServiceProtocol } from '../src/common/service/SigningServiceProtocol.js';
+import { ExtendingServiceProtocol } from '../src/common/service/ExtendingServiceProtocol.js';
+import { PublicationsFileServiceProtocol } from '../src/common/service/PublicationsFileServiceProtocol.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -144,9 +140,7 @@ async function testSignature(row: SignatureTestRow, testBasePath: string): Promi
       throw new Error(`Unknown testing action: ${row.actionName}`);
   }
 
-  const verificationContext: VerificationContext = new VerificationContext(
-    new KsiSignature(new TlvInputStream(signatureBytes).readTag()),
-  );
+  const verificationContext = new VerificationContext(new KsiSignature(new TlvInputStream(signatureBytes).readTag()));
 
   verificationContext.setDocumentHash(row.inputHash);
   verificationContext.setUserPublication(row.publicationData);
@@ -220,7 +214,7 @@ describe.each([
   ),
   path.join(__dirname, './resources/signature-test-pack/valid-signatures/signature-results.csv'),
 ])('Signature Test Pack: %s', (resultFile: string): void => {
-  beforeAll(() => {
+  beforeAll(async () => {
     config.ksiService = new KsiService(
       new SigningService(
         new SigningServiceProtocol(ksiConfig.AGGREGATION_URL),
@@ -236,9 +230,7 @@ describe.each([
       ),
     );
 
-    return config.ksiService.getPublicationsFile().then((publicationsFile: PublicationsFile) => {
-      config.publicationsFile = publicationsFile;
-    });
+    config.publicationsFile = await config.ksiService.getPublicationsFile();
   });
 
   it.each(
