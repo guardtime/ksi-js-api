@@ -13,10 +13,12 @@ pipeline {
         docker {
             image 'node:18'
             label 'centos7'
+
         }
     }
     environment {
         SHORT_COMMIT = "${GIT_COMMIT[0..7]}"
+        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
     }
     stages {
         stage('build') {
