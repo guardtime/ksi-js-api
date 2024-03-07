@@ -45,7 +45,7 @@ export class TlvTag {
     nonCriticalFlag: boolean,
     forwardFlag: boolean,
     valueBytes: Uint8Array,
-    tlv16BitFlag = false
+    tlv16BitFlag = false,
   ) {
     this.id = id;
     this.nonCriticalFlag = nonCriticalFlag;

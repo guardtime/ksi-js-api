@@ -47,7 +47,7 @@ export class AggregationHashChainAlgorithmDeprecatedRule extends VerificationRul
         console.debug(
           `Aggregation hash chain aggregation algorithm was deprecated at aggregation time. Algorithm: ${
             chain.getAggregationAlgorithm().name
-          }; Aggregation time: ${chain.getAggregationTime()}.s`
+          }; Aggregation time: ${chain.getAggregationTime()}.s`,
         );
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_15());

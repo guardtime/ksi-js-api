@@ -63,7 +63,7 @@ export abstract class VerificationRule extends Rule<VerificationContext, Verific
    * @returns Deprecated algorithm imprint TLV object.
    */
   protected static getCalendarHashChainDeprecatedAlgorithmLink(
-    calendarHashChain: CalendarHashChain
+    calendarHashChain: CalendarHashChain,
   ): ImprintTag | null {
     if (!calendarHashChain) {
       throw new KsiVerificationError('Invalid calendar hash chain.');

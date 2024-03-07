@@ -105,7 +105,7 @@ export class VerificationError {
   public static INT_06(): VerificationError {
     return new VerificationError(
       'INT-06',
-      'Calendar hash chain time inconsistent with calendar authentication record time'
+      'Calendar hash chain time inconsistent with calendar authentication record time',
     );
   }
 
@@ -122,7 +122,7 @@ export class VerificationError {
   public static INT_08(): VerificationError {
     return new VerificationError(
       'INT-08',
-      'Calendar hash chain root hash is inconsistent with calendar authentication record input hash'
+      'Calendar hash chain root hash is inconsistent with calendar authentication record input hash',
     );
   }
 
@@ -167,7 +167,7 @@ export class VerificationError {
   public static INT_14(): VerificationError {
     return new VerificationError(
       'INT-14',
-      'RFC3161 compatibility record composed of hash algorithms that where deprecated at the time of signing'
+      'RFC3161 compatibility record composed of hash algorithms that where deprecated at the time of signing',
     );
   }
 
@@ -177,7 +177,7 @@ export class VerificationError {
   public static INT_15(): VerificationError {
     return new VerificationError(
       'INT-15',
-      'Aggregation hash chain uses hash algorithm that was deprecated at the time of signing'
+      'Aggregation hash chain uses hash algorithm that was deprecated at the time of signing',
     );
   }
 
@@ -194,7 +194,7 @@ export class VerificationError {
   public static INT_17(): VerificationError {
     return new VerificationError(
       'INT-17',
-      'The RFC3161 compatibility record output hash algorithm was deprecated at the time of signing'
+      'The RFC3161 compatibility record output hash algorithm was deprecated at the time of signing',
     );
   }
 
@@ -260,7 +260,7 @@ export class VerificationError {
   public static CAL_02(): VerificationError {
     return new VerificationError(
       'CAL-02',
-      'Aggregation hash chain root hash and calendar database hash chain input hash mismatch'
+      'Aggregation hash chain root hash and calendar database hash chain input hash mismatch',
     );
   }
 

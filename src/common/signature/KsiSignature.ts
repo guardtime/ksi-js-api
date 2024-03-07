@@ -77,7 +77,7 @@ export class KsiSignature extends CompositeTag {
    */
   public static CREATE(payload: AggregationResponsePayload): KsiSignature {
     return new KsiSignature(
-      CompositeTag.CREATE_FROM_LIST(KSI_SIGNATURE_CONSTANTS.TagType, false, false, payload.getSignatureTags())
+      CompositeTag.CREATE_FROM_LIST(KSI_SIGNATURE_CONSTANTS.TagType, false, false, payload.getSignatureTags()),
     );
   }
 
@@ -213,7 +213,7 @@ export class KsiSignature extends CompositeTag {
           (linkBits[i + 4] << 3) +
           (linkBits[i + 5] << 2) +
           (linkBits[i + 6] << 1) +
-          linkBits[i + 7]
+          linkBits[i + 7],
       );
     }
 
@@ -242,7 +242,7 @@ export class KsiSignature extends CompositeTag {
 
     stream.writeTag(calendarHashChain);
     stream.writeTag(
-      CompositeTag.createFromCompositeTag(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType, publicationRecord)
+      CompositeTag.createFromCompositeTag(KSI_SIGNATURE_CONSTANTS.PublicationRecordTagType, publicationRecord),
     );
 
     return new KsiSignature(new TlvTag(KSI_SIGNATURE_CONSTANTS.TagType, false, false, stream.getData()));
@@ -292,7 +292,7 @@ export class KsiSignature extends CompositeTag {
     ) {
       throw new TlvError(
         'No publication record or calendar authentication record is ' +
-          'allowed in KSI signature if there is no calendar hash chain.'
+          'allowed in KSI signature if there is no calendar hash chain.',
       );
     }
 
@@ -303,7 +303,7 @@ export class KsiSignature extends CompositeTag {
       this.getCount(CALENDAR_AUTHENTICATION_RECORD_CONSTANTS.TagType) > 1
     ) {
       throw new TlvError(
-        'Only one from publication record or calendar authentication record is allowed in KSI signature.'
+        'Only one from publication record or calendar authentication record is allowed in KSI signature.',
       );
     }
 

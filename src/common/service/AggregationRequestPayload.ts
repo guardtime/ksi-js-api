@@ -57,7 +57,7 @@ export class AggregationRequestPayload extends CompositeTag {
   public static CREATE(
     requestId: BigInteger,
     hash: DataHash,
-    level: BigInteger = bigInteger(0)
+    level: BigInteger = bigInteger(0),
   ): AggregationRequestPayload {
     const childTlv: TlvTag[] = [
       IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
@@ -69,7 +69,7 @@ export class AggregationRequestPayload extends CompositeTag {
     }
 
     return new AggregationRequestPayload(
-      CompositeTag.CREATE_FROM_LIST(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv)
+      CompositeTag.CREATE_FROM_LIST(AGGREGATION_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv),
     );
   }
 

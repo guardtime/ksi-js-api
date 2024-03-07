@@ -55,10 +55,10 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
@@ -68,16 +68,16 @@ describe('PublicationsFile', () => {
             CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType,
             false,
             false,
-            new Uint8Array([0x0, 0x1, 0x2])
+            new Uint8Array([0x0, 0x1, 0x2]),
           ),
           RawTag.CREATE(
             CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType,
             false,
             false,
-            new Uint8Array([0x3, 0x4, 0x5])
+            new Uint8Array([0x3, 0x4, 0x5]),
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
@@ -87,36 +87,36 @@ describe('PublicationsFile', () => {
             CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType,
             false,
             false,
-            new Uint8Array([0x6, 0x7, 0x8])
+            new Uint8Array([0x6, 0x7, 0x8]),
           ),
           RawTag.CREATE(
             CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType,
             false,
             false,
-            new Uint8Array([0x1, 0x2, 0x3])
+            new Uint8Array([0x1, 0x2, 0x3]),
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
           PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
           PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1))),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     const publicationsFile: PublicationsFile = new TestPublicationsFileFactory().create(stream.getData());
@@ -125,27 +125,27 @@ describe('PublicationsFile', () => {
       HexCoder.decode(
         '4B53495055424C468701001E0101050201010316687474703A2F2F6C6F63616C686F73742F74657374008702000A01030001020203030405870200' +
           '0A010306070802030102038703002810260201010421010000000000000000000000000000000000000000000000000000000000000000870300281026' +
-          '0201020421010101010101010101010101010101010101010101010101010101010101010101'
-      )
+          '0201020421010101010101010101010101010101010101010101010101010101010101010101',
+      ),
     );
 
     expect((publicationsFile.getLatestPublication() as PublicationRecord).getPublicationTime()).toEqual(bigInteger(2));
     expect((publicationsFile.getLatestPublication() as PublicationRecord).getPublicationHash()).toEqual(
-      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1))
+      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1)),
     );
 
     expect(
-      (publicationsFile.getNearestPublicationRecord(bigInteger(0)) as PublicationRecord).getPublicationTime()
+      (publicationsFile.getNearestPublicationRecord(bigInteger(0)) as PublicationRecord).getPublicationTime(),
     ).toEqual(bigInteger(1));
     expect(
-      (publicationsFile.getNearestPublicationRecord(bigInteger(0)) as PublicationRecord).getPublicationHash()
+      (publicationsFile.getNearestPublicationRecord(bigInteger(0)) as PublicationRecord).getPublicationHash(),
     ).toEqual(DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)));
 
     expect(
-      (publicationsFile.findCertificateById(new Uint8Array([0x0, 0x1, 0x2])) as CertificateRecord).getX509Certificate()
+      (publicationsFile.findCertificateById(new Uint8Array([0x0, 0x1, 0x2])) as CertificateRecord).getX509Certificate(),
     ).toEqual(new Uint8Array([0x3, 0x4, 0x5]));
     expect(
-      (publicationsFile.findCertificateById(new Uint8Array([0x6, 0x7, 0x8])) as CertificateRecord).getX509Certificate()
+      (publicationsFile.findCertificateById(new Uint8Array([0x6, 0x7, 0x8])) as CertificateRecord).getX509Certificate(),
     ).toEqual(new Uint8Array([0x1, 0x2, 0x3]));
   });
 
@@ -161,14 +161,14 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     const publicationsFile: PublicationsFile = new TestPublicationsFileFactory().create(stream.getData());
@@ -188,29 +188,29 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
           PublicationData.CREATE(bigInteger(2), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1))),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     const publicationsFile: PublicationsFile = new TestPublicationsFileFactory().create(stream.getData());
 
     expect((publicationsFile.getLatestPublication() as PublicationRecord).getPublicationTime()).toEqual(bigInteger(2));
     expect((publicationsFile.getLatestPublication() as PublicationRecord).getPublicationHash()).toEqual(
-      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1))
+      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32).fill(1)),
     );
   });
 
@@ -225,14 +225,14 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     expect(() => {
@@ -244,7 +244,7 @@ describe('PublicationsFile', () => {
     const stream: TlvOutputStream = new TlvOutputStream();
     stream.write(PublicationsFile.FileBeginningMagicBytes);
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     expect(() => {
@@ -264,10 +264,10 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     expect(() => {
@@ -287,10 +287,10 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
     stream.writeTag(
       new PublicationsFileHeader(
@@ -301,13 +301,13 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     expect(() => {
@@ -327,16 +327,16 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     expect(() => {
@@ -354,16 +354,16 @@ describe('PublicationsFile', () => {
             CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType,
             false,
             false,
-            new Uint8Array([0x0, 0x1, 0x2])
+            new Uint8Array([0x0, 0x1, 0x2]),
           ),
           RawTag.CREATE(
             CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType,
             false,
             false,
-            new Uint8Array([0x3, 0x4, 0x5])
+            new Uint8Array([0x3, 0x4, 0x5]),
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
@@ -375,14 +375,14 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     expect(() => {
@@ -403,22 +403,22 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
           PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
-        ])
-      )
+        ]),
+      ),
     );
 
     expect(() => {
@@ -439,18 +439,18 @@ describe('PublicationsFile', () => {
             PUBLICATIONS_FILE_HEADER_CONSTANTS.RepositoryUriTagType,
             false,
             false,
-            'http://localhost/test'
+            'http://localhost/test',
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
       new PublicationRecord(
         CompositeTag.CREATE_FROM_LIST(PUBLICATIONS_FILE_CONSTANTS.PublicationRecordTagType, false, false, [
           PublicationData.CREATE(bigInteger(1), DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
@@ -460,20 +460,20 @@ describe('PublicationsFile', () => {
             CERTIFICATE_RECORD_CONSTANTS.CertificateIdTagType,
             false,
             false,
-            new Uint8Array([0x0, 0x1, 0x2])
+            new Uint8Array([0x0, 0x1, 0x2]),
           ),
           RawTag.CREATE(
             CERTIFICATE_RECORD_CONSTANTS.X509CertificateTagType,
             false,
             false,
-            new Uint8Array([0x3, 0x4, 0x5])
+            new Uint8Array([0x3, 0x4, 0x5]),
           ),
-        ])
-      )
+        ]),
+      ),
     );
 
     stream.writeTag(
-      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2]))
+      RawTag.CREATE(PUBLICATIONS_FILE_CONSTANTS.CmsSignatureTagType, false, false, new Uint8Array([0x1, 0x2])),
     );
 
     expect(() => {

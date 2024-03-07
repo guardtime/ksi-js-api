@@ -43,9 +43,9 @@ export class PublicationsFileVerificationPolicy extends VerificationPolicy {
             new PublicationsFilePublicationHashMatchesExtenderResponseRule() // Pub-01,  Gen-02
               .onSuccess(
                 new PublicationsFilePublicationTimeMatchesExtenderResponseRule() // Pub-02
-                  .onSuccess(new PublicationsFileExtendedSignatureInputHashRule())
-              )
-          )
+                  .onSuccess(new PublicationsFileExtendedSignatureInputHashRule()),
+              ),
+          ),
       ); // Pub-03
 
     super(
@@ -53,10 +53,10 @@ export class PublicationsFileVerificationPolicy extends VerificationPolicy {
         .onSuccess(
           new PublicationsFileSignaturePublicationMatchRule() // Pub-05, Gen-02
             .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule()) // Gen-02
-            .onNa(verificationRule)
+            .onNa(verificationRule),
         )
         .onNa(verificationRule),
-      'PublicationsFileVerificationPolicy'
+      'PublicationsFileVerificationPolicy',
     );
   }
 }

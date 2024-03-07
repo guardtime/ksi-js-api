@@ -33,7 +33,7 @@ export class PublicationBasedVerificationPolicy extends VerificationPolicy {
   public constructor() {
     super(
       new InternalVerificationPolicy().onSuccess(PublicationBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY()),
-      'PublicationBasedVerificationPolicy'
+      'PublicationBasedVerificationPolicy',
     );
   }
 
@@ -42,7 +42,7 @@ export class PublicationBasedVerificationPolicy extends VerificationPolicy {
       new UserProvidedPublicationExistenceRule() // Gen-02
         .onSuccess(new UserProvidedPublicationBasedVerificationPolicy()) // Gen-02
         .onNa(new PublicationsFileVerificationPolicy()),
-      'PublicationBasedVerificationPolicy'
+      'PublicationBasedVerificationPolicy',
     );
   }
 }

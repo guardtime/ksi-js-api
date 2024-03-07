@@ -57,7 +57,7 @@ export class ExtendedSignatureCalendarChainRootHashRule extends VerificationRule
     }
 
     return !(await calendarHashChain.calculateOutputHash()).equals(
-      await extendedCalendarHashChain.calculateOutputHash()
+      await extendedCalendarHashChain.calculateOutputHash(),
     )
       ? new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.CAL_01())
       : new VerificationResult(this.getRuleName(), VerificationResultCode.OK);

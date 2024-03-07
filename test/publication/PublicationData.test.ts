@@ -40,7 +40,7 @@ describe('PublicationData', () => {
         PUBLICATION_DATA_CONSTANTS.PublicationHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
     ]);
 
@@ -52,7 +52,7 @@ describe('PublicationData', () => {
   it('Creation with CREATE', () => {
     const publicationData: PublicationData = PublicationData.CREATE(
       bigInteger(2),
-      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
     );
     expect(publicationData.getPublicationTime()).toEqual(bigInteger(2));
     expect(publicationData.getPublicationHash()).toEqual(DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)));
@@ -60,19 +60,19 @@ describe('PublicationData', () => {
 
   it('Creation with publication string', () => {
     const publicationData: PublicationData = PublicationData.CREATE_FROM_PUBLICATION_STRING(
-      'AAAAAA-C7Q6IQ-AAJBF7-G2ZDFT-AIIUEE-KBHEIR-NHV74X-PKLM6G-JJM6ZC-BIKJEX-VDWBZP-ZYJ4IB'.replace(/-/g, '')
+      'AAAAAA-C7Q6IQ-AAJBF7-G2ZDFT-AIIUEE-KBHEIR-NHV74X-PKLM6G-JJM6ZC-BIKJEX-VDWBZP-ZYJ4IB'.replace(/-/g, ''),
     );
 
     expect(publicationData.getPublicationTime().toString()).toEqual('1602720000');
     expect(publicationData.getPublicationHash()).toEqual(
-      new DataHash(HexCoder.decode('01212FCDAC8CB302114211413911169EBFE5DEA5B3C64A59EC882852497A8EC1CB'))
+      new DataHash(HexCoder.decode('01212FCDAC8CB302114211413911169EBFE5DEA5B3C64A59EC882852497A8EC1CB')),
     );
 
     expect(
       publicationData
         .toPublicationString()
         .match(/.{1,6}/g)
-        ?.join('-')
+        ?.join('-'),
     ).toEqual('AAAAAA-C7Q6IQ-AAJBF7-G2ZDFT-AIIUEE-KBHEIR-NHV74X-PKLM6G-JJM6ZC-BIKJEX-VDWBZP-ZYJ4IB');
   });
 
@@ -82,7 +82,7 @@ describe('PublicationData', () => {
         PUBLICATION_DATA_CONSTANTS.PublicationHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
     ]);
 
@@ -109,7 +109,7 @@ describe('PublicationData', () => {
         PUBLICATION_DATA_CONSTANTS.PublicationHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
     ]);
 
@@ -125,13 +125,13 @@ describe('PublicationData', () => {
         PUBLICATION_DATA_CONSTANTS.PublicationHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
       ImprintTag.CREATE(
         PUBLICATION_DATA_CONSTANTS.PublicationHashTagType,
         false,
         false,
-        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+        DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
       ),
     ]);
 

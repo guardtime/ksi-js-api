@@ -48,7 +48,7 @@ export class PublicationsFileExtendedSignatureInputHashRule extends Verification
     }
 
     const publicationRecord: PublicationRecord | null = publicationsFile.getNearestPublicationRecord(
-      signature.getAggregationTime()
+      signature.getAggregationTime(),
     );
     if (publicationRecord == null) {
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());

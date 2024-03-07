@@ -45,16 +45,16 @@ export class CalendarBasedVerificationPolicy extends VerificationPolicy {
             new SignaturePublicationRecordExistenceRule() // Gen-02
               .onSuccess(
                 new ExtendedSignatureCalendarChainRootHashRule() // Cal-01
-                  .onSuccess(verificationRule)
+                  .onSuccess(verificationRule),
               )
               .onNa(
                 new ExtendedSignatureCalendarHashChainRightLinksMatchRule() // Cal-4
-                  .onSuccess(verificationRule)
-              )
+                  .onSuccess(verificationRule),
+              ),
           )
-          .onNa(verificationRule)
+          .onNa(verificationRule),
       ),
-      'CalendarBasedVerificationPolicy'
+      'CalendarBasedVerificationPolicy',
     );
   }
 }

@@ -38,7 +38,7 @@
         ),
         new KSI.PublicationsFileService(
             new KSI.PublicationsFileServiceProtocol(CONFIG.PUBLICATIONS_FILE_URL),
-            new KSI.PublicationsFileFactory()
+            new KSI.PublicationsFileFactory(new KSI.BrowserSpkiFactory())
         ));
 
     service.getPublicationsFile().then((pubfile) => {
@@ -64,7 +64,7 @@
         }
         console.log(`PublicationsFile: ${publicationsFile}`);
 
-        const policy = new KSI.DefaultVerificationPolicy();
+        const policy = new KSI.DefaultVerificationPolicy(new KSI.BrowserSpkiFactory());
         const context = new KSI.VerificationContext(signature);
         context.setPublicationsFile(publicationsFile);
         context.setExtendingAllowed(false);

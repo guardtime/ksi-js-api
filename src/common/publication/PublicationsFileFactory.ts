@@ -18,29 +18,37 @@
  */
 
 import * as ArrayUtils from '@guardtime/common/lib/utils/Array.js';
-import { CMSVerification } from '@guardtime/common/lib/crypto/CMSVerification.js';
+import { SignedDataVerifier } from '@guardtime/common/lib/crypto/pkcs7/SignedDataVerifier.js';
+import { ResultCode } from '@guardtime/common/lib/verification/Result.js';
+import { SpkiFactory } from '@guardtime/common/lib/crypto/pkcs7/SpkiFactory.js';
+import { Pkcs7Envelope } from '@guardtime/common/lib/crypto/pkcs7/Pkcs7Envelope.js';
 import { RawTag } from '../parser/RawTag.js';
 import { PublicationsFile } from './PublicationsFile.js';
 import { PublicationsFileError } from './PublicationsFileError.js';
 import { PUBLICATIONS_FILE_SIGNATURE_CONSTANTS } from '../Constants.js';
+import { Pkcs7ContentType, Pkcs7EnvelopeVerifier } from '@guardtime/common/lib/crypto/pkcs7/Pkcs7EnvelopeVerifier.js';
 
 /**
  * Publications file factory for publications file creation from byte array.
  */
 export class PublicationsFileFactory {
-  private readonly trustedCertificates: string;
+  private readonly trustedCertificate: Uint8Array;
   private readonly signatueSubjectToVerify: string;
+  private readonly spkiFactory: SpkiFactory;
 
   /**
    * Publications file factory constructor.
-   * @param trustedCertificates Trusted certificates, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#TrustedCertificates}.
+   * @param spkiFactory Public key factory to create key from SPKI
+   * @param trustedCertificate Trusted certificate, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#TrustedCertificates}.
    * @param signatureSubjectToVerify Subject string to verify, defaults to {@see PUBLICATIONS_FILE_SIGNATURE_CONSTANTS#GuardtimeSignatureSubjectEmail}.
    */
   public constructor(
-    trustedCertificates: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificates,
-    signatureSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail
+    spkiFactory: SpkiFactory,
+    trustedCertificate: Uint8Array = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.TrustedCertificate,
+    signatureSubjectToVerify: string = PUBLICATIONS_FILE_SIGNATURE_CONSTANTS.GuardtimeSignatureSubjectEmail,
   ) {
-    this.trustedCertificates = trustedCertificates;
+    this.spkiFactory = spkiFactory;
+    this.trustedCertificate = trustedCertificate;
     this.signatueSubjectToVerify = signatureSubjectToVerify;
   }
 
@@ -49,7 +57,7 @@ export class PublicationsFileFactory {
    * @param publicationFileBytes Publications file bytes.
    * @returns Publications file.
    */
-  public create(publicationFileBytes: Uint8Array): PublicationsFile {
+  public async create(publicationFileBytes: Uint8Array): Promise<PublicationsFile> {
     const beginningMagicBytes: Uint8Array = PublicationsFile.FileBeginningMagicBytes;
     if (
       !ArrayUtils.compareUint8Arrays(publicationFileBytes.slice(0, beginningMagicBytes.length), beginningMagicBytes)
@@ -58,17 +66,20 @@ export class PublicationsFileFactory {
     }
 
     const pubFile = new PublicationsFile(
-      RawTag.CREATE(0x0, false, false, publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length))
+      RawTag.CREATE(0x0, false, false, publicationFileBytes.slice(PublicationsFile.FileBeginningMagicBytes.length)),
     );
 
-    const verified = CMSVerification.verifyFromBytes(
-      pubFile.getSignatureValue(),
-      pubFile.getSignedBytes(),
-      [this.trustedCertificates],
-      this.signatueSubjectToVerify
+    const signedData = Pkcs7Envelope.createFromBytes(pubFile.getSignatureValue());
+
+    const verifier = new Pkcs7EnvelopeVerifier();
+    verifier.registerVerifier(
+      Pkcs7ContentType.SIGNED_DATA,
+      new SignedDataVerifier(this.spkiFactory, this.trustedCertificate, this.signatueSubjectToVerify),
     );
 
-    if (!verified) {
+    const result = await verifier.verify(signedData, pubFile.getSignedBytes());
+
+    if (result.getResultCode() !== ResultCode.OK) {
       throw new PublicationsFileError('The signature on the publications file is not valid.');
     }
 

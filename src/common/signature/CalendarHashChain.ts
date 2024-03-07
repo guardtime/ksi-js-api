@@ -188,7 +188,7 @@ export class CalendarHashChain extends CompositeTag {
         inputHash = await CalendarHashChain.getStepHash(
           siblingHash.hashAlgorithm,
           inputHash.imprint,
-          siblingHash.imprint
+          siblingHash.imprint,
         );
       }
 
@@ -196,7 +196,7 @@ export class CalendarHashChain extends CompositeTag {
         inputHash = await CalendarHashChain.getStepHash(
           inputHash.hashAlgorithm,
           siblingHash.imprint,
-          inputHash.imprint
+          inputHash.imprint,
         );
       }
     }

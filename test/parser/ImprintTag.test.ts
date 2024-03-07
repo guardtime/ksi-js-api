@@ -42,7 +42,7 @@ describe('ImprintTag', () => {
       0x1,
       true,
       true,
-      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
     );
 
     expect(objectTag.id).toEqual(0x1);
@@ -56,15 +56,15 @@ describe('ImprintTag', () => {
       0x1,
       true,
       true,
-      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
     );
 
     expect(objectTag.toString()).toEqual(
-      'TLV[0x1,N,F]:010000000000000000000000000000000000000000000000000000000000000000'
+      'TLV[0x1,N,F]:010000000000000000000000000000000000000000000000000000000000000000',
     );
     objectTag = ImprintTag.CREATE(0x20, false, false, DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)));
     expect(objectTag.toString()).toEqual(
-      'TLV[0x20]:010000000000000000000000000000000000000000000000000000000000000000'
+      'TLV[0x20]:010000000000000000000000000000000000000000000000000000000000000000',
     );
   });
 
@@ -73,7 +73,7 @@ describe('ImprintTag', () => {
       0x1,
       true,
       true,
-      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32))
+      DataHash.create(HashAlgorithm.SHA2_256, new Uint8Array(32)),
     );
 
     expect(() => {

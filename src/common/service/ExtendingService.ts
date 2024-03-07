@@ -47,7 +47,7 @@ export class ExtendingService {
    */
   public constructor(
     extendingServiceProtocol: IExtendingServiceProtocol,
-    extendingServiceCredentials: IServiceCredentials
+    extendingServiceCredentials: IServiceCredentials,
   ) {
     this.extendingServiceProtocol = extendingServiceProtocol;
     this.extendingServiceCredentials = extendingServiceCredentials;
@@ -61,7 +61,7 @@ export class ExtendingService {
   private static processPayload(payload: ExtendResponsePayload): CalendarHashChain {
     if (payload.getStatus().neq(0)) {
       throw new KsiServiceError(
-        `Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`
+        `Server responded with error message. Status: ${payload.getStatus()}; Message: ${payload.getErrorMessage()}.`,
       );
     }
 
@@ -76,20 +76,20 @@ export class ExtendingService {
    */
   public async extend(
     aggregationTime: BigInteger,
-    publicationTime: BigInteger | null = null
+    publicationTime: BigInteger | null = null,
   ): Promise<CalendarHashChain> {
     const header: PduHeader = PduHeader.CREATE_FROM_LOGIN_ID(this.extendingServiceCredentials.getLoginId());
     const requestId: BigInteger = this.generateRequestId();
     const requestPayload: ExtendRequestPayload = ExtendRequestPayload.CREATE(
       requestId,
       aggregationTime,
-      publicationTime
+      publicationTime,
     );
     const requestPdu: ExtendRequestPdu = await ExtendRequestPdu.CREATE(
       header,
       requestPayload,
       this.extendingServiceCredentials.getHmacAlgorithm(),
-      this.extendingServiceCredentials.getLoginKey()
+      this.extendingServiceCredentials.getLoginKey(),
     );
 
     const ksiRequest: KsiRequestBase = this.extendingServiceProtocol.extend(requestPdu.encode());
@@ -108,7 +108,7 @@ export class ExtendingService {
     if (
       !(await responsePdu.verifyHmac(
         this.extendingServiceCredentials.getHmacAlgorithm(),
-        this.extendingServiceCredentials.getLoginKey()
+        this.extendingServiceCredentials.getLoginKey(),
       ))
     ) {
       throw new KsiServiceError(`Response HMAC is not correct.`);
@@ -121,7 +121,7 @@ export class ExtendingService {
       }
 
       throw new KsiServiceError(
-        `Server responded with error message. Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`
+        `Server responded with error message. Status: ${errorPayload.getStatus()}; Message: ${errorPayload.getErrorMessage()}.`,
       );
     }
 

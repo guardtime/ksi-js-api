@@ -47,10 +47,10 @@ export class UserProvidedPublicationBasedVerificationPolicy extends Verification
                 new UserProvidedPublicationHashMatchesExtendedResponseRule() // Pub-01
                   .onSuccess(
                     new UserProvidedPublicationTimeMatchesExtendedResponseRule() // Pub-02
-                      .onSuccess(new UserProvidedPublicationExtendedSignatureInputHashRule())
-                  )
-              )
-          )
+                      .onSuccess(new UserProvidedPublicationExtendedSignatureInputHashRule()),
+                  ),
+              ),
+          ),
       );
 
     super(
@@ -60,11 +60,11 @@ export class UserProvidedPublicationBasedVerificationPolicy extends Verification
             .onSuccess(
               new UserProvidedPublicationVerificationRule() // Pub-04, Gen-02
                 .onSuccess(new CalendarHashChainAlgorithmDeprecatedRule()) // Gen-02
-                .onNa(verificationRule)
+                .onNa(verificationRule),
             )
-            .onNa(verificationRule)
+            .onNa(verificationRule),
         ),
-      'UserProvidedPublicationBasedVerificationPolicy'
+      'UserProvidedPublicationBasedVerificationPolicy',
     ); // Pub-03
   }
 }

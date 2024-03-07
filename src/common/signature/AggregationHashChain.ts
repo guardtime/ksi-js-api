@@ -300,7 +300,7 @@ export class AggregationHashChainLink extends CompositeTag {
       1
     ) {
       throw new TlvError(
-        'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.'
+        'Exactly one of three from sibling hash, legacy ID or metadata must exist in aggregation hash chain link.',
       );
     }
   }

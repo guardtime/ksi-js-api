@@ -18,7 +18,6 @@
  */
 
 import { ResultCode as VerificationResultCode } from '@guardtime/common/lib/verification/Result.js';
-import { X509 } from '@guardtime/common/lib/crypto/X509.js';
 import { CertificateRecord } from '../../../publication/CertificateRecord.js';
 import { PublicationsFile } from '../../../publication/PublicationsFile.js';
 import { CalendarAuthenticationRecord } from '../../CalendarAuthenticationRecord.js';
@@ -28,6 +27,10 @@ import { VerificationContext } from '../VerificationContext.js';
 import { VerificationError } from '../VerificationError.js';
 import { VerificationResult } from '../VerificationResult.js';
 import { VerificationRule } from '../VerificationRule.js';
+import { Asn1Object } from '@guardtime/common/lib/asn1/Asn1Object.js';
+import { Certificate } from '@guardtime/common/lib/crypto/pkcs7/Certificate.js';
+import { SpkiFactory } from '@guardtime/common/lib/crypto/pkcs7/SpkiFactory.js';
+import { DigestAlgorithm } from '@guardtime/common/lib/crypto/pkcs7/DigestAlgorithm.js';
 
 /**
  * Rule validates calendar authentication record signature. Signature is made from calendar authentication record
@@ -35,8 +38,15 @@ import { VerificationRule } from '../VerificationRule.js';
  * signature in calendar authentication record.
  */
 export class CalendarAuthenticationRecordSignatureVerificationRule extends VerificationRule {
-  public constructor() {
+  private readonly spkiFactory: SpkiFactory;
+
+  /**
+   * Rule constructor
+   * @param spkiFactory Public key factory to create key from SPKI
+   */
+  public constructor(spkiFactory: SpkiFactory) {
     super('CalendarAuthenticationRecordSignatureVerificationRule');
+    this.spkiFactory = spkiFactory;
   }
 
   /**
@@ -69,20 +79,28 @@ export class CalendarAuthenticationRecordSignatureVerificationRule extends Verif
     }
 
     const certificateRecord: CertificateRecord | null = publicationsFile.findCertificateById(
-      signatureData.getCertificateId()
+      signatureData.getCertificateId(),
     );
 
     if (certificateRecord === null) {
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());
     }
 
-    if (!X509.isCertificateValidDuring(certificateRecord.getX509Certificate(), signature.getAggregationTime())) {
+    const certificate = new Certificate(Asn1Object.createFromBytes(certificateRecord.getX509Certificate()));
+    if (!certificate.isValidAtUnixTime(signature.getAggregationTime().toJSNumber())) {
       return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.KEY_03());
     }
 
     const signedBytes: Uint8Array = calendarAuthenticationRecord.getPublicationData().encode();
+    const publicKey = await this.spkiFactory.create(certificate.getSubjectPublicKeyInfo());
     try {
-      if (X509.verify(certificateRecord.getX509Certificate(), signedBytes, signatureData.getSignatureValue())) {
+      if (
+        await publicKey.verifySignature(
+          DigestAlgorithm.getDigestAlgorithm(certificate.signatureAlgorithm),
+          signedBytes,
+          signatureData.getSignatureValue(),
+        )
+      ) {
         return new VerificationResult(this.getRuleName(), VerificationResultCode.OK);
       }
     } catch (error) {

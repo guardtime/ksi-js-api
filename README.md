@@ -6,12 +6,9 @@ The KSI JavaScript SDK is a software development kit for developers who want to 
 
 ## Installation
 
-If using NodeJS 14 then ```--experimental-abortcontroller``` flag must be turned on. 
-AbortController is available from version 15.
-
 ### In the Browser
 
-To use the SDK in the browser, add the following `<script>` tag to your HTML pages:
+To use the SDK in the browser you need the main.js from dist folder, add the following `<script>` tag to your HTML pages:
 
 ```html
 <script src="dist/main.js"></script>
@@ -21,7 +18,16 @@ To use the SDK in the browser, add the following `<script>` tag to your HTML pag
 
 To install the SDK for Node.js, use [npm](http://npmjs.org) package manager:
 ```shell
-npm install "@guardtime/ksi-js-api"
+npm install @guardtime/ksi-js-api
+```
+
+### Installing it for using as a library
+
+To use it as a library it is possible to import files from `lib/` folder.
+For that you need following peer dependencies.
+
+```shell
+npm install @guardtime/common big-integer
 ```
 
 ## Usage
@@ -44,7 +50,7 @@ const service = new KSI.KsiService(
     ),
     new KSI.PublicationsFileService(
         new KSI.PublicationsFileServiceProtocol(CONFIG.PUBLICATIONS_FILE_URL),
-        new KSI.PublicationsFileFactory()
+        new KSI.PublicationsFileFactory(new KSI.BrowserSpkiFactory())
     ));
 
 service.sign(KSI.DataHash.create(KSI.HashAlgorithm.SHA2_256, new Uint8Array(32)))
@@ -70,7 +76,7 @@ fs.readFile('../web/sig.ksig', (_, data) => {
     service.getPublicationsFile().then((publicationsFile) => {
         console.log(publicationsFile);
 
-        const policy = new KSI.DefaultVerificationPolicy();
+        const policy = new KSI.DefaultVerificationPolicy(new KSI.BrowserSpkiFactory());
         const context = new KSI.VerificationContext(signature);
         context.setPublicationsFile(publicationsFile);
         context.setExtendingAllowed(false);

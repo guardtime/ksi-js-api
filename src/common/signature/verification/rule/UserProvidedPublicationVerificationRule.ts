@@ -53,7 +53,7 @@ export class UserProvidedPublicationVerificationRule extends VerificationRule {
 
     if (userPublication.getPublicationTime().neq(publicationRecord.getPublicationTime())) {
       console.debug(
-        `User provided publication time does not equal to signature publication time. User provided publication time: ${userPublication.getPublicationTime()}; Signature publication time: ${publicationRecord.getPublicationTime()}.`
+        `User provided publication time does not equal to signature publication time. User provided publication time: ${userPublication.getPublicationTime()}; Signature publication time: ${publicationRecord.getPublicationTime()}.`,
       );
 
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());

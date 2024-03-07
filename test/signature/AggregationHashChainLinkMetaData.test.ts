@@ -41,13 +41,13 @@ describe('AggregationHashChainLinkMetaData', () => {
           AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingTagType,
           false,
           false,
-          AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd
+          AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd,
         ),
         StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client'),
         StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-      ]
+      ],
     );
 
     const metaData: AggregationHashChainLinkMetaData = new AggregationHashChainLinkMetaData(tlvTag);
@@ -56,7 +56,7 @@ describe('AggregationHashChainLinkMetaData', () => {
     expect(metaData.getSequenceNumber()).toEqual(bigInteger(0));
     expect(metaData.getRequestTime()).toEqual(bigInteger(1000));
     expect((metaData.getPaddingTag() as RawTag).getValue()).toEqual(
-      AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd
+      AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd,
     );
   });
 
@@ -65,7 +65,7 @@ describe('AggregationHashChainLinkMetaData', () => {
       AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.TagType,
       false,
       false,
-      [StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')]
+      [StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client')],
     );
 
     const metaData: AggregationHashChainLinkMetaData = new AggregationHashChainLinkMetaData(tlvTag);
@@ -85,7 +85,7 @@ describe('AggregationHashChainLinkMetaData', () => {
         StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine'),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
-      ]
+      ],
     );
 
     expect(() => {
@@ -104,7 +104,7 @@ describe('AggregationHashChainLinkMetaData', () => {
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
         StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.ClientIdTagType, false, false, 'test_client1'),
-      ]
+      ],
     );
 
     expect(() => {
@@ -123,7 +123,7 @@ describe('AggregationHashChainLinkMetaData', () => {
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
         StringTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.MachineIdTagType, false, false, 'test_machine1'),
-      ]
+      ],
     );
 
     expect(() => {
@@ -142,7 +142,7 @@ describe('AggregationHashChainLinkMetaData', () => {
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(1)),
-      ]
+      ],
     );
 
     expect(() => {
@@ -161,7 +161,7 @@ describe('AggregationHashChainLinkMetaData', () => {
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.SequenceNumberTagType, false, false, bigInteger(0)),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1000)),
         IntegerTag.CREATE(AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.RequestTimeTagType, false, false, bigInteger(1)),
-      ]
+      ],
     );
 
     expect(() => {

@@ -53,7 +53,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
           !ArrayUtils.compareArrayEquals(parentChainIndex.slice(0, chainIndex.length), chainIndex))
       ) {
         console.debug(
-          `Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}.`
+          `Chain index is not the successor to the parent aggregation hash chain index. Chain index: ${chainIndex}; Parent chain index: ${parentChainIndex}.`,
         );
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12());
@@ -66,7 +66,7 @@ export class AggregationHashChainIndexSuccessorRule extends VerificationRule {
       console.debug(
         `Highest aggregation hash chain index length is not 1. Chain index: ${aggregationHashChains[
           aggregationHashChains.length - 1
-        ].getChainIndex()}.`
+        ].getChainIndex()}.`,
       );
 
       return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12());

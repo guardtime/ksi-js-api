@@ -48,7 +48,7 @@ describe('TlvInputStream', () => {
 
   it('Read 16bit length TLV ', () => {
     const stream: TlvInputStream = new TlvInputStream(
-      HexCoder.decode(`8001010001${HexCoder.encode(new Uint8Array(255))}`)
+      HexCoder.decode(`8001010001${HexCoder.encode(new Uint8Array(255))}`),
     );
     const tlvTag: TlvTag = stream.readTag();
     expect(tlvTag.id).toEqual(1);
@@ -61,7 +61,7 @@ describe('TlvInputStream', () => {
 
   it('Read 16bit length TLV ', () => {
     const stream: TlvInputStream = new TlvInputStream(
-      HexCoder.decode(`8001010001${HexCoder.encode(new Uint8Array(255))}`)
+      HexCoder.decode(`8001010001${HexCoder.encode(new Uint8Array(255))}`),
     );
     const tlvTag: TlvTag = stream.readTag();
     expect(tlvTag.id).toEqual(1);
@@ -74,7 +74,7 @@ describe('TlvInputStream', () => {
 
   it('Read 16bit length TLV ', () => {
     const stream: TlvInputStream = new TlvInputStream(
-      HexCoder.decode(`8001010001${HexCoder.encode(new Uint8Array(255))}`)
+      HexCoder.decode(`8001010001${HexCoder.encode(new Uint8Array(255))}`),
     );
     const tlvTag: TlvTag = stream.readTag();
     expect(tlvTag.id).toEqual(1);

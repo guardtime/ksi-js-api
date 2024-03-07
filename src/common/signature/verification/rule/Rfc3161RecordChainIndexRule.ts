@@ -57,8 +57,8 @@ export class Rfc3161RecordChainIndexRule extends VerificationRule {
     if (!ArrayUtils.compareArrayEquals(rfc3161ChainIndex, aggregationChainIndex)) {
       console.debug(
         `Aggregation hash chain index and RFC3161 chain index mismatch. Aggregation chain index ${JSON.stringify(
-          rfc3161ChainIndex
-        )} and RFC3161 chain index is ${JSON.stringify(aggregationChainIndex)}.`
+          rfc3161ChainIndex,
+        )} and RFC3161 chain index is ${JSON.stringify(aggregationChainIndex)}.`,
       );
 
       return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_12());

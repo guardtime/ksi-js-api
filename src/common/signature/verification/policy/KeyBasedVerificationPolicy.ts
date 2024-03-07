@@ -24,6 +24,7 @@ import { CalendarHashChainExistenceRule } from '../rule/CalendarHashChainExisten
 import { CertificateExistenceRule } from '../rule/CertificateExistenceRule.js';
 import { InternalVerificationPolicy } from './InternalVerificationPolicy.js';
 import { VerificationPolicy } from './VerificationPolicy.js';
+import { SpkiFactory } from '@guardtime/common/lib/crypto/pkcs7/SpkiFactory.js';
 
 /**
  * Policy for verifying KSI signature with PKI.
@@ -31,15 +32,18 @@ import { VerificationPolicy } from './VerificationPolicy.js';
 export class KeyBasedVerificationPolicy extends VerificationPolicy {
   /**
    * Key based verification policy constructor.
+   * @param spkiFactory Public key factory to create key from SPKI
    */
-  public constructor() {
+  public constructor(spkiFactory: SpkiFactory) {
     super(
-      new InternalVerificationPolicy().onSuccess(KeyBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY()),
-      'KeyBasedVerificationPolicy'
+      new InternalVerificationPolicy().onSuccess(
+        KeyBasedVerificationPolicy.CREATE_POLICY_WO_INTERNAL_POLICY(spkiFactory),
+      ),
+      'KeyBasedVerificationPolicy',
     );
   }
 
-  public static CREATE_POLICY_WO_INTERNAL_POLICY(): VerificationPolicy {
+  public static CREATE_POLICY_WO_INTERNAL_POLICY(spkiFactory: SpkiFactory): VerificationPolicy {
     return new VerificationPolicy(
       new CalendarHashChainExistenceRule() // Gen-02
         .onSuccess(
@@ -48,11 +52,11 @@ export class KeyBasedVerificationPolicy extends VerificationPolicy {
               new CalendarAuthenticationRecordExistenceRule() // Gen-02
                 .onSuccess(
                   new CertificateExistenceRule() // Gen-02
-                    .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule())
-                )
-            )
+                    .onSuccess(new CalendarAuthenticationRecordSignatureVerificationRule(spkiFactory)),
+                ),
+            ),
         ),
-      'KeyBasedVerificationPolicy'
+      'KeyBasedVerificationPolicy',
     );
   }
 }

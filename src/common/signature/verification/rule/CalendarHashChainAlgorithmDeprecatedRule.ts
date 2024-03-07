@@ -54,7 +54,7 @@ export class CalendarHashChainAlgorithmDeprecatedRule extends VerificationRule {
       console.debug(
         `Calendar hash chain contains deprecated aggregation algorithm at publication time. Algorithm: ${
           deprecatedLink.getValue().hashAlgorithm.name
-        }; Publication time: ${calendarHashChain.getPublicationTime()}.`
+        }; Publication time: ${calendarHashChain.getPublicationTime()}.`,
       );
 
       return new VerificationResult(this.getRuleName(), VerificationResultCode.NA, VerificationError.GEN_02());

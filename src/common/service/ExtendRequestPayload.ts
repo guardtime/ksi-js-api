@@ -56,7 +56,7 @@ export class ExtendRequestPayload extends PduPayload {
   public static CREATE(
     requestId: BigInteger,
     aggregationTime: BigInteger,
-    publicationTime: BigInteger | null = null
+    publicationTime: BigInteger | null = null,
   ): ExtendRequestPayload {
     const childTlv: TlvTag[] = [
       IntegerTag.CREATE(PDU_PAYLOAD_CONSTANTS.RequestIdTagType, false, false, requestId),
@@ -65,12 +65,12 @@ export class ExtendRequestPayload extends PduPayload {
 
     if (publicationTime !== null) {
       childTlv.push(
-        IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType, false, false, publicationTime)
+        IntegerTag.CREATE(EXTEND_REQUEST_PAYLOAD_CONSTANTS.PublicationTimeTagType, false, false, publicationTime),
       );
     }
 
     return new ExtendRequestPayload(
-      CompositeTag.CREATE_FROM_LIST(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv)
+      CompositeTag.CREATE_FROM_LIST(EXTEND_REQUEST_PAYLOAD_CONSTANTS.TagType, false, false, childTlv),
     );
   }
 

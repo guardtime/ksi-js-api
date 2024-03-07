@@ -67,26 +67,26 @@ export class InternalVerificationPolicy extends VerificationPolicy {
                   new CalendarAuthenticationRecordExistenceRule() // Gen-02
                     .onSuccess(
                       new CalendarAuthenticationRecordPublicationTimeRule() // Int-06
-                        .onSuccess(new CalendarAuthenticationRecordAggregationHashRule())
+                        .onSuccess(new CalendarAuthenticationRecordAggregationHashRule()),
                     )
                     // No calendar auth record. Verify publication record.
                     .onNa(
                       new SignaturePublicationRecordExistenceRule() // Gen-02
                         .onSuccess(
                           new SignaturePublicationRecordPublicationTimeRule() // Int-07
-                            .onSuccess(new SignaturePublicationRecordPublicationHashRule())
+                            .onSuccess(new SignaturePublicationRecordPublicationHashRule()),
                         ) // Int-09
                         // No publication record
-                        .onNa(new SuccessResultRule())
-                    )
-                )
+                        .onNa(new SuccessResultRule()),
+                    ),
+                ),
               )
               // No calendar hash chain
-              .onNa(new SuccessResultRule())
-          )
-        )
+              .onNa(new SuccessResultRule()),
+          ),
+        ),
       ),
-      'InternalVerificationPolicy'
+      'InternalVerificationPolicy',
     );
   }
 
@@ -101,10 +101,10 @@ export class InternalVerificationPolicy extends VerificationPolicy {
           new DocumentHashVerificationRule() // Gen-01
             .onSuccess(
               new DocumentHashLevelVerificationRule() // Gen-03
-                .onSuccess(new InputHashAlgorithmDeprecatedRule())
-            )
+                .onSuccess(new InputHashAlgorithmDeprecatedRule()),
+            ),
         ),
-      'Verify Input'
+      'Verify Input',
     ); // Int-13)
   }
 
@@ -121,11 +121,11 @@ export class InternalVerificationPolicy extends VerificationPolicy {
               new Rfc3161RecordChainIndexRule() // Int-12
                 .onSuccess(
                   new Rfc3161RecordOutputHashVerificationRule() // Int-01
-                    .onSuccess(new Rfc3161RecordAggregationTimeRule())
-                )
-            )
+                    .onSuccess(new Rfc3161RecordAggregationTimeRule()),
+                ),
+            ),
         ),
-      'Verify Rfc3161'
+      'Verify Rfc3161',
     ); // Int-02
   }
 
@@ -144,12 +144,12 @@ export class InternalVerificationPolicy extends VerificationPolicy {
                   new AggregationHashChainConsistencyRule() // Int-01
                     .onSuccess(
                       new AggregationHashChainTimeConsistencyRule() // Int-02
-                        .onSuccess(new AggregationHashChainShapeRule())
-                    )
-                )
-            )
+                        .onSuccess(new AggregationHashChainShapeRule()),
+                    ),
+                ),
+            ),
         ),
-      'Verify aggregation hash chain'
+      'Verify aggregation hash chain',
     ); // Int-10
   }
 
@@ -164,10 +164,10 @@ export class InternalVerificationPolicy extends VerificationPolicy {
           new CalendarHashChainAggregationTimeRule() // Int-04
             .onSuccess(
               new CalendarHashChainRegistrationTimeRule() // Int-05
-                .onSuccess(new CalendarHashChainAlgorithmObsoleteRule())
-            )
+                .onSuccess(new CalendarHashChainAlgorithmObsoleteRule()),
+            ),
         ),
-      'Verify calendar hash chain'
+      'Verify calendar hash chain',
     ); // Int-16 // Int-10
   }
 }

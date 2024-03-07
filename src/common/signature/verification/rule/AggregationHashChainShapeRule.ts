@@ -50,7 +50,7 @@ export class AggregationHashChainShapeRule extends VerificationRule {
 
       if (!lastIndexValue.eq(calculatedValue)) {
         console.debug(
-          `The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: ${calculatedValue}; Value in chain: ${lastIndexValue}.`
+          `The shape of the aggregation hash chain does not match with the chain index. Calculated location pointer: ${calculatedValue}; Value in chain: ${lastIndexValue}.`,
         );
 
         return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_10());

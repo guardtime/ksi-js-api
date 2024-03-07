@@ -76,7 +76,7 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
         } else {
           if (metadata.value.indexOf(paddingTag) !== 0) {
             console.debug(
-              `Metadata with padding may not be trusted. Padding is not the first element. Metadata: ${metadata}.`
+              `Metadata with padding may not be trusted. Padding is not the first element. Metadata: ${metadata}.`,
             );
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11());
@@ -90,7 +90,7 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
 
           if (!paddingTag.nonCriticalFlag || !paddingTag.forwardFlag) {
             console.debug(
-              `Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: ${metadata}.`
+              `Metadata with padding may not be trusted. Non-critical and forward flags must be set. Metadata: ${metadata}.`,
             );
 
             return new VerificationResult(this.getRuleName(), VerificationResultCode.FAIL, VerificationError.INT_11());
@@ -99,11 +99,11 @@ export class AggregationHashChainMetadataRule extends VerificationRule {
           if (
             !ArrayUtils.compareUint8Arrays(
               paddingTag.getValueBytes(),
-              AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven
+              AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueEven,
             ) &&
             !ArrayUtils.compareUint8Arrays(
               paddingTag.getValueBytes(),
-              AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd
+              AGGREGATION_HASH_CHAIN_CONSTANTS.METADATA.PaddingKnownValueOdd,
             )
           ) {
             console.debug(`Metadata with padding may not be trusted. Unknown padding value. Metadata: ${metadata}.`);

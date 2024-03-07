@@ -34,7 +34,7 @@ export class PublicationsFileService {
    */
   public constructor(
     publicationsFileServiceProtocol: IPublicationsFileServiceProtocol,
-    publicationsFileFactory: PublicationsFileFactory
+    publicationsFileFactory: PublicationsFileFactory,
   ) {
     this.publicationsFileServiceProtocol = publicationsFileServiceProtocol;
     this.publicationsFileFactory = publicationsFileFactory;
