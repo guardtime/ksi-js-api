@@ -71,7 +71,7 @@
     "prettier": "^3.2.5",
     "typedoc": "^0.25.9",
     "typescript": "^5.3.3",
-    "webpack": "^5.90.3",
+    "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4",
     "@guardtime/common": "2.0.0-rc.cccb0c2"
   },
